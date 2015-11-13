@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/nav_home" android:icon="@android:drawable/ic_menu_camera"
+            android:title="Home" />
+        <item android:id="@+id/nav_sensors" android:icon="@android:drawable/ic_menu_gallery"
+            android:title="Sensor Data" />
+        <item android:id="@+id/nav_sensorlist" android:icon="@android:drawable/ic_menu_gallery"
+            android:title="List of Sensors" />
+        <!--
+        <item android:id="@+id/nav_weather" android:icon="@android:drawable/ic_menu_slideshow"
+            android:title="Your Location" />
+        <item android:id="@+id/nav_history" android:icon="@android:drawable/ic_menu_manage"
+            android:title="History" />
+            -->
+    </group>
+    <!--
+    <item android:title="Communicate">
+        <menu>
+
+            <item android:id="@+id/nav_gps" android:icon="@android:drawable/ic_menu_share"
+                android:title="GPS Data" />
+            <item android:id="@+id/nav_send" android:icon="@android:drawable/ic_menu_send"
+                android:title="Send Data" />
+        </menu>
+    </item>
+    -->
+                <!--
+               <item android:id="@+id/nav_share" android:icon="@android:drawable/ic_menu_share"
+                   android:title="Share" />
+               -->
+
+</menu>
+
