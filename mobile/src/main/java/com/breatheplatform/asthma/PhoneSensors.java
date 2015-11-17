@@ -1,4 +1,4 @@
-package com.breatheplatform.common;
+package com.breatheplatform.asthma;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -23,7 +23,7 @@ import java.util.Locale;
  * Created by cbono on 11/10/15.
  */
 
-public class PhoneListener implements SensorEventListener {
+public class PhoneSensors implements SensorEventListener {
 
     /*
     This class will listen to device-specific (mobile) sensors and collect data for upload.
@@ -67,7 +67,7 @@ public class PhoneListener implements SensorEventListener {
 
     private Boolean listening;
 
-    public PhoneListener(Context ctx) {
+    public PhoneSensors(Context ctx) {
         mSensorManager = (SensorManager) ctx.getSystemService(Context.SENSOR_SERVICE);
         locationManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
 

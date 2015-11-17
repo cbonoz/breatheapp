@@ -29,7 +29,8 @@
     <string name="sensor_btn_text"> View Sensor Data</string>
     <string name="gps_btn_text"> View Map </string>
     <string name="dust_btn_text"> View Dust Data </string>
-    <string name="send_btn_text"> Send Sensor Data</string>
+    <string name="send_btn_text"> Send Garbage</string>
+    <string name="bt_btn_text">BT Connect</string>
 
     <string name="show_notification"> Show Notification </string>
     <string name="notification_title"> Breathe App Notification </string>

@@ -23,7 +23,12 @@ public class UploadService extends IntentService {
         //define endpoints for server
         //target url will be URL + SENSOR
 
-    private static final String BASE_URL = "https://breatheplatform.com/";
+    private static final String BASE_URL = "https://www.breatheplatform.com/";
+    private static final String MEAS_API = "/api/measurement/add";
+    private static final String GEO_MEAS_API = "/api/geomeasurement/add";
+
+    //not good practice, will hide this key later
+    private static final String API_KEY = "GWTgVdeNeVwsGqQHHhChfiPgDxxgXJzLoxUD0R64Gns";
     private static final String TEMP_EXT = "";//"temperature";
     /*
     private static final String GAE_ADD_MEASUREMENT = "https://smoke-cessation-ky.appspot.com/measurements/add";
@@ -36,6 +41,9 @@ public class UploadService extends IntentService {
 
     private Boolean upload;
 
+    //loading a json object will create a large amount of temporary data overhead if the app is not
+    // connected to the internet and the sensors are running. Going to use a file approach, where the
+    // server will process the files
     private JSONObject jsonObj;
 
     public UploadService() {
@@ -226,7 +234,7 @@ public class UploadService extends IntentService {
 
         try {
             String input = jsonObj.toString();
-            URL url = new URL(BASE_URL+TEMP_EXT);
+            URL url = new URL(BASE_URL+GEO_MEAS_API);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
@@ -248,8 +256,10 @@ public class UploadService extends IntentService {
 
             String output;
             System.out.println("Output from Server .... \n");
+            Log.d("output received","begin stream");
             while ((output = br.readLine()) != null) {
                 System.out.println(output);
+                Log.d("output",output);
             }
 
             conn.disconnect();

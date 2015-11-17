@@ -17,9 +17,9 @@
 package com.breatheplatform.asthma;
 
 import android.app.Activity;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
-import android.support.wearable.view.DelayedConfirmationView;
 import android.support.wearable.view.DismissOverlayView;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -29,28 +29,58 @@ import android.widget.Button;
 import android.widget.ScrollView;
 
 import com.breatheplatform.common.UploadService;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationListener;
+
 
 import org.json.JSONObject;
 
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
 public class MainActivity extends Activity
-        implements DelayedConfirmationView.DelayedConfirmationListener {
+
+        implements
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
+
+
+    GoogleApiClient googleClient;
+
     private static final String TAG = "MainActivity";
 
     private static final int NOTIFICATION_ID = 1;
     private static final int NOTIFICATION_REQUEST_CODE = 1;
     private static final int NUM_SECONDS = 5;
+    private static final int GARBAGE_SENSOR_ID = 2752;
+
+    private static double best_long;
+    private static double best_lat;
+    private static double best_accuracy;
 
     private GestureDetectorCompat mGestureDetector;
     private DismissOverlayView mDismissOverlayView;
     private Button btnSend;
 
     private UploadService uploader;
-    private WatchListener watchlistener;
+    //private WatchListener watchlistener;
+
+
 
     @Override
     public void onCreate(Bundle b) {
         super.onCreate(b);
         setContentView(R.layout.main_activity);
+        // Build a new GoogleApiClient
+        googleClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
 
         mDismissOverlayView = (DismissOverlayView) findViewById(R.id.dismiss_overlay);
         mDismissOverlayView.setIntroText(R.string.intro_text);
@@ -62,19 +92,111 @@ public class MainActivity extends Activity
             @Override
             public void onClick(View view) {
 
-                sendDataToServer();
+                //sendDataToServer();
+                testSendToServer();
             }
 
         });
 
     }
-
     public void sendDataToServer() {
 
-        JSONObject temp= watchlistener.getJson();
-        Log.d("sendDataToServer","");
+        JSONObject temp= new JSONObject();//).getJson();
+
+        Log.d("sendDataToServer",temp.toString());
         uploader.postJsonToServer(temp);
     }
+    /*
+    Measurement
+    value	float	False
+    timestamp	integer	False
+    timezone	string	True
+    subject_id	integer	True
+    sensor_id	integer	False
+    extra_data
+     */
+    public void testSendToServer() {
+
+        JSONObject temp= new JSONObject();//).getJson();
+        try {
+            temp.put("value", 5);
+            temp.put("timestamp", new Date());
+            temp.put("timezone", 1);
+            temp.put("subject_id",5);
+            temp.put("sensor_id", GARBAGE_SENSOR_ID);
+            temp.put("lat",best_lat);
+            temp.put("long",best_long);
+            temp.put("accuracy",best_accuracy);
+
+            //temp.put("extra_data", 5);
+
+            uploader.postJsonToServer(temp);
+        } catch (Exception e) {
+            Log.d("exception in testSend",e.toString());
+        }
+        Log.d("testSendToServer",temp.toString());
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        googleClient.connect();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+        // Display the latitude and longitude in the UI
+        //mTextView.setText("Latitude:  " + String.valueOf(location.getLatitude()) +
+          //      "\nLongitude:  " + String.valueOf(location.getLongitude()));
+        best_lat = location.getLatitude();
+        best_long = location.getLongitude();
+        best_accuracy = location.getAccuracy();
+
+        Log.d("onLocationChanged = Latitude",String.valueOf(best_lat));
+        Log.d("onLocationChanged = Longitude", String.valueOf(best_long));
+    }
+
+    // Register as a listener when connected
+    @Override
+    public void onConnected(Bundle connectionHint) {
+
+        // Create the LocationRequest object
+        LocationRequest locationRequest = LocationRequest.create();
+        // Use high accuracy
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        // Set the update interval to 2 seconds
+        locationRequest.setInterval(TimeUnit.SECONDS.toMillis(2));
+        // Set the fastest update interval to 2 seconds
+        locationRequest.setFastestInterval(TimeUnit.SECONDS.toMillis(2));
+        // Set the minimum displacement
+        locationRequest.setSmallestDisplacement(2);
+
+        // Register listener using the LocationRequest object
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleClient, locationRequest, this);
+    }
+
+    // Disconnect from Google Play Services when the Activity stops
+    @Override
+    protected void onStop() {
+
+        if (googleClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(googleClient, this);
+            googleClient.disconnect();
+        }
+        super.onStop();
+    }
+
+
+    // Placeholders for required connection callbacks
+    @Override
+    public void onConnectionSuspended(int cause) { }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) { }
+
+
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
@@ -92,9 +214,7 @@ public class MainActivity extends Activity
      * Handles the button to launch a notification.
      */
 
-    public void showSensorList(View view) {
 
-    }
     /*
     public void showNotification(View view) {
         Notification notification = new NotificationCompat.Builder(this)
@@ -121,29 +241,8 @@ public class MainActivity extends Activity
         finish();
     }
 
-    /**
-     * Handles the button to start a DelayedConfirmationView timer.
-     */
-    public void onStartTimer(View view) {
-        DelayedConfirmationView delayedConfirmationView = (DelayedConfirmationView)
-                findViewById(R.id.timer);
-        delayedConfirmationView.setTotalTimeMs(NUM_SECONDS * 1000);
-        delayedConfirmationView.setListener(this);
-        delayedConfirmationView.start();
-        scroll(View.FOCUS_DOWN);
-    }
 
-    @Override
-    public void onTimerFinished(View v) {
-        Log.d(TAG, "onTimerFinished is called.");
-        scroll(View.FOCUS_UP);
-    }
 
-    @Override
-    public void onTimerSelected(View v) {
-        Log.d(TAG, "onTimerSelected is called.");
-        scroll(View.FOCUS_UP);
-    }
 
     private void scroll(final int scrollDirection) {
         final ScrollView scrollView = (ScrollView) findViewById(R.id.scroll);

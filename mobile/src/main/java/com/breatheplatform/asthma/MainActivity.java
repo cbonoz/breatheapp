@@ -16,9 +16,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.breatheplatform.common.BTListener;
-import com.breatheplatform.common.LocListener;
-import com.breatheplatform.common.PhoneListener;
+import com.breatheplatform.asthma.fragments.HomeFragment;
+import com.breatheplatform.asthma.fragments.SensorFragment;
+import com.breatheplatform.common.BTDustSensor;
+import com.breatheplatform.common.LocationService;
 import com.breatheplatform.common.UploadService;
 import com.breatheplatform.common.User;
 
@@ -49,9 +50,9 @@ public class MainActivity extends AppCompatActivity
     private static final int DEFAULT_ID=5;
 
 
-    private PhoneListener phonelistener;
-    private BTListener btlistener;
-    private LocListener loclistener;
+    private PhoneSensors sensors;
+    private BTDustSensor dustSensor;
+    private LocationService locationService;
     //private WatchListenerCommon watchlistener;
 
     private UploadService uploader;
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity
     public void sendSensorData() {
         try {
             temp=new JSONObject();
-            temp.put("Data", phonelistener.getJson());
+            temp.put("Data", sensors.getJson());
             //temp.put("Data", btlistener.getJson());
             //temp.put("Data", loclistener.getJson());
             Log.d("sendSensorData",temp.toString());
@@ -91,9 +92,10 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        phonelistener =new PhoneListener(this);
-        btlistener = new BTListener(this);
-        loclistener=new LocListener(this);
+        sensors =new PhoneSensors(this);
+        dustSensor = new BTDustSensor();
+        locationService = new LocationService();
+
         //watchlistener = new WatchListenerCommon(this);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -159,18 +161,20 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
+        
 
-        Fragment fragment = new HelloFragment();
+        Fragment fragment = new HomeFragment();
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            fragment = new SensorFragment();
+            fragment = new HomeFragment();
         } else if (id == R.id.nav_sensors) {
             fragment = new SensorFragment();
-        } else if (id == R.id.nav_sensorlist) {
+        }
+        /* else if (id == R.id.nav_sensorlist) {
             fragment = new SensorListFragment();
         }
-        /*
+
         else if (id == R.id.nav_weather) {
 
         }
