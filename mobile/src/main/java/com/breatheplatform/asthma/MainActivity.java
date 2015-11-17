@@ -19,7 +19,6 @@ import android.view.View;
 import com.breatheplatform.asthma.fragments.HomeFragment;
 import com.breatheplatform.asthma.fragments.SensorFragment;
 import com.breatheplatform.common.BTDustSensor;
-import com.breatheplatform.common.LocationService;
 import com.breatheplatform.common.UploadService;
 import com.breatheplatform.common.User;
 

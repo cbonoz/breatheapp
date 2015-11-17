@@ -1,4 +1,4 @@
-package com.breatheplatform.common;
+package com.breatheplatform.asthma;
 
 import android.app.Service;
 import android.content.Context;
