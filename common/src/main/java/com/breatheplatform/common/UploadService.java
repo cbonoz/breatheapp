@@ -229,17 +229,16 @@ public class UploadService extends IntentService {
     }
     */
 
-    public void postJsonToServer(JSONObject jsonObj) {
+    public String postJsonToServer(JSONObject jsonObj) {
         Log.d("postJsonToServer called", jsonObj.toString());
-
+        StringBuilder stringBuilder = new StringBuilder();
         try {
             String input = jsonObj.toString();
-            URL url = new URL(BASE_URL+GEO_MEAS_API);
+            URL url = new URL(BASE_URL + GEO_MEAS_API + "&apiKey=" + API_KEY);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
-
 
 
             OutputStream os = conn.getOutputStream();
@@ -256,18 +255,25 @@ public class UploadService extends IntentService {
 
             String output;
             System.out.println("Output from Server .... \n");
-            Log.d("output received","begin stream");
-            while ((output = br.readLine()) != null) {
-                System.out.println(output);
-                Log.d("output",output);
-            }
+            Log.d("output received", "begin stream");
 
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                stringBuilder.append(line).append("\n");
+            }
+            br.close();
             conn.disconnect();
+
+
+
 
         } catch (Exception e) {
 
             e.printStackTrace();
 
         }
+        return stringBuilder.toString();
     }
+
 }

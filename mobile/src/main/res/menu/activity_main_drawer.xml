@@ -6,9 +6,10 @@
             android:title="Home" />
         <item android:id="@+id/nav_sensors" android:icon="@android:drawable/ic_menu_gallery"
             android:title="Sensor Data" />
+        <!--
         <item android:id="@+id/nav_sensorlist" android:icon="@android:drawable/ic_menu_gallery"
             android:title="List of Sensors" />
-        <!--
+
         <item android:id="@+id/nav_weather" android:icon="@android:drawable/ic_menu_slideshow"
             android:title="Your Location" />
         <item android:id="@+id/nav_history" android:icon="@android:drawable/ic_menu_manage"

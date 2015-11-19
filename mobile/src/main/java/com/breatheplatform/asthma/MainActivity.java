@@ -17,7 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.breatheplatform.asthma.fragments.HomeFragment;
-import com.breatheplatform.asthma.fragments.SensorFragment;
 import com.breatheplatform.common.BTDustSensor;
 import com.breatheplatform.common.UploadService;
 import com.breatheplatform.common.User;
@@ -49,7 +48,7 @@ public class MainActivity extends AppCompatActivity
     private static final int DEFAULT_ID=5;
 
 
-    private PhoneSensors sensors;
+    private PhoneSensorService sensors;
     private BTDustSensor dustSensor;
     private LocationService locationService;
     //private WatchListenerCommon watchlistener;
@@ -91,7 +90,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        sensors =new PhoneSensors(this);
+        sensors =new PhoneSensorService(this);
         dustSensor = new BTDustSensor();
         locationService = new LocationService();
 
@@ -116,7 +115,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        user = new User(DEFAULT_ID);
+        //user = new User(DEFAULT_ID);
 
         uploader = new UploadService();
 
@@ -162,16 +161,15 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         
 
-        Fragment fragment = new HomeFragment();
+        Fragment fragment = new Fragment();
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
             fragment = new HomeFragment();
-        } else if (id == R.id.nav_sensors) {
-            fragment = new SensorFragment();
         }
-        /* else if (id == R.id.nav_sensorlist) {
-            fragment = new SensorListFragment();
+
+        /*else if (id == R.id.nav_sensors) {
+            fragment = new SensorFragment();
         }
 
         else if (id == R.id.nav_weather) {

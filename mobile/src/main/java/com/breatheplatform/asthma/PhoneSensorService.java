@@ -23,7 +23,7 @@ import java.util.Locale;
  * Created by cbono on 11/10/15.
  */
 
-public class PhoneSensors implements SensorEventListener {
+public class PhoneSensorService extends Service implements SensorEventListener {
 
     /*
     This class will listen to device-specific (mobile) sensors and collect data for upload.
@@ -67,7 +67,7 @@ public class PhoneSensors implements SensorEventListener {
 
     private Boolean listening;
 
-    public PhoneSensors(Context ctx) {
+    public PhoneSensorService(Context ctx) {
         mSensorManager = (SensorManager) ctx.getSystemService(Context.SENSOR_SERVICE);
         locationManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
 

@@ -36,7 +36,7 @@ import java.util.TimerTask;
  * Created by cbono on 11/14/15.
  */
 
-public class WatchSensors extends Service implements SensorEventListener {
+public class WatchSensorService extends Service implements SensorEventListener {
 
     /* //in case of later adding UI for notifications of sensor transmission
     public static final String NOTIFY_UI_ON  = "com.breatheplatform.asthma.action.NOTIFY_UI_ON";
@@ -62,7 +62,7 @@ public class WatchSensors extends Service implements SensorEventListener {
     private static final int   FILE_BUFFER_SIZE     = 64 * 1024;      // 64 * 1024 byte, 64 kB file buffer
     private static final int   MAX_BATCHED_DELAY    = 60000;      // Sensor can batch data upto 60 seconds before flusing to AP
 
-    /* Bluetooth dust sensor configuration -- locate device*/
+    // Bluetooth dust sensor configuration -- locate device
     private static final byte[] Beacon_Mask       = {2, 21, -21, 19, 0, 0, 127, -6, 17, -28, -68, -109, 0, 2, -91, -43, -59, 27, 0, 0, 0, 0,   0};
     private static final byte[] UCLA_manufac_data = {2, 21, -21, 19, 0, 0, 127, -6, 17, -28, -68, -109, 0, 2, -91, -43, -59, 27, 0, 0, 0, 0, -62};
     private static final int    UCLA_manID        = 76;
@@ -76,7 +76,8 @@ public class WatchSensors extends Service implements SensorEventListener {
     private static ScanSettings settings = new ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build();
 
     private static final String TAG = "Asthma_Sensors";
-    private WatchSensors singleton = null;
+    private WatchSensorService singleton = null;
+
 
     // Time of Boot = Current Wall Clock Time - Time since boot.
     // mFileHour indicates the which hour the CSV file was generated.
@@ -86,12 +87,13 @@ public class WatchSensors extends Service implements SensorEventListener {
     private static SensorManager mSensorManager;
     private static PowerManager.WakeLock mWakeLock = null;
 
-    public WatchSensors() {super();}
+    public WatchSensorService() {
+        super();}
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d("mainActivity","console.log - started main activity");
+        Log.d("main","Started WatchSensors service");
         // Prevent the CPU from going to sleep while sensors are scanning.
         if(mWakeLock == null) {
             final PowerManager mgr = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -231,7 +233,7 @@ public class WatchSensors extends Service implements SensorEventListener {
                 }
                 break;
         }
-        Log.d("event_string",event_string);
+        Log.d("Sensor Event: ",event_string);
     }
 
     /**

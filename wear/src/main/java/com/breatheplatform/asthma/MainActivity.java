@@ -17,6 +17,9 @@
 package com.breatheplatform.asthma;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
+import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
@@ -29,12 +32,12 @@ import android.widget.Button;
 import android.widget.ScrollView;
 
 import com.breatheplatform.common.UploadService;
+//import com.breatheplatform.wear.WatchSensorService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationListener;
-
 
 import org.json.JSONObject;
 
@@ -64,9 +67,10 @@ public class MainActivity extends Activity
 
     private GestureDetectorCompat mGestureDetector;
     private DismissOverlayView mDismissOverlayView;
-    private Button btnSend;
+    //private Button btnSend;
 
     private UploadService uploader;
+    private WatchSensorService watchSensorService;
     //private WatchListener watchlistener;
 
 
@@ -86,8 +90,9 @@ public class MainActivity extends Activity
         mDismissOverlayView.setIntroText(R.string.intro_text);
         mDismissOverlayView.showIntroIfNecessary();
         mGestureDetector = new GestureDetectorCompat(this, new LongPressListener());
+        watchSensorService=new WatchSensorService();
 
-        btnSend = (Button) findViewById(R.id.send_button);
+        Button btnSend = (Button) findViewById(R.id.send_button);
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -97,6 +102,24 @@ public class MainActivity extends Activity
             }
 
         });
+        Button btnService = (Button) findViewById(R.id.service_button);
+        btnService.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                printRunningServices();
+                isMyServiceRunning(watchSensorService.getClass());
+            }
+
+        });
+        Button btnBluetooth = (Button) findViewById(R.id.bluetooth_button);
+        btnBluetooth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                bluetoothConnect();
+            }
+
+        });
+
 
     }
     public void sendDataToServer() {
@@ -104,7 +127,9 @@ public class MainActivity extends Activity
         JSONObject temp= new JSONObject();//).getJson();
 
         Log.d("sendDataToServer",temp.toString());
-        uploader.postJsonToServer(temp);
+        String result = uploader.postJsonToServer(temp);
+        Log.d("result of send", result);
+
     }
     /*
     Measurement
@@ -118,6 +143,8 @@ public class MainActivity extends Activity
     public void testSendToServer() {
 
         JSONObject temp= new JSONObject();//).getJson();
+        //assemble test data json object for this exercise
+        Log.d("testSendToServer", temp.toString());
         try {
             temp.put("value", 5);
             temp.put("timestamp", new Date());
@@ -130,11 +157,12 @@ public class MainActivity extends Activity
 
             //temp.put("extra_data", 5);
 
-            uploader.postJsonToServer(temp);
+            String result=uploader.postJsonToServer(temp);
+            Log.d("sendResult",result);
         } catch (Exception e) {
             Log.d("exception in testSend",e.toString());
         }
-        Log.d("testSendToServer",temp.toString());
+
 
     }
 
@@ -154,8 +182,8 @@ public class MainActivity extends Activity
         best_long = location.getLongitude();
         best_accuracy = location.getAccuracy();
 
-        Log.d("onLocationChanged = Latitude",String.valueOf(best_lat));
-        Log.d("onLocationChanged = Longitude", String.valueOf(best_long));
+        Log.d("locChange = Latitude", String.valueOf(best_lat));
+        Log.d("locChange = Longitude", String.valueOf(best_long));
     }
 
     // Register as a listener when connected
@@ -203,6 +231,18 @@ public class MainActivity extends Activity
         return mGestureDetector.onTouchEvent(event) || super.dispatchTouchEvent(event);
     }
 
+
+    public void printRunningServices() {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            Log.d("Service running: ",service.service.getClassName());
+        }
+    }
+
+    public void bluetoothConnect() {
+        Log.d("bluetoothConnect","called bluetoothConnect");
+    }
+
     private class LongPressListener extends GestureDetector.SimpleOnGestureListener {
         @Override
         public void onLongPress(MotionEvent event) {
@@ -210,7 +250,20 @@ public class MainActivity extends Activity
         }
     }
 
-    /**
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                Log.d("isMyServiceRunning", serviceClass.getName() + " IS running");
+                return true;
+            }
+        }
+        Log.d("isMyServiceRunning", serviceClass.getName() + " IS NOT running");
+        return false;
+    }
+
+    /*
      * Handles the button to launch a notification.
      */
 

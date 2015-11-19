@@ -13,33 +13,8 @@
     <string name="sensor_fragment_head">Sensor Data</string>
     <string name="app_name">Breathe App</string>
 
-    <string name="hello">Hello World!</string>
-    <string name="title">Hello Notification!</string>
-
-    <string name="notification_posted">Notification posted</string>
-
-    <string name="intro_text">Long press to go back home.</string>
-    <string name="main_activity_title_text">   Breathe   </string>
-    <string name="main_activity_copyright_text">c2015 Breathe UCLA</string>
-    <string name="grid_activity_title_text"> Grid Activity </string>
-
-    <!-- Watch Resources -->
-    <string name="timer_btn_text"> Start Timer (5 sec) </string>
-    <string name="heart_btn_text"> View HeartRate</string>
-    <string name="sensor_btn_text"> View Sensor Data</string>
-    <string name="gps_btn_text"> View Map </string>
-    <string name="dust_btn_text"> View Dust Data </string>
-    <string name="send_btn_text"> Send Garbage</string>
-    <string name="bt_btn_text">BT Connect</string>
-
-    <string name="show_notification"> Show Notification </string>
-    <string name="notification_title"> Breathe App Notification </string>
 
 
-    <string name="action_launch_activity">Launch Activity</string>
-    <string name="finish_activity">Close Activity</string>
-
-    <string name="hello_fragment_head">Hello world blank fragment</string>
 
 </resources>
 

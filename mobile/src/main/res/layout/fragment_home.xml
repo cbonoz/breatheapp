@@ -2,8 +2,29 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" tools:context="com.breatheplatform.asthma.fragments.HomeFragment">
 
+
     <!-- TODO: Update blank fragment layout -->
-    <TextView android:layout_width="match_parent" android:layout_height="match_parent"
-        android:text="@string/hello_fragment_head" />
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <!--
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="65dp">
+
+        <TextView android:layout_width="match_parent" android:layout_height="match_parent"
+            android:text="@string/main_content_head" />
+    </LinearLayout>
+    -->
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView android:layout_width="match_parent" android:layout_height="match_parent"
+            android:text="@string/home_fragment_head" />
+    </LinearLayout>
 
 </FrameLayout>

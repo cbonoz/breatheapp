@@ -54,7 +54,7 @@ public class BootReceiver extends BroadcastReceiver
 
 
             case Intent.ACTION_BATTERY_OKAY:
-                context.startService(new Intent(context,WatchSensors.class));
+                context.startService(new Intent(context,WatchSensorService.class));
                 break;
 
             case Intent.ACTION_BATTERY_LOW:
@@ -62,7 +62,7 @@ public class BootReceiver extends BroadcastReceiver
                     break;
 
             case Intent.ACTION_SHUTDOWN:
-                context.stopService(new Intent(context, WatchSensors.class));
+                context.stopService(new Intent(context, WatchSensorService.class));
                 break;
 
             case INTENT_SYNC_COMPLETE:
