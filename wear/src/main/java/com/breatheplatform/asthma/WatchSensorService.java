@@ -14,11 +14,15 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Log;
+
+import org.json.JSONObject;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -42,23 +46,37 @@ public class WatchSensorService extends Service implements SensorEventListener {
     public static final String NOTIFY_UI_ON  = "com.breatheplatform.asthma.action.NOTIFY_UI_ON";
     public static final String NOTIFY_UI_OFF = "com.breatheplatform.asthma.action.NOTIFY_UI_OFF";
     */
+    private static final int GARBAGE_SENSOR_ID = 2752;
+    private static final int HEARTRATE_SENSOR_ID = 1;
+    private static final int ACCEL_SENSOR_ID = 2;
+    private static final int BT_SENSOR_ID = 3;
+
+
+    private static double best_long;
+    private static double best_lat;
+    private static double best_accuracy;
+
     /* Directory Structure */
+
     private static final SimpleDateFormat nameFormat = new SimpleDateFormat("'_'yyyy-MM-dd-HH", Locale.US);
-    private  static final String rootDirectory    = android.os.Environment.getExternalStorageDirectory().getAbsolutePath()+"/Asthma";
-    private  static final File accelDirectory     = new File(rootDirectory+"/Accelerometer");
-    private  static final File beaconDirectory    = new File(rootDirectory+"/Beacon");
-    /*private  static final File compassDirectory   = new File(rootDirectory+"/Compass");*/
-    private  static final File gyroDirectory      = new File(rootDirectory+"/Gyroscope");
-    private  static final File heartDirectory      = new File(rootDirectory+"/Heartrate");
+    private  static final String ROOT_DIRECTORY    = android.os.Environment.getExternalStorageDirectory().getAbsolutePath()+"/Asthma";
+    private  static final File SENSOR_DIRECTORY     = new File(ROOT_DIRECTORY+"/SensorData");
+    private static final String SENSOR_DATA_FILE = "sensordata.txt";
+
+    private static final int TWO_MINUTES = 1000 * 60 * 2;
+    public LocationManager locationManager;
+    public Location currentBestLocation = null;
+
     private  static final boolean GENERATE_HOURLY = true;
     private  static final boolean APPEND_FILES    = true;
 
     /* SAMPLING RATES */
+    private static final int[] BT_SAMPLE_RATE = { 200, 1800 };// 200ms ON, 1800ms OFF
+    private static final int SENSOR_SAMPLE_RATE = 10;
     private static final int   ACCEL_SAMPLE_RATE    = 10;         // 10 Hz
     private static final int   HEART_SAMPLE_RATE    = 10;         // 10 Hz
-    //  private static final int   COMPASS_SAMPLE_RATE  = 10;         // 10 Hz
-    private static final int   GYRO_SAMPLE_RATE     = 10;         // 10 Hz
-    private static final int[] BEACON_SAMPLE_RATE = { 200, 1800 };// 200ms ON, 1800ms OFF
+
+    /* WRITE BUFFER SIZE */
     private static final int   FILE_BUFFER_SIZE     = 64 * 1024;      // 64 * 1024 byte, 64 kB file buffer
     private static final int   MAX_BATCHED_DELAY    = 60000;      // Sensor can batch data upto 60 seconds before flusing to AP
 
@@ -83,7 +101,8 @@ public class WatchSensorService extends Service implements SensorEventListener {
     // mFileHour indicates the which hour the CSV file was generated.
     //private static final long timeOfBoot = (System.currentTimeMillis() * 1000000) - SystemClock.elapsedRealtimeNanos();
     private static final long timeOfBoot = System.currentTimeMillis() - SystemClock.elapsedRealtime();
-    private static BufferedWriter mAccelBuffer = null, mBeaconBuffer = null, mGyroBuffer = null, mHeartBuffer=null;
+    //private static BufferedWriter mAccelBuffer = null, mSensorBuffer = null, mGyroBuffer = null, mHeartBuffer=null;
+    private static BufferedWriter mSensorBuffer;
     private static SensorManager mSensorManager;
     private static PowerManager.WakeLock mWakeLock = null;
 
@@ -101,21 +120,27 @@ public class WatchSensorService extends Service implements SensorEventListener {
             mWakeLock.acquire();
         }
 
+
+        //these will be changed by the location service before the first json write to file
+        best_long=-1;
+        best_lat=-1;
+        best_accuracy=-1;
+
         singleton = this;
 
         // Initializing the sensors
         mSensorManager              = (SensorManager) getSystemService(SENSOR_SERVICE);
         final Sensor mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        //final Sensor mGyroscope     = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         final Sensor mHeartrate     = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
         //final Sensor mCompass       = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        // final Sensor mGyroscope     = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
         // Start recording data
         mSensorManager.registerListener(this, mAccelerometer, (1000000/ACCEL_SAMPLE_RATE));
-        //mSensorManager.registerListener(this, mGyroscope, (1000000/GYRO_SAMPLE_RATE));
         mSensorManager.registerListener(this, mHeartrate, (1000000/HEART_SAMPLE_RATE));
-        //mSensorManager.registerListener(this, mCompass, (1000000 / COMPASS_SAMPLE_RATE),MAX_BATCHED_DELAY);
 
+        //mSensorManager.registerListener(this, mCompass, (1000000 / COMPASS_SAMPLE_RATE),MAX_BATCHED_DELAY);
+        //mSensorManager.registerListener(this, mGyroscope, (1000000/GYRO_SAMPLE_RATE));
         filters.add(new ScanFilter.Builder().setManufacturerData(UCLA_manID, UCLA_manufac_data, Beacon_Mask).build());
         final BluetoothManager bluetoothManager  = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         final BluetoothAdapter mBluetoothAdapter = bluetoothManager.getAdapter();
@@ -131,9 +156,9 @@ public class WatchSensorService extends Service implements SensorEventListener {
         while (mBluetoothLeScanner == null)
             SystemClock.sleep(50);
 
-        startDutyCycle(BEACON_SAMPLE_RATE[0], BEACON_SAMPLE_RATE[1]);
+        startDutyCycle(BT_SAMPLE_RATE[0], BT_SAMPLE_RATE[1]);
 
-        //TODO :: Show this on watch face also
+        //mSensorBuffer = new BufferedWriter();
         // (this).sendBroadcast(new Intent(NOTIFY_UI_ON));
     }
 
@@ -148,12 +173,8 @@ public class WatchSensorService extends Service implements SensorEventListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        // Reset the Files.
-
-        mAccelBuffer  = closeAccel()  ? writeNewFiles(accelDirectory)  : null;
-        /*mGyroBuffer   = closeGyro()   ? writeNewFiles(gyroDirectory)   : null;*/
-        mHeartBuffer   = closeHeart()   ? writeNewFiles(heartDirectory)   : null;
-        mBeaconBuffer = closeBeacon() ? writeNewFiles(beaconDirectory) : null;
+        // Reset the Sensor Buffer
+        mSensorBuffer = closeSensorBuffer() ? writeNewFile(SENSOR_DIRECTORY) : null;
 
         return START_STICKY;
     }
@@ -172,10 +193,7 @@ public class WatchSensorService extends Service implements SensorEventListener {
         if(BT_SCANNING)
             mBluetoothLeScanner.stopScan(mScanCallback);
 
-        closeAccel();
-        closeBeacon();
-        closeGyro();
-        closeHeart();
+        closeSensorBuffer();
 
         singleton = null;
 
@@ -191,50 +209,63 @@ public class WatchSensorService extends Service implements SensorEventListener {
 
        Data values :: timestamp, x, y, z
      */
-    @Override
-    public void onSensorChanged(SensorEvent event) {
 
-        final long absolute_timestamp = timeOfBoot + (event.timestamp/1000000);
+    synchronized private void syncSensorChanged(SensorEvent event) {
+
         //// get Nanos timestamp in epoch time (with Nanos precision).
         // final long absolute_timestamp = timeOfBoot + event.timestamp;
-        String event_string = new String();
+        JSONObject eventJsonObj = new JSONObject();
+        Boolean validEvent=false;
         switch (event.sensor.getType()) {
             case (Sensor.TYPE_ACCELEROMETER):
                 try {
-                    event_string = absolute_timestamp + "," +
-                            event.values[0] + "," +
-                            event.values[1] + "," +
-                            event.values[2] + "\n";
-                    mAccelBuffer.write(event_string);
-
+                    eventJsonObj.put("x",event.values[0]);
+                    eventJsonObj.put("y",event.values[1]);
+                    eventJsonObj.put("z",event.values[2]);
+                    validEvent=true;
                 } catch (Exception e) {
-                    mAccelBuffer = closeAccel() ? writeNewFiles(accelDirectory) : null;
-                }
-                break;
-
-            case (Sensor.TYPE_GYROSCOPE):
-                try {
-                    event_string = absolute_timestamp + "," +
-                            event.values[0] + "," +
-                            event.values[1] + "," +
-                            event.values[2] + "\n";
-                    mGyroBuffer.write(event_string);
-                } catch (Exception e) {
-                    mGyroBuffer = closeGyro() ? writeNewFiles(gyroDirectory) : null;
+                    Log.d("json Exception",e.toString());
+                    //mAccelBuffer = closeAccel() ? writeNewFiles(accelDirectory) : null;
                 }
                 break;
             case (Sensor.TYPE_HEART_RATE):
                 try {
-                    event_string = absolute_timestamp + "," +
-                            event.values[0] + "\n";
-                    mHeartBuffer.write(event_string);
+                    eventJsonObj.put("heartrate",event.values[0]);
+                    validEvent=true;
+
                 } catch (Exception e) {
-                    mHeartBuffer = closeHeart() ? writeNewFiles(heartDirectory) : null;
+                    Log.d("json Exception",e.toString());
+
                 }
                 break;
         }
-        Log.d("Sensor Event: ",event_string);
+
+        if (validEvent) {
+            try {
+                eventJsonObj.put("value", 5);
+                eventJsonObj.put("timestamp", System.currentTimeMillis());
+                //temp.put("timezone", 1);
+                eventJsonObj.put("subject_id", 5);
+                eventJsonObj.put("sensor_id", GARBAGE_SENSOR_ID);
+                eventJsonObj.put("lat", best_lat);
+                eventJsonObj.put("long", best_long);
+                eventJsonObj.put("accuracy", best_accuracy);
+                final long absolute_timestamp = timeOfBoot + (event.timestamp/1000000);
+                String result = eventJsonObj.toString();
+                mSensorBuffer.write(result);
+                Log.d("Sensor Event: ",result);
+            } catch (Exception e) {
+                Log.d("SB Write Exception", e.toString());
+                mSensorBuffer = closeSensorBuffer() ? writeNewFile(SENSOR_DIRECTORY) : null;
+            }
+        }
     }
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        syncSensorChanged(event);
+    }
+
+
 
     /**
      *  Called every time a UCLA beacon is detected. For each beacon, scans the results and writes to
@@ -251,8 +282,8 @@ public class WatchSensorService extends Service implements SensorEventListener {
 
             try {
                 String MINOR = bytesToHex(new byte[] {result.getScanRecord().getManufacturerSpecificData().valueAt(0)[20], result.getScanRecord().getManufacturerSpecificData().valueAt(0)[21]});
-                mBeaconBuffer.write(((result.getTimestampNanos()/1000000) + timeOfBoot) + "," + MINOR + "," + RSSI + ",0" + "\n");
-            } catch (Exception e) { mBeaconBuffer = closeBeacon() ? writeNewFiles(beaconDirectory) : null;}
+                mSensorBuffer.write(((result.getTimestampNanos() / 1000000) + timeOfBoot) + "," + MINOR + "," + RSSI + ",0" + "\n");
+            } catch (Exception e) { mSensorBuffer = closeSensorBuffer() ? writeNewFile(SENSOR_DIRECTORY) : null;}
         }
 
         @Override
@@ -290,80 +321,25 @@ public class WatchSensorService extends Service implements SensorEventListener {
        return writeNewFiles();
     }*/
 
-  /*  private static boolean writeNewFiles() {
-        try {
-         mAccelBuffer    = new BufferedWriter(new FileWriter(createUniqueFile(accelDirectory,GENERATE_HOURLY),APPEND_FILES),FILE_BUFFER_SIZE);
-         mBeaconBuffer   = new BufferedWriter(new FileWriter(createUniqueFile(beaconDirectory,GENERATE_HOURLY),APPEND_FILES),FILE_BUFFER_SIZE);
-       //  mCompassBuffer  = new BufferedWriter(new FileWriter(createUniqueFile(compassDirectory,GENERATE_HOURLY),APPEND_FILES),FILE_BUFFER_SIZE);
-         mGyroBuffer     = new BufferedWriter(new FileWriter(createUniqueFile(gyroDirectory,GENERATE_HOURLY),APPEND_FILES),FILE_BUFFER_SIZE);
-        } catch (IOException e) {return false;}
-        return true;
-    }*/
 
-   /* private static void closeLogFiles() {
-        if(mAccelBuffer   != null){ try {mAccelBuffer.close();mAccelBuffer = null;}     catch (IOException e) {} }
-        if(mBeaconBuffer  != null){ try {mBeaconBuffer.close();mBeaconBuffer = null;}   catch (IOException e) {} }
-      //  if(mCompassBuffer != null){ try {mCompassBuffer.close();mCompassBuffer = null;} catch (IOException e) {} }
-        if(mGyroBuffer    != null){ try {mGyroBuffer.close();mGyroBuffer = null;}       catch (IOException e) {} }
-    }*/
 
-    /*private static Buff resetFiles(BufferedWriter buffer,File DIR){
-        closeLogFiles(buffer);
-        return writeNewFiles(DIR);
-    }*/
-
-    private static boolean closeAccel(){
-        if(mAccelBuffer == null)
+    private static boolean closeSensorBuffer(){
+        if(mSensorBuffer == null)
             return true;
         try{
-            mAccelBuffer.close();
-            mAccelBuffer = null;
+            mSensorBuffer.close();
+            mSensorBuffer = null;
             return true;
         }catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean closeGyro(){
-        if(mGyroBuffer == null)
-            return true;
-        try{
-            mGyroBuffer.close();
-            mGyroBuffer = null;
-            return true;
-        }catch (Exception e) {
-            return false;
-        }
-    }
-    private static boolean closeHeart(){
-        if(mHeartBuffer== null)
-            return true;
-        try{
-            mHeartBuffer.close();
-            mHeartBuffer = null;
-            return true;
-        }catch (Exception e) {
-            return false;
-        }
-    }
-    private static boolean closeBeacon(){
-        if(mBeaconBuffer == null)
-            return true;
-        try{
-            mBeaconBuffer.close();
-            mBeaconBuffer = null;
-            return true;
-        }catch (Exception e) {
-            return false;
-        }
-    }
-
-
-    private static BufferedWriter writeNewFiles(File DIR) {
+    private static BufferedWriter writeNewFile(File DIR) {
         BufferedWriter buffer = null;
         try {
             if(DIR.isDirectory() || DIR.mkdirs())
-                buffer = new BufferedWriter(new FileWriter(createUniqueFile(DIR,GENERATE_HOURLY),APPEND_FILES),FILE_BUFFER_SIZE);
+                buffer = new BufferedWriter(new FileWriter(SENSOR_DIRECTORY+"sensordata.txt"),FILE_BUFFER_SIZE);
         } catch (IOException e) {return null;}
         return buffer;
     }
@@ -374,37 +350,13 @@ public class WatchSensorService extends Service implements SensorEventListener {
     }*/
 
 
-   /* private static void resetAccel(){
-        if(mAccelBuffer    != null){
+    private static void resetSensorBuffer(){
+        if(mSensorBuffer    != null){
             try {
-                mAccelBuffer.close();
-                mAccelBuffer    = new BufferedWriter(new FileWriter(createUniqueFile(accelDirectory,GENERATE_HOURLY),APPEND_FILES),FILE_BUFFER_SIZE);
+                mSensorBuffer.close();
+                mSensorBuffer    = new BufferedWriter(new FileWriter(createUniqueFile(SENSOR_DIRECTORY,GENERATE_HOURLY),APPEND_FILES),FILE_BUFFER_SIZE);
             }    catch (Exception e) {} }
     }
-
-    private static void resetBeacon(){
-        if(mBeaconBuffer  != null){
-            try {
-                mBeaconBuffer.close();
-                mBeaconBuffer   = new BufferedWriter(new FileWriter(createUniqueFile(beaconDirectory,GENERATE_HOURLY),APPEND_FILES),FILE_BUFFER_SIZE);
-            }    catch (Exception e) {} }
-    }
-
-    private static void resetCompass(){
-        if(mCompassBuffer  != null){
-            try {
-                mCompassBuffer.close();
-                mCompassBuffer  = new BufferedWriter(new FileWriter(createUniqueFile(compassDirectory,GENERATE_HOURLY),APPEND_FILES),FILE_BUFFER_SIZE);
-            }    catch (Exception e) {} }
-    }
-
-    private static void resetGyro(){
-        if(mGyroBuffer    != null){
-            try {
-                mGyroBuffer.close();
-                mGyroBuffer     = new BufferedWriter(new FileWriter(createUniqueFile(gyroDirectory,GENERATE_HOURLY),APPEND_FILES),FILE_BUFFER_SIZE);
-            }    catch (Exception e) {} }
-    }*/
 
 
     /*

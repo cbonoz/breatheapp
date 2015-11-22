@@ -22,6 +22,7 @@ import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.wearable.view.DismissOverlayView;
 import android.util.Log;
@@ -32,7 +33,6 @@ import android.widget.Button;
 import android.widget.ScrollView;
 
 import com.breatheplatform.common.UploadService;
-//import com.breatheplatform.wear.WatchSensorService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -41,8 +41,9 @@ import com.google.android.gms.location.LocationServices;
 
 import org.json.JSONObject;
 
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+//import com.breatheplatform.wear.WatchSensorService;
 
 public class MainActivity extends Activity
 
@@ -53,6 +54,7 @@ public class MainActivity extends Activity
 
 
     GoogleApiClient googleClient;
+
 
     private static final String TAG = "MainActivity";
 
@@ -79,6 +81,10 @@ public class MainActivity extends Activity
     public void onCreate(Bundle b) {
         super.onCreate(b);
         setContentView(R.layout.main_activity);
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
         // Build a new GoogleApiClient
         googleClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -91,6 +97,7 @@ public class MainActivity extends Activity
         mDismissOverlayView.showIntroIfNecessary();
         mGestureDetector = new GestureDetectorCompat(this, new LongPressListener());
         watchSensorService=new WatchSensorService();
+        uploader = new UploadService();
 
         Button btnSend = (Button) findViewById(R.id.send_button);
         btnSend.setOnClickListener(new View.OnClickListener() {
@@ -122,15 +129,7 @@ public class MainActivity extends Activity
 
 
     }
-    public void sendDataToServer() {
 
-        JSONObject temp= new JSONObject();//).getJson();
-
-        Log.d("sendDataToServer",temp.toString());
-        String result = uploader.postJsonToServer(temp);
-        Log.d("result of send", result);
-
-    }
     /*
     Measurement
     value	float	False
@@ -144,21 +143,21 @@ public class MainActivity extends Activity
 
         JSONObject temp= new JSONObject();//).getJson();
         //assemble test data json object for this exercise
-        Log.d("testSendToServer", temp.toString());
+        //Log.d("testSendToServer", temp.toString());
         try {
             temp.put("value", 5);
-            temp.put("timestamp", new Date());
-            temp.put("timezone", 1);
+            temp.put("timestamp", System.currentTimeMillis());
+            //temp.put("timezone", 1);
             temp.put("subject_id",5);
             temp.put("sensor_id", GARBAGE_SENSOR_ID);
             temp.put("lat",best_lat);
             temp.put("long",best_long);
-            temp.put("accuracy",best_accuracy);
+            temp.put("accuracy", best_accuracy);
 
             //temp.put("extra_data", 5);
+            Log.d("testSendToServer", temp.toString());
+            uploader.postJsonToServer(temp);
 
-            String result=uploader.postJsonToServer(temp);
-            Log.d("sendResult",result);
         } catch (Exception e) {
             Log.d("exception in testSend",e.toString());
         }
