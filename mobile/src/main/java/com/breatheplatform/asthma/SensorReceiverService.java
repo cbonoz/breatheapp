@@ -1,23 +1,5 @@
 package com.breatheplatform.asthma;
 
-import android.hardware.Sensor;
-import android.net.Uri;
-import android.util.Log;
-
-import com.breatheplatform.asthma.data.SensorNames;
-import com.breatheplatform.common.ClientPaths;
-import com.breatheplatform.common.DataMapKeys;
-import com.google.android.gms.wearable.DataEvent;
-import com.google.android.gms.wearable.DataEventBuffer;
-import com.google.android.gms.wearable.DataItem;
-import com.google.android.gms.wearable.DataMap;
-import com.google.android.gms.wearable.DataMapItem;
-import com.google.android.gms.wearable.Node;
-import com.google.android.gms.wearable.WearableListenerService;
-
-import org.json.JSONObject;
-
-
 /*
 THIS IS THE MAIN SERVICE CONTROLLER FOR THE BREATHE APP (RUNNING ON MOBILE SIDE)
 INCLUDES WEARABLE LISTENER AND LOCATION SERVICES
@@ -56,6 +38,23 @@ move uploadtask into aan intent
 
  */
 
+
+import android.hardware.Sensor;
+import android.net.Uri;
+import android.util.Log;
+
+import com.breatheplatform.asthma.data.SensorNames;
+import com.breatheplatform.common.ClientPaths;
+import com.breatheplatform.common.DataMapKeys;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.WearableListenerService;
+
+import org.json.JSONObject;
 
 public class SensorReceiverService extends WearableListenerService {
     private static final String TAG = "SensorDashboard/SensorReceiverService";
@@ -126,7 +125,7 @@ public class SensorReceiverService extends WearableListenerService {
         JSONObject jsonValue = new JSONObject();
         String sensorName = sensorNames.getName(sensorType);
 
-
+        //Log.d(TAG, "Received " + sensorName + " (" + sensorType + ") = " + Arrays.toString(values));
 
         try {
 
@@ -135,7 +134,7 @@ public class SensorReceiverService extends WearableListenerService {
                     jsonValue.put("x", values[0]);
                     jsonValue.put("y", values[1]);
                     jsonValue.put("z", values[2]);
-
+                    jsonDataEntry.put("sensor_type", sensorType);
                     validEvent = true;
                     break;
                 case (Sensor.TYPE_HEART_RATE):
@@ -144,12 +143,14 @@ public class SensorReceiverService extends WearableListenerService {
                         Log.d(TAG, "Received heart rate sensor ("+sensorName+") data=0 - skip");
                         return;
                     }
+                    jsonDataEntry.put("sensor_type", Sensor.TYPE_HEART_RATE);
                     jsonValue.put("v", values[0]);
                     validEvent = true;
                     break;
                 case (Sensor.TYPE_AMBIENT_TEMPERATURE):
                     //case (Sensor.TYPE_STEP_COUNTER):
                     jsonValue.put("v", values[0]);
+                    jsonDataEntry.put("sensor_type", sensorType);
                     validEvent = true;
                     break;
 
@@ -159,7 +160,7 @@ public class SensorReceiverService extends WearableListenerService {
             }
 
 
-            jsonDataEntry.put("sensor_type", sensorType);
+
             jsonDataEntry.put("sensor_name", sensorName);
 
             jsonDataEntry.put("value", jsonValue);
@@ -196,3 +197,62 @@ public class SensorReceiverService extends WearableListenerService {
         ClientPaths.incrementCount();
     }
 }
+
+//
+//public class SensorReceiverService extends WearableListenerService {
+//    private static final String TAG = "SensorDashboard/SensorReceiverService";
+//
+//    private RemoteSensorManager sensorManager;
+//    private SensorNames sensorNames;
+//
+//    @Override
+//    public void onCreate() {
+//        super.onCreate();
+//        sensorNames = new SensorNames();
+//        sensorManager = RemoteSensorManager.getInstance(this);
+//    }
+//
+//    @Override
+//    public void onPeerConnected(Node peer) {
+//        super.onPeerConnected(peer);
+//
+//        Log.i(TAG, "Connected: " + peer.getDisplayName() + " (" + peer.getId() + ")");
+//    }
+//
+//    @Override
+//    public void onPeerDisconnected(Node peer) {
+//        super.onPeerDisconnected(peer);
+//
+//        Log.i(TAG, "Disconnected: " + peer.getDisplayName() + " (" + peer.getId() + ")");
+//    }
+//
+//    @Override
+//    public void onDataChanged(DataEventBuffer dataEvents) {
+//        Log.d(TAG, "onDataChanged()");
+//
+//        for (DataEvent dataEvent : dataEvents) {
+//            if (dataEvent.getType() == DataEvent.TYPE_CHANGED) {
+//                DataItem dataItem = dataEvent.getDataItem();
+//                Uri uri = dataItem.getUri();
+//                String path = uri.getPath();
+//
+//                if (path.startsWith("/sensors/")) {
+//                    unpackSensorData(
+//                            Integer.parseInt(uri.getLastPathSegment()),
+//                            DataMapItem.fromDataItem(dataItem).getDataMap()
+//                    );
+//                }
+//            }
+//        }
+//    }
+//
+//    private void unpackSensorData(int sensorType, DataMap dataMap) {
+//        int accuracy = dataMap.getInt(DataMapKeys.ACCURACY);
+//        long timestamp = dataMap.getLong(DataMapKeys.TIMESTAMP);
+//        float[] values = dataMap.getFloatArray(DataMapKeys.VALUES);
+//
+//        Log.d(TAG, "Received " + sensorNames.getName(sensorType) + " (" + sensorType + ") = " + Arrays.toString(values));
+//
+//        //sensorManager.addSensorData(sensorType, accuracy, timestamp, values);
+//    }
+//}

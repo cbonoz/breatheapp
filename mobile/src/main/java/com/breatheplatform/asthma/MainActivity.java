@@ -158,21 +158,30 @@ public class MainActivity extends AppCompatActivity implements BluetoothAdapter.
     protected void onDestroy() {
         super.onDestroy();
 
-        //wl.release();
-
         Log.d(TAG, "MainActivity onDestroy");
 
-        //BusProvider.getInstance().unregister(this);
-
-        BusProvider.getInstance().unregister(this);
-        remoteSensorManager.stopMeasurement();
 
 
-        bluetoothAdapter.stopLeScan(this);
 
-        unregisterReceiver(scanModeReceiver);
-        unregisterReceiver(bluetoothStateReceiver);
-        unregisterReceiver(rfduinoReceiver);
+        try {
+            BusProvider.getInstance().unregister(this);
+            remoteSensorManager.stopMeasurement();
+
+
+            bluetoothAdapter.stopLeScan(this);
+
+            if (scanModeReceiver != null)
+                unregisterReceiver(scanModeReceiver);
+
+            if (bluetoothStateReceiver != null)
+                unregisterReceiver(bluetoothStateReceiver);
+
+            if (rfduinoReceiver != null)
+                unregisterReceiver(rfduinoReceiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
 
         try {
             unbindService(rfduinoServiceConnection);

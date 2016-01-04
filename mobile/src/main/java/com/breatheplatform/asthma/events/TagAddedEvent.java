@@ -1,6 +1,5 @@
 package com.breatheplatform.asthma.events;
 
-
 import com.breatheplatform.asthma.data.TagData;
 
 public class TagAddedEvent {

@@ -3,6 +3,7 @@
     package="com.breatheplatform.asthma" >
 
 
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -14,7 +15,6 @@
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE"/>
 
     <uses-permission android:name="android.permission.BODY_SENSORS" />
-    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
@@ -51,19 +51,6 @@
         <!--</activity>-->
 
 
-
-
-        <service android:name=".LocationService">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </service>
-
-
-
-        <service android:name=".bluetooth.RFduinoService" />
-
         <service android:name=".SensorReceiverService">
             <intent-filter>
                 <action
@@ -71,18 +58,25 @@
             </intent-filter>
         </service>
 
-        <!--<service-->
-        <!--android:name=".bluetooth.BluetoothLeService">-->
-        <!--<intent-filter>-->
-        <!--<action-->
-        <!--android:name="com.google.android.BLUETOOTH_SERVICE"/>-->
-        <!--</intent-filter>-->
-        <!--</service>-->
+        <service android:name=".bluetooth.RFduinoService">
+            <intent-filter>
+                <action
+                    android:name="com.breatheplatform.asthma.bluetooth.RFduinoService"/>
+            </intent-filter>
+        </service>
+
+
+        <service android:name=".LocationService">
+            <intent-filter>
+                <action
+                    android:name="com.breatheplatform.asthma.LocationService"/>
+            </intent-filter>
+        </service>
 
 
 
+        <!--<service android:name=".bluetooth.RFduinoService" />-->
+        <!--<service android:name=".LocationService"/>-->
     </application>
 
-
 </manifest>
-

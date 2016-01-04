@@ -15,6 +15,12 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+/*
+Currently location being managed through mainactivity, can use this class as a background service should we want to move away from that style -
+the location is shared between services by using the ClientPaths Global class object within the App.
+
+ */
+
 public class LocationService extends Service
         implements
         GoogleApiClient.ConnectionCallbacks,

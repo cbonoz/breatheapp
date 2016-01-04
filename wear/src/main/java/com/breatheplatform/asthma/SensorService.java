@@ -79,6 +79,7 @@ public class SensorService extends Service implements SensorEventListener {
         mSensorManager = ((SensorManager) getSystemService(SENSOR_SERVICE));
         mHeartrateSensor = mSensorManager.getDefaultSensor(SENS_HEARTRATE);
         Sensor linearAccelerationSensor = mSensorManager.getDefaultSensor(SENS_LINEAR_ACCELERATION);
+        Sensor heartrateSamsungSensor = mSensorManager.getDefaultSensor(65562);
 
         Sensor accelerometerSensor = mSensorManager.getDefaultSensor(SENS_ACCELEROMETER);
         Sensor ambientTemperatureSensor = mSensorManager.getDefaultSensor(SENS_AMBIENT_TEMPERATURE);
@@ -88,7 +89,7 @@ public class SensorService extends Service implements SensorEventListener {
         Sensor gyroscopeSensor = mSensorManager.getDefaultSensor(SENS_GYROSCOPE);
         Sensor gyroscopeUncalibratedSensor = mSensorManager.getDefaultSensor(SENS_GYROSCOPE_UNCALIBRATED);
 
-        Sensor heartrateSamsungSensor = mSensorManager.getDefaultSensor(65562);
+
         Sensor lightSensor = mSensorManager.getDefaultSensor(SENS_LIGHT);
 
         Sensor magneticFieldSensor = mSensorManager.getDefaultSensor(SENS_MAGNETIC_FIELD);
@@ -175,11 +176,11 @@ public class SensorService extends Service implements SensorEventListener {
                 Log.d(TAG, "No Heartrate Sensor found");
             }
 
-//            if (heartrateSamsungSensor != null) {
-//                mSensorManager.registerListener(this, heartrateSamsungSensor, SensorManager.SENSOR_DELAY_FASTEST);
-//            } else {
-//                Log.d(TAG, "Samsungs Heartrate Sensor not found");
-//            }
+            if (heartrateSamsungSensor != null) {
+                mSensorManager.registerListener(this, heartrateSamsungSensor, SensorManager.SENSOR_DELAY_FASTEST);
+            } else {
+                Log.d(TAG, "Samsungs Heartrate Sensor not found");
+            }
 //
 //            if (lightSensor != null) {
 //                mSensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
@@ -188,7 +189,7 @@ public class SensorService extends Service implements SensorEventListener {
 //            }
 
             if (linearAccelerationSensor != null) {
-                mSensorManager.registerListener(this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
+                mSensorManager.registerListener(this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_FASTEST);
             } else {
                 Log.d(TAG, "No Linear Acceleration Sensor found");
             }
@@ -269,3 +270,5 @@ public class SensorService extends Service implements SensorEventListener {
 
     }
 }
+
+
