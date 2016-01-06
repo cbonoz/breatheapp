@@ -85,12 +85,6 @@ public class MainActivity extends AppCompatActivity implements BluetoothAdapter.
         initToolbar();
         //initViewPager();
 
-        if (!connected) {
-            //onStart();
-            bluetoothAdapter.startLeScan(new UUID[]{RFduinoService.UUID_SERVICE}, this);
-
-        }
-
         TextView t = (TextView) findViewById(R.id.subjectText);
         t.setText("SubjectID: " + ClientPaths.getSubjectID());
 
@@ -106,6 +100,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothAdapter.
                 //remoteSensorManager will log the change if called.
                 if (isChecked) {
                     remoteSensorManager.startMeasurement();
+                    if (!connected)
+                        bluetoothAdapter.startLeScan(new UUID[]{RFduinoService.UUID_SERVICE}, MainActivity.this);
+
                     registerReceiver(scanModeReceiver, new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED));
                     registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
                     registerReceiver(rfduinoReceiver, RFduinoService.getIntentFilter());
@@ -119,15 +116,20 @@ public class MainActivity extends AppCompatActivity implements BluetoothAdapter.
                     unregisterReceiver(scanModeReceiver);
                     unregisterReceiver(bluetoothStateReceiver);
                     unregisterReceiver(rfduinoReceiver);
+                    connected=false;
                 }
             }
         });
 
         //remoteSensorManager.startMeasurement();
+        if (!connected)
+            bluetoothAdapter.startLeScan(new UUID[]{RFduinoService.UUID_SERVICE}, this);
+
         registerReceiver(scanModeReceiver, new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED));
         registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
         registerReceiver(rfduinoReceiver, RFduinoService.getIntentFilter());
 
+        //need to determine placement of wake lock
 //        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 //        wl = pm.newWakeLock(
 //                PowerManager.PARTIAL_WAKE_LOCK,
@@ -427,8 +429,13 @@ public class MainActivity extends AppCompatActivity implements BluetoothAdapter.
         // updates. Gets the best and most recent location currently available, which may be null
         // in rare cases when a location is not available.
         ClientPaths.currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if (ClientPaths.currentLocation==null)
+        if (ClientPaths.currentLocation==null) {
             Toast.makeText(this,"No Location Detected", Toast.LENGTH_LONG).show();
+            Log.i(TAG, "No Location Detected");
+        } else {
+            Toast.makeText(this,"Location Found", Toast.LENGTH_LONG).show();
+            Log.i(TAG, "Location Found");
+        }
     }
 
 

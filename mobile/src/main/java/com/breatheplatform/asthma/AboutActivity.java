@@ -16,6 +16,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.breatheplatform.common.ClientPaths;
 import com.breatheplatform.common.UploadTask;
@@ -81,6 +82,25 @@ public class AboutActivity extends Activity
             final Button subjectButton = (Button) rootView.findViewById(R.id.subjectButton);
             final EditText subjectEditText   = (EditText) rootView.findViewById(R.id.subjectEditText);
 
+            final Button idButton = (Button) rootView.findViewById(R.id.idButton);
+            final EditText idEditText   = (EditText) rootView.findViewById(R.id.idEditText);
+
+            idButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String sidString = idEditText.getText().toString();
+                    try {
+                        Integer sid = Integer.parseInt(sidString);
+
+                        ClientPaths.setSubjectID(sid);
+                        Toast.makeText(getActivity(), "Success SID: " + sid,Toast.LENGTH_LONG).show();
+                    } catch (Exception e) { //parse error of integer in input field
+                        e.printStackTrace();
+                        Toast.makeText(getActivity(), "Please Enter Valid SID #",Toast.LENGTH_LONG).show();
+
+                    }
+                }
+            });
 
             subjectButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {

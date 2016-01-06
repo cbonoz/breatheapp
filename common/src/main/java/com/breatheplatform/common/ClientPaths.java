@@ -23,7 +23,7 @@ public class ClientPaths {
 
     public static final String START_MEASUREMENT = "/start";
     public static final String STOP_MEASUREMENT = "/stop";
-    public static final String BASE = "http://www.breatheplatform.com";
+    public static final String BASE = "http://beta.breatheplatform.com";
     public static final String SUBJECT_API = BASE + "/api/subject/add";
     public static final String MULTI_FULL_API = BASE + "/api/multisensor/add";
 
@@ -36,7 +36,7 @@ public class ClientPaths {
     public static final int DUST_SENSOR_ID = 999;
     public static Boolean BT_SCANNING = true;
 
-    private static final Integer RECORD_LIMIT = 1000;
+    private static final Integer RECORD_LIMIT = 50;
     private static final Boolean sending = true;
     private static final Boolean encrypting = false;
     public static int TURBO = 0;
@@ -95,10 +95,10 @@ public class ClientPaths {
             tzone = tz.getDisplayName();
         } catch (Exception e) {
             e.printStackTrace();
-            tzone=null;
+            tzone="US - Default";
         }
 
-        return tzone != null ? tzone : "US - Default";
+        return tzone;
 
     }
 

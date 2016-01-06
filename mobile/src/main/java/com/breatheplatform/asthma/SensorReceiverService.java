@@ -39,8 +39,10 @@ move uploadtask into aan intent
  */
 
 
+import android.content.Context;
 import android.hardware.Sensor;
 import android.net.Uri;
+import android.os.PowerManager;
 import android.util.Log;
 
 import com.breatheplatform.asthma.data.SensorNames;
@@ -60,6 +62,7 @@ public class SensorReceiverService extends WearableListenerService {
     private static final String TAG = "SensorDashboard/SensorReceiverService";
     private static final String APP_NAME = "AsthmaApp";
 
+    private PowerManager.WakeLock mWakeLock;
 
     private RemoteSensorManager sensorManager;
 
@@ -70,10 +73,25 @@ public class SensorReceiverService extends WearableListenerService {
         super.onCreate();
         Log.i(TAG, "Called " + TAG + " onCreate");
 
+
+
+        PowerManager mgr = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        mWakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ReceiverServices");
+
+
         sensorManager = RemoteSensorManager.getInstance(this);
 
         sensorNames = new SensorNames();
 
+        mWakeLock.acquire();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mWakeLock != null)
+            mWakeLock.release();
     }
 
     @Override
@@ -143,7 +161,7 @@ public class SensorReceiverService extends WearableListenerService {
                         Log.d(TAG, "Received heart rate sensor ("+sensorName+") data=0 - skip");
                         return;
                     }
-                    jsonDataEntry.put("sensor_type", Sensor.TYPE_HEART_RATE);
+                    jsonDataEntry.put("sensor_type", 21);
                     jsonValue.put("v", values[0]);
                     validEvent = true;
                     break;
@@ -173,6 +191,8 @@ public class SensorReceiverService extends WearableListenerService {
                 jsonDataEntry.put("lat", ClientPaths.currentLocation.getLatitude());
                 jsonDataEntry.put("long", ClientPaths.currentLocation.getLongitude());
                 jsonDataEntry.put("accuracy", ClientPaths.currentLocation.getAccuracy());
+            } else {
+                jsonDataEntry.put("accuracy", "No Location Found");
             }
 
         } catch (Exception e) {
@@ -188,11 +208,8 @@ public class SensorReceiverService extends WearableListenerService {
             return;
         }
 
-        Log.d(TAG, "Data received; " + jsonDataEntry.toString());
+        Log.d(TAG, "Data received: " + jsonDataEntry.toString());
 
-        if (ClientPaths.currentLocation==null) {
-            return;
-        }
         ClientPaths.appendData(jsonDataEntry);
         ClientPaths.incrementCount();
     }

@@ -39,20 +39,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
-        <!--<TextView-->
-            <!--android:layout_marginBottom="8dp"-->
-            <!--android:text="Source Code"-->
-            <!--style="@style/AboutHeaderStyle"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"/>-->
-
-        <!--<TextView-->
-            <!--android:layout_marginBottom="16dp"-->
-            <!--android:id="@+id/about_github_content"-->
-            <!--android:layout_marginLeft="8dp"-->
-            <!--style="@style/AboutContentStyle"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"/>-->
 
 
         <TextView
@@ -101,6 +87,40 @@
             android:id="@+id/subjectTextView"
             android:layout_gravity="center_horizontal"
             android:layout_weight="0.45" />
+
+
+        <TextView
+            android:layout_marginTop="40sp"
+            android:layout_marginBottom="8dp"
+            android:text="Or Enter your ID #:"
+            style="@style/AboutHeaderStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:layout_width="233dp"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:text=""
+            android:ems="10"
+            android:id="@+id/idEditText"
+            android:layout_gravity="center_horizontal" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Set ID"
+            android:id="@+id/idButton"
+            android:layout_gravity="center_horizontal" />
+
+
+        <!--<TextView-->
+            <!--android:layout_marginBottom="16dp"-->
+            <!--android:id="@+id/id_content"-->
+            <!--android:layout_marginLeft="8dp"-->
+            <!--style="@style/AboutContentStyle"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"/>-->
 
     </LinearLayout>
 

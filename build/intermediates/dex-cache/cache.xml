@@ -2,74 +2,11 @@
 <items version="2" >
 
     <item
-        jar="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/22.0.0/jars/classes.jar"
-        jumboMode="false"
-        revision="23.0.1"
-        sha1="c6d79137693d494dee16372d3921f919eb724ced">
-        <dex dex="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/pre-dexed/debug/classes-fdcfba1f9bb3af7183953721cc7223f439d5e892.jar" />
-    </item>
-    <item
-        jar="/Users/cbono/Library/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/23.1.0/support-annotations-23.1.0.jar"
-        jumboMode="false"
-        revision="23.0.1"
-        sha1="92e3fc113ec3ee36b64603a38857b95700025633">
-        <dex dex="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/pre-dexed/debug/support-annotations-23.1.0-66b9513e625c17ef2751cf83f9808fb2a80b0362.jar" />
-    </item>
-    <item
         jar="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/exploded-aar/breathe-android-app/common/unspecified/jars/classes.jar"
         jumboMode="false"
         revision="23.0.1"
-        sha1="e18bcf3edf8df26189279ab5a5c2d64252e4008b">
+        sha1="3ba5f7cd7cd0c78cb2dbdf0a84222d17f54a244d">
         <dex dex="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/pre-dexed/debug/classes-7c66f93142ddf4a4a5b83e91d1356bd6fd2b158b.jar" />
-    </item>
-    <item
-        jar="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/exploded-aar/com.google.android.gms/play-services-basement/8.3.0/jars/classes.jar"
-        jumboMode="false"
-        revision="23.0.1"
-        sha1="345a1b5cf5b144ce18ba6962bc66a7e2f26c1c1b">
-        <dex dex="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/pre-dexed/debug/classes-c22ce6445984772397243cf8c903a795f0b5a277.jar" />
-    </item>
-    <item
-        jar="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/exploded-aar/com.android.support/support-v4/23.1.0/jars/classes.jar"
-        jumboMode="false"
-        revision="23.0.1"
-        sha1="ddde541c289c8b816a8f8fd6c325d80788c522a6">
-        <dex dex="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/pre-dexed/debug/classes-8daee5503ab200dc61b2277d0f5ad5403ac401da.jar" />
-    </item>
-    <item
-        jar="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/exploded-aar/com.android.support/support-v4/23.1.0/jars/libs/internal_impl-23.1.0.jar"
-        jumboMode="false"
-        revision="23.0.1"
-        sha1="8716243bf04bae8d6c9ca94d27b9a9be7236f0a3">
-        <dex dex="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/pre-dexed/debug/internal_impl-23.1.0-a923189cf5b98a9a6d698a023f6def3c174fe98c.jar" />
-    </item>
-    <item
-        jar="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/exploded-aar/com.google.android.gms/play-services-wearable/8.3.0/jars/classes.jar"
-        jumboMode="false"
-        revision="23.0.1"
-        sha1="9aedc597d74c6d77258ce5236e9abff0c3cc65e3">
-        <dex dex="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/pre-dexed/debug/classes-8a9b368c31ccd7e1f3844c78936133a228696fa5.jar" />
-    </item>
-    <item
-        jar="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/exploded-aar/com.google.android.support/wearable/1.3.0/jars/classes.jar"
-        jumboMode="false"
-        revision="23.0.1"
-        sha1="58b928ccbaf9090c632f278d6bd31e1ae42f2457">
-        <dex dex="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/pre-dexed/debug/classes-8a1888c837d3e7577cece8238c0ffdf83a369f3c.jar" />
-    </item>
-    <item
-        jar="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.3.0/jars/classes.jar"
-        jumboMode="false"
-        revision="23.0.1"
-        sha1="01a90bbb9495a8bbf6f3cfdf12f1b35caaa9524b">
-        <dex dex="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/pre-dexed/debug/classes-2a3ea9a84295d62ed6d41b16975a14aabe12ebdc.jar" />
-    </item>
-    <item
-        jar="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.0/jars/classes.jar"
-        jumboMode="false"
-        revision="23.0.1"
-        sha1="57ae0d750ff83f0c738d21720224ac7ea866a094">
-        <dex dex="/Users/cbono/Documents/research/breathe-android-app/wear/build/intermediates/pre-dexed/debug/classes-8f57fbeae3ca8c9679a1ca9fe12c18987985495f.jar" />
     </item>
 
 </items>
