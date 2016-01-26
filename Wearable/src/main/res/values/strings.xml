@@ -16,7 +16,7 @@
 
 <resources>
 
-    <string name="app_name">Skeleton Wearable App</string>
+    <string name="app_name">Breathe Wearable App</string>
     <string name="intro_text">Long press to go back home.</string>
     <string name="main_activity_title_text"> Breathe App</string>
     <string name="grid_activity_title_text"> Grid Activity </string>
@@ -24,6 +24,8 @@
     <string name="start_timer"> Start Timer (5 sec) </string>
     <string name="sensor_toggle"> Toggle Sensors </string>
     <string name="show_notification"> Show Notification </string>
-    <string name="notification_title"> Skeleton App Notification </string>
+    <string name="notification_title"> Breathe App Notification </string>
     <string name="action_launch_activity">Launch Activity</string>
+
+
 </resources>

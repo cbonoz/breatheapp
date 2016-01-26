@@ -3,7 +3,9 @@ package com.example.android.google.wearable.app;
 import android.hardware.Sensor;
 import android.location.Location;
 import android.util.Log;
+import android.util.SparseLongArray;
 
+import com.example.android.google.wearable.app.encryption.EncryptionDecryption;
 import com.example.android.google.wearable.app.data.SensorNames;
 
 import org.json.JSONArray;
@@ -15,6 +17,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.security.PublicKey;
 import java.util.TimeZone;
 
 /* Class: ClientPaths
@@ -26,47 +29,68 @@ public class ClientPaths {
 
     public static final String START_MEASUREMENT = "/start";
     public static final String STOP_MEASUREMENT = "/stop";
-    public static final String BASE = "http://beta.breatheplatform.com";
+    public static final String BASE = "http://www.breatheplatform.com";
     public static final String SUBJECT_API = BASE + "/api/subject/add";
     public static final String MULTI_FULL_API = BASE + "/api/multisensor/add";
+    public static final String RISK_API = BASE + "/api/risk/get";
 
-    public static final String API_KEY = "GWTgVdeNeVwsGqQHHhChfiPgDxxgXJzLoxUD0R64Gns";
+    public static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";//"GWTgVdeNeVwsGqQHHhChfiPgDxxgXJzLoxUD0R64Gns";
 
     //public static final String filePath = Environment.getExternalStorageDirectory().getAbsoluteFile().toString();
     public static final String SENSOR_FNAME = "SensorData.txt";
     //public static final String LOG_DATA_FILE = "BTLogData.txt";
     public static final int GARBAGE_SENSOR_ID = 2752;
     public static final int DUST_SENSOR_ID = 999;
-    public static final int SENSOR_DELAY_CUSTOM = 1000;//SensorManager.SENSOR_DELAY_NORMAL*100;//1000000*5;
+    public static final int SPIRO_SENSOR_ID = 998;
+    public static final int SENSOR_DELAY_CUSTOM = 2000;//SensorManager.SENSOR_DELAY_NORMAL*100;//1000000*5;
+    public static final int NO_VALUE = -1;
+    private static final int MAX_FILE_SIZE = (1024*1024)*300;//max size 300MB
     public static Boolean BT_SCANNING = true;
 
-    private static final Integer RECORD_LIMIT = 50;
-    private static final Boolean sending = true;
+    private static int riskLevel= NO_VALUE;
+    //number of sensor data entries between each send
+    private static final Integer RECORD_LIMIT = 100;
+
+    //controls whether data should be sent to server
+    private static final Boolean sending = false;
+    //controls encryption in post request
     private static final Boolean encrypting = false;
+    //controls writing sensorData to file
+    private static Boolean writing = true;
+    public Boolean isWriting() {
+        return writing;
+    }
+
     public static int TURBO = 0;
+    public static int bytesWritten=0;
+
+    private static SparseLongArray lastSensorData = new SparseLongArray();
+
+
+    //./adb pull /storage/sdcard0/SensorData.txt ~/Downloads
 
 
 
     public static Location currentLocation=null;
     private static SensorNames sensorNames = new SensorNames();
+    private static EncryptionDecryption encryptionDecryption = new EncryptionDecryption();
 
     //private static EncryptionDecryption encryptionDecryption; = new EncryptionDecryption();
 
     public  static final File root = android.os.Environment.getExternalStorageDirectory();
+
     private static String subjectDirectory = root + "/SubjectData.txt";
     private static File subjectFile = createFile(subjectDirectory);
 
+    private static String sensorDirectory = root + "/SensorData.txt";
+    public static File sensorFile = createFile(sensorDirectory);
+
     public static Integer SUBJECT_ID = getSubjectID();
 
-    private static JSONArray jsonData = new JSONArray();
+    private static JSONArray sensorData = new JSONArray();
     private static Integer recordCount = 0;
     private static String timezone = initTimeZone();
 
-
-
-
-    //private static BufferedWriter wr;// = new BufferedWriter(new FileWriter(subjectFile));
-    //private static BufferedReader rd;// = new BufferedReader(new FileReader(subjectFile));
 
 
     private static File createFile(String fname) {
@@ -103,10 +127,44 @@ public class ClientPaths {
             tzone="US - Default";
         }
 
+//        if (tzone.equals("Pacific Standard Time")) {
+//            tzone = "PST";
+//        }
+
         return tzone;
 
     }
 
+    public static double round5(double v) {
+
+        return Math.round(v*100000.0)/100000.0;
+    }
+
+    public static void sendKeyToServer() {
+        Log.d(TAG, "Sending Key to Server");
+        return;
+    }
+
+
+    //TODO: Implement
+    public static PublicKey generateKey() {
+        return new PublicKey() {
+            @Override
+            public String getAlgorithm() {
+                return null;
+            }
+
+            @Override
+            public String getFormat() {
+                return null;
+            }
+
+            @Override
+            public byte[] getEncoded() {
+                return new byte[0];
+            }
+        };
+    }
 
 
 
@@ -117,7 +175,6 @@ public class ClientPaths {
         if (SUBJECT_ID != null && SUBJECT_ID > 0) {
             Log.i(TAG, "retrieved existing subject ID: " + SUBJECT_ID);
             return SUBJECT_ID;
-
         }
 
 
@@ -136,11 +193,12 @@ public class ClientPaths {
             res = Integer.parseInt(sid);
 
         } catch (Exception e) {
-            Log.e(TAG, "Invalid subjectID ("+sid+") in subjectFile...resetting to " + GARBAGE_SENSOR_ID);
+            Log.e(TAG, "Invalid subjectID (" + sid + ") in subjectFile");
             e.printStackTrace();
             //erase the current subject file and replace with garbage.
-            res=GARBAGE_SENSOR_ID;
-            setSubjectID(res);
+            //res=GARBAGE_SENSOR_ID;
+            //setSubjectID(res);
+            return NO_VALUE;
 
         }
         Log.i(TAG, "getSubjectID returning: " + res);
@@ -148,54 +206,84 @@ public class ClientPaths {
 
     }
 
-    public static void setSubjectID(Integer sid) {
-        Log.i(TAG, "setSubjectID: " + sid);
+    public static boolean writeDataToFile(String data, File file, Boolean append) {
         try {
 
-            FileOutputStream f = new FileOutputStream(subjectFile);
+            FileOutputStream f = new FileOutputStream(file, append);
+            f.write(data.getBytes());
 
-            f.write(sid.toString().getBytes());
             f.close();
+
+            Log.d(TAG, "wrote to " + file.toString());
+            Log.d(TAG, "filelength " + file.length());
+
+            if (file.toString().equals(sensorFile.toString())) {
+                bytesWritten += data.length();
+                Log.d(TAG, "bytesWritten " + bytesWritten);
+            }
+
+
+            return true;
 
 
         } catch (Exception e) {
             e.printStackTrace();
-
+            writing = false;
+            return false;
 
         }
 
+    }
 
-        SUBJECT_ID=sid;//getSubjectID();
+    public static void setSubjectID(Integer sid) {
+        Log.i(TAG, "setSubjectID: " + sid);
+        if (writeDataToFile(sid.toString(), subjectFile,false))
+            SUBJECT_ID=sid;//getSubjectID();
+
+
+
+
 
     }
 
-    //safe push method
-    public static /*synchronized*/ void appendData(JSONObject jObj) {
-        jsonData.put(jObj);
+
+    public static synchronized void appendData(JSONObject jObj) {
+        sensorData.put(jObj);
     }
 
-    public static void clearData() {
-        jsonData = new JSONArray();
+    public static synchronized void clearData() {
+        sensorData = new JSONArray();
     }
 
-    public static JSONArray getData() {
-        return jsonData;
+    public static synchronized JSONArray getData() {
+        return sensorData;
     }
 
     private static void createDataPostRequest() {
         JSONObject jsonBody = new JSONObject();
 
-        String jsonDataString="";
+        String sensorDataString="";
 
         try {
-            //jsonDataString = (encrypting ? encryptionDecryption.encrypt(jsonData.join("\n").toCharArray()) : jsonData.join("\n"));
-            jsonDataString = jsonData.join("\n");
+            //sensorDataString = (encrypting ? encryptionDecryption.encrypt(sensorData.join("\n").toCharArray()) : sensorData.join("\n"));
+            sensorDataString = sensorData.join("\n");
+
+            if (encrypting)
+                sensorDataString = encryptionDecryption.encrypt(sensorDataString.toCharArray());
+
+//            if (writing) {
+//                Boolean res = writeDataToFile(sensorDataString, sensorFile, true);
+//                if (res) {
+//                    Log.d(TAG, "Appended " + sensorData.length() + " data points to " + sensorFile.toString());
+//                }
+//            }
 
             jsonBody.put("subject_id", getSubjectID());
             jsonBody.put("key", API_KEY);
 
             //data is the only object that needs to be encrypted
-            jsonBody.put("data", jsonDataString);
+
+            jsonBody.put("data", sensorDataString);
 
 
         } catch (Exception e) {
@@ -207,13 +295,16 @@ public class ClientPaths {
 
         if (sending) {
 
-            Log.d(TAG, "Uploading sensor datum");
+            Log.d(TAG, "Uploading sensor data");
 
             //uploadTask will take care of the post request, and writing the data to the auxiliary sensorData subjectFile should the post request be unsuccessful
             //this is done on a background task thread
             UploadTask uploadTask = new UploadTask(MULTI_FULL_API, null);//, root + File.separator + SENSOR_FNAME);
             uploadTask.execute(jsonBody.toString());
-            uploadTask.cleanUp();
+
+//            Intent msgIntent = new Intent(context, SensorUploadService.class);
+//            msgIntent.putExtra("data", jsonBody.toString());
+//            context.startService(msgIntent);
 
             //only sending one value for initial test
             //sending = false;
@@ -230,7 +321,7 @@ public class ClientPaths {
 
     // END WRITE AND SEND BLOCK
 
-    public static void createDataEntry(final int sensorType, final int accuracy, final long timestamp, final float[] values) {
+    private static void createDataEntry(final int sensorType, final int accuracy, final long timestamp, final float[] values) {
         JSONObject jsonDataEntry = new JSONObject();
         JSONObject jsonValue = new JSONObject();
         String sensorName = sensorNames.getName(sensorType);
@@ -241,10 +332,10 @@ public class ClientPaths {
 
             switch (sensorType) {
                 case (Sensor.TYPE_LINEAR_ACCELERATION):
-                    jsonValue.put("x", values[0]);
-                    jsonValue.put("y", values[1]);
-                    jsonValue.put("z", values[2]);
-                    jsonDataEntry.put("sensor_type", sensorType);
+                    jsonValue.put("x", round5(values[0]));
+                    jsonValue.put("y", round5(values[1]));
+                    jsonValue.put("z", round5(values[2]));
+                    //jsonDataEntry.put("sensor_type", sensorType);
                     validEvent = true;
                     break;
                 case (Sensor.TYPE_HEART_RATE):
@@ -254,17 +345,31 @@ public class ClientPaths {
                         Log.d(TAG, "Received "+sensorName+" data=0 - skip");
                         return;
                     }
-                    jsonDataEntry.put("sensor_type", 21);
+                    //jsonDataEntry.put("sensor_type", 21);
                     jsonValue.put("v", values[0]);
                     validEvent = true;
                     break;
                 case (Sensor.TYPE_AMBIENT_TEMPERATURE):
                     //case (Sensor.TYPE_STEP_COUNTER):
                     jsonValue.put("v", values[0]);
-                    jsonDataEntry.put("sensor_type", sensorType);
+                    //jsonDataEntry.put("sensor_type", sensorType);
                     validEvent = true;
                     break;
+                case (ClientPaths.SPIRO_SENSOR_ID):
+                    //add spirometer data point
+//                    fev1, pef, fev1_best, pef_best, fev1_percent, pef_percent, green_zone, yellow_zone, orange_zone
+                    jsonValue.put("fev1", values[0]);
+                    jsonValue.put("pef", values[1]);
+//                    jsonValue.put("fev1_best", values[2]);
+//                    jsonValue.put("pef_best", values[3]);
+//                    jsonValue.put("fev1_percent", values[4]);
+//                    jsonValue.put("pef_percent", values[5]);
+//                    jsonValue.put("green_zone", values[6]);
+//                    jsonValue.put("yellow_zone", values[7]);
+//                    jsonValue.put("orange_zone", values[8]);
 
+                    validEvent=true;
+                    break;
 
                 default:
                     break;
@@ -272,20 +377,22 @@ public class ClientPaths {
 
 
 
-            jsonDataEntry.put("sensor_name", sensorName);
+            //jsonDataEntry.put("sensor_name", sensorName);
 
             jsonDataEntry.put("value", jsonValue);
 
             jsonDataEntry.put("timestamp", System.currentTimeMillis());
             jsonDataEntry.put("timezone", ClientPaths.getTimeZone());
-            jsonDataEntry.put("sensor_id", ClientPaths.GARBAGE_SENSOR_ID);//will be changed to actual sensor (sensorType)
+            jsonDataEntry.put("accuracy",accuracy);
+            jsonDataEntry.put("sensor_id", sensorNames.getServerID(sensorType));//will be changed to actual sensor (sensorType)
             //jsonDataEntry.put("sensor_id",sensorType);
             if (ClientPaths.currentLocation!=null) {
-                jsonDataEntry.put("lat", ClientPaths.currentLocation.getLatitude());
-                jsonDataEntry.put("long", ClientPaths.currentLocation.getLongitude());
-                jsonDataEntry.put("accuracy", ClientPaths.currentLocation.getAccuracy());
+                jsonDataEntry.put("lat", round5(ClientPaths.currentLocation.getLatitude()));
+                jsonDataEntry.put("long", round5(ClientPaths.currentLocation.getLongitude()));
+                //jsonDataEntry.put("accuracy", ClientPaths.currentLocation.getAccuracy());
             } else {
-                jsonDataEntry.put("accuracy", "No Location Found");
+                jsonDataEntry.put("lat",NO_VALUE);
+                jsonDataEntry.put("long",NO_VALUE);
             }
 
         } catch (Exception e) {
@@ -301,10 +408,43 @@ public class ClientPaths {
             return;
         }
 
-        Log.d(TAG, "Data Added: " + jsonDataEntry.toString());
-
         appendData(jsonDataEntry);
         incrementCount();
+        Log.d(TAG, "Data Added: " + jsonDataEntry.toString());
     }
+
+
+    public static void sendSensorData(final int sensorType, final int accuracy, final long timestamp, final float[] values) {
+        long t = System.currentTimeMillis();
+
+        long lastTimestamp = lastSensorData.get(sensorType);
+        long timeAgo = t - lastTimestamp;
+
+        if (lastTimestamp != 0) {
+            if (timeAgo < SENSOR_DELAY_CUSTOM) {
+                return; //wait until SENSOR_DELAY_CUSTOM until next reading
+            }
+        }
+
+        //if accuracy rating too low, reject
+        if (accuracy < 2) {
+            Log.d(TAG, "Blocked " + sensorType + " " + values.toString() + " reading - accuracy < 2");
+            return;
+
+        }
+
+        ClientPaths.createDataEntry(sensorType, accuracy, timestamp, values);
+
+        lastSensorData.put(sensorType, t);
+
+    }
+
+//    public static void setRiskLevel(int risk) {
+//        riskLevel=risk;
+//    }
+//
+//    public static int getRiskLevel() {
+//        return riskLevel;
+//    }
 }
 

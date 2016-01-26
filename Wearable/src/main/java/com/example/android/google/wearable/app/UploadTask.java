@@ -1,9 +1,9 @@
 package com.example.android.google.wearable.app;
 
 import android.content.Context;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -16,7 +16,6 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -29,73 +28,66 @@ import java.net.URL;
  * Will spawn a new background thread for completing the send request via postJsonToServer
  *
  *  Pushed file writing to the background process thread to sensor service can be freed to focus on doing sensor related tasks
+ *
+ *  Posts can be blocked if watch is connected to on phone.
+ *  If your watch has Wifi and it is set up correctly, then you can make network calls on your watch when your watch is disconnected from the phone; when you connect to your phone via BT, wifi will be disabled. While it is enabled, you should be able to treat that as a usual network connectivity and make network calls. But keep in mind that if you write an app that relies on this, your app will fail to work when it gets connected to a phone so you need to handle that case and provide an alternative for your app to get the same data (i.e. using the phone's connectivity).
  */
 
 public class UploadTask extends AsyncTask<String, Void, String> {
 
     private static final String TAG = UploadTask.class.getSimpleName();
 
-    //define endpoints for server
-    //target url will be URL + SENSOR
-
     private static final String CHARSET_UTF8 = "UTF-8";
 
-
     private URL url;
-    OutputStreamWriter wr;
-    BufferedReader rd;
 
-    //private BufferedWriter sensorBuffer;
-    private Boolean writing;
+    private static Boolean writing=true;
+    private static Integer newRisk;
     private static String urlString;
     private static Context context;
+    private static String data;
 
-    //private TimeZone tz;
-
-
-    //loading a json object will create a large amount of temporary data overhead if the app is not
+    //loading a json object could have a large amount of temporary data overhead if the app is not
     // connected to the internet and the sensors are running. Going to use a file approach, where the
     // server will process the files
 
 
     public UploadTask(String urlName, Context c) {
         context = c;
-        writing = false;
+
         urlString = urlName;
+        data="";
 
         try {
             url = new URL(urlString);// URL(MULTI_FULL_API);
         } catch (Exception e) {
-            Log.e(TAG, "Error creating URL");
+            Log.d(TAG, "Error creating URL");
             e.printStackTrace();
         }
-//
-//        if (writing) {
-//            sensorBuffer = writeNewFile(filePath);
-//
-//            if (sensorBuffer == null) {
-//                Log.e(TAG, "Sensor buffer was not able to be opened");
-//                Log.i(TAG, "Buffer writing OFF");
-//                writing = false;
-//            } else {
-//                Log.i(TAG, "Buffer writing ON");
-//            }
-//        }
 
-
-        //super("UploadService");
     }
 
-    @Override
+    private WifiManager wifiManager;
+    private WifiManager.WifiLock lock;
+
     protected String doInBackground(String... strings) {
+
         int statusCode = 0;
         InputStream is=null;
         OutputStream os=null;
         HttpURLConnection conn=null;
-        String data = strings[0];
+        data = strings[0];
         String result = null;
 
         Log.i(url.toString(), "NOW Sending: "+data);
+//        if (urlString.equals(ClientPaths.MULTI_FULL_API)) {
+//            ClientPaths.writeDataToFile(data, ClientPaths.sensorFile,false);
+//            Log.d(TAG, "write data to sensorFile");
+//        }
+
+//        wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+//        lock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "LockTag");
+//        lock.acquire();
 
         try {
             conn = (HttpURLConnection) url.openConnection();
@@ -112,16 +104,12 @@ public class UploadTask extends AsyncTask<String, Void, String> {
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
 
-            //open
             conn.connect();
 
-            //setup send
             os = new BufferedOutputStream(conn.getOutputStream());
 
             os.write(data.getBytes());
-            //clean up
             os.flush();
-
             os.close();
 
             statusCode = conn.getResponseCode();
@@ -155,63 +143,93 @@ public class UploadTask extends AsyncTask<String, Void, String> {
             }
 
             Log.i(TAG, "Response: " + result);
-            if (urlString.equals(ClientPaths.SUBJECT_API)) {
-                Log.i(TAG, "Detected response was from SUBJECT_API");
+            Log.i(TAG, "From " + urlString);
 
-                try {
-                    String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
-                    final JSONObject resJson = new JSONObject(jsonString);
-                    int newID = Integer.parseInt(resJson.getString("subject_id"));
-                    Log.i(TAG, "Setting new SubjectID: " + newID);
-                    ClientPaths.setSubjectID(newID);
-                    return "Registered " + newID;
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                    return statusCode + ": Server Error";
+            switch (urlString) {
+
+
+                case ClientPaths.SUBJECT_API:
+                    try {
+                        String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
+                        final JSONObject resJson = new JSONObject(jsonString);
+                        int newID = Integer.parseInt(resJson.getString("subject_id"));
+                        Log.i(TAG, "Setting new SubjectID: " + newID);
+                        ClientPaths.setSubjectID(newID);
+                        return "Registered " + newID;
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                        return statusCode + ": JSON Parse Error";
+                    }
+
+
+                case ClientPaths.RISK_API:
+                    try {
+                        String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
+                        final JSONObject resJson = new JSONObject(jsonString);
+                        newRisk = Integer.parseInt(resJson.getString("risk"));
+                        Log.i(TAG, "Setting new riskLevel: " + newRisk);
+//                        ClientPaths.setRiskLevel(newRisk);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return statusCode + ": JSON Parse Error";
+                    }
+                case ClientPaths.MULTI_FULL_API:
+                    if (result!=null) {
+                        if (result.contains("done")) {
+                            ClientPaths.writeDataToFile("",ClientPaths.sensorFile,false); //clears file
+                            return "Sent Data: Cleared Sensor data cache";
+                        }
+                    }
+
+
+
+            }
+
+
+        } catch (Exception e) {
+            Log.d(TAG, "Could not Connect to Internet");
+            e.printStackTrace();
+            newRisk = ClientPaths.NO_VALUE;
+            writing = true;
+            //if exception thrown in sensor post, cache data to file for next send
+            if (urlString.equals(ClientPaths.MULTI_FULL_API)) {
+                Boolean res = ClientPaths.writeDataToFile(data, ClientPaths.sensorFile, true);
+                if (res) {
+                    Log.d(TAG, "Appended " + data.length() + " data points to " + ClientPaths.sensorFile.toString());
                 }
             }
 
 
-        }catch (Exception e) {
-            Log.e(TAG, "Error in ASync Post Request: " + urlString);
-            e.printStackTrace();
-            return statusCode + ": Server Error";
-
-
         } finally {
-            Log.i(TAG,"STATUSCODE: " + statusCode);
+
             if (conn!=null)
                 conn.disconnect();
 
+            if (urlString.equals(ClientPaths.RISK_API)) {
+                ((MainActivity) context).runOnUiThread(new Runnable() {
+                    public void run() {
+                        //Do something on UiThread
+                        ((MainActivity) context).updateRiskUI(newRisk, false);
 
-            //write data to file should unsuccessful post occur
-//            if (writing && statusCode != 200) {
-//                Log.d(TAG, "Writing sensor datum to file");
-//                try {
-//
-//                    sensorBuffer.write(data);
-//
-//                } catch (Exception e) {
-//                    //failed to write data
-//                    Log.e(TAG, e.toString());
-//                    e.printStackTrace();
-//                    cleanUp();
-//                }
-//                writing = false;
-//            }
+                    }
+                });
+            }
 
         }
+
+//        lock.release();
 
         return statusCode+"";
     }
 
     @Override
     protected void onPostExecute(String result){
-        if (context!=null) {
-            Toast toast = Toast.makeText(context, result, Toast.LENGTH_SHORT);
-            toast.show();
-        }
+
+        if (result!=null)
+            Log.d("onPostExecute", result);
+
     }
 
 
@@ -231,7 +249,7 @@ public class UploadTask extends AsyncTask<String, Void, String> {
 
 
         } catch (Exception e) {
-            Log.e("error: writeNewFile",e.toString());
+            Log.d("error: writeNewFile",e.toString());
             e.printStackTrace();
             writing = false;
             return null;
@@ -242,20 +260,10 @@ public class UploadTask extends AsyncTask<String, Void, String> {
 
     }
 
-
-    public void cleanUp() {
-//        if (sensorBuffer != null) {
-//            try {
-//                sensorBuffer.flush();
-//                sensorBuffer.close();
 //
-//            } catch (Exception e) {
-//                Log.e(TAG, "Error closing sensorBuffer");
-//                e.printStackTrace();
-//            }
-//        }
-
-        Log.d(TAG, "cleanUp called");
-    }
+//    public void cleanUp() {
+//
+//        Log.d(TAG, "cleanUp called");
+//    }
 
 }

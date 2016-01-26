@@ -29,13 +29,13 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int ambientEnabled=0x7f010031;
+        public static final int ambientEnabled=0x7f01003d;
         /** <p>May be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
 <p>May be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
          */
-        public static final int buttonRippleColor=0x7f01000e;
+        public static final int buttonRippleColor=0x7f01001a;
         /** <p>May be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
 <p>May be one of the following constant values.</p>
@@ -49,7 +49,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 <tr><td><code>icon_only</code></td><td>2</td><td></td></tr>
 </table>
          */
-        public static final int buttonSize=0x7f010033;
+        public static final int buttonSize=0x7f01004c;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -57,7 +57,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int cameraBearing=0x7f010022;
+        public static final int cameraBearing=0x7f01002e;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -65,7 +65,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int cameraTargetLat=0x7f010023;
+        public static final int cameraTargetLat=0x7f01002f;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -73,7 +73,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int cameraTargetLng=0x7f010024;
+        public static final int cameraTargetLng=0x7f010030;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -81,7 +81,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int cameraTilt=0x7f010025;
+        public static final int cameraTilt=0x7f010031;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -89,7 +89,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int cameraZoom=0x7f010026;
+        public static final int cameraZoom=0x7f010032;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -97,7 +97,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int circleCrop=0x7f010020;
+        public static final int circleCrop=0x7f01002c;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -106,7 +106,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int circle_border_color=0x7f010007;
+        public static final int circle_border_color=0x7f010013;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -116,7 +116,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int circle_border_width=0x7f010006;
+        public static final int circle_border_width=0x7f010012;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -125,7 +125,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int circle_color=0x7f010003;
+        public static final int circle_color=0x7f01000f;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -135,7 +135,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int circle_padding=0x7f010008;
+        public static final int circle_padding=0x7f010014;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -145,7 +145,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int circle_radius=0x7f010004;
+        public static final int circle_radius=0x7f010010;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -155,7 +155,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int circle_radius_pressed=0x7f010005;
+        public static final int circle_radius_pressed=0x7f010011;
         /** <p>Must be one or more (separated by '|') of the following constant values.</p>
 <table>
 <colgroup align="left" />
@@ -171,7 +171,7 @@ containing a value of this type.
 <tr><td><code>center</code></td><td>0x11</td><td></td></tr>
 </table>
          */
-        public static final int circular_layout_gravity=0x7f010040;
+        public static final int circular_layout_gravity=0x7f010077;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -181,7 +181,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int circular_text_size=0x7f010041;
+        public static final int circular_text_size=0x7f010078;
         /** <p>May be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
 <p>May be one of the following constant values.</p>
@@ -195,13 +195,13 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 <tr><td><code>auto</code></td><td>2</td><td></td></tr>
 </table>
          */
-        public static final int colorScheme=0x7f010034;
+        public static final int colorScheme=0x7f01004d;
         /** <p>May be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
 <p>May be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
          */
-        public static final int color_sequence=0x7f010032;
+        public static final int color_sequence=0x7f01004b;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -210,7 +210,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int dotColor=0x7f010014;
+        public static final int dotColor=0x7f010020;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -219,7 +219,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int dotColorSelected=0x7f010015;
+        public static final int dotColorSelected=0x7f010021;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -227,7 +227,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int dotFadeInDuration=0x7f010019;
+        public static final int dotFadeInDuration=0x7f010025;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -235,7 +235,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int dotFadeOutDelay=0x7f010017;
+        public static final int dotFadeOutDelay=0x7f010023;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -243,7 +243,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int dotFadeOutDuration=0x7f010018;
+        public static final int dotFadeOutDuration=0x7f010024;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -251,7 +251,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int dotFadeWhenIdle=0x7f010016;
+        public static final int dotFadeWhenIdle=0x7f010022;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -261,7 +261,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int dotRadius=0x7f010012;
+        public static final int dotRadius=0x7f01001e;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -271,7 +271,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int dotRadiusSelected=0x7f010013;
+        public static final int dotRadiusSelected=0x7f01001f;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -280,7 +280,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int dotShadowColor=0x7f01001a;
+        public static final int dotShadowColor=0x7f010026;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -290,7 +290,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int dotShadowDx=0x7f01001c;
+        public static final int dotShadowDx=0x7f010028;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -300,7 +300,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int dotShadowDy=0x7f01001d;
+        public static final int dotShadowDy=0x7f010029;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -310,7 +310,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int dotShadowRadius=0x7f01001b;
+        public static final int dotShadowRadius=0x7f010027;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -320,7 +320,70 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int dotSpacing=0x7f010011;
+        public static final int dotSpacing=0x7f01001d;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egActivateIndicatorShadow=0x7f01005f;
+        /** <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egAnimationTime=0x7f010008;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egAutoCenter=0x7f010043;
+        /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egBarLabelColor=0x7f01006c;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egBarMargin=0x7f010004;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egBarTextSize=0x7f01004f;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egBarWidth=0x7f010003;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -328,7 +391,419 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int imageAspectRatio=0x7f01001f;
+        public static final int egCurveSmoothness=0x7f010052;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egDrawValueInPie=0x7f010044;
+        /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egEmptyDataText=0x7f01000d;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egEnableScroll=0x7f010006;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egFixedBarWidth=0x7f010005;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egHighlightStrength=0x7f010041;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egIndicatorLeftPadding=0x7f01005b;
+        /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egIndicatorLineColor=0x7f010058;
+        /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egIndicatorShadowColor=0x7f010061;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egIndicatorShadowStrength=0x7f010060;
+        /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egIndicatorTextColor=0x7f010059;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egIndicatorTextSize=0x7f01005a;
+        /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egIndicatorTextUnit=0x7f010062;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egIndicatorTopPadding=0x7f01005c;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egIndicatorWidth=0x7f010057;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egInnerPadding=0x7f01003e;
+        /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egInnerPaddingColor=0x7f010049;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egInnerPaddingOutline=0x7f01003f;
+        /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egInnerValueUnit=0x7f01004a;
+        /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egLegendColor=0x7f010009;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egLegendHeight=0x7f01000a;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egLegendTextSize=0x7f01000b;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egLineStroke=0x7f010055;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egMaxXZoom=0x7f010066;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egMaxYZoom=0x7f010067;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egMaximumValue=0x7f010069;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egOpenClockwise=0x7f010048;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egScalingFactor=0x7f010065;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egSeparatorWidth=0x7f010051;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egShowBarLabel=0x7f01006b;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egShowDecimal=0x7f01000c;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egShowLegendBeneathIndicator=0x7f010063;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egShowSeparators=0x7f010050;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egShowStandardValue=0x7f01005d;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egShowValueIndicator=0x7f010056;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egShowValues=0x7f010002;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egUseCubic=0x7f010053;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egUseCustomInnerValue=0x7f010047;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egUseDynamicScaling=0x7f010064;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egUseInnerPadding=0x7f010040;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egUseMaximumValue=0x7f010068;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egUseOverlapFill=0x7f010054;
+        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egUsePieRotation=0x7f010042;
+        /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egValueTextColor=0x7f010046;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egValueTextSize=0x7f010045;
+        /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egValueUnit=0x7f01006a;
+        /** <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egVisibleBars=0x7f010007;
+        /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int egXAxisStroke=0x7f01005e;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int imageAspectRatio=0x7f01002b;
         /** <p>Must be one of the following constant values.</p>
 <table>
 <colgroup align="left" />
@@ -340,7 +815,7 @@ containing a value of this type.
 <tr><td><code>adjust_height</code></td><td>2</td><td></td></tr>
 </table>
          */
-        public static final int imageAspectRatioAdjust=0x7f01001e;
+        public static final int imageAspectRatioAdjust=0x7f01002a;
         /** <p>Must be one of the following constant values.</p>
 <table>
 <colgroup align="left" />
@@ -351,7 +826,7 @@ containing a value of this type.
 <tr><td><code>center</code></td><td>1</td><td></td></tr>
 </table>
          */
-        public static final int imageScaleMode=0x7f01000d;
+        public static final int imageScaleMode=0x7f010019;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -361,7 +836,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int image_circle_percentage=0x7f01000a;
+        public static final int image_circle_percentage=0x7f010016;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -371,7 +846,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int image_horizontal_offcenter_percentage=0x7f01000b;
+        public static final int image_horizontal_offcenter_percentage=0x7f010017;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -380,7 +855,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int image_tint=0x7f01000c;
+        public static final int image_tint=0x7f010018;
         /** <p>Must be one or more (separated by '|') of the following constant values.</p>
 <table>
 <colgroup align="left" />
@@ -394,7 +869,7 @@ containing a value of this type.
 <tr><td><code>all</code></td><td>0x0F</td><td></td></tr>
 </table>
          */
-        public static final int layout_box=0x7f010002;
+        public static final int layout_box=0x7f01000e;
         /** <p>Must be one or more (separated by '|') of the following constant values.</p>
 <table>
 <colgroup align="left" />
@@ -417,7 +892,7 @@ containing a value of this type.
 <tr><td><code>end</code></td><td>0x00800005</td><td></td></tr>
 </table>
          */
-        public static final int layout_gravityRound=0x7f010038;
+        public static final int layout_gravityRound=0x7f01006f;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -427,7 +902,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int layout_heightRound=0x7f01003a;
+        public static final int layout_heightRound=0x7f010071;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -437,7 +912,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int layout_marginBottomRound=0x7f01003f;
+        public static final int layout_marginBottomRound=0x7f010076;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -447,7 +922,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int layout_marginLeftRound=0x7f01003c;
+        public static final int layout_marginLeftRound=0x7f010073;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -457,7 +932,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int layout_marginRightRound=0x7f01003e;
+        public static final int layout_marginRightRound=0x7f010075;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -467,7 +942,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int layout_marginRound=0x7f01003b;
+        public static final int layout_marginRound=0x7f010072;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -477,7 +952,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int layout_marginTopRound=0x7f01003d;
+        public static final int layout_marginTopRound=0x7f010074;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -487,7 +962,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int layout_widthRound=0x7f010039;
+        public static final int layout_widthRound=0x7f010070;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -495,7 +970,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int liteMode=0x7f010027;
+        public static final int liteMode=0x7f010033;
         /** <p>Must be one of the following constant values.</p>
 <table>
 <colgroup align="left" />
@@ -509,7 +984,7 @@ containing a value of this type.
 <tr><td><code>hybrid</code></td><td>4</td><td></td></tr>
 </table>
          */
-        public static final int mapType=0x7f010021;
+        public static final int mapType=0x7f01002d;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -539,20 +1014,20 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int pressedButtonTranslationZ=0x7f01000f;
+        public static final int pressedButtonTranslationZ=0x7f01001b;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static final int rectLayout=0x7f010036;
+        public static final int rectLayout=0x7f01006d;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static final int roundLayout=0x7f010037;
+        public static final int roundLayout=0x7f01006e;
         /** <p>May be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
 <p>May be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
          */
-        public static final int scopeUris=0x7f010035;
+        public static final int scopeUris=0x7f01004e;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -562,7 +1037,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int shadow_width=0x7f010009;
+        public static final int shadow_width=0x7f010015;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -570,7 +1045,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int uiCompass=0x7f010028;
+        public static final int uiCompass=0x7f010034;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -578,7 +1053,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int uiMapToolbar=0x7f010030;
+        public static final int uiMapToolbar=0x7f01003c;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -586,7 +1061,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int uiRotateGestures=0x7f010029;
+        public static final int uiRotateGestures=0x7f010035;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -594,7 +1069,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int uiScrollGestures=0x7f01002a;
+        public static final int uiScrollGestures=0x7f010036;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -602,7 +1077,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int uiTiltGestures=0x7f01002b;
+        public static final int uiTiltGestures=0x7f010037;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -610,7 +1085,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int uiZoomControls=0x7f01002c;
+        public static final int uiZoomControls=0x7f010038;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -618,7 +1093,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int uiZoomGestures=0x7f01002d;
+        public static final int uiZoomGestures=0x7f010039;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -626,7 +1101,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int update_interval=0x7f010010;
+        public static final int update_interval=0x7f01001c;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -634,7 +1109,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int useViewLifecycle=0x7f01002e;
+        public static final int useViewLifecycle=0x7f01003a;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -642,7 +1117,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int zOrderOnTop=0x7f01002f;
+        public static final int zOrderOnTop=0x7f01003b;
     }
     public static final class color {
         public static final int action_button_background=0x7f0b0000;
@@ -764,15 +1239,19 @@ containing a value of this type.
         public static final int common_plus_signin_btn_text_light_focused=0x7f02002b;
         public static final int common_plus_signin_btn_text_light_normal=0x7f02002c;
         public static final int common_plus_signin_btn_text_light_pressed=0x7f02002d;
-        public static final int generic_confirmation=0x7f02002e;
-        public static final int generic_confirmation_animation=0x7f02002f;
-        public static final int ic_full_cancel=0x7f020030;
-        public static final int ic_full_sad=0x7f020031;
-        public static final int ic_launcher=0x7f020032;
-        public static final int open_on_phone=0x7f020033;
-        public static final int open_on_phone_animation=0x7f020034;
-        public static final int powered_by_google_dark=0x7f020035;
-        public static final int powered_by_google_light=0x7f020036;
+        public static final int frowny_face=0x7f02002e;
+        public static final int generic_confirmation=0x7f02002f;
+        public static final int generic_confirmation_animation=0x7f020030;
+        public static final int happy_face=0x7f020031;
+        public static final int ic_full_cancel=0x7f020032;
+        public static final int ic_full_sad=0x7f020033;
+        public static final int ic_launcher=0x7f020034;
+        public static final int neutral_face=0x7f020035;
+        public static final int open_on_phone=0x7f020036;
+        public static final int open_on_phone_animation=0x7f020037;
+        public static final int powered_by_google_dark=0x7f020038;
+        public static final int powered_by_google_light=0x7f020039;
+        public static final int water_bg=0x7f02003a;
     }
     public static final class id {
         public static final int adjust_height=0x7f0e0007;
@@ -780,16 +1259,20 @@ containing a value of this type.
         public static final int alertTitle=0x7f0e001f;
         public static final int all=0x7f0e0000;
         public static final int animatedWrapperContainer=0x7f0e001e;
+        public static final int appText=0x7f0e002e;
         public static final int auto=0x7f0e0011;
         public static final int bottom=0x7f0e0001;
         public static final int buttonPanel=0x7f0e0020;
+        public static final int bytesView=0x7f0e0031;
         public static final int center=0x7f0e0005;
         public static final int center_horizontal=0x7f0e0014;
         public static final int center_vertical=0x7f0e0015;
         public static final int clip_horizontal=0x7f0e0016;
         public static final int clip_vertical=0x7f0e0017;
+        public static final int clock=0x7f0e0032;
+        public static final int copyRightView=0x7f0e0025;
         public static final int dark=0x7f0e0012;
-        public static final int dismiss_overlay=0x7f0e002a;
+        public static final int dismiss_overlay=0x7f0e0027;
         public static final int dismiss_overlay_button=0x7f0e0022;
         public static final int dismiss_overlay_explain=0x7f0e0021;
         public static final int end=0x7f0e0018;
@@ -800,24 +1283,29 @@ containing a value of this type.
         public static final int fragment_container=0x7f0e0024;
         public static final int hybrid=0x7f0e000a;
         public static final int icon_only=0x7f0e000e;
-        public static final int idButton=0x7f0e0028;
+        public static final int idButton=0x7f0e0026;
         public static final int left=0x7f0e0002;
         public static final int light=0x7f0e0013;
         public static final int message=0x7f0e0023;
+        public static final int noConnView=0x7f0e002d;
         public static final int none=0x7f0e0009;
         public static final int normal=0x7f0e000b;
         public static final int parentPanel=0x7f0e001d;
+        public static final int piechart=0x7f0e0033;
         public static final int right=0x7f0e0003;
+        public static final int riskText=0x7f0e0029;
+        public static final int riskView=0x7f0e0030;
         public static final int satellite=0x7f0e000c;
-        public static final int scroll=0x7f0e0025;
-        public static final int sensorToggleButton=0x7f0e0027;
+        public static final int scroll=0x7f0e002c;
+        public static final int sensorToggleButton=0x7f0e002a;
+        public static final int smileView=0x7f0e002f;
+        public static final int spiroToggleButton=0x7f0e002b;
         public static final int standard=0x7f0e000f;
         public static final int start=0x7f0e001c;
-        public static final int subjectText=0x7f0e0026;
+        public static final int subjectText=0x7f0e0028;
         public static final int terrain=0x7f0e000d;
-        public static final int text=0x7f0e002c;
-        public static final int timer=0x7f0e0029;
-        public static final int title=0x7f0e002b;
+        public static final int text=0x7f0e0035;
+        public static final int title=0x7f0e0034;
         public static final int top=0x7f0e0004;
         public static final int wide=0x7f0e0010;
     }
@@ -838,7 +1326,10 @@ containing a value of this type.
         public static final int error_layout=0x7f030002;
         public static final int grid_activity=0x7f030003;
         public static final int main_activity=0x7f030004;
-        public static final int watch_card_content=0x7f030005;
+        public static final int main_activity_orig=0x7f030005;
+        public static final int main_activity_risk_level=0x7f030006;
+        public static final int main_activity_risk_level2=0x7f030007;
+        public static final int watch_card_content=0x7f030008;
     }
     public static final class raw {
         public static final int gtm_analytics=0x7f070000;
@@ -1087,8 +1578,8 @@ containing a value of this type.
             0x01010096, 0x01010097, 0x01010098, 0x010100af,
             0x01010119, 0x0101014f, 0x01010153, 0x010101a5,
             0x01010217, 0x01010218, 0x010103ac, 0x01010440,
-            0x01010448, 0x7f010000, 0x7f010001, 0x7f01000d,
-            0x7f01000e, 0x7f01000f
+            0x01010448, 0x7f010000, 0x7f010001, 0x7f010019,
+            0x7f01001a, 0x7f01001b
         };
         /**
           <p>This symbol is the offset where the {@link android.R.attr#color}
@@ -1245,6 +1736,236 @@ containing a value of this type.
           @attr name com.example.android.google.wearable.app:pressedButtonTranslationZ
         */
         public static final int ActionPage_pressedButtonTranslationZ = 17;
+        /** Attributes that can be used with a BarChart.
+         */
+        public static final int[] BarChart = {
+            
+        };
+        /** Attributes that can be used with a BaseBarChart.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #BaseBarChart_egBarMargin com.example.android.google.wearable.app:egBarMargin}</code></td><td></td></tr>
+           <tr><td><code>{@link #BaseBarChart_egBarWidth com.example.android.google.wearable.app:egBarWidth}</code></td><td></td></tr>
+           <tr><td><code>{@link #BaseBarChart_egEnableScroll com.example.android.google.wearable.app:egEnableScroll}</code></td><td></td></tr>
+           <tr><td><code>{@link #BaseBarChart_egFixedBarWidth com.example.android.google.wearable.app:egFixedBarWidth}</code></td><td></td></tr>
+           <tr><td><code>{@link #BaseBarChart_egShowValues com.example.android.google.wearable.app:egShowValues}</code></td><td></td></tr>
+           <tr><td><code>{@link #BaseBarChart_egVisibleBars com.example.android.google.wearable.app:egVisibleBars}</code></td><td></td></tr>
+           </table>
+           @see #BaseBarChart_egBarMargin
+           @see #BaseBarChart_egBarWidth
+           @see #BaseBarChart_egEnableScroll
+           @see #BaseBarChart_egFixedBarWidth
+           @see #BaseBarChart_egShowValues
+           @see #BaseBarChart_egVisibleBars
+         */
+        public static final int[] BaseBarChart = {
+            0x7f010002, 0x7f010003, 0x7f010004, 0x7f010005,
+            0x7f010006, 0x7f010007
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egBarMargin}
+          attribute's value can be found in the {@link #BaseBarChart} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egBarMargin
+        */
+        public static final int BaseBarChart_egBarMargin = 2;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egBarWidth}
+          attribute's value can be found in the {@link #BaseBarChart} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egBarWidth
+        */
+        public static final int BaseBarChart_egBarWidth = 1;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egEnableScroll}
+          attribute's value can be found in the {@link #BaseBarChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egEnableScroll
+        */
+        public static final int BaseBarChart_egEnableScroll = 4;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egFixedBarWidth}
+          attribute's value can be found in the {@link #BaseBarChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egFixedBarWidth
+        */
+        public static final int BaseBarChart_egFixedBarWidth = 3;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egShowValues}
+          attribute's value can be found in the {@link #BaseBarChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egShowValues
+        */
+        public static final int BaseBarChart_egShowValues = 0;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egVisibleBars}
+          attribute's value can be found in the {@link #BaseBarChart} array.
+
+
+          <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egVisibleBars
+        */
+        public static final int BaseBarChart_egVisibleBars = 5;
+        /** Attributes that can be used with a BaseChart.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #BaseChart_egAnimationTime com.example.android.google.wearable.app:egAnimationTime}</code></td><td></td></tr>
+           <tr><td><code>{@link #BaseChart_egEmptyDataText com.example.android.google.wearable.app:egEmptyDataText}</code></td><td></td></tr>
+           <tr><td><code>{@link #BaseChart_egLegendColor com.example.android.google.wearable.app:egLegendColor}</code></td><td></td></tr>
+           <tr><td><code>{@link #BaseChart_egLegendHeight com.example.android.google.wearable.app:egLegendHeight}</code></td><td></td></tr>
+           <tr><td><code>{@link #BaseChart_egLegendTextSize com.example.android.google.wearable.app:egLegendTextSize}</code></td><td></td></tr>
+           <tr><td><code>{@link #BaseChart_egShowDecimal com.example.android.google.wearable.app:egShowDecimal}</code></td><td></td></tr>
+           </table>
+           @see #BaseChart_egAnimationTime
+           @see #BaseChart_egEmptyDataText
+           @see #BaseChart_egLegendColor
+           @see #BaseChart_egLegendHeight
+           @see #BaseChart_egLegendTextSize
+           @see #BaseChart_egShowDecimal
+         */
+        public static final int[] BaseChart = {
+            0x7f010008, 0x7f010009, 0x7f01000a, 0x7f01000b,
+            0x7f01000c, 0x7f01000d
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egAnimationTime}
+          attribute's value can be found in the {@link #BaseChart} array.
+
+
+          <p>Must be an integer value, such as "<code>100</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egAnimationTime
+        */
+        public static final int BaseChart_egAnimationTime = 0;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egEmptyDataText}
+          attribute's value can be found in the {@link #BaseChart} array.
+
+
+          <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egEmptyDataText
+        */
+        public static final int BaseChart_egEmptyDataText = 5;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egLegendColor}
+          attribute's value can be found in the {@link #BaseChart} array.
+
+
+          <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egLegendColor
+        */
+        public static final int BaseChart_egLegendColor = 1;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egLegendHeight}
+          attribute's value can be found in the {@link #BaseChart} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egLegendHeight
+        */
+        public static final int BaseChart_egLegendHeight = 2;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egLegendTextSize}
+          attribute's value can be found in the {@link #BaseChart} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egLegendTextSize
+        */
+        public static final int BaseChart_egLegendTextSize = 3;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egShowDecimal}
+          attribute's value can be found in the {@link #BaseChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egShowDecimal
+        */
+        public static final int BaseChart_egShowDecimal = 4;
         /** Attributes that can be used with a BoxInsetLayout_Layout.
            <p>Includes the following attributes:</p>
            <table>
@@ -1256,7 +1977,7 @@ containing a value of this type.
            @see #BoxInsetLayout_Layout_layout_box
          */
         public static final int[] BoxInsetLayout_Layout = {
-            0x7f010002
+            0x7f01000e
         };
         /**
           <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#layout_box}
@@ -1309,9 +2030,9 @@ containing a value of this type.
            @see #CircledImageView_shadow_width
          */
         public static final int[] CircledImageView = {
-            0x01010119, 0x7f010003, 0x7f010004, 0x7f010005,
-            0x7f010006, 0x7f010007, 0x7f010008, 0x7f010009,
-            0x7f01000a, 0x7f01000b, 0x7f01000c
+            0x01010119, 0x7f01000f, 0x7f010010, 0x7f010011,
+            0x7f010012, 0x7f010013, 0x7f010014, 0x7f010015,
+            0x7f010016, 0x7f010017, 0x7f010018
         };
         /**
           <p>This symbol is the offset where the {@link android.R.attr#src}
@@ -1500,7 +2221,7 @@ containing a value of this type.
          */
         public static final int[] CircularButton = {
             0x01010119, 0x010101a5, 0x01010440, 0x01010448,
-            0x7f01000d, 0x7f01000e, 0x7f01000f
+            0x7f010019, 0x7f01001a, 0x7f01001b
         };
         /**
           <p>This symbol is the offset where the {@link android.R.attr#color}
@@ -1582,7 +2303,7 @@ containing a value of this type.
            @see #DelayedConfirmationView_update_interval
          */
         public static final int[] DelayedConfirmationView = {
-            0x7f010010
+            0x7f01001c
         };
         /**
           <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#update_interval}
@@ -1633,10 +2354,10 @@ containing a value of this type.
            @see #DotsPageIndicator_dotSpacing
          */
         public static final int[] DotsPageIndicator = {
-            0x7f010011, 0x7f010012, 0x7f010013, 0x7f010014,
-            0x7f010015, 0x7f010016, 0x7f010017, 0x7f010018,
-            0x7f010019, 0x7f01001a, 0x7f01001b, 0x7f01001c,
-            0x7f01001d
+            0x7f01001d, 0x7f01001e, 0x7f01001f, 0x7f010020,
+            0x7f010021, 0x7f010022, 0x7f010023, 0x7f010024,
+            0x7f010025, 0x7f010026, 0x7f010027, 0x7f010028,
+            0x7f010029
         };
         /**
           <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#dotColor}
@@ -1850,7 +2571,7 @@ containing a value of this type.
            @see #LoadingImageView_imageAspectRatioAdjust
          */
         public static final int[] LoadingImageView = {
-            0x7f01001e, 0x7f01001f, 0x7f010020
+            0x7f01002a, 0x7f01002b, 0x7f01002c
         };
         /**
           <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#circleCrop}
@@ -1941,11 +2662,11 @@ containing a value of this type.
            @see #MapAttrs_zOrderOnTop
          */
         public static final int[] MapAttrs = {
-            0x7f010021, 0x7f010022, 0x7f010023, 0x7f010024,
-            0x7f010025, 0x7f010026, 0x7f010027, 0x7f010028,
-            0x7f010029, 0x7f01002a, 0x7f01002b, 0x7f01002c,
             0x7f01002d, 0x7f01002e, 0x7f01002f, 0x7f010030,
-            0x7f010031
+            0x7f010031, 0x7f010032, 0x7f010033, 0x7f010034,
+            0x7f010035, 0x7f010036, 0x7f010037, 0x7f010038,
+            0x7f010039, 0x7f01003a, 0x7f01003b, 0x7f01003c,
+            0x7f01003d
         };
         /**
           <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#ambientEnabled}
@@ -2191,6 +2912,232 @@ containing a value of this type.
           @attr name com.example.android.google.wearable.app:zOrderOnTop
         */
         public static final int MapAttrs_zOrderOnTop = 14;
+        /** Attributes that can be used with a PieChart.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #PieChart_egAutoCenter com.example.android.google.wearable.app:egAutoCenter}</code></td><td></td></tr>
+           <tr><td><code>{@link #PieChart_egDrawValueInPie com.example.android.google.wearable.app:egDrawValueInPie}</code></td><td></td></tr>
+           <tr><td><code>{@link #PieChart_egHighlightStrength com.example.android.google.wearable.app:egHighlightStrength}</code></td><td></td></tr>
+           <tr><td><code>{@link #PieChart_egInnerPadding com.example.android.google.wearable.app:egInnerPadding}</code></td><td></td></tr>
+           <tr><td><code>{@link #PieChart_egInnerPaddingColor com.example.android.google.wearable.app:egInnerPaddingColor}</code></td><td></td></tr>
+           <tr><td><code>{@link #PieChart_egInnerPaddingOutline com.example.android.google.wearable.app:egInnerPaddingOutline}</code></td><td></td></tr>
+           <tr><td><code>{@link #PieChart_egInnerValueUnit com.example.android.google.wearable.app:egInnerValueUnit}</code></td><td></td></tr>
+           <tr><td><code>{@link #PieChart_egOpenClockwise com.example.android.google.wearable.app:egOpenClockwise}</code></td><td></td></tr>
+           <tr><td><code>{@link #PieChart_egUseCustomInnerValue com.example.android.google.wearable.app:egUseCustomInnerValue}</code></td><td></td></tr>
+           <tr><td><code>{@link #PieChart_egUseInnerPadding com.example.android.google.wearable.app:egUseInnerPadding}</code></td><td></td></tr>
+           <tr><td><code>{@link #PieChart_egUsePieRotation com.example.android.google.wearable.app:egUsePieRotation}</code></td><td></td></tr>
+           <tr><td><code>{@link #PieChart_egValueTextColor com.example.android.google.wearable.app:egValueTextColor}</code></td><td></td></tr>
+           <tr><td><code>{@link #PieChart_egValueTextSize com.example.android.google.wearable.app:egValueTextSize}</code></td><td></td></tr>
+           </table>
+           @see #PieChart_egAutoCenter
+           @see #PieChart_egDrawValueInPie
+           @see #PieChart_egHighlightStrength
+           @see #PieChart_egInnerPadding
+           @see #PieChart_egInnerPaddingColor
+           @see #PieChart_egInnerPaddingOutline
+           @see #PieChart_egInnerValueUnit
+           @see #PieChart_egOpenClockwise
+           @see #PieChart_egUseCustomInnerValue
+           @see #PieChart_egUseInnerPadding
+           @see #PieChart_egUsePieRotation
+           @see #PieChart_egValueTextColor
+           @see #PieChart_egValueTextSize
+         */
+        public static final int[] PieChart = {
+            0x7f01003e, 0x7f01003f, 0x7f010040, 0x7f010041,
+            0x7f010042, 0x7f010043, 0x7f010044, 0x7f010045,
+            0x7f010046, 0x7f010047, 0x7f010048, 0x7f010049,
+            0x7f01004a
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egAutoCenter}
+          attribute's value can be found in the {@link #PieChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egAutoCenter
+        */
+        public static final int PieChart_egAutoCenter = 5;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egDrawValueInPie}
+          attribute's value can be found in the {@link #PieChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egDrawValueInPie
+        */
+        public static final int PieChart_egDrawValueInPie = 6;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egHighlightStrength}
+          attribute's value can be found in the {@link #PieChart} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egHighlightStrength
+        */
+        public static final int PieChart_egHighlightStrength = 3;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egInnerPadding}
+          attribute's value can be found in the {@link #PieChart} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egInnerPadding
+        */
+        public static final int PieChart_egInnerPadding = 0;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egInnerPaddingColor}
+          attribute's value can be found in the {@link #PieChart} array.
+
+
+          <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egInnerPaddingColor
+        */
+        public static final int PieChart_egInnerPaddingColor = 11;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egInnerPaddingOutline}
+          attribute's value can be found in the {@link #PieChart} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egInnerPaddingOutline
+        */
+        public static final int PieChart_egInnerPaddingOutline = 1;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egInnerValueUnit}
+          attribute's value can be found in the {@link #PieChart} array.
+
+
+          <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egInnerValueUnit
+        */
+        public static final int PieChart_egInnerValueUnit = 12;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egOpenClockwise}
+          attribute's value can be found in the {@link #PieChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egOpenClockwise
+        */
+        public static final int PieChart_egOpenClockwise = 10;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egUseCustomInnerValue}
+          attribute's value can be found in the {@link #PieChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egUseCustomInnerValue
+        */
+        public static final int PieChart_egUseCustomInnerValue = 9;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egUseInnerPadding}
+          attribute's value can be found in the {@link #PieChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egUseInnerPadding
+        */
+        public static final int PieChart_egUseInnerPadding = 2;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egUsePieRotation}
+          attribute's value can be found in the {@link #PieChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egUsePieRotation
+        */
+        public static final int PieChart_egUsePieRotation = 4;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egValueTextColor}
+          attribute's value can be found in the {@link #PieChart} array.
+
+
+          <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egValueTextColor
+        */
+        public static final int PieChart_egValueTextColor = 8;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egValueTextSize}
+          attribute's value can be found in the {@link #PieChart} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egValueTextSize
+        */
+        public static final int PieChart_egValueTextSize = 7;
         /** Attributes that can be used with a ProgressSpinner.
            <p>Includes the following attributes:</p>
            <table>
@@ -2202,7 +3149,7 @@ containing a value of this type.
            @see #ProgressSpinner_color_sequence
          */
         public static final int[] ProgressSpinner = {
-            0x7f010032
+            0x7f01004b
         };
         /**
           <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#color_sequence}
@@ -2231,7 +3178,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
            @see #SignInButton_scopeUris
          */
         public static final int[] SignInButton = {
-            0x7f010033, 0x7f010034, 0x7f010035
+            0x7f01004c, 0x7f01004d, 0x7f01004e
         };
         /**
           <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#buttonSize}
@@ -2284,6 +3231,547 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
           @attr name com.example.android.google.wearable.app:scopeUris
         */
         public static final int SignInButton_scopeUris = 2;
+        /** Attributes that can be used with a StackedBarChart.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #StackedBarChart_egBarTextSize com.example.android.google.wearable.app:egBarTextSize}</code></td><td></td></tr>
+           <tr><td><code>{@link #StackedBarChart_egSeparatorWidth com.example.android.google.wearable.app:egSeparatorWidth}</code></td><td></td></tr>
+           <tr><td><code>{@link #StackedBarChart_egShowSeparators com.example.android.google.wearable.app:egShowSeparators}</code></td><td></td></tr>
+           </table>
+           @see #StackedBarChart_egBarTextSize
+           @see #StackedBarChart_egSeparatorWidth
+           @see #StackedBarChart_egShowSeparators
+         */
+        public static final int[] StackedBarChart = {
+            0x7f01004f, 0x7f010050, 0x7f010051
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egBarTextSize}
+          attribute's value can be found in the {@link #StackedBarChart} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egBarTextSize
+        */
+        public static final int StackedBarChart_egBarTextSize = 0;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egSeparatorWidth}
+          attribute's value can be found in the {@link #StackedBarChart} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egSeparatorWidth
+        */
+        public static final int StackedBarChart_egSeparatorWidth = 2;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egShowSeparators}
+          attribute's value can be found in the {@link #StackedBarChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egShowSeparators
+        */
+        public static final int StackedBarChart_egShowSeparators = 1;
+        /** Attributes that can be used with a ValueLineChart.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #ValueLineChart_egActivateIndicatorShadow com.example.android.google.wearable.app:egActivateIndicatorShadow}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egCurveSmoothness com.example.android.google.wearable.app:egCurveSmoothness}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egIndicatorLeftPadding com.example.android.google.wearable.app:egIndicatorLeftPadding}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egIndicatorLineColor com.example.android.google.wearable.app:egIndicatorLineColor}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egIndicatorShadowColor com.example.android.google.wearable.app:egIndicatorShadowColor}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egIndicatorShadowStrength com.example.android.google.wearable.app:egIndicatorShadowStrength}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egIndicatorTextColor com.example.android.google.wearable.app:egIndicatorTextColor}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egIndicatorTextSize com.example.android.google.wearable.app:egIndicatorTextSize}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egIndicatorTextUnit com.example.android.google.wearable.app:egIndicatorTextUnit}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egIndicatorTopPadding com.example.android.google.wearable.app:egIndicatorTopPadding}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egIndicatorWidth com.example.android.google.wearable.app:egIndicatorWidth}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egLineStroke com.example.android.google.wearable.app:egLineStroke}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egMaxXZoom com.example.android.google.wearable.app:egMaxXZoom}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egMaxYZoom com.example.android.google.wearable.app:egMaxYZoom}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egScalingFactor com.example.android.google.wearable.app:egScalingFactor}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egShowLegendBeneathIndicator com.example.android.google.wearable.app:egShowLegendBeneathIndicator}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egShowStandardValue com.example.android.google.wearable.app:egShowStandardValue}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egShowValueIndicator com.example.android.google.wearable.app:egShowValueIndicator}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egUseCubic com.example.android.google.wearable.app:egUseCubic}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egUseDynamicScaling com.example.android.google.wearable.app:egUseDynamicScaling}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egUseOverlapFill com.example.android.google.wearable.app:egUseOverlapFill}</code></td><td></td></tr>
+           <tr><td><code>{@link #ValueLineChart_egXAxisStroke com.example.android.google.wearable.app:egXAxisStroke}</code></td><td></td></tr>
+           </table>
+           @see #ValueLineChart_egActivateIndicatorShadow
+           @see #ValueLineChart_egCurveSmoothness
+           @see #ValueLineChart_egIndicatorLeftPadding
+           @see #ValueLineChart_egIndicatorLineColor
+           @see #ValueLineChart_egIndicatorShadowColor
+           @see #ValueLineChart_egIndicatorShadowStrength
+           @see #ValueLineChart_egIndicatorTextColor
+           @see #ValueLineChart_egIndicatorTextSize
+           @see #ValueLineChart_egIndicatorTextUnit
+           @see #ValueLineChart_egIndicatorTopPadding
+           @see #ValueLineChart_egIndicatorWidth
+           @see #ValueLineChart_egLineStroke
+           @see #ValueLineChart_egMaxXZoom
+           @see #ValueLineChart_egMaxYZoom
+           @see #ValueLineChart_egScalingFactor
+           @see #ValueLineChart_egShowLegendBeneathIndicator
+           @see #ValueLineChart_egShowStandardValue
+           @see #ValueLineChart_egShowValueIndicator
+           @see #ValueLineChart_egUseCubic
+           @see #ValueLineChart_egUseDynamicScaling
+           @see #ValueLineChart_egUseOverlapFill
+           @see #ValueLineChart_egXAxisStroke
+         */
+        public static final int[] ValueLineChart = {
+            0x7f010052, 0x7f010053, 0x7f010054, 0x7f010055,
+            0x7f010056, 0x7f010057, 0x7f010058, 0x7f010059,
+            0x7f01005a, 0x7f01005b, 0x7f01005c, 0x7f01005d,
+            0x7f01005e, 0x7f01005f, 0x7f010060, 0x7f010061,
+            0x7f010062, 0x7f010063, 0x7f010064, 0x7f010065,
+            0x7f010066, 0x7f010067
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egActivateIndicatorShadow}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egActivateIndicatorShadow
+        */
+        public static final int ValueLineChart_egActivateIndicatorShadow = 13;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egCurveSmoothness}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egCurveSmoothness
+        */
+        public static final int ValueLineChart_egCurveSmoothness = 0;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egIndicatorLeftPadding}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egIndicatorLeftPadding
+        */
+        public static final int ValueLineChart_egIndicatorLeftPadding = 9;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egIndicatorLineColor}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egIndicatorLineColor
+        */
+        public static final int ValueLineChart_egIndicatorLineColor = 6;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egIndicatorShadowColor}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egIndicatorShadowColor
+        */
+        public static final int ValueLineChart_egIndicatorShadowColor = 15;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egIndicatorShadowStrength}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egIndicatorShadowStrength
+        */
+        public static final int ValueLineChart_egIndicatorShadowStrength = 14;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egIndicatorTextColor}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egIndicatorTextColor
+        */
+        public static final int ValueLineChart_egIndicatorTextColor = 7;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egIndicatorTextSize}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egIndicatorTextSize
+        */
+        public static final int ValueLineChart_egIndicatorTextSize = 8;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egIndicatorTextUnit}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egIndicatorTextUnit
+        */
+        public static final int ValueLineChart_egIndicatorTextUnit = 16;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egIndicatorTopPadding}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egIndicatorTopPadding
+        */
+        public static final int ValueLineChart_egIndicatorTopPadding = 10;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egIndicatorWidth}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egIndicatorWidth
+        */
+        public static final int ValueLineChart_egIndicatorWidth = 5;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egLineStroke}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egLineStroke
+        */
+        public static final int ValueLineChart_egLineStroke = 3;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egMaxXZoom}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egMaxXZoom
+        */
+        public static final int ValueLineChart_egMaxXZoom = 20;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egMaxYZoom}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egMaxYZoom
+        */
+        public static final int ValueLineChart_egMaxYZoom = 21;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egScalingFactor}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egScalingFactor
+        */
+        public static final int ValueLineChart_egScalingFactor = 19;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egShowLegendBeneathIndicator}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egShowLegendBeneathIndicator
+        */
+        public static final int ValueLineChart_egShowLegendBeneathIndicator = 17;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egShowStandardValue}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egShowStandardValue
+        */
+        public static final int ValueLineChart_egShowStandardValue = 11;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egShowValueIndicator}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egShowValueIndicator
+        */
+        public static final int ValueLineChart_egShowValueIndicator = 4;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egUseCubic}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egUseCubic
+        */
+        public static final int ValueLineChart_egUseCubic = 1;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egUseDynamicScaling}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egUseDynamicScaling
+        */
+        public static final int ValueLineChart_egUseDynamicScaling = 18;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egUseOverlapFill}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egUseOverlapFill
+        */
+        public static final int ValueLineChart_egUseOverlapFill = 2;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egXAxisStroke}
+          attribute's value can be found in the {@link #ValueLineChart} array.
+
+
+          <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
+Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
+in (inches), mm (millimeters).
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egXAxisStroke
+        */
+        public static final int ValueLineChart_egXAxisStroke = 12;
+        /** Attributes that can be used with a VerticalBarChart.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #VerticalBarChart_egBarLabelColor com.example.android.google.wearable.app:egBarLabelColor}</code></td><td></td></tr>
+           <tr><td><code>{@link #VerticalBarChart_egMaximumValue com.example.android.google.wearable.app:egMaximumValue}</code></td><td></td></tr>
+           <tr><td><code>{@link #VerticalBarChart_egShowBarLabel com.example.android.google.wearable.app:egShowBarLabel}</code></td><td></td></tr>
+           <tr><td><code>{@link #VerticalBarChart_egUseMaximumValue com.example.android.google.wearable.app:egUseMaximumValue}</code></td><td></td></tr>
+           <tr><td><code>{@link #VerticalBarChart_egValueUnit com.example.android.google.wearable.app:egValueUnit}</code></td><td></td></tr>
+           </table>
+           @see #VerticalBarChart_egBarLabelColor
+           @see #VerticalBarChart_egMaximumValue
+           @see #VerticalBarChart_egShowBarLabel
+           @see #VerticalBarChart_egUseMaximumValue
+           @see #VerticalBarChart_egValueUnit
+         */
+        public static final int[] VerticalBarChart = {
+            0x7f010068, 0x7f010069, 0x7f01006a, 0x7f01006b,
+            0x7f01006c
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egBarLabelColor}
+          attribute's value can be found in the {@link #VerticalBarChart} array.
+
+
+          <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egBarLabelColor
+        */
+        public static final int VerticalBarChart_egBarLabelColor = 4;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egMaximumValue}
+          attribute's value can be found in the {@link #VerticalBarChart} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egMaximumValue
+        */
+        public static final int VerticalBarChart_egMaximumValue = 1;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egShowBarLabel}
+          attribute's value can be found in the {@link #VerticalBarChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egShowBarLabel
+        */
+        public static final int VerticalBarChart_egShowBarLabel = 3;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egUseMaximumValue}
+          attribute's value can be found in the {@link #VerticalBarChart} array.
+
+
+          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egUseMaximumValue
+        */
+        public static final int VerticalBarChart_egUseMaximumValue = 0;
+        /**
+          <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#egValueUnit}
+          attribute's value can be found in the {@link #VerticalBarChart} array.
+
+
+          <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.example.android.google.wearable.app:egValueUnit
+        */
+        public static final int VerticalBarChart_egValueUnit = 2;
         /** Attributes that can be used with a WatchViewStub.
            <p>Includes the following attributes:</p>
            <table>
@@ -2297,7 +3785,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
            @see #WatchViewStub_roundLayout
          */
         public static final int[] WatchViewStub = {
-            0x7f010036, 0x7f010037
+            0x7f01006d, 0x7f01006e
         };
         /**
           <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#rectLayout}
@@ -2353,8 +3841,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
          */
         public static final int[] WearableFrameLayout = {
             0x01010109, 0x0101010a, 0x01010200, 0x0101046d,
-            0x7f010038, 0x7f010039, 0x7f01003a, 0x7f01003b,
-            0x7f01003c, 0x7f01003d, 0x7f01003e, 0x7f01003f
+            0x7f01006f, 0x7f010070, 0x7f010071, 0x7f010072,
+            0x7f010073, 0x7f010074, 0x7f010075, 0x7f010076
         };
         /**
           <p>This symbol is the offset where the {@link android.R.attr#foreground}
@@ -2534,7 +4022,7 @@ containing a value of this type.
            @see #WearableHeaderTextView_circular_text_size
          */
         public static final int[] WearableHeaderTextView = {
-            0x7f010040, 0x7f010041
+            0x7f010077, 0x7f010078
         };
         /**
           <p>This symbol is the offset where the {@link com.example.android.google.wearable.app.R.attr#circular_layout_gravity}

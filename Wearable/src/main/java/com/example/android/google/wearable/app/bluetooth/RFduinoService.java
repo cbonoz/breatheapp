@@ -80,8 +80,12 @@ public class RFduinoService extends Service {
                 BluetoothGattCharacteristic receiveCharacteristic =
                         mBluetoothGattService.getCharacteristic(UUID_RECEIVE);
                 if (receiveCharacteristic != null) {
+
                     BluetoothGattDescriptor receiveConfigDescriptor =
                             receiveCharacteristic.getDescriptor(UUID_CLIENT_CONFIGURATION);
+
+
+
                     if (receiveConfigDescriptor != null) {
                         gatt.setCharacteristicNotification(receiveCharacteristic, true);
 
@@ -92,6 +96,8 @@ public class RFduinoService extends Service {
                         Log.e(TAG, "RFduino receive config descriptor not found!");
                     }
 
+                    Log.d(TAG, "Permissions: " + receiveConfigDescriptor.getPermissions());
+
                 } else {
                     Log.e(TAG, "RFduino receive characteristic not found!");
                 }
@@ -100,6 +106,8 @@ public class RFduinoService extends Service {
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
             }
+
+            
         }
 
         @Override

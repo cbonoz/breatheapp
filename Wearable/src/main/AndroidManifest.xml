@@ -14,20 +14,31 @@
      limitations under the License.
 -->
 
+
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         package="com.example.android.google.wearable.app" android:launchMode="singleInstance" >
 
     <uses-sdk android:minSdkVersion="20"
               android:targetSdkVersion="22" />
 
-    <uses-feature android:name="android.hardware.type.watch" />
-
 
 
 
     <!-- permissions -->
 
+    <uses-feature android:name="android.hardware.type.watch" />
+
+    <!-- Required to act as a custom watch face. -->
+    <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND" />
+
+
+    <!-- Calendar permission used by CalendarWatchFaceService -->
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -43,6 +54,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
+
             android:allowBackup="true"
             android:icon="@drawable/ic_launcher"
             android:label="@string/app_name"
@@ -59,13 +71,6 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity
-            android:name=".GridExampleActivity">
-            <intent-filter>
-                <action android:name="com.example.android.google.wearable.app.GRID_ACTIVITY"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
 
 
         <service android:name=".bluetooth.RFduinoService">
@@ -75,7 +80,18 @@
             </intent-filter>
         </service>
 
-        <!--<service android:name=".SensorService" />-->
+        <receiver android:name=".MyBroadCastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+
+        <uses-library android:name="com.google.android.wearable" android:required="false" />
+
     </application>
+
+
+
 
 </manifest>

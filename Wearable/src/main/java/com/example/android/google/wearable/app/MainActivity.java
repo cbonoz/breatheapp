@@ -16,11 +16,9 @@
 
 package com.example.android.google.wearable.app;
 
-import android.app.Activity;
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -32,24 +30,21 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.speech.RecognizerIntent;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.view.GestureDetectorCompat;
-import android.support.wearable.view.DelayedConfirmationView;
-import android.support.wearable.view.DismissOverlayView;
+import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.Menu;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.ScrollView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -64,34 +59,47 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
+import org.eazegraph.lib.charts.PieChart;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends Activity implements DelayedConfirmationView.DelayedConfirmationListener,
-        BluetoothAdapter.LeScanCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, SensorEventListener
+public class MainActivity extends WearableActivity implements BluetoothAdapter.LeScanCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, SensorEventListener
 {
+    private static final SimpleDateFormat AMBIENT_DATE_FORMAT =
+            new SimpleDateFormat("hh:mm aa", Locale.US);
+            //new SimpleDateFormat("HH:mm", Locale.US);
 
     private static final String TAG = "MainActivity";
-
-    private static final int NOTIFICATION_ID = 1;
-    private static final int NOTIFICATION_REQUEST_CODE = 1;
-    private static final int NUM_SECONDS = 5;
-
-    private GestureDetectorCompat mGestureDetector;
-    private DismissOverlayView mDismissOverlayView;
+    private static final int REQUEST_ENABLE_BT = 1;
 
 
+    private PieChart mPieChart;
+    //https://github.com/blackfizz/EazeGraph
+//    https://github.com/blackfizz/EazeGraph/blob/b4b0785e1e080f5ff6e826aa105deb49b8451fbc/EazeGraphLibrary/src/main/java/org/eazegraph/lib/charts/PieChart.java
 
     private String receiveBuffer;
     private RFduinoService rfduinoService;
     private BluetoothDevice bluetoothDevice;
-    private PowerManager.WakeLock wl;
-    protected GoogleApiClient mGoogleApiClient;
+    private GoogleApiClient mGoogleApiClient;
+    private ScheduledExecutorService mScheduler;
 
 
     // State machine
@@ -100,58 +108,254 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
     final private static int STATE_CONNECTING = 3;
     final private static int STATE_CONNECTED = 4;
 
-    private final static int SENS_LINEAR_ACCELERATION = Sensor.TYPE_LINEAR_ACCELERATION;
-    private final static int SENS_HEARTRATE = Sensor.TYPE_HEART_RATE;
 
+    private static final int SENS_LINEAR_ACCELERATION = Sensor.TYPE_LINEAR_ACCELERATION;
+    private static final int SENS_HEARTRATE = Sensor.TYPE_HEART_RATE;
+    private static final int RISK_TASK_PERIOD=10000;
     private int state;
-    private Boolean rfBound = false;
+    private int subjectID;
 
 
-    BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    BluetoothAdapter bluetoothAdapter;
 
-    private Boolean connected;
+    BluetoothSocket spiroSocket=null;
+    BluetoothDevice spiroDevice =null;
+    InputStream mmInputStream;
+    Thread workerThread;
+    byte[] readBuffer;
+    int readBufferPosition;
+    volatile boolean stopWorker;
+
 
     //Sensor related
 
     private SensorManager mSensorManager;
     private Sensor mHeartrateSensor;
-    private DeviceClient client;
-    private ScheduledExecutorService mScheduler;
 
 
-    @Override
+    private static final int NAME_REQUEST_CODE = 1;
+    private static final int ID_REQUEST_CODE = 2;
+
+    private final Random RAND = new Random();
+
+    private ToggleButton sensorToggleButton;
+    private ToggleButton spiroToggleButton;
+    private Boolean sensorChecked;
+    private Boolean spiroChecked;
+
+    private Boolean bluetoothConnected;
+    private Boolean isConnected;
+    private static String statusString;
+
+
+    private TextView mClockView;
+    private TextView riskText;
+    private TextView riskView;
+    private TextView subjectView;
+    private ImageView smileView;
+
+    private static TimerTask riskTask;
+    private static Timer riskTimer;
+    private static int lastRiskValue;
+    private static String mobileNodeId;
+
+    private WifiManager wifiManager;
+    private WifiManager.WifiLock wifiLock;
+
+    public void keepWiFiOn(Context context, boolean on) {
+        if (wifiLock == null) {
+            WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+            if (wm != null) {
+                wifiLock = wm.createWifiLock(WifiManager.WIFI_MODE_FULL, TAG);
+                wifiLock.setReferenceCounted(true);
+            }
+        }
+        if (wifiLock != null) { // May be null if wm is null
+            if (on) {
+                wifiLock.acquire();
+                Log.d(TAG, "Acquired WiFi lock");
+            } else if (wifiLock.isHeld()) {
+                wifiLock.release();
+                Log.d(TAG, "Released WiFi lock");
+            }
+        }
+    }
+
+
+
+
     public void onCreate(Bundle b) {
         super.onCreate(b);
-        setContentView(R.layout.main_activity);
+
+        ConnectivityManager cm =
+                (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+        isConnected = (activeNetwork != null && activeNetwork.isConnectedOrConnecting());
+
+
+
+        Boolean wifiConnected = isConnected && (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI);
+
+        if (!isConnected){
+            Toast.makeText(this, "No Connection Detected", Toast.LENGTH_SHORT).show();
+
+            Log.d(TAG, "No connection detected");
+
+        }
+
+
+        Log.d(TAG, "wifiConnected " + wifiConnected);
+        Log.d(TAG, "Connection " + activeNetwork.toString());
+
+        //create a lock on the wifi connection (so phone isn't used)
+
+        keepWiFiOn(this, true);
+        wifiConnected = isConnected && (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI);
+
+        Log.d(TAG, "wifiConnected " + wifiConnected);
+
+       ;
+
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addApi(Wearable.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+        mGoogleApiClient.connect();
+
+        retrieveDeviceNode(); //set up mobileNodeId
+
+        //init bluetooth
+        try
+        {
+            if(findBT()) {
+
+                //openBT();
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            Log.d(TAG, "bluetooth could not be opened");
+        }
+
+
+
+        setAmbientEnabled();
+
 
         mSensorManager = ((SensorManager) getSystemService(SENSOR_SERVICE));
-        client = DeviceClient.getInstance(this);
+//        client = DeviceClient.getInstance(this);
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
-
-        mDismissOverlayView = (DismissOverlayView) findViewById(R.id.dismiss_overlay);
-        mDismissOverlayView.setIntroText(R.string.intro_text);
-        mDismissOverlayView.showIntroIfNecessary();
-        mGestureDetector = new GestureDetectorCompat(this, new LongPressListener());
-
-        connected = false;
+        bluetoothConnected = false;
+        sensorChecked=false;
+        spiroChecked=false;
         receiveBuffer = "";
+        statusString="";
+        subjectID= ClientPaths.getSubjectID();
 
-        TextView t = (TextView) findViewById(R.id.subjectText);
-        t.setText("SubjectID: " + ClientPaths.getSubjectID());
 
 
-//
-//        TextView t = (TextView) findViewById(R.id.subjectText);
-//        t.setText("SubjectID: " + ClientPaths.getSubjectID());
+        updateDisplay();
 
-        //remoteSensorManager = RemoteSensorManager.getInstance(this);
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        riskTask = new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateRisklevel();
 
-        ToggleButton sensorToggleButton = (ToggleButton) findViewById(R.id.sensorToggleButton);
-        sensorToggleButton.setChecked(false);
+                    }
+                });
+            }
+        };
+
+        scheduleGetRisk();
+
+        Log.d(TAG, "MainActivity onCreate");
+
+    }
+
+
+    //http://toastdroid.com/2014/08/18/messageapi-simple-conversations-with-android-wear/
+    private void retrieveDeviceNode() {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //mGoogleApiClient.blockingConnect(10000, TimeUnit.MILLISECONDS);
+                NodeApi.GetConnectedNodesResult result =
+                        Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
+                List<Node> nodes = result.getNodes();
+                Log.d(TAG, "retrieveDeviceNode found: " + nodes.toString());
+                if (nodes.size() > 0) {
+                    mobileNodeId = nodes.get(0).getId();
+                    Log.d(TAG, "connecting to first node for comm " + mobileNodeId);
+                }
+                //client.disconnect();
+            }
+        }).start();
+    }
+
+    public void updateRiskUI(int value, boolean shouldAnimate) {
+        lastRiskValue=value;
+        riskText = (TextView) findViewById(R.id.riskText);
+
+        if (isAmbient()) {
+            //updatePieChart(shouldAnimate);
+            updateSmileView();
+            TextView noConnView = (TextView) findViewById(R.id.noConnView);
+            if (lastRiskValue==ClientPaths.NO_VALUE) {
+                noConnView.setVisibility(View.VISIBLE);
+            } else {
+                noConnView.setVisibility(View.GONE);
+
+            }
+        } else { //not ambient
+
+
+            riskText.setText("Risk: " + getRisk());
+
+        }
+
+    }
+
+    private static void scheduleGetRisk() {
+        riskTimer = new Timer();
+        riskTimer.scheduleAtFixedRate(riskTask, 0, RISK_TASK_PERIOD);
+    }
+
+    private void initUI() {
+
+        if (subjectID == ClientPaths.NO_VALUE) {
+            Toast.makeText(this, "Please say your ID #",Toast.LENGTH_SHORT).show();
+            getIDFromSpeech();
+        }
+
+
+        final Button idButton = (Button) findViewById(R.id.idButton);
+        idButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getIDFromSpeech();
+            }
+        });
+
+        sensorToggleButton = (ToggleButton) findViewById(R.id.sensorToggleButton);
+        spiroToggleButton = (ToggleButton) findViewById(R.id.spiroToggleButton);
+
+
+        sensorToggleButton.setChecked(sensorChecked);
+        spiroToggleButton.setChecked(spiroChecked);
+
+
 
         sensorToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -160,14 +364,22 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
                     Log.i(TAG, "startSensors");
                     startMeasurement();
 
-                    if (!connected)
+                    if (!bluetoothConnected)
                         bluetoothAdapter.startLeScan(new UUID[]{RFduinoService.UUID_SERVICE}, MainActivity.this);
 
                     registerReceiver(scanModeReceiver, new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED));
                     registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
                     registerReceiver(rfduinoReceiver, RFduinoService.getIntentFilter());
 
-                    //updateState(bluetoothAdapter.isEnabled() ? STATE_DISCONNECTED : STATE_BLUETOOTH_OFF);
+
+                    if (ClientPaths.currentLocation == null) {
+//                        Toast.makeText(MainActivity.this, "Could not find Location", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "Could not find Location");
+                    } else {
+//                        Toast.makeText(MainActivity.this, "Location Found", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "Location Found: " + ClientPaths.currentLocation.getLatitude() + ", " + ClientPaths.currentLocation.getLongitude());
+                    }
+                    sensorChecked = true;
 
                 } else {
                     Log.i(TAG, "stopSensors");
@@ -179,45 +391,168 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
 
                     bluetoothAdapter.stopLeScan(MainActivity.this);
 
-                    connected = false;
+                    bluetoothConnected = false;
+                    sensorChecked = false;
                 }
             }
         });
 
 
 
-        final Button idButton = (Button) findViewById(R.id.idButton);
-//        final EditText idEditText   = (EditText) findViewById(R.id.idEditText);
-//        final NumberPicker idNumberPicker = (NumberPicker) findViewById(R.id.idNumberPicker);
-//        idNumberPicker.setMinValue(1000);
-//        idNumberPicker.setMaxValue(9999);
+        spiroToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                //remoteSensorManager will log the change if called.
 
-        idButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getSubjectFromSpeech();
+
+                if (isChecked) {
+                    Log.i(TAG, "startSpiro");
+
+                    if (spiroDevice.equals(null)) {
+                        if (findBT()) {
+                            openBT();
+                        } else {
+                            spiroToggleButton.setChecked(false);
+                            spiroChecked=false;
+                            Toast.makeText(MainActivity.this, "No Spirometer Paired",Toast.LENGTH_SHORT).show();
+                        }
+                    } else { //device exists already
+
+                        openBT();
+                    }
+                    spiroChecked=true;
+
+
+                } else {
+                    Log.i(TAG, "stopSpiro");
+                    closeBT();
+
+                    spiroChecked=false;
+
+                }
             }
         });
 
-
-        buildGoogleApiClient();
-        mGoogleApiClient.connect();
-
-        //acquire partial wake lock on device
-        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wl = pm.newWakeLock(
-                PowerManager.SCREEN_DIM_WAKE_LOCK,
-                "wlTag");
-        wl.acquire();
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
 
+        subjectView = (TextView) findViewById(R.id.subjectText);
+        subjectID = ClientPaths.getSubjectID();
+
+        subjectView.setText("Subject: " + subjectID);
 
 
-        Log.d(TAG, "MainActivity onCreate");
+        riskText = (TextView) findViewById(R.id.riskText);
+        riskText.setText("Risk: " + getRisk());
 
     }
 
-    private static final int SPEECH_REQUEST_CODE = 0;
+    private void updateSmileView() {
+        smileView = (ImageView) findViewById(R.id.smileView);
+        riskView = (TextView) findViewById(R.id.riskView);
+
+        try {
+            TextView bytesView = (TextView) findViewById(R.id.bytesView);
+            bytesView.setText("DB: " + ClientPaths.sensorFile.length()/1024 + " kB");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        statusString = "";//lastRiskValue + " ";
+
+        if (lastRiskValue < 0) {
+            smileView.setVisibility(View.GONE);
+
+            return;
+        } else {
+            smileView.setVisibility(View.VISIBLE);
+        }
+
+        if (lastRiskValue<30) {
+            smileView.setImageResource(R.drawable.happy_face);
+
+            statusString+="low";
+
+
+        } else if (lastRiskValue<70) {
+            smileView.setImageResource(R.drawable.neutral_face);
+            statusString += "medium";
+
+        } else {
+            smileView.setImageResource(R.drawable.frowny_face);
+            statusString += "high";
+
+        }
+        riskView.setText("Your Risk: " + statusString);
+
+    }
+//
+//    private void updatePieChart(boolean animate) {
+//        Log.d(TAG, "updatePieChart " + lastRiskValue);
+//
+////        TextView goodText = (TextView) findViewById(R.id.goodStatusText);
+////        TextView badText = (TextView) findViewById(R.id.badStatusText);
+//
+//        mPieChart = (PieChart) findViewById(R.id.piechart);
+//        mPieChart.setAnimationTime(0);
+//
+//
+//        Integer riskColor;
+//        if (lastRiskValue < 0) {
+//            mPieChart.setVisibility(View.GONE);
+//            return;
+//        }
+//
+//        else if (lastRiskValue<30) {
+//            riskColor = Color.parseColor("#00ff00");
+//            statusString="good";
+//
+//        } else if (lastRiskValue<70) {
+//            riskColor = Color.parseColor("#ffff00");
+//            statusString = "okay";
+//
+//        } else {
+//            riskColor = Color.parseColor("#ff0000");
+//            statusString = "poor";
+//
+//        }
+//
+//
+//        mPieChart.setVisibility(View.VISIBLE);
+//
+//        mPieChart.clearChart();
+//        mPieChart.addPieSlice(new PieModel("Your Risk: " + statusString, lastRiskValue, riskColor));
+//        mPieChart.addPieSlice(new PieModel("Your Risk: " + statusString, 100 - lastRiskValue, Color.parseColor("#000000")));
+//
+//        mPieChart.setCurrentItem(0); //set chart highlighted item to index zero
+//        if (animate)
+//            mPieChart.startAnimation();
+//
+//
+//    }
+
+    private void updateDisplay() {
+        Log.d(TAG, "Update Display Called");
+
+        if (isAmbient()) {
+            //watch face view
+            setContentView(R.layout.main_activity_risk_level);
+
+            //set clock
+            mClockView = (TextView) findViewById(R.id.clock);
+            mClockView.setVisibility(View.VISIBLE);
+            mClockView.setText(AMBIENT_DATE_FORMAT.format(new Date()));
+
+            //update pie chart and data
+            updateRiskUI(lastRiskValue, true);
+
+        } else {
+            //main app screen
+            setContentView(R.layout.main_activity);
+
+            initUI();
+
+        }
+    }
 
     // Create an intent that can start the Speech Recognizer activity
     private void getSubjectFromSpeech() {
@@ -225,7 +560,15 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
 // Start the activity, the intent will be populated with the speech text
-        startActivityForResult(intent, SPEECH_REQUEST_CODE);
+        startActivityForResult(intent, NAME_REQUEST_CODE);
+    }
+
+    private void getIDFromSpeech() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+// Start the activity, the intent will be populated with the speech text
+        startActivityForResult(intent, ID_REQUEST_CODE);
     }
 
     // This callback is invoked when the Speech Recognizer returns.
@@ -233,30 +576,97 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
     @Override
     protected void onActivityResult(int requestCode, int resultCode,
                                     Intent data) {
-        if (requestCode == SPEECH_REQUEST_CODE && resultCode == RESULT_OK) {
-            List<String> results = data.getStringArrayListExtra(
-                    RecognizerIntent.EXTRA_RESULTS);
+        if (resultCode==RESULT_OK) {
+
+            List<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             String spokenText = results.get(0);
             // Do something with spokenText
 
+            if (spokenText.equals("")) {
+                return;
+            }
+
             try {
                 //Integer sid = idNumberPicker.getValue()//.parseInt(sidString);
-                Integer sid = Integer.parseInt(spokenText);
+                switch(requestCode) {
+                    case NAME_REQUEST_CODE:
+                        Log.d(TAG, "onSpeechResult Name");
+                        if (!isConnected) {
+                            Toast.makeText(this, "No Network",Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        UploadTask userTask = new UploadTask(ClientPaths.SUBJECT_API, this);
 
-                ClientPaths.setSubjectID(sid);
+                        JSONObject nameJson = new JSONObject();
+                        try {
+                            nameJson.put("key", ClientPaths.API_KEY);
+                            nameJson.put("name", spokenText);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return;
+                        }
 
-                TextView t = (TextView) findViewById(R.id.subjectText);
-                t.setText("SubjectID: " + ClientPaths.getSubjectID());
-                Toast.makeText(MainActivity.this, "Success SID: " + sid, Toast.LENGTH_SHORT).show();
-            } catch (Exception e) { //parse error of integer in input field
-                e.printStackTrace();
-                Toast.makeText(MainActivity.this, "Heard '" + spokenText + "' - not a valid #", Toast.LENGTH_SHORT).show();
+                        userTask.execute(nameJson.toString());
+                        break;
+                    case ID_REQUEST_CODE:
+                        Log.d(TAG, "onSpeechResult ID");
+                        Integer sid = Integer.parseInt(spokenText);
+                        ClientPaths.setSubjectID(sid);
+                        TextView t = (TextView) findViewById(R.id.subjectText);
+                        t.setText("SubjectID: " + ClientPaths.getSubjectID());
+                        Toast.makeText(MainActivity.this, "Success SID: " + sid, Toast.LENGTH_SHORT).show();
+
+                        //generate and send encryption key to server based on result of user id
+
+                        ClientPaths.sendKeyToServer();
+                        break;
+                    }
+
+//
+//                Integer sid = Integer.parseInt(spokenText);
+//                ClientPaths.setSubjectID(sid);
+//                TextView t = (TextView) findViewById(R.id.subjectText);
+//                t.setText("SubjectID: " + ClientPaths.getSubjectID());
+//                Toast.makeText(MainActivity.this, "Success SID: " + sid, Toast.LENGTH_SHORT).show();
+                } catch (Exception e) { //parse error of integer in input field
+                    e.printStackTrace();
+                    Toast.makeText(MainActivity.this, "Heard '" + spokenText + "' - not a valid #", Toast.LENGTH_SHORT).show();
+
+                }
 
             }
-        }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+
+    //return the risk level for the user (will be retrieved from user at a regular interval) - will need to establish timer in onCreate
+    private String getRisk() {
+        return lastRiskValue >= 0 ? lastRiskValue + "%" : "Waiting for Value..";
+
+    }
+
+    private void updateRisklevel() {
+
+        if (!isConnected) {
+            //Toast.makeText(this, "No Network",Toast.LENGTH_SHORT).show();
+//            ClientPaths.setRiskLevel(ClientPaths.NO_VALUE);
+            lastRiskValue=ClientPaths.NO_VALUE;
+            return;
+        }
+        Log.d(TAG, "Called updateRiskLevel");
+        JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("key", ClientPaths.API_KEY);
+            jsonBody.put("subject_id", subjectID);
+            jsonBody.put("timestamp",System.currentTimeMillis());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+        UploadTask uploadTask = new UploadTask(ClientPaths.RISK_API, this);//, root + File.separator + SENSOR_FNAME);
+        uploadTask.execute(jsonBody.toString());
+        //uploadTask.cleanUp();
+    }
     /**
      * Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
      */
@@ -274,14 +684,18 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
     protected void onDestroy() {
         super.onDestroy();
 
-        //release partial wake lock
-        if (wl != null) {
-            wl.release();
-        }
 
         Log.d(TAG, "MainActivity onDestroy");
 
         stopMeasurement();
+        closeBT();
+
+
+        try {
+            riskTimer.cancel();
+        } catch (Exception e) {
+            Log.d(TAG, "Risk Timer off");
+        }
 
         try {
 
@@ -297,7 +711,8 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
             if (rfduinoReceiver != null)
                 unregisterReceiver(rfduinoReceiver);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.d(TAG, e.toString());
+
 
         }
 
@@ -312,17 +727,16 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
                     .removeLocationUpdates(mGoogleApiClient, this);
         }
         mGoogleApiClient.disconnect();
-        //dustTask.cleanUp();
+
+//        if (wifiLock.isHeld())
+//            wifiLock.release();
+
+        keepWiFiOn(this,false);
 
     }
 
-
-
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        //getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 //
@@ -338,11 +752,18 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
 //        super.onPause();
 //    }
 
+//    @Override
+//    protected void onStop(){
+//        super.onStop();
+//
+//
+//    }
+
 
     public void ProcessReceivedData(String data) {
-        Log.d(TAG, "ProcessReceivedData (Dust) called");
-        if (!connected) {
-            connected = true; //we received the data
+//        Log.d(TAG, "ProcessReceivedData (Dust) called");
+        if (!bluetoothConnected) {
+            bluetoothConnected = true; //we received the data
             receiveBuffer = "";
         }
 
@@ -369,9 +790,9 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
                         e.printStackTrace();
                         return;
                     }
-                    Log.d(TAG, "Dust Reading: " + vals[0]);
+                    //Log.d(TAG, "Dust Reading: " + vals[0]);
                     //client.sendSensorData(event.sensor.getType(), event.accuracy, event.timestamp, event.values);
-                    client.sendSensorData(ClientPaths.DUST_SENSOR_ID, 0, System.currentTimeMillis(), vals);
+                    ClientPaths.sendSensorData(ClientPaths.DUST_SENSOR_ID, 3, System.currentTimeMillis(), vals);
 
                 }
 
@@ -398,7 +819,7 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
 
 
     private void addData(byte[] data) {
-        Log.i(TAG, "in BT addData");
+        //Log.i(TAG, "in BT addData");
         String ascii = HexAsciiHelper.bytesToAsciiMaybe(data);
         if (ascii != null) {
             ProcessReceivedData(ascii);
@@ -414,10 +835,8 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-
-
                 //scan for bluetooth device that contains RF
-                if (bluetoothDevice.getName().contains("RF")) {
+                if (bluetoothDevice.getName().contains("HaikRF")) {
                     Log.i(TAG, "Found RF Device: " + bluetoothDevice.getName());
                     Intent rfduinoIntent = new Intent(MainActivity.this, RFduinoService.class);
                     bindService(rfduinoIntent, rfduinoServiceConnection, BIND_AUTO_CREATE);
@@ -426,6 +845,8 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
             }
         });
     }
+
+
 
 
     private final BroadcastReceiver bluetoothStateReceiver = new BroadcastReceiver() {
@@ -485,153 +906,13 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
         }
     };
 
-    //Location
-
-    private static final Integer UPDATE_INTERVAL_MS = 1000 * 60;
-    private static final Integer FASTEST_INTERVAL_MS = UPDATE_INTERVAL_MS;
-    /**
-     * Runs when a GoogleApiClient object successfully connects.
-     */
-    @Override
-    public void onConnected(Bundle connectionHint) {
-        LocationRequest locationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(UPDATE_INTERVAL_MS)
-                .setFastestInterval(FASTEST_INTERVAL_MS);
-
-        LocationServices.FusedLocationApi
-                .requestLocationUpdates(mGoogleApiClient, locationRequest, this)
-                .setResultCallback(new ResultCallback<Status>() {
-
-                    @Override
-                    public void onResult(Status status) {
-                        if (status.getStatus().isSuccess()) {
-                            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                                Log.d(TAG, "Successfully requested location updates");
-                            }
-                        } else {
-                            Log.e(TAG,
-                                    "Failed in requesting location updates, "
-                                            + "status code: "
-                                            + status.getStatusCode()
-                                            + ", message: "
-                                            + status.getStatusMessage());
-                        }
-                    }
-                });
-        // Provides a simple way of getting a device's location and is well suited for
-        // applications that do not require a fine-grained location and that do not need location
-        // updates. Gets the best and most recent location currently available, which may be null
-        // in rare cases when a location is not available.
-        ClientPaths.currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if (ClientPaths.currentLocation==null) {
-            Toast.makeText(this, "No Location Detected", Toast.LENGTH_SHORT).show();
-            Log.i(TAG, "No Location Detected");
-        } else {
-            Toast.makeText(this,"Location Found", Toast.LENGTH_SHORT).show();
-            Log.i(TAG, "Location Found: " + ClientPaths.currentLocation.getLatitude() + "," + ClientPaths.currentLocation.getLongitude());
-        }
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        ClientPaths.currentLocation = location;
-    }
 
 
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        // Refer to the javadoc for ConnectionResult to see what error codes might be returned in
-        // onConnectionFailed.
-        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
-    }
-
-
-    @Override
-    public void onConnectionSuspended(int cause) {
-        // The connection to Google Play services was lost for some reason. We call connect() to
-        // attempt to re-establish the connection.
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "connection to location client suspended");
-        }
-        mGoogleApiClient.connect();
-    }
-
-
-
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        return mGestureDetector.onTouchEvent(event) || super.dispatchTouchEvent(event);
-    }
-
-    private class LongPressListener extends GestureDetector.SimpleOnGestureListener {
-        @Override
-        public void onLongPress(MotionEvent event) {
-            mDismissOverlayView.show();
-        }
-    }
-
-    /**
-     * Handles the button to launch a notification.
-     */
-    public void showNotification(View view) {
-        Notification notification = new NotificationCompat.Builder(this)
-                .setContentTitle(getString(R.string.notification_title))
-                .setContentText(getString(R.string.notification_title))
-                .setSmallIcon(R.drawable.ic_launcher)
-                .addAction(R.drawable.ic_launcher,
-                        getText(R.string.action_launch_activity),
-                        PendingIntent.getActivity(this, NOTIFICATION_REQUEST_CODE,
-                                new Intent(this, GridExampleActivity.class),
-                                PendingIntent.FLAG_UPDATE_CURRENT))
-                .build();
-        NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, notification);
-        //finish();
-    }
-
-
-    /**
-     * Handles the button press to finish this activity and take the user back to the Home.
-     */
     public void onFinishActivity(View view) {
         setResult(RESULT_OK);
-        //finish();
+        finish();
     }
 
-    /**
-     * Handles the button to start a DelayedConfirmationView timer.
-     */
-    public void onStartTimer(View view) {
-        DelayedConfirmationView delayedConfirmationView = (DelayedConfirmationView)
-                findViewById(R.id.timer);
-        delayedConfirmationView.setTotalTimeMs(NUM_SECONDS * 1000);
-        delayedConfirmationView.setListener(this);
-        delayedConfirmationView.start();
-        scroll(View.FOCUS_DOWN);
-    }
-
-    @Override
-    public void onTimerFinished(View v) {
-        Log.d(TAG, "onTimerFinished is called.");
-        scroll(View.FOCUS_UP);
-    }
-
-    @Override
-    public void onTimerSelected(View v) {
-        Log.d(TAG, "onTimerSelected is called.");
-        scroll(View.FOCUS_UP);
-    }
-
-    private void scroll(final int scrollDirection) {
-        final ScrollView scrollView = (ScrollView) findViewById(R.id.scroll);
-        scrollView.post(new Runnable() {
-            @Override
-            public void run() {
-                scrollView.fullScroll(scrollDirection);
-            }
-        });
-    }
 
 
     //Sensor Related
@@ -656,7 +937,7 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
                             @Override
                             public void run() {
                                 Log.d(TAG, "register Heartrate Sensor");
-                                mSensorManager.registerListener(MainActivity.this, mHeartrateSensor, SensorManager.SENSOR_DELAY_NORMAL);
+                                mSensorManager.registerListener(MainActivity.this, mHeartrateSensor, ClientPaths.SENSOR_DELAY_CUSTOM);//SensorManager.SENSOR_DELAY_NORMAL);
 
                                 try {
                                     Thread.sleep(measurementDuration * 1000);
@@ -673,15 +954,15 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
                 Log.d(TAG, "No Heartrate Sensor found");
             }
 
-            if (heartrateSamsungSensor != null) {
-                mSensorManager.registerListener(this, heartrateSamsungSensor, SensorManager.SENSOR_DELAY_NORMAL);
-            } else {
-                Log.d(TAG, "Samsungs Heartrate Sensor not found");
-            }
+//            if (heartrateSamsungSensor != null) {
+//                mSensorManager.registerListener(this, heartrateSamsungSensor, SensorManager.SENSOR_DELAY_NORMAL);
+//            } else {
+//                Log.d(TAG, "Samsungs Heartrate Sensor not found");
+//            }
 
 
             if (linearAccelerationSensor != null) {
-                mSensorManager.registerListener(this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
+                mSensorManager.registerListener(this, linearAccelerationSensor, ClientPaths.SENSOR_DELAY_CUSTOM/2);//SensorManager.SENSOR_DELAY_NORMAL);
             } else {
                 Log.d(TAG, "No Linear Acceleration Sensor found");
             }
@@ -689,6 +970,8 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
     }
 
     private void stopMeasurement() {
+
+
 
         Log.i(TAG, "Stop Measurement");
         if (mSensorManager != null) {
@@ -701,13 +984,252 @@ public class MainActivity extends Activity implements DelayedConfirmationView.De
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        client.sendSensorData(event.sensor.getType(), event.accuracy, event.timestamp, event.values);
+        ClientPaths.sendSensorData(event.sensor.getType(), event.accuracy, event.timestamp, event.values);
 
+    }
+
+
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+    private static final Integer UPDATE_INTERVAL_MS = 1000 * 60;
+    private static final Integer FASTEST_INTERVAL_MS = UPDATE_INTERVAL_MS;
+    /**
+     * Runs when a GoogleApiClient object successfully connects.
+     */
+
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Log.d(TAG, "location onConnected");
+        LocationRequest locationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(UPDATE_INTERVAL_MS)
+                .setFastestInterval(FASTEST_INTERVAL_MS);
+
+        LocationServices.FusedLocationApi
+                .requestLocationUpdates(mGoogleApiClient, locationRequest, this)
+                .setResultCallback(new ResultCallback<Status>() {
+
+                    @Override
+                    public void onResult(Status status) {
+                        if (status.getStatus().isSuccess()) {
+
+                            Log.d(TAG, "Successfully requested location updates");
+
+                        } else {
+                            Log.e(TAG, "Failed in requesting location updates, "
+                                    + "status code: "
+                                    + status.getStatusCode() + ", message: " + status
+                                    .getStatusMessage());
+                        }
+                    }
+                });
     }
 
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
+    public  void onConnectionSuspended(int i) {
+        Log.d(TAG, "onConnectionSuspended called");
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.d(TAG, "onConnectionFailed called");
+    }
+
+    @Override
+    public void onLocationChanged (Location location)
+    {
+        Log.d(TAG, "onLocationChanged: " + location.getLatitude() + "," + location.getLongitude());
+        if (location!=null)
+            ClientPaths.currentLocation = location;
+    }
+
+
+    @Override
+    public void onEnterAmbient(Bundle ambientDetails) {
+        super.onEnterAmbient(ambientDetails);
+        updateDisplay();
+    }
+
+    @Override
+    public void onUpdateAmbient() {
+        super.onUpdateAmbient();
+        updateDisplay();
+    }
+
+    @Override
+    public void onExitAmbient() {
+        updateDisplay();
+        super.onExitAmbient();
+    }
+
+    //Spirometer connection:
+
+    public Boolean findBT()
+    {
+        Log.d(TAG, "findBT called");
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        if(bluetoothAdapter == null)
+        {
+            Log.d(TAG, "No bluetooth adapter available");
+
+        }
+
+        if(!bluetoothAdapter.isEnabled())
+        {
+            Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBluetooth, REQUEST_ENABLE_BT);
+        }
+
+        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+
+        //spirometer must be pre-paired for connection
+        if(pairedDevices.size() > 0)
+        {
+            String deviceName;
+            for(BluetoothDevice device : pairedDevices)
+            {
+                deviceName = device.getName();
+
+
+                // TODO(yjchoi): remove hardcoded names
+                if(deviceName.matches("ASMA_\\d\\d\\d\\d"))   // Find a device with name ASMA_####
+                {
+                    spiroDevice = device;
+                    Log.d("yjcode", "Detected spiro device: " + deviceName);
+                    return true;
+
+                } else if (deviceName.contains("RF")) {
+
+                    Log.d("yjcode", "Detected RFduino device: " + deviceName);
+                    //add connection for RF duino here as well
+                }
+            }
+        }
+
+        Log.d(TAG, "findBT did not find spiro device");
+
+        return false;
+    }
+
+    public void openBT()
+    {
+        try {
+            UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
+            spiroSocket = spiroDevice.createRfcommSocketToServiceRecord(uuid);
+            spiroSocket.connect();
+            mmInputStream = spiroSocket.getInputStream();
+            beginListenForData();
+        } catch (Exception e) {
+            e.printStackTrace();
+            spiroToggleButton.setChecked(false);
+            spiroChecked=false;
+            return;
+        }
+        Log.d(TAG, "Spiro Bluetooth Opened");
+    }
+
+    public void beginListenForData()
+    {
+        Log.d(TAG, "beginListenForData");
+        final Handler handler = new Handler();
+
+        readBufferPosition = 0;
+        readBuffer = new byte[1024];
+        stopWorker = false;
+
+
+
+
+        //listener worker thread
+        workerThread = new Thread(new Runnable()
+        {
+            public void run()
+            {
+                while(!Thread.currentThread().isInterrupted() && !stopWorker)
+                {
+                    try
+                    {
+                        int bytesAvailable = mmInputStream.available();
+                        if(bytesAvailable > 0)
+                        {
+                            byte[] packetBytes = new byte[bytesAvailable];
+                            mmInputStream.read(packetBytes);
+                            for(int i=0;i<bytesAvailable;i++)
+                            {
+                                byte b = packetBytes[i];
+                                if(b == 0x03)
+                                {
+                                    byte[] encodedBytes = new byte[readBufferPosition];
+                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
+                                    final TestData data = new TestData(encodedBytes);
+                                    readBufferPosition = 0;
+
+                                    handler.post(new Runnable()
+                                    {
+                                        public void run()
+                                        {
+
+                                            Log.d(TAG, "Received spiro data: " + data.toString());
+
+                                            ClientPaths.sendSensorData(ClientPaths.SPIRO_SENSOR_ID, 3, System.currentTimeMillis(), data.toArray());
+                                            Toast.makeText(MainActivity.this, "PEF Received: " + data.pef + "!", Toast.LENGTH_SHORT).show();
+//                                            mText_fev1.setText("FEV1: "+ String.valueOf((float)data.fev1 / 100.0) + " Liters");
+//                                            mText_pef.setText("PEF: " + String.valueOf(data.pef) + " Liters/min");
+//                                            mText_fev1_best.setText("FEV1 Personal Best: " + String.valueOf((float) data.fev1_best / 100.0) + " Liters");
+//                                            mText_pef_best.setText("PEF Personal Best: " + String.valueOf(data.pef_best) + " Liters/min");
+//                                            mText_fev1_percent.setText("FEV1%: " + String.valueOf(data.fev1_percent) + "%");
+//                                            mText_pef_percent.setText("PEF%: " + String.valueOf(data.pef_percent) + "%");
+//                                            mText_green_zone.setText("Green Zone: " + String.valueOf(data.green_zone) + "%");
+//                                            mText_yellow_zone.setText("Yellow Zone: " + String.valueOf(data.yellow_zone) + "%");
+//                                            mText_orange_zone.setText("Orange Zone: " + String.valueOf(data.orange_zone) + "%");
+//                                            mText_time.setText("Date/Time: " + String.valueOf(data.month) + "/" + String.valueOf(data.day) + "/" + String.valueOf(data.year) + " " +
+//                                                    String.valueOf(data.hour) + ":" + String.valueOf(data.minute) + ":" + String.valueOf(data.second));
+//                                            if (data.good_test)
+//                                                mText_good_test.setText("Good Test: Yes");
+//                                            else
+//                                                mText_good_test.setText("Good Test: No");
+                                        }
+                                    });
+                                    break;
+                                }
+                                else
+                                {
+                                    readBuffer[readBufferPosition++] = b;
+                                }
+                            }
+                        }
+                    }
+                    catch (IOException ex)
+                    {
+                        stopWorker = true;
+                    }
+                }
+            }
+        });
+        workerThread.start();
+    }
+
+    public void closeBT() {
+        try {
+            stopWorker = true;
+            mmInputStream.close();
+            spiroSocket.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+
+        }
+        Log.d(TAG, "spiro bluetooth closed");
+    }
+
+
+
+
 }

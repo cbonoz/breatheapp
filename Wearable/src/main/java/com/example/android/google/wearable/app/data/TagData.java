@@ -1,5 +1,8 @@
 package com.example.android.google.wearable.app.data;
 
+/*
+*   No longer used
+ */
 public class TagData {
     private String tagName;
     private long timestamp;

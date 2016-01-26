@@ -1,0 +1,11 @@
+Breathe Asthma Watch App
+
+Workflow:
+1. Register the username manually on the breathe server and record ID for that individual.
+2. Give user their ID number with the watch so they can initialize the app correctly
+    (they will say their number on the very first login only)
+3. Only watch is required for app to run. Watch will provide watch face
+
+Observation:
+watch still needs phone in order to use fused location api (probably because wifi routed through phone)
+if phone is on, requests don't get through (still need to fix this)
