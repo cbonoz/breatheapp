@@ -19,18 +19,13 @@ package com.example.android.google.wearable.app.encryption;
  * limitations under the License.
  */
 
-import android.content.Context;
-
 import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
 /**
  * This class provides the functionality of encrypting data using AES and transferring its symmetric key using RSA
- * @author adkmobile@niclabs.cl
+ * this class will use the key retrieved from the JavaSSLCertificate class and use for encryption
  *
  */
 
@@ -42,74 +37,7 @@ public class HybridEncrypter implements Encrypter {
     private byte[] symmetric_key;
     private boolean algorithmnotsupported = false;
 
-
-    /**
-     * Constructor that initialize the RSA cipher with the public key from the application package
-     * and the AES cipher with a random key
-     * @param context Context of the application
-     */
-    public HybridEncrypter(Context context) {
-
-        rsa = new RsaEncrypter(context);
-
-        aes = new AesEncrypter(null);
-
-        String salt = aes.getSalt();
-        String password=aes.getPassword();
-        String iv = aes.getIV();
-
-        String symmetric_key_params = password + "\n" + salt  + "\n" + iv + "\n";
-        symmetric_key = rsa.stringEncrypter(symmetric_key_params);
-
-        algorithmnotsupported = aes.isWorstcase();
-    }
-
-    /**
-     * Constructor that initialize the RSA cipher with the public key provided by the user
-     * and the AES cipher with a random key
-     *
-     * @param path_rsa_key Path to the pem file, in the external storage that holds the public key
-     * @param key_size Number of bits of the public key
-     * @throws FileNotFoundException
-     */
-    public HybridEncrypter(String path_rsa_key, int key_size) throws FileNotFoundException {
-
-        rsa = new RsaEncrypter(path_rsa_key, key_size);
-
-        aes = new AesEncrypter(null);
-
-        String salt = aes.getSalt();
-        String password=aes.getPassword();
-        String iv = aes.getIV();
-
-        String symmetric_key_params = password + "\n" + salt  + "\n" + iv + "\n";
-        symmetric_key = rsa.stringEncrypter(symmetric_key_params);
-
-        algorithmnotsupported= aes.isWorstcase();
-    }
-    /**
-     * Constructor that initialize the RSA cipher with the public key from the application package
-     * and the AES cipher with a random key based on the password provided
-     *
-     * @param context Context of the application
-     * @param human_password
-     */
-    public HybridEncrypter(Context context, String human_password) {
-
-        rsa = new RsaEncrypter(context);
-
-        aes = new AesEncrypter(human_password);
-
-        String salt = aes.getSalt();
-        String password=aes.getPassword();
-        String iv = aes.getIV();
-
-        String symmetric_key_params = password + "\n" + salt  + "\n" + iv + "\n";
-        symmetric_key = rsa.stringEncrypter(symmetric_key_params);
-
-        algorithmnotsupported= aes.isWorstcase();
-    }
-
+    //use this constructor and pass the user id as the human password
     /**
      * Constructor that initialize the RSA cipher with the public key provided by the user
      * and the AES cipher with a random key based on the password provided
@@ -134,52 +62,123 @@ public class HybridEncrypter implements Encrypter {
         algorithmnotsupported= aes.isWorstcase();
     }
 
-    /**
-     * Constructor that initialize the RSA cipher with the public key from the application package
-     * and the AES cipher with a key provided by the user
-     *
-     * @param context Context of the application
-     * @param key Key used to encrypt
-     * @param ivParams A IvParameterSpec instance with the bytes used as initialization vector (if ivParam is null an initialization vector will be randomly generated)
-     */
-    public HybridEncrypter(Context context, SecretKey key, IvParameterSpec ivParams) {
-        rsa = new RsaEncrypter(context);
-
-        aes = new AesEncrypter(key, ivParams);
-
-        String salt = aes.getSalt();
-        String password=aes.getPassword();
-        String iv = aes.getIV();
-
-        String symmetric_key_params = password + "\n" + salt  + "\n" + iv + "\n";
-        symmetric_key = rsa.stringEncrypter(symmetric_key_params);
-
-        algorithmnotsupported= aes.isWorstcase();
-    }
-
-    /**
-     * Constructor that initialize the RSA cipher and the AES cipher with keys provided by the user
-     *
-     * @param path_rsa_key Path to the pem file, in the external storage that holds the public key
-     * @param key_size Number of bits of the public key
-     * @param key Key used to encrypt
-     * @param ivParams A IvParameterSpec instance with the bytes used as initialization vector (if ivParam is null an initialization vector will be randomly generated)
-     */
-    public HybridEncrypter(String path_rsa_key, int key_size, SecretKey key, IvParameterSpec ivParams) throws FileNotFoundException {
-
-        rsa = new RsaEncrypter(path_rsa_key, key_size);
-
-        aes = new AesEncrypter(key, ivParams);
-
-        String salt = aes.getSalt();
-        String password=aes.getPassword();
-        String iv = aes.getIV();
-
-        String symmetric_key_params = password + "\n" + salt  + "\n" + iv + "\n";
-        symmetric_key = rsa.stringEncrypter(symmetric_key_params);
-
-        algorithmnotsupported= aes.isWorstcase();
-    }
+//
+//    /**
+//     * Constructor that initialize the RSA cipher with the public key from the application package
+//     * and the AES cipher with a random key
+//     * @param context Context of the application
+//     */
+//    public HybridEncrypter(Context context) {
+//
+//        rsa = new RsaEncrypter(context);
+//
+//        aes = new AesEncrypter(null);
+//
+//        String salt = aes.getSalt();
+//        String password=aes.getPassword();
+//        String iv = aes.getIV();
+//
+//        String symmetric_key_params = password + "\n" + salt  + "\n" + iv + "\n";
+//        symmetric_key = rsa.stringEncrypter(symmetric_key_params);
+//
+//        algorithmnotsupported = aes.isWorstcase();
+//    }
+//
+//
+//    /**
+//     * Constructor that initialize the RSA cipher with the public key provided by the user
+//     * and the AES cipher with a random key
+//     *
+//     * @param path_rsa_key Path to the pem file, in the external storage that holds the public key
+//     * @param key_size Number of bits of the public key
+//     * @throws FileNotFoundException
+//     */
+//    public HybridEncrypter(String path_rsa_key, int key_size) throws FileNotFoundException {
+//
+//        rsa = new RsaEncrypter(path_rsa_key, key_size);
+//
+//        aes = new AesEncrypter(null);
+//
+//        String salt = aes.getSalt();
+//        String password=aes.getPassword();
+//        String iv = aes.getIV();
+//
+//        String symmetric_key_params = password + "\n" + salt  + "\n" + iv + "\n";
+//        symmetric_key = rsa.stringEncrypter(symmetric_key_params);
+//
+//        algorithmnotsupported= aes.isWorstcase();
+//    }
+//    /**
+//     * Constructor that initialize the RSA cipher with the public key from the application package
+//     * and the AES cipher with a random key based on the password provided
+//     *
+//     * @param context Context of the application
+//     * @param human_password
+//     */
+//    public HybridEncrypter(Context context, String human_password) {
+//
+//        rsa = new RsaEncrypter(context);
+//
+//        aes = new AesEncrypter(human_password);
+//
+//        String salt = aes.getSalt();
+//        String password=aes.getPassword();
+//        String iv = aes.getIV();
+//
+//        String symmetric_key_params = password + "\n" + salt  + "\n" + iv + "\n";
+//        symmetric_key = rsa.stringEncrypter(symmetric_key_params);
+//
+//        algorithmnotsupported= aes.isWorstcase();
+//    }
+//
+//
+//
+//    /**
+//     * Constructor that initialize the RSA cipher with the public key from the application package
+//     * and the AES cipher with a key provided by the user
+//     *
+//     * @param context Context of the application
+//     * @param key Key used to encrypt
+//     * @param ivParams A IvParameterSpec instance with the bytes used as initialization vector (if ivParam is null an initialization vector will be randomly generated)
+//     */
+//    public HybridEncrypter(Context context, SecretKey key, IvParameterSpec ivParams) {
+//        rsa = new RsaEncrypter(context);
+//
+//        aes = new AesEncrypter(key, ivParams);
+//
+//        String salt = aes.getSalt();
+//        String password=aes.getPassword();
+//        String iv = aes.getIV();
+//
+//        String symmetric_key_params = password + "\n" + salt  + "\n" + iv + "\n";
+//        symmetric_key = rsa.stringEncrypter(symmetric_key_params);
+//
+//        algorithmnotsupported= aes.isWorstcase();
+//    }
+//
+//    /**
+//     * Constructor that initialize the RSA cipher and the AES cipher with keys provided by the user
+//     *
+//     * @param path_rsa_key Path to the pem file, in the external storage that holds the public key
+//     * @param key_size Number of bits of the public key
+//     * @param key Key used to encrypt
+//     * @param ivParams A IvParameterSpec instance with the bytes used as initialization vector (if ivParam is null an initialization vector will be randomly generated)
+//     */
+//    public HybridEncrypter(String path_rsa_key, int key_size, SecretKey key, IvParameterSpec ivParams) throws FileNotFoundException {
+//
+//        rsa = new RsaEncrypter(path_rsa_key, key_size);
+//
+//        aes = new AesEncrypter(key, ivParams);
+//
+//        String salt = aes.getSalt();
+//        String password=aes.getPassword();
+//        String iv = aes.getIV();
+//
+//        String symmetric_key_params = password + "\n" + salt  + "\n" + iv + "\n";
+//        symmetric_key = rsa.stringEncrypter(symmetric_key_params);
+//
+//        algorithmnotsupported= aes.isWorstcase();
+//    }
 
     /**
      * @return true if PBKDF2WithHmacSHA1 is not supported
@@ -226,6 +225,7 @@ public class HybridEncrypter implements Encrypter {
      * @param plain String to encrypt
      * @return The encrypted bytes
      */
+    //use this method to encrypt the sensor data before sending via post request
     public byte[] stringEncrypter(String plain) {
 
         byte[] ret;

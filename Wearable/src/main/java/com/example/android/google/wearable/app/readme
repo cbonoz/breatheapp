@@ -9,3 +9,11 @@ Workflow:
 Observation:
 watch still needs phone in order to use fused location api (probably because wifi routed through phone)
 if phone is on, requests don't get through (still need to fix this)
+
+Currently working on converting UI to watchfaceonly - some challenges:
+1. How to accept initial user input to register the user id for the first time. No way to trigger
+ startActivityForResult method for launching google services voice recognition screen. This is the
+ biggest one - the alternative to having th euser say their login for the very first time is to
+ have one of us configure the user id ahead of time before we give them the watch (which may be a good idea).
+ 2. Need to be able to regulate sensors on and off from the watchface activity.
+ 3. Not a whole lot of options for creating interactive elements - easy to close. Need a way to be able to use spirometer data as well.

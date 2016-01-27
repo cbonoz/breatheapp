@@ -33,21 +33,21 @@ class TestData {
             this.device_id = new String(Arrays.copyOfRange(message,4,14));
             this.fev1 = Integer.parseInt(new String(Arrays.copyOfRange(message,14,17)));
             this.pef = Integer.parseInt(new String(Arrays.copyOfRange(message,17,20)));
-            this.fev1_best = Integer.parseInt(new String(Arrays.copyOfRange(message,20,23)));
-            this.pef_best = Integer.parseInt(new String(Arrays.copyOfRange(message,23,26)));
-            this.fev1_percent = Integer.parseInt(new String(Arrays.copyOfRange(message,26,29)));
-            this.pef_percent = Integer.parseInt(new String(Arrays.copyOfRange(message,29,32)));
-            this.green_zone = Integer.parseInt(new String(Arrays.copyOfRange(message,32,35)));
-            this.yellow_zone = Integer.parseInt(new String(Arrays.copyOfRange(message,35,38)));
-            this.orange_zone = Integer.parseInt(new String(Arrays.copyOfRange(message,38,41)));
-            this.year = Integer.parseInt(new String(Arrays.copyOfRange(message,41,43)));
-            this.month = Integer.parseInt(new String(Arrays.copyOfRange(message,43,45)));
-            this.day = Integer.parseInt(new String(Arrays.copyOfRange(message,45,47)));
-            this.hour = Integer.parseInt(new String(Arrays.copyOfRange(message,47,49)));
-            this.minute = Integer.parseInt(new String(Arrays.copyOfRange(message,49,51)));
-            this.second = Integer.parseInt(new String(Arrays.copyOfRange(message,51,53)));
-            this.good_test = (char)message[53] == '0';
-            this.sw_number = Integer.parseInt(new String(Arrays.copyOfRange(message, 54, 57)));
+//            this.fev1_best = Integer.parseInt(new String(Arrays.copyOfRange(message,20,23)));
+//            this.pef_best = Integer.parseInt(new String(Arrays.copyOfRange(message,23,26)));
+//            this.fev1_percent = Integer.parseInt(new String(Arrays.copyOfRange(message,26,29)));
+//            this.pef_percent = Integer.parseInt(new String(Arrays.copyOfRange(message,29,32)));
+//            this.green_zone = Integer.parseInt(new String(Arrays.copyOfRange(message,32,35)));
+//            this.yellow_zone = Integer.parseInt(new String(Arrays.copyOfRange(message,35,38)));
+//            this.orange_zone = Integer.parseInt(new String(Arrays.copyOfRange(message,38,41)));
+//            this.year = Integer.parseInt(new String(Arrays.copyOfRange(message,41,43)));
+//            this.month = Integer.parseInt(new String(Arrays.copyOfRange(message,43,45)));
+//            this.day = Integer.parseInt(new String(Arrays.copyOfRange(message,45,47)));
+//            this.hour = Integer.parseInt(new String(Arrays.copyOfRange(message,47,49)));
+//            this.minute = Integer.parseInt(new String(Arrays.copyOfRange(message,49,51)));
+//            this.second = Integer.parseInt(new String(Arrays.copyOfRange(message,51,53)));
+//            this.good_test = (char)message[53] == '0';
+//            this.sw_number = Integer.parseInt(new String(Arrays.copyOfRange(message, 54, 57)));
         }
     }
 

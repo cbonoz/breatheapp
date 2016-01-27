@@ -8,8 +8,6 @@ import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
 
-import com.example.android.google.wearable.app.ClientPaths;
-
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -58,32 +56,31 @@ public class RsaEncrypter implements Encrypter {
         }
     }
 
-    /**
-     * Constructor that initialize the cipher with the public key from the application package
-     * @param context The application context
-     */
-    public RsaEncrypter(Context context) {
-        this.context = context;
-        try {
-            //rsa_pk = getPKfromResources();
-            rsa_pk = ClientPaths.generateKey();
-        } catch (Exception e1) {
-            Log.e("RSAEncrypter","Failed to get key");
-        }
-        key_length = 256;
-        try {
-            cipher = Cipher.getInstance("RSA/ECB/NOPADDING");
-            cipher.init(Cipher.ENCRYPT_MODE, rsa_pk);
-        } catch (Exception e) {
-            Log.e("RSAEncrypter","Failed to initialize cipher");
-        }
-    }
-
-    /**
-     * Get the public key included in the application package
-     * @return The public key.
-     * @throws IOException
-     */
+//    /**
+//     * Constructor that initialize the cipher with the public key from the application package
+//     * @param context The application context
+//     */
+//    public RsaEncrypter(Context context) {
+//        this.context = context;
+//        try {
+//            rsa_pk = getPKfromResources();
+//        } catch (Exception e1) {
+//            Log.e("RSAEncrypter","Failed to get key");
+//        }
+//        key_length = 256;
+//        try {
+//            cipher = Cipher.getInstance("RSA/ECB/NOPADDING");
+//            cipher.init(Cipher.ENCRYPT_MODE, rsa_pk);
+//        } catch (Exception e) {
+//            Log.e("RSAEncrypter","Failed to initialize cipher");
+//        }
+//    }
+//
+//    /**
+//     * Get the public key included in the application package
+//     * @return The public key.
+//     * @throws IOException
+//     */
 //    private PublicKey getPKfromResources() throws IOException {
 //        InputStream is = context.getResources().openRawResource(
 //                R.raw.public_key);

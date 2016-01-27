@@ -71,9 +71,7 @@ public class JavaSSLCertificate {
             Log.d(TAG, "====Certificate:" + (i + 1) + "====");
             Log.d(TAG, "-Public Key-n" + myCert.getPublicKey());
             Log.d(TAG, "-Certificate Type-n " + myCert.getType());
-
         }
-
         socket.close();
     }
  

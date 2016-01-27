@@ -51,7 +51,6 @@ public class UploadTask extends AsyncTask<String, Void, String> {
     // connected to the internet and the sensors are running. Going to use a file approach, where the
     // server will process the files
 
-
     public UploadTask(String urlName, Context c) {
         context = c;
 
@@ -80,14 +79,6 @@ public class UploadTask extends AsyncTask<String, Void, String> {
         String result = null;
 
         Log.i(url.toString(), "NOW Sending: "+data);
-//        if (urlString.equals(ClientPaths.MULTI_FULL_API)) {
-//            ClientPaths.writeDataToFile(data, ClientPaths.sensorFile,false);
-//            Log.d(TAG, "write data to sensorFile");
-//        }
-
-//        wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-//        lock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "LockTag");
-//        lock.acquire();
 
         try {
             conn = (HttpURLConnection) url.openConnection();
@@ -145,9 +136,8 @@ public class UploadTask extends AsyncTask<String, Void, String> {
             Log.i(TAG, "Response: " + result);
             Log.i(TAG, "From " + urlString);
 
+            //handle response depending on request
             switch (urlString) {
-
-
                 case ClientPaths.SUBJECT_API:
                     try {
                         String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
@@ -155,14 +145,14 @@ public class UploadTask extends AsyncTask<String, Void, String> {
                         int newID = Integer.parseInt(resJson.getString("subject_id"));
                         Log.i(TAG, "Setting new SubjectID: " + newID);
                         ClientPaths.setSubjectID(newID);
+                        ClientPaths.requestAndSaveKey();
                         return "Registered " + newID;
+
                     }
                     catch (Exception e) {
                         e.printStackTrace();
                         return statusCode + ": JSON Parse Error";
                     }
-
-
                 case ClientPaths.RISK_API:
                     try {
                         String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
@@ -182,9 +172,15 @@ public class UploadTask extends AsyncTask<String, Void, String> {
                             return "Sent Data: Cleared Sensor data cache";
                         }
                     }
-
-
-
+                case ClientPaths.KEY_API:
+                    if (result!=null) {
+                        String pk="";
+                        //extract pk from response
+                        //write the received key to the external key file on the wearable
+                        ClientPaths.writeDataToFile(pk,ClientPaths.publicKeyFile,false);
+                        ClientPaths.createEncrypter();
+                        return "Registered Key and Encrypter";
+                    }
             }
 
 
@@ -216,10 +212,7 @@ public class UploadTask extends AsyncTask<String, Void, String> {
                     }
                 });
             }
-
         }
-
-//        lock.release();
 
         return statusCode+"";
     }
@@ -232,11 +225,9 @@ public class UploadTask extends AsyncTask<String, Void, String> {
 
     }
 
-
     private BufferedWriter writeNewFile(String filePath) {
 
         BufferedWriter writer = null;
-
 
         try {
             Log.i(TAG, "Attempting to open file descriptor: " + filePath);// + File.separator + fileName);
@@ -259,11 +250,4 @@ public class UploadTask extends AsyncTask<String, Void, String> {
         return writer;
 
     }
-
-//
-//    public void cleanUp() {
-//
-//        Log.d(TAG, "cleanUp called");
-//    }
-
 }
