@@ -158,11 +158,12 @@ public class UploadTask extends AsyncTask<String, Void, String> {
                         String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
                         final JSONObject resJson = new JSONObject(jsonString);
                         newRisk = Integer.parseInt(resJson.getString("risk"));
-                        Log.i(TAG, "Setting new riskLevel: " + newRisk);
+                        Log.d(TAG, "Setting new riskLevel: " + newRisk);
 //                        ClientPaths.setRiskLevel(newRisk);
 
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "[Handled] Error response from risk api");
+                        newRisk=ClientPaths.NO_VALUE;
                         return statusCode + ": JSON Parse Error";
                     }
                 case ClientPaths.MULTI_FULL_API:
@@ -203,12 +204,11 @@ public class UploadTask extends AsyncTask<String, Void, String> {
             if (conn!=null)
                 conn.disconnect();
 
-            if (urlString.equals(ClientPaths.RISK_API)) {
+            if (urlString.equals(ClientPaths.RISK_API) && context!=null) {
                 ((MainActivity) context).runOnUiThread(new Runnable() {
                     public void run() {
                         //Do something on UiThread
-                        ((MainActivity) context).updateRiskUI(newRisk, false);
-
+                        ((MainActivity)(context)).updateRiskUI(newRisk, false);
                     }
                 });
             }

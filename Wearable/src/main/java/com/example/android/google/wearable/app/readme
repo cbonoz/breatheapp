@@ -17,3 +17,29 @@ Currently working on converting UI to watchfaceonly - some challenges:
  have one of us configure the user id ahead of time before we give them the watch (which may be a good idea).
  2. Need to be able to regulate sensors on and off from the watchface activity.
  3. Not a whole lot of options for creating interactive elements - easy to close. Need a way to be able to use spirometer data as well.
+ 4. Currently don't have file reading implemented for several repeated post failures.
+
+ For watchfaceservice (place in application manifest when in use)
+        <!--<service-->
+            <!--android:name=".MainWatchFaceService"-->
+            <!--android:label="Breathe Watch Face"-->
+            <!--android:permission="android.permission.BIND_WALLPAPER" >-->
+            <!--<meta-data-->
+                <!--android:name="android.service.wallpaper"-->
+                <!--android:resource="@xml/watch_face" />-->
+            <!--<meta-dataxml-->
+                <!--android:name="com.google.android.wearable.watchface.preview"-->
+                <!--android:resource="@drawable/water_bg" />-->
+            <!--<meta-data-->
+                <!--android:name="com.google.android.wearable.watchface.preview_circular"-->
+                <!--android:resource="@drawable/water_bg" />-->
+            <!--<meta-data-->
+                <!--android:name="com.google.android.wearable.watchface.companionConfigurationAction"-->
+                <!--android:value="com.example.android.wearable.watchface.CONFIG_ANALOG" />-->
+
+            <!--<intent-filter>-->
+                <!--<action android:name="android.service.wallpaper.WallpaperService" />-->
+
+                <!--<category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />-->
+            <!--</intent-filter>-->
+        <!--</service>-->

@@ -34,6 +34,7 @@ public class ClientPaths {
     public static final String MULTI_FULL_API = BASE + "/api/multisensor/add";
     public static final String RISK_API = BASE + "/api/risk/get";
     public static final String KEY_API = BASE + "/api/publickey/get";
+    public static final String DUST_BT_NAME = "HaikRF";
 
     public static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";//"GWTgVdeNeVwsGqQHHhChfiPgDxxgXJzLoxUD0R64Gns";
 
@@ -43,8 +44,10 @@ public class ClientPaths {
     public static final int GARBAGE_SENSOR_ID = 2752;
     public static final int DUST_SENSOR_ID = 999;
     public static final int SPIRO_SENSOR_ID = 998;
+    public static final int SS_HEART_SENSOR_ID = 65562;
     public static final int SENSOR_DELAY_CUSTOM = 2000;//SensorManager.SENSOR_DELAY_NORMAL*100;//1000000*5;
     public static final int NO_VALUE = -1;
+
     private static final int MAX_FILE_SIZE = (1024*1024)*300;//max size 300MB
     public static Boolean BT_SCANNING = true;
 
@@ -53,11 +56,11 @@ public class ClientPaths {
     private static final Integer RECORD_LIMIT = 100;
 
     //controls whether data should be sent to server
-    private static Boolean sending = false;
+    private static Boolean sending = true;
     //controls encryption in post request
     private static Boolean encrypting = false;
     //controls writing sensorData to file
-    private static Boolean writing = true;
+    private static Boolean writing = false;
     public Boolean isWriting() {
         return writing;
     }
@@ -107,8 +110,8 @@ public class ClientPaths {
             hybridEncrypter = new HybridEncrypter(publicKeyDirectory, publicKeyLength, SUBJECT_ID.toString());
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, "Could not create HybridEncrypter");
+            //e.printStackTrace();
+            Log.e(TAG, "[Handled] Could not create HybridEncrypter (key file not present)");
             encrypting=false;
             return false;
         }
@@ -164,7 +167,7 @@ public class ClientPaths {
             jsonBody.put("key", API_KEY);
             jsonBody.put("data", sensorDataString);
         } catch (Exception e) {
-            Log.e(TAG,"Error creating jsonBody");
+            Log.e(TAG,"[Handled] Error creating jsonBody");
             e.printStackTrace();
         }
 
@@ -181,10 +184,6 @@ public class ClientPaths {
         Log.d(TAG, "Exiting send block");
         clearData();
     }
-
-
-
-
 
     private static File createFile(String fname) {
 
@@ -372,6 +371,7 @@ public class ClientPaths {
 //                    fev1, pef, fev1_best, pef_best, fev1_percent, pef_percent, green_zone, yellow_zone, orange_zone
                     jsonValue.put("fev1", values[0]);
                     jsonValue.put("pef", values[1]);
+                    jsonValue.put("goodtest", values[2]);
 //                    jsonValue.put("fev1_best", values[2]);
 //                    jsonValue.put("pef_best", values[3]);
 //                    jsonValue.put("fev1_percent", values[4]);

@@ -615,7 +615,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         try {
             unbindService(rfduinoServiceConnection);
         } catch (Exception e) {
-            Log.i(TAG, "Attempted to unbind when rfduinoService was unbound - handled");
+            Log.e(TAG, "[Handled] Attempted to unbind when rfduinoService was already unbound)");
         }
 
         if (mGoogleApiClient.isConnected()) {
@@ -728,7 +728,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             @Override
             public void run() {
                 //scan for bluetooth device that contains RF
-                if (bluetoothDevice.getName().contains("HaikRF")) {
+                if (bluetoothDevice.getName().contains(ClientPaths.DUST_BT_NAME)) {
                     Log.i(TAG, "Found RF Device: " + bluetoothDevice.getName());
                     Intent rfduinoIntent = new Intent(MainActivity.this, RFduinoService.class);
                     bindService(rfduinoIntent, rfduinoServiceConnection, BIND_AUTO_CREATE);
@@ -805,7 +805,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
         mHeartrateSensor = mSensorManager.getDefaultSensor(SENS_HEARTRATE);
         Sensor linearAccelerationSensor = mSensorManager.getDefaultSensor(SENS_LINEAR_ACCELERATION);
-        Sensor heartrateSamsungSensor = mSensorManager.getDefaultSensor(65562);
+        Sensor heartrateSamsungSensor = mSensorManager.getDefaultSensor(ClientPaths.SS_HEART_SENSOR_ID);
 
         Log.i(TAG, "Start Measurement");
         if (mSensorManager != null) {
@@ -839,7 +839,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             }
 
 //            if (heartrateSamsungSensor != null) {
-//                mSensorManager.registerListener(this, heartrateSamsungSensor, SensorManager.SENSOR_DELAY_NORMAL);
+//                mSensorManager.registerListener(this, heartrateSamsungSensor, ClientPaths.SENSOR_DELAY_CUSTOM/2);
 //            } else {
 //                Log.d(TAG, "Samsungs Heartrate Sensor not found");
 //            }
@@ -864,7 +864,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        ClientPaths.sendSensorData(event.sensor.getType(), event.accuracy, event.timestamp, event.values);
+//        ClientPaths.sendSensorData(event.sensor.getType(), event.accuracy, event.timestamp, event.values);
+        ClientPaths.sendSensorData(event.sensor.getType(), event.accuracy, System.currentTimeMillis(), event.values);
     }
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -960,6 +961,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
 
         //spirometer must be pre-paired for connection
+        spiroDevice=null;
         if(pairedDevices.size() > 0)
         {
             String deviceName;
@@ -975,7 +977,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                     Log.d("yjcode", "Detected spiro device: " + deviceName);
                     return true;
 
-                } else if (deviceName.contains("RF")) {
+                } else if (deviceName.contains(ClientPaths.DUST_BT_NAME)) {
 
                     Log.d("yjcode", "Detected RFduino device: " + deviceName);
                     //add connection for RF duino here as well
@@ -983,8 +985,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             }
         }
 
-        Log.d(TAG, "findBT did not find spiro device");
-        return false;
+        //Log.d(TAG, "findBT did not find spiro device");
+        return spiroDevice!=null;
     }
 
     public void openBT()
@@ -994,7 +996,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             spiroSocket = spiroDevice.createRfcommSocketToServiceRecord(uuid);
             spiroSocket.connect();
             mmInputStream = spiroSocket.getInputStream();
-            beginListenForData();
+            beginListenForData(mmInputStream);
         } catch (Exception e) {
             e.printStackTrace();
             spiroToggleButton.setChecked(false);
@@ -1004,7 +1006,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Log.d(TAG, "Spiro Bluetooth Opened");
     }
 
-    public void beginListenForData()
+    public void beginListenForData(final InputStream iStream)
     {
         Log.d(TAG, "beginListenForData");
         final Handler handler = new Handler();
@@ -1022,7 +1024,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 {
                     try
                     {
-                        int bytesAvailable = mmInputStream.available();
+                        int bytesAvailable = iStream.available();
                         if(bytesAvailable > 0)
                         {
                             byte[] packetBytes = new byte[bytesAvailable];
@@ -1045,7 +1047,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                                             Log.d(TAG, "Received spiro data: " + data.toString());
 
                                             ClientPaths.sendSensorData(ClientPaths.SPIRO_SENSOR_ID, 3, System.currentTimeMillis(), data.toArray());
-                                            Toast.makeText(MainActivity.this, "PEF Received: " + data.pef + "!", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(MainActivity.this, "PEF Received: " + data.pef + (data.good_test>0 ? "" : "!"), Toast.LENGTH_SHORT).show();
                                         }
                                     });
                                     break;
@@ -1074,7 +1076,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             spiroSocket.close();
 
         } catch (Exception e) {
-            e.printStackTrace();
+           Log.e(TAG, "[Handled] Error Closing spiroBT (may have been null already)");
             return;
 
         }

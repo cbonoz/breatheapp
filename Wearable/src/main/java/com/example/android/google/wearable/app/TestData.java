@@ -22,7 +22,7 @@ class TestData {
     public int hour;
     public int minute;
     public int second;
-    public Boolean good_test;
+    public int good_test;
     public int sw_number;
 
     // Construct test data from byte array
@@ -46,14 +46,14 @@ class TestData {
 //            this.hour = Integer.parseInt(new String(Arrays.copyOfRange(message,47,49)));
 //            this.minute = Integer.parseInt(new String(Arrays.copyOfRange(message,49,51)));
 //            this.second = Integer.parseInt(new String(Arrays.copyOfRange(message,51,53)));
-//            this.good_test = (char)message[53] == '0';
+            this.good_test = (char)message[53] == '0' ? 1 : 0;
 //            this.sw_number = Integer.parseInt(new String(Arrays.copyOfRange(message, 54, 57)));
         }
     }
 
     public float[] toArray() {
 //        float[] values = {fev1, pef, fev1_best, pef_best, fev1_percent, pef_percent, green_zone, yellow_zone, orange_zone};
-        float[] values = {fev1, pef};
+        float[] values = {fev1, pef, good_test};
         return values;
     }
 }
