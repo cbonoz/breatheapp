@@ -1,6 +1,11 @@
 package com.example.android.google.wearable.app;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.net.NetworkRequest;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -44,7 +49,7 @@ public class UploadTask extends AsyncTask<String, Void, String> {
     private static Boolean writing=true;
     private static Integer newRisk;
     private static String urlString;
-    private static Context context;
+    private static Context c;
     private static String data;
 
     //loading a json object could have a large amount of temporary data overhead if the app is not
@@ -52,7 +57,7 @@ public class UploadTask extends AsyncTask<String, Void, String> {
     // server will process the files
 
     public UploadTask(String urlName, Context c) {
-        context = c;
+        UploadTask.c = c;
 
         urlString = urlName;
         data="";
@@ -69,7 +74,50 @@ public class UploadTask extends AsyncTask<String, Void, String> {
     private WifiManager wifiManager;
     private WifiManager.WifiLock lock;
 
+    private Boolean checkWifi() {
+        try {
+        ConnectivityManager connManager = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        Log.d(TAG, "Network info: " + connManager.getActiveNetworkInfo().toString());
+
+        if (!mWifi.isConnected()) {
+            Log.e(TAG, "Uploadtask - No Internet Connected: attempting to connect");
+            NetworkRequest.Builder req = new NetworkRequest.Builder();
+
+            req.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
+            req.removeCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+            connManager.requestNetwork(req.build(), new ConnectivityManager.NetworkCallback() {
+                @Override
+                public void onAvailable(Network network) {
+                    super.onAvailable(network);
+                    ConnectivityManager.setProcessDefaultNetwork(network);
+                }
+            });
+
+            mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            if (!mWifi.isConnected()) {
+                Log.e(TAG, "[Handled] Returned from UploadTask - Unable to connect Wifi");
+                return false;
+            } else {
+                Log.d(TAG, "Connected Wifi - proceeeding with UploadTask");
+                return true;
+            }
+        } else {
+            return true;
+        }
+    } catch (Exception e) {
+        Log.e(TAG, "[Handled] Could not retrieve connection info");
+            return false;
+
+    }
+
+}
+
     protected String doInBackground(String... strings) {
+
+        if (!checkWifi()) {
+            return "0";
+        }
 
         int statusCode = 0;
         InputStream is=null;
@@ -105,9 +153,7 @@ public class UploadTask extends AsyncTask<String, Void, String> {
 
             statusCode = conn.getResponseCode();
 
-
             StringBuffer sb = new StringBuffer();
-
 
             try {
                 is = new BufferedInputStream(conn.getInputStream());
@@ -136,7 +182,6 @@ public class UploadTask extends AsyncTask<String, Void, String> {
             Log.i(TAG, "Response: " + result);
             Log.i(TAG, "From " + urlString);
 
-            //handle response depending on request
             switch (urlString) {
                 case ClientPaths.SUBJECT_API:
                     try {
@@ -145,27 +190,28 @@ public class UploadTask extends AsyncTask<String, Void, String> {
                         int newID = Integer.parseInt(resJson.getString("subject_id"));
                         Log.i(TAG, "Setting new SubjectID: " + newID);
                         ClientPaths.setSubjectID(newID);
-                        ClientPaths.requestAndSaveKey();
                         return "Registered " + newID;
-
                     }
                     catch (Exception e) {
                         e.printStackTrace();
                         return statusCode + ": JSON Parse Error";
                     }
+
+
                 case ClientPaths.RISK_API:
                     try {
                         String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
                         final JSONObject resJson = new JSONObject(jsonString);
                         newRisk = Integer.parseInt(resJson.getString("risk"));
-                        Log.d(TAG, "Setting new riskLevel: " + newRisk);
+                        Log.i(TAG, "Setting new riskLevel: " + newRisk);
 //                        ClientPaths.setRiskLevel(newRisk);
 
                     } catch (Exception e) {
-                        Log.e(TAG, "[Handled] Error response from risk api");
                         newRisk=ClientPaths.NO_VALUE;
+                        Log.e(TAG, "[Handled] Error response from risk api");
                         return statusCode + ": JSON Parse Error";
                     }
+                    break;
                 case ClientPaths.MULTI_FULL_API:
                     if (result!=null) {
                         if (result.contains("done")) {
@@ -173,21 +219,28 @@ public class UploadTask extends AsyncTask<String, Void, String> {
                             return "Sent Data: Cleared Sensor data cache";
                         }
                     }
-                case ClientPaths.KEY_API:
-                    if (result!=null) {
-                        String pk="";
-                        //extract pk from response
-                        //write the received key to the external key file on the wearable
-                        ClientPaths.writeDataToFile(pk,ClientPaths.publicKeyFile,false);
+                    break;
+                case ClientPaths.PUBLIC_KEY_API:
+                    try {
+                        String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
+                        final JSONObject resJson = new JSONObject(jsonString);
+                        String key = "";
+                        ClientPaths.writeDataToFile(key, ClientPaths.publicKeyFile, false);
                         ClientPaths.createEncrypter();
-                        return "Registered Key and Encrypter";
+                        break;
+                    } catch (Exception e) {
+
+                        Log.e(TAG, "[Handled] Error response from key api");
+                        return statusCode + ": JSON Parse Error";
                     }
+
+
             }
 
 
         } catch (Exception e) {
-            Log.d(TAG, "Could not Connect to Internet");
-            e.printStackTrace();
+            Log.e(TAG, "[Handled] Returning from Upload Task - Could not Connect to Internet");
+
             newRisk = ClientPaths.NO_VALUE;
             writing = true;
             //if exception thrown in sensor post, cache data to file for next send
@@ -201,19 +254,19 @@ public class UploadTask extends AsyncTask<String, Void, String> {
 
         } finally {
 
-            if (conn!=null)
+            if (conn != null)
                 conn.disconnect();
 
-            if (urlString.equals(ClientPaths.RISK_API) && context!=null) {
-                ((MainActivity) context).runOnUiThread(new Runnable() {
+            if (urlString.equals(ClientPaths.RISK_API)) {
+                ((MainActivity) c).runOnUiThread(new Runnable() {
                     public void run() {
                         //Do something on UiThread
-                        ((MainActivity)(context)).updateRiskUI(newRisk, false);
+                        ((MainActivity) c).updateRiskUI(newRisk, false);
+
                     }
                 });
             }
         }
-
         return statusCode+"";
     }
 
@@ -222,7 +275,6 @@ public class UploadTask extends AsyncTask<String, Void, String> {
 
         if (result!=null)
             Log.d("onPostExecute", result);
-
     }
 
     private BufferedWriter writeNewFile(String filePath) {
@@ -238,7 +290,6 @@ public class UploadTask extends AsyncTask<String, Void, String> {
 
             writer = new BufferedWriter(fileWriter);
 
-
         } catch (Exception e) {
             Log.d("error: writeNewFile",e.toString());
             e.printStackTrace();
@@ -250,4 +301,5 @@ public class UploadTask extends AsyncTask<String, Void, String> {
         return writer;
 
     }
+
 }

@@ -64,6 +64,7 @@ public class RsaEncrypter implements Encrypter {
 //        this.context = context;
 //        try {
 //            rsa_pk = getPKfromResources();
+//            rsa_pk = ClientPaths.generateKey();
 //        } catch (Exception e1) {
 //            Log.e("RSAEncrypter","Failed to get key");
 //        }
@@ -75,12 +76,12 @@ public class RsaEncrypter implements Encrypter {
 //            Log.e("RSAEncrypter","Failed to initialize cipher");
 //        }
 //    }
-//
-//    /**
-//     * Get the public key included in the application package
-//     * @return The public key.
-//     * @throws IOException
-//     */
+
+    /**
+     * Get the public key included in the application package
+     * @return The public key.
+     * @throws IOException
+     */
 //    private PublicKey getPKfromResources() throws IOException {
 //        InputStream is = context.getResources().openRawResource(
 //                R.raw.public_key);

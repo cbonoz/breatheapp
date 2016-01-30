@@ -35,6 +35,8 @@ public class EncryptionDecryption {
         }
     }
 
+
+
     public String encrypt(char[] plaintext) throws Exception {
         byte[] saltBytes = salt.getBytes();
 

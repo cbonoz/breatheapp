@@ -28,10 +28,6 @@
         "source": "/Users/cbono/Documents/research/Asthma/Wearable/src/main/res/layout/main_activity_orig.xml"
     },
     {
-        "merged": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/res/merged/debug/layout/main_watch_face.xml",
-        "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/layout/main_watch_face.xml"
-    },
-    {
         "merged": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/res/merged/debug/layout/grid_activity.xml",
         "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/layout/grid_activity.xml"
     },

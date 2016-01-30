@@ -1,2 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items version="2" />
+<items version="2" >
+
+    <item
+        jar="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-location/8.3.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="6d9ed9a288364688e7fcf6704776284dac1eb42e">
+        <dex dex="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/pre-dexed/debug/com.google.android.gms-play-services-location-8.3.0_efcb1374f3b922bc433cc18762a6a61570e46b3f.jar" />
+    </item>
+    <item
+        jar="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.3.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="01a90bbb9495a8bbf6f3cfdf12f1b35caaa9524b">
+        <dex dex="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/pre-dexed/debug/com.google.android.gms-play-services-base-8.3.0_d9280eaec07f80316639280c66f946374212edb8.jar" />
+    </item>
+    <item
+        jar="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/22.0.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="c6d79137693d494dee16372d3921f919eb724ced">
+        <dex dex="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/pre-dexed/debug/com.android.support-recyclerview-v7-22.0.0_b83dfdee28590c9e5ffd791db8b5aacb2f8b573a.jar" />
+    </item>
+    <item
+        jar="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.support/wearable/1.3.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="58b928ccbaf9090c632f278d6bd31e1ae42f2457">
+        <dex dex="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/pre-dexed/debug/com.google.android.support-wearable-1.3.0_f30a5a2d308b3e02efdb524126d663bc48f3b8f3.jar" />
+    </item>
+    <item
+        jar="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/support-v4/23.1.1/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="6cbc7773921fcfedbe55657578f0cbfe614778dc">
+        <dex dex="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/pre-dexed/debug/com.android.support-support-v4-23.1.1_e4b5f9e445e2926ab201d6510cead280e9b6b882.jar" />
+    </item>
+    <item
+        jar="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-analytics/8.3.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="af6ee25641df3142059c0828517aa7ee6eba08d6">
+        <dex dex="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/pre-dexed/debug/com.google.android.gms-play-services-analytics-8.3.0_a28777ddae44b73a697039521d41f5bfb2726fdb.jar" />
+    </item>
+    <item
+        jar="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-maps/8.3.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="77f9593d979f4347344be233bd0d888315f79517">
+        <dex dex="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/pre-dexed/debug/com.google.android.gms-play-services-maps-8.3.0_632b23013af18db1516afd5f7e4177dfb82da98e.jar" />
+    </item>
+    <item
+        jar="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/support-v4/23.1.1/jars/libs/internal_impl-23.1.1.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="a4de9c81ae239414e1ed0f86441b02abaf29bca9">
+        <dex dex="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/pre-dexed/debug/internal_impl-23.1.1_d45cc6019f3632f576dea3747d705b548ba691a9.jar" />
+    </item>
+    <item
+        jar="/Users/cbono/Library/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/23.1.1/support-annotations-23.1.1.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="8d680ba5a623724d1fb0e81c36a790f023a6cede">
+        <dex dex="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/pre-dexed/debug/support-annotations-23.1.1_7e1c1fd339e8d1535030410a710e1be26367c711.jar" />
+    </item>
+    <item
+        jar="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/support-v13/23.1.1/jars/libs/internal_impl-23.1.1.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="f4d7a07120e76988f3a15403838d323c2400db83">
+        <dex dex="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/pre-dexed/debug/internal_impl-23.1.1_10e5a2c0835ebe0a900ce07696bb5a4489b81b59.jar" />
+    </item>
+    <item
+        jar="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/support-v13/23.1.1/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="5ddf5f4817565c9db82613c16093f76640a54e15">
+        <dex dex="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/pre-dexed/debug/com.android.support-support-v13-23.1.1_9f500342187a437c035c05316e897f3c186c7b5c.jar" />
+    </item>
+    <item
+        jar="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-wearable/8.3.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="9aedc597d74c6d77258ce5236e9abff0c3cc65e3">
+        <dex dex="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/pre-dexed/debug/com.google.android.gms-play-services-wearable-8.3.0_513c6ed63e6bfdb637c85ccd71ec0e41b155b1fd.jar" />
+    </item>
+    <item
+        jar="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-basement/8.3.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="345a1b5cf5b144ce18ba6962bc66a7e2f26c1c1b">
+        <dex dex="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/pre-dexed/debug/com.google.android.gms-play-services-basement-8.3.0_62b0897ab4ff1132edaefaaeca744ed970159210.jar" />
+    </item>
+
+</items>
