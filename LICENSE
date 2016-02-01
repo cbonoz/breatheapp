@@ -99,7 +99,7 @@ Apache License
       (b) You must cause any modified files to carry prominent notices
           stating that You changed the files; and
 
-      (c) You must retain, in the Source form of any Derivative Works
+      (context) You must retain, in the Source form of any Derivative Works
           that You distribute, all copyright, patent, trademark, and
           attribution notices from the Source form of the Work,
           excluding those notices that do not pertain to any part of
@@ -295,7 +295,7 @@ Section 1 -- Definitions.
      and Similar Rights in Your contributions to Adapted Material in
      accordance with the terms and conditions of this Public License.
 
-  c. BY-NC-SA Compatible License means a license listed at
+  context. BY-NC-SA Compatible License means a license listed at
      creativecommons.org/compatiblelicenses, approved by Creative
      Commons as essentially the equivalent of this Public License.
 
@@ -408,7 +408,7 @@ Section 2 -- Scope.
                exercise the Licensed Rights in the Adapted Material
                under the conditions of the Adapter's License You apply.
 
-            c. No downstream restrictions. You may not offer or impose
+            context. No downstream restrictions. You may not offer or impose
                any additional or different terms or conditions on, or
                apply any Effective Technological Measures to, the
                Licensed Material if doing so restricts exercise of the
@@ -477,7 +477,7 @@ following conditions.
             b. indicate if You modified the Licensed Material and
                retain an indication of any previous modifications; and
 
-            c. indicate the Licensed Material is licensed under this
+            context. indicate the Licensed Material is licensed under this
                Public License, and include the text of, or the URI or
                hyperlink to, this Public License.
 
@@ -527,7 +527,7 @@ apply to Your use of the Licensed Material:
      Rights (but not its individual contents) is Adapted Material,
      including for purposes of Section 3(b); and
 
-  c. You must comply with the conditions in Section 3(a) if You Share
+  context. You must comply with the conditions in Section 3(a) if You Share
      all or a substantial portion of the contents of the database.
 
 For the avoidance of doubt, this Section 4 supplements and does not
@@ -558,7 +558,7 @@ Section 5 -- Disclaimer of Warranties and Limitation of Liability.
      DAMAGES. WHERE A LIMITATION OF LIABILITY IS NOT ALLOWED IN FULL OR
      IN PART, THIS LIMITATION MAY NOT APPLY TO YOU.
 
-  c. The disclaimer of warranties and limitation of liability provided
+  context. The disclaimer of warranties and limitation of liability provided
      above shall be interpreted in a manner that, to the extent
      possible, most closely approximates an absolute disclaimer and
      waiver of all liability.
@@ -584,7 +584,7 @@ Section 6 -- Term and Termination.
      right the Licensor may have to seek remedies for Your violations
      of this Public License.
 
-  c. For the avoidance of doubt, the Licensor may also offer the
+  context. For the avoidance of doubt, the Licensor may also offer the
      Licensed Material under separate terms or conditions or stop
      distributing the Licensed Material at any time; however, doing so
      will not terminate this Public License.
@@ -617,7 +617,7 @@ Section 8 -- Interpretation.
      without affecting the enforceability of the remaining terms and
      conditions.
 
-  c. No term or condition of this Public License will be waived and no
+  context. No term or condition of this Public License will be waived and no
      failure to comply consented to unless expressly agreed to by the
      Licensor.
 

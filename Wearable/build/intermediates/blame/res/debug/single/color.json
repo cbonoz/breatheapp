@@ -1,7 +1,7 @@
 [
     {
         "merged": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/res/merged/debug/color/common_plus_signin_btn_text_dark.xml",
-        "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.3.0/res/color/common_plus_signin_btn_text_dark.xml"
+        "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/color/common_plus_signin_btn_text_dark.xml"
     },
     {
         "merged": "/Users/cbono/Documents/research/Asthma/Wearable/build/intermediates/res/merged/debug/color/common_plus_signin_btn_text_light.xml",
@@ -9,7 +9,7 @@
     },
     {
         "merged": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/res/merged/debug/color/common_google_signin_btn_text_light.xml",
-        "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.3.0/res/color/common_google_signin_btn_text_light.xml"
+        "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/color/common_google_signin_btn_text_light.xml"
     },
     {
         "merged": "/Users/cbono/Documents/research/android-SkeletonWearableApp/Wearable/build/intermediates/res/merged/debug/color/common_plus_signin_btn_text_dark.xml",
@@ -29,11 +29,11 @@
     },
     {
         "merged": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/res/merged/debug/color/common_plus_signin_btn_text_light.xml",
-        "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.3.0/res/color/common_plus_signin_btn_text_light.xml"
+        "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/color/common_plus_signin_btn_text_light.xml"
     },
     {
         "merged": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/res/merged/debug/color/common_google_signin_btn_text_dark.xml",
-        "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.3.0/res/color/common_google_signin_btn_text_dark.xml"
+        "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/color/common_google_signin_btn_text_dark.xml"
     },
     {
         "merged": "/Users/cbono/Documents/research/android-SkeletonWearableApp/Wearable/build/intermediates/res/merged/debug/color/common_google_signin_btn_text_light.xml",

@@ -136,7 +136,7 @@
 
 
     <TextView
-        android:id="@+id/riskText"
+        android:id="@+id/riskView"
         android:layout_width="87dp"
         android:layout_height="match_parent"
         android:text="riskText"

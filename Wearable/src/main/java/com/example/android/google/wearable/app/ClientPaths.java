@@ -44,6 +44,10 @@ public class ClientPaths {
 
     private static final SensorNames sensorNames = new SensorNames();
 
+    public static String getSensorName(int id) {
+        return sensorNames.getName(id);
+    }
+
     //File information
     private static final String subjectDirectory = ROOT + "/SubjectData.txt";
     private static final File subjectFile = createFile(subjectDirectory);
@@ -57,14 +61,16 @@ public class ClientPaths {
     private static final String timezone = initTimeZone();
 
     //number of sensor data entries between each send
-    private static final Integer RECORD_LIMIT = 75;
+    private static final Integer RECORD_LIMIT = 50;
 
     //controls whether data should be sent to server
-    private static final Boolean sending = false;
+    private static final Boolean sending = true;
     //controls encryption in post request
     private static Boolean encrypting = false;
     //controls writing sensorData to file
-    private static Boolean writing = false;
+    private static Boolean writing = true;
+
+    public static Boolean dustConnected = false;
 
 
     public static int bytesWritten = 0;
@@ -207,6 +213,13 @@ public class ClientPaths {
             SUBJECT_ID = sid;//getSubjectID();
     }
 
+    public static void checkLastDust() {
+        long last_time = lastSensorData.get(ClientPaths.DUST_SENSOR_ID);
+        if ((System.currentTimeMillis()-last_time)>30000) {
+            dustConnected=false;
+        }
+    }
+
 
     public static synchronized void appendData(JSONObject jObj) {
         sensorData.put(jObj);
@@ -222,7 +235,7 @@ public class ClientPaths {
 
     private static void createDataPostRequest() {
         JSONObject jsonBody = new JSONObject();
-
+        checkLastDust();
         String sensorDataString = "";
 
         try {
@@ -231,6 +244,11 @@ public class ClientPaths {
 
             if (encrypting && hybridEncrypter!=null)
                 sensorDataString = hybridEncrypter.stringEncrypter(sensorDataString).toString();
+
+            if (writing) {
+                writeDataToFile(sensorDataString, sensorFile, true);
+                Log.d(TAG, "Sensorfile " + ClientPaths.sensorFile.length()/1024 + "kB");
+            }
 
             jsonBody.put("subject_id", getSubjectID());
             jsonBody.put("key", API_KEY);
@@ -296,9 +314,9 @@ public class ClientPaths {
 
             switch (sensorType) {
                 case (Sensor.TYPE_LINEAR_ACCELERATION):
-                    jsonValue.put("x", values[0]);
-                    jsonValue.put("y", values[1]);
-                    jsonValue.put("z", values[2]);
+                    jsonValue.put("x", round5(values[0]));
+                    jsonValue.put("y", round5(values[1]));
+                    jsonValue.put("z", round5(values[2]));
                     //jsonDataEntry.put("sensor_type", sensorType);
                     validEvent = true;
                     break;

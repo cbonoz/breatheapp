@@ -72,7 +72,7 @@ public final class R {
 		public static final int black_86p = 0x7f0b0003;
 		public static final int blue = 0x7f0b0004;
 		public static final int card_default_background = 0x7f0b0005;
-		public static final int circular_button = 0x7f0b002d;
+		public static final int circular_button = 0x7f0b0033;
 		public static final int circular_button_disabled = 0x7f0b0006;
 		public static final int circular_button_normal = 0x7f0b0007;
 		public static final int circular_button_pressed = 0x7f0b0008;
@@ -89,12 +89,12 @@ public final class R {
 		public static final int grey = 0x7f0b0024;
 		public static final int light_grey = 0x7f0b0025;
 		public static final int orange = 0x7f0b0026;
-		public static final int primary_text_dark = 0x7f0b0027;
-		public static final int primary_text_light = 0x7f0b0028;
-		public static final int red = 0x7f0b0029;
-		public static final int secondary_text_light = 0x7f0b002a;
-		public static final int semitransparent_grey = 0x7f0b002b;
-		public static final int white = 0x7f0b002c;
+		public static final int primary_text_dark = 0x7f0b002d;
+		public static final int primary_text_light = 0x7f0b002e;
+		public static final int red = 0x7f0b002f;
+		public static final int secondary_text_light = 0x7f0b0030;
+		public static final int semitransparent_grey = 0x7f0b0031;
+		public static final int white = 0x7f0b0032;
 	}
 	public static final class dimen {
 		public static final int card_content_padding_rect_top = 0x7f0c0000;
@@ -149,8 +149,8 @@ public final class R {
 		public static final int parentPanel = 0x7f0e001d;
 		public static final int right = 0x7f0e0003;
 		public static final int start = 0x7f0e001c;
-		public static final int text = 0x7f0e0034;
-		public static final int title = 0x7f0e0033;
+		public static final int text = 0x7f0e003d;
+		public static final int title = 0x7f0e003c;
 		public static final int top = 0x7f0e0004;
 	}
 	public static final class interpolator {
@@ -165,10 +165,10 @@ public final class R {
 		public static final int alert_dialog_wearable = 0x7f030000;
 		public static final int dismiss_overlay = 0x7f030001;
 		public static final int error_layout = 0x7f030002;
-		public static final int watch_card_content = 0x7f030008;
+		public static final int watch_card_content = 0x7f03000d;
 	}
 	public static final class string {
-		public static final int dismiss_overlay_button_label = 0x7f080020;
+		public static final int dismiss_overlay_button_label = 0x7f08001f;
 	}
 	public static final class style {
 		public static final int CardText = 0x7f090000;

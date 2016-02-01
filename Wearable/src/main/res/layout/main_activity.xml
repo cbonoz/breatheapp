@@ -85,13 +85,6 @@
         android:layout_gravity="left|bottom"
         android:paddingBottom="18dp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Risk Level"
-        android:id="@+id/riskText"
-        android:layout_gravity="left|bottom" />
-
     <ToggleButton
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -111,5 +104,20 @@
         android:textOff="SpiroMeter OFF"
         android:layout_gravity="center"
         android:layout_marginTop="25sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Risk:"
+        android:id="@+id/riskConstText"
+        android:layout_gravity="left|bottom" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Risk Level"
+        android:id="@+id/riskView"
+        android:layout_gravity="left|bottom"
+        android:layout_marginLeft="40sp" />
 
 </FrameLayout>

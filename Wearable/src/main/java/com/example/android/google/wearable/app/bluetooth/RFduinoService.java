@@ -18,6 +18,8 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.example.android.google.wearable.app.ClientPaths;
+
 import java.util.UUID;
 
 /*
@@ -58,11 +60,13 @@ public class RFduinoService extends Service {
             if (newState == BluetoothProfile.STATE_CONNECTED)
             {
                 Log.i(TAG, "Connected to RFduino.");
+                ClientPaths.dustConnected=true;
                 Log.i(TAG, "Attempting to start service discovery:" +
                         mBluetoothGatt.discoverServices());
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
                 Log.i(TAG, "Disconnected from RFduino.");
+                ClientPaths.dustConnected=false;
                 broadcastUpdate(ACTION_DISCONNECTED);
             }
         }
