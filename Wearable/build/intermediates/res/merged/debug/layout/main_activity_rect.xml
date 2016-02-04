@@ -17,7 +17,8 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/rect_layout">
 
 
         <RelativeLayout
@@ -25,17 +26,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:weightSum="1">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="2dp"
-                android:text="@string/main_activity_title_text"
-                android:textSize="32sp"
-                android:textColor="#dddddd"
-                android:layout_alignParentEnd="true"
-                android:layout_toEndOf="@+id/copyRightView"
-                android:gravity="center_horizontal" />
 
 
             <Button
@@ -80,14 +70,6 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome"
-        android:id="@+id/subjectText"
-        android:layout_gravity="left|bottom"
-        android:paddingBottom="18dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="Risk:"
         android:id="@+id/riskConstText"
         android:layout_gravity="left|bottom" />
@@ -100,21 +82,30 @@
         android:layout_gravity="left|bottom"
         android:layout_marginLeft="40sp" />
 
-    <ImageView
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:id="@+id/smileView"
-        android:layout_gravity="right|bottom" />
-
     <ToggleButton
         android:layout_width="204dp"
         android:layout_height="wrap_content"
         android:id="@+id/spiroToggleButton"
         android:checked="false"
         android:textOn="SpiroMeter ON"
-        android:textOff="SpiroMeter OFF"
-        android:layout_gravity="center"
+        android:textOff="Use Spirometer"
+        android:layout_gravity="center_horizontal|top"
         android:layout_marginBottom="25sp" />
+
+    <ImageView
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:id="@+id/smileView"
+        android:layout_gravity="center"
+        android:layout_marginBottom="3sp" />
+
+    <TextView
+        android:layout_width="89dp"
+        android:layout_height="wrap_content"
+        android:text="Welcome"
+        android:id="@+id/subjectText"
+        android:layout_gravity="right|bottom"
+        android:gravity="right" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -122,7 +113,7 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="lastSensor"
         android:id="@+id/lastSensorView"
-        android:layout_gravity="left|center_vertical"
-        android:layout_marginTop="10sp" />
+        android:layout_gravity="left|bottom"
+        android:layout_marginBottom="18sp" />
 
 </FrameLayout>

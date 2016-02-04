@@ -53,8 +53,12 @@ class TestData {
 
     public float[] toArray() {
 //        float[] values = {fev1, pef, fev1_best, pef_best, fev1_percent, pef_percent, green_zone, yellow_zone, orange_zone};
+
         float[] values = {fev1, pef, good_test ? 1 : 0};
         return values;
+
+
+
     }
 }
 

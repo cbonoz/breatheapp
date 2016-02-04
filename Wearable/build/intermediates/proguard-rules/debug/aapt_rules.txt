@@ -1,0 +1,41 @@
+# view AndroidManifest.xml #generated:93
+-keep class android.support.v7.widget.TestActivity { <init>(...); }
+
+# view v21/res/layout-v21/dismiss_overlay.xml #generated:14
+-keep class android.support.wearable.view.ActionPage { <init>(...); }
+
+# view res/layout/main_activity.xml #generated:27
+# view res/layout/main_activity_old.xml #generated:74
+# view res/layout/main_activity_orig.xml #generated:153
+# view res/layout/main_activity_rect.xml #generated:64
+# view res/layout/main_activity_rect_old.xml #generated:75
+# view res/layout/main_activity_risk_level.xml #generated:132
+# view res/layout/main_activity_risk_level2.xml #generated:116
+# view res/layout/main_activity_round.xml #generated:84
+-keep class android.support.wearable.view.DismissOverlayView { <init>(...); }
+
+# view res/layout/grid_activity.xml #generated:17
+-keep class android.support.wearable.view.GridViewPager { <init>(...); }
+
+# view res/layout/alert_dialog_wearable.xml #generated:2
+-keep class android.support.wearable.view.ObservableScrollView { <init>(...); }
+
+# view res/layout/main_activity.xml #generated:19
+-keep class android.support.wearable.view.WatchViewStub { <init>(...); }
+
+# view AndroidManifest.xml #generated:58
+-keep class com.example.android.google.wearable.app.MainActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:79
+-keep class com.example.android.google.wearable.app.MyBroadCastReceiver { <init>(...); }
+
+# view AndroidManifest.xml #generated:73
+-keep class com.example.android.google.wearable.app.bluetooth.RFduinoService { <init>(...); }
+
+# onClick res/layout/main_activity_old.xml #generated:51
+# onClick res/layout/main_activity_orig.xml #generated:109
+# onClick res/layout/main_activity_rect.xml #generated:41
+# onClick res/layout/main_activity_rect_old.xml #generated:52
+# onClick res/layout/main_activity_round.xml #generated:51
+-keepclassmembers class * { *** onFinishActivity(...); }
+

@@ -110,7 +110,7 @@ public class UploadTask extends AsyncTask<String, Void, String> {
 
 
 
-    protected String doInBackground(String... strings) {
+    protected synchronized String doInBackground(String... strings) {
 
 //        if (!checkWifi()) {
 //            return "0";
@@ -146,7 +146,7 @@ public class UploadTask extends AsyncTask<String, Void, String> {
 
             os.write(data.getBytes());
             os.flush();
-            os.close();
+             os.close();
 
             statusCode = conn.getResponseCode();
 
@@ -212,7 +212,8 @@ public class UploadTask extends AsyncTask<String, Void, String> {
                 case ClientPaths.MULTI_FULL_API:
                     if (result!=null) {
                         if (result.contains("done")) {
-                            ClientPaths.writeDataToFile("",ClientPaths.sensorFile,false); //clears file
+                            Log.d(TAG, "Successful data post");
+                            ClientPaths.writeDataToFile("", ClientPaths.sensorFile, false); //clears file
                             return "Sent Data: Cleared Sensor data cache";
                         }
                     }
@@ -236,6 +237,7 @@ public class UploadTask extends AsyncTask<String, Void, String> {
 
 
         } catch (Exception e) {
+            e.printStackTrace();
             Log.e(TAG, "[Handled] Returning from Upload Task - Could not Connect to Internet");
 
             newRisk = ClientPaths.NO_VALUE;
@@ -255,13 +257,16 @@ public class UploadTask extends AsyncTask<String, Void, String> {
                 conn.disconnect();
 
             if (urlString.equals(ClientPaths.RISK_API)) {
-                ((MainActivity) context).runOnUiThread(new Runnable() {
-                    public void run() {
-                        //Do something on UiThread
-                        ((MainActivity) context).updateRiskUI(newRisk, false);
+                if (ClientPaths.mainContext!=null) {
+                    ((MainActivity) ClientPaths.mainContext).runOnUiThread(new Runnable() {
+                        public void run() {
+                            //Do something on UiThread
+                            Log.d(TAG, "updateRiskUI " + newRisk);
+                            ((MainActivity) ClientPaths.mainContext).updateRiskUI(newRisk, false);
 
-                    }
-                });
+                        }
+                    });
+                }
             }
         }
         return statusCode+"";

@@ -1,5 +1,6 @@
 package com.example.android.google.wearable.app;
 
+import android.content.Context;
 import android.hardware.Sensor;
 import android.location.Location;
 import android.util.Log;
@@ -34,6 +35,8 @@ public class ClientPaths {
     public static final String RISK_API = BASE + "/api/risk/get";
     public static final String PUBLIC_KEY_API = BASE + "/api/publickey/get";
 
+
+
     public static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";//"GWTgVdeNeVwsGqQHHhChfiPgDxxgXJzLoxUD0R64Gns";
 
     public static final int DUST_SENSOR_ID = 999;
@@ -61,7 +64,7 @@ public class ClientPaths {
     private static final String timezone = initTimeZone();
 
     //number of sensor data entries between each send
-    private static final Integer RECORD_LIMIT = 50;
+    private static final Integer RECORD_LIMIT = 25;
 
     //controls whether data should be sent to server
     private static final Boolean sending = true;
@@ -72,6 +75,11 @@ public class ClientPaths {
 
     public static Boolean dustConnected = false;
 
+    public static Context mainContext = null;
+
+    public static void setContext(Context c) {
+        mainContext=c;
+    }
 
     public static int bytesWritten = 0;
 
@@ -82,6 +90,8 @@ public class ClientPaths {
 
     public static Integer SUBJECT_ID = getSubjectID();
     private static JSONArray sensorData = new JSONArray();
+    private static JSONObject spiroData;
+
     private static Integer recordCount = 0;
 
     private static File createFile(String fname) {
@@ -98,7 +108,7 @@ public class ClientPaths {
 
         if (recordCount.equals(RECORD_LIMIT)) {
             createDataPostRequest();
-            recordCount = 0;
+
         }
     }
 
@@ -226,7 +236,10 @@ public class ClientPaths {
     }
 
     public static synchronized void clearData() {
+
         sensorData = new JSONArray();
+        recordCount = 0;
+
     }
 
     public static synchronized JSONArray getData() {
@@ -239,7 +252,7 @@ public class ClientPaths {
         String sensorDataString = "";
 
         try {
-            //sensorDataString = (encrypting ? encryptionDecryption.encrypt(sensorData.join("\n").toCharArray()) : sensorData.join("\n"));
+
             sensorDataString = sensorData.join("\n");
 
             if (encrypting && hybridEncrypter!=null)
@@ -378,24 +391,28 @@ public class ClientPaths {
             return;
         }
 
-
         if (!validEvent) {
             Log.d(TAG, "Encountered undesired sensor (" + sensorType + "): " + sensorName + ". skipping..");
             return;
         }
 
-
-        //if not one of the desired sensors
-
         appendData(jsonDataEntry);
         incrementCount();
         Log.d(TAG, "Data Added: " + jsonDataEntry.toString());
-
-
         lastSensorData.put(sensorType, t);
+
+        //if spirometer send immediately
+        if(sensorType==ClientPaths.SPIRO_SENSOR_ID) {
+            Log.d(TAG, "Received spiro: " + values[1]);
+            Log.d(TAG, "Immediately sending " + jsonDataEntry.toString());
+            createDataPostRequest();
+
+        }
 
 
     }
+
+
 }
 
 

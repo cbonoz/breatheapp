@@ -64,4 +64,19 @@ android {
         androidTest.java.srcDirs = ['tests/src']
 
     }
+
+//    buildTypes {
+//        release {
+//            minifyEnabled true
+//            debuggable false
+//            zipAlignEnabled true
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+//        }
+//        debug {
+//            minifyEnabled true
+//            debuggable true
+//            zipAlignEnabled true
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+//        }
+//    }
 }

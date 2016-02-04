@@ -16,6 +16,7 @@
 
 package com.example.android.google.wearable.app;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -25,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -36,14 +38,16 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.speech.RecognizerIntent;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -87,6 +91,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_ENABLE_BT = 1;
+    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 2;
 
 
         //https://github.com/blackfizz/EazeGraph
@@ -151,7 +156,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private TextView riskText;
     private TextView riskView;
     private TextView subjectView;
-    private TextView lastSensorView;
+    private TextView lastSensorView=null;
     private ImageView smileView;
 
     private static TimerTask riskTask;
@@ -162,10 +167,66 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 //    private WifiManager wifiManager;
 //    private WifiManager.WifiLock wifiLock;
 
+    private FrameLayout mRectBackground;
+    private FrameLayout mRoundBackground;
+
+    private void checkLocationPermission() {
+
+
+// Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        }
+    }
+
     public void onCreate(Bundle b) {
         super.onCreate(b);
 
-        setAmbientEnabled();
+        sensorChecked=false;
+        receiveBuffer = "";
+        statusString="";
+
+        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
+        subjectID= ClientPaths.getSubjectID();
+
+        setContentView(R.layout.main_activity);
+
+        WatchViewStub stub = (WatchViewStub) findViewById(R.id.stub);
+        stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
+            @Override
+            public void onLayoutInflated(WatchViewStub stub) {
+                mRectBackground = (FrameLayout) findViewById(R.id.rect_layout);
+                mRoundBackground = (FrameLayout) findViewById(R.id.round_layout);
+                updateDisplay();
+            }
+        });
+
+        ClientPaths.setContext(this);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -175,14 +236,10 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 .build();
         mGoogleApiClient.connect();
 
-
-        retrieveDeviceNode(); //set up mobileNode
-
         //init bluetooth
         try
         {
             if(findBT()) {
-
                 //openBT();
             }
         }
@@ -191,55 +248,18 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             Log.d(TAG, "bluetooth could not be opened");
         }
 
-        mSensorManager = ((SensorManager) getSystemService(SENSOR_SERVICE));
-//        client = DeviceClient.getInstance(this);
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        setAmbientEnabled();
+        retrieveDeviceNode(); //set up mobileNode
+        registerDust();
 
-
-        sensorChecked=false;
-        receiveBuffer = "";
-        statusString="";
-        subjectID= ClientPaths.getSubjectID();
-
-        //
-        updateDisplay();
-
-//        setContentView(R.layout.activity_wear);
-//
-//        WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
-//        stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
-//            @Override
-//            public void onLayoutInflated(WatchViewStub stub) {
-//                // Now you can access your views
-//                //TextView tv = (TextView) stub.findViewById(R.id.text);
-//                updateDisplay();
-//            }
-//        });
-
-
-
-
-        //
-
-
-        riskTask = new TimerTask() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateRisklevel();
-
-                    }
-                });
-            }
-        };
+        if (subjectID == ClientPaths.NO_VALUE) {
+            Toast.makeText(this, "Welcome to BREATHE - Please say your ID#",Toast.LENGTH_SHORT).show();
+            getIDFromSpeech();
+        }
 
         scheduleGetRisk();
-
-        Log.d(TAG, "MainActivity onCreate");
-
+        Log.d(TAG, "MainActivity setup done");
     }
 
 
@@ -265,55 +285,68 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     public void updateRiskUI(int value, boolean shouldAnimate) {
         Log.d(TAG, "update risk UI");
-        lastRiskValue=value;
-        if (!ClientPaths.dustConnected) {
-            Log.d(TAG, "dustConnected = false, attempting to reconnect");
-            registerDust();
-        }
-
-
-        if (isAmbient()) {
-            //updatePieChart(shouldAnimate);
-            updateSmileView();
-            TextView noConnView = (TextView) findViewById(R.id.noConnView);
-            if (lastRiskValue==ClientPaths.NO_VALUE) {
-                noConnView.setVisibility(View.VISIBLE);
-            } else {
-                noConnView.setVisibility(View.GONE);
-
-            }
-        } else { //not ambient
-            //riskText.setText("Risk: " + getRisk());
-            riskText = (TextView) findViewById(R.id.riskView);
-            smileView = (ImageView) findViewById(R.id.smileView);
-            statusString="";
-            if (lastRiskValue==2) {
-                smileView.setImageResource(R.drawable.happy_face);
-                statusString+="Low";
-                riskText.setTextColor(Color.GREEN);
-            } else if (lastRiskValue==1) {
-                smileView.setImageResource(R.drawable.neutral_face);
-                statusString += "Medium";
-                riskText.setTextColor(Color.parseColor("#ffa500"));
-            } else {
-                smileView.setImageResource(R.drawable.frowny_face);
-                statusString += "High";
-                riskText.setTextColor(Color.RED);
-            }
-            statusString += " ("+lastRiskValue+")";
-            if (lastRiskValue==ClientPaths.NO_VALUE){
-                statusString = "Not Available";
-                smileView.setImageResource(R.drawable.neutral_face);
-                riskText.setTextColor(Color.BLUE);
+        if (value != ClientPaths.NO_VALUE) {
+            lastRiskValue = value;
+//
+            if (!ClientPaths.dustConnected) {
+                Log.d(TAG, "dustConnected = false, attempting to reconnect");
+                registerDust();
             }
 
 
-            riskText.setText(statusString);
+            if (isAmbient()) {
+                //updatePieChart(shouldAnimate);
+                updateSmileView();
+                TextView noConnView = (TextView) findViewById(R.id.noConnView);
+                if (lastRiskValue == ClientPaths.NO_VALUE) {
+                    noConnView.setVisibility(View.VISIBLE);
+                } else {
+                    noConnView.setVisibility(View.GONE);
+                }
+            } else { //not ambient
+                //riskText.setText("Risk: " + getRisk());
+                riskText = (TextView) findViewById(R.id.riskView);
+                smileView = (ImageView) findViewById(R.id.smileView);
+                statusString = "";
+                if (lastRiskValue == 2) {
+                    smileView.setImageResource(R.drawable.happy_face);
+                    statusString += "Low";
+                    riskText.setTextColor(Color.GREEN);
+                } else if (lastRiskValue == 1) {
+                    smileView.setImageResource(R.drawable.neutral_face);
+                    statusString += "Medium";
+                    riskText.setTextColor(Color.parseColor("#ffa500"));
+                } else if (lastRiskValue ==0){
+                    smileView.setImageResource(R.drawable.frowny_face);
+                    statusString += "High";
+                    riskText.setTextColor(Color.RED);
+                } else {
+                    smileView.setImageResource(R.drawable.neutral_face);
+                    statusString += "Waiting";
+                    riskText.setTextColor(Color.GREEN);
+                }
+                statusString += " (" + lastRiskValue + ")";
 
+
+                riskText.setText(statusString);
+
+            }
         }
     }
 
-    private static void scheduleGetRisk() {
+    private void scheduleGetRisk() {
+        riskTask = new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        createRiskPostRequest();
+
+                    }
+                });
+            }
+        };
         riskTimer = new Timer();
         riskTimer.scheduleAtFixedRate(riskTask, 0, RISK_TASK_PERIOD);
     }
@@ -340,18 +373,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             smileView.setVisibility(View.VISIBLE);
         }
 
-//        if (lastRiskValue<30) {
-//            smileView.setImageResource(R.drawable.happy_face);
-//            statusString+="low";
-//        } else if (lastRiskValue<70) {
-//            smileView.setImageResource(R.drawable.neutral_face);
-//            statusString += "medium";
-//        } else {
-//            smileView.setImageResource(R.drawable.frowny_face);
-//            statusString += "high";
-//        }
-
-
         if (lastRiskValue==2) {
             smileView.setImageResource(R.drawable.happy_face);
             statusString+="low";
@@ -369,18 +390,25 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
 
     private void registerDust() {
+        Log.d(TAG, "registerDust");
+        try {
+            if (!ClientPaths.dustConnected)
+                bluetoothAdapter.startLeScan(new UUID[]{RFduinoService.UUID_SERVICE}, MainActivity.this);
 
-        if (!ClientPaths.dustConnected)
-            bluetoothAdapter.startLeScan(new UUID[]{RFduinoService.UUID_SERVICE}, MainActivity.this);
-
-        registerReceiver(scanModeReceiver, new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED));
-        registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
-        registerReceiver(rfduinoReceiver, RFduinoService.getIntentFilter());
-
-
+            registerReceiver(scanModeReceiver, new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED));
+            registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+            registerReceiver(rfduinoReceiver, RFduinoService.getIntentFilter());
+        } catch ( Exception e) {
+            Log.d(TAG, "[Handled] registerDust called when scan started already");
+            return;
+        }
     }
 
     private void unregisterDust() {
+
+        Log.d(TAG, "Unregister Dust");
+
+
         try {
             bluetoothAdapter.stopLeScan(this);
 
@@ -402,29 +430,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         
     }
 
-
-
-
     private void initMainUI() {
-
-        if (subjectID == ClientPaths.NO_VALUE) {
-            Toast.makeText(this, "Welcome to BREATHE - Please say your ID#",Toast.LENGTH_SHORT).show();
-            getIDFromSpeech();
-        }
-
-
-        final Button idButton = (Button) findViewById(R.id.idButton);
-        idButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getIDFromSpeech();
-            }
-        });
-
-        lastSensorView = (TextView) findViewById(R.id.lastSensorView);
-
-
-        spiroToggleButton = (ToggleButton) findViewById(R.id.spiroToggleButton);
 
 //        sensorToggleButton = (ToggleButton) findViewById(R.id.sensorToggleButton);
 //        if (sensorChecked) {
@@ -463,6 +469,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 //        });
 //
 
+        lastSensorView = (TextView) findViewById(R.id.lastSensorView);
+        spiroToggleButton = (ToggleButton) findViewById(R.id.spiroToggleButton);
         ClientPaths.dustConnected=false;
         Log.i(TAG, "startSensors");
         startMeasurement();
@@ -474,12 +482,9 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 long currentClickTime= SystemClock.uptimeMillis();
                 Boolean okToPress = true;
                 if (mLastClickTime!=0)
-                    okToPress = (currentClickTime-mLastClickTime>MIN_CLICK_INTERVAL) ? true : false;
+                    okToPress = ((currentClickTime-mLastClickTime)>MIN_CLICK_INTERVAL) ? true : false;
 
                 if(!okToPress) {
-                    Toast.makeText(MainActivity.this, "Connecting...", Toast.LENGTH_SHORT).show();
-                    spiroToggleButton.setChecked(!isChecked);
-
                     return;
                 }
 
@@ -489,9 +494,12 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 if (isChecked) {
                     Log.i(TAG, "startSpiro");
                     Toast.makeText(MainActivity.this, "Connecting...", Toast.LENGTH_SHORT).show();
-                    Toast.makeText(MainActivity.this, "Connecting...", Toast.LENGTH_SHORT).show();
+
                     if (findBT()) {
                         openBT();
+                    } else {
+                        Toast.makeText(MainActivity.this, "Could not find Spirometer", Toast.LENGTH_SHORT).show();
+                        spiroToggleButton.setChecked(false);
                     }
 
 
@@ -523,27 +531,18 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private void updateDisplay() {
         Log.d(TAG, "Update Display Called");
 
-
         if (isAmbient()) {
             //watch face view
             setContentView(R.layout.main_activity_risk_level);
-
-            //set clock
             mClockView = (TextView) findViewById(R.id.clock);
             mClockView.setVisibility(View.VISIBLE);
             mClockView.setText(AMBIENT_DATE_FORMAT.format(new Date()));
 
-            //update pie chart and data
             updateRiskUI(lastRiskValue, true);
 
         } else {
-            //main app screen
-//            setContentView(R.layout.activity_wear);
-            setContentView(R.layout.main_activity_rect);
-
-
+            //initialize main app screen
             initMainUI();
-
         }
     }
 
@@ -628,16 +627,16 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     }
 
 
-    //return the risk level for the user (will be retrieved from user at a regular interval) - will need to establish timer in onCreate
+    //return the risk level for the user (will be retrieved from user at a regular interval) - will need to establish timer in mainactivity start
     private String getRisk() {
         return lastRiskValue >= 0 ? lastRiskValue + "%" : "Waiting for Value..";
 
     }
 
-    private void updateRisklevel() {
+    private void createRiskPostRequest() {
 
 
-        Log.d(TAG, "Called updateRiskLevel");
+        Log.d(TAG, "Called createRiskPostRequest");
         JSONObject jsonBody = new JSONObject();
         try {
             jsonBody.put("key", ClientPaths.API_KEY);
@@ -753,7 +752,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                     Log.d(TAG, "Dust Reading: " + vals[0]);
                     //client.sendSensorData(event.sensor.getType(), event.accuracy, event.timestamp, event.values);
                     ClientPaths.addSensorData(ClientPaths.DUST_SENSOR_ID, 3, System.currentTimeMillis(), vals);
-                    lastSensorView.setText("Last: " + ClientPaths.getSensorName(ClientPaths.DUST_SENSOR_ID) + "\nConnected Dust: " + ClientPaths.dustConnected);
+                    if (lastSensorView!=null)
+                        lastSensorView.setText("Last: " + ClientPaths.getSensorName(ClientPaths.DUST_SENSOR_ID) + "\nConnected Dust: " + ClientPaths.dustConnected);
 
                 }
 
@@ -802,7 +802,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                     Log.i(TAG, "Found RF Device: " + bluetoothDevice.getName());
                     Intent rfduinoIntent = new Intent(MainActivity.this, RFduinoService.class);
                     bindService(rfduinoIntent, rfduinoServiceConnection, BIND_AUTO_CREATE);
-
                 }
             }
         });
@@ -948,7 +947,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     public void onSensorChanged(SensorEvent event) {
         ClientPaths.addSensorData(event.sensor.getType(), event.accuracy, System.currentTimeMillis(), event.values);
 
-        lastSensorView.setText("Last: " + ClientPaths.getSensorName(event.sensor.getType()) + "\nConnected Dust: " + ClientPaths.dustConnected);
+        if (lastSensorView!=null)
+            lastSensorView.setText("Last: " + ClientPaths.getSensorName(event.sensor.getType()) + "\nConnected Dust: " + ClientPaths.dustConnected);
 
     }
 
@@ -967,29 +967,36 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     @Override
     public void onConnected(Bundle bundle) {
         Log.d(TAG, "location onConnected");
+
+
         LocationRequest locationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(UPDATE_INTERVAL_MS)
                 .setFastestInterval(FASTEST_INTERVAL_MS);
+        try {
+            LocationServices.FusedLocationApi
+                    .requestLocationUpdates(mGoogleApiClient, locationRequest, this)
+                    .setResultCallback(new ResultCallback<Status>() {
 
-        LocationServices.FusedLocationApi
-                .requestLocationUpdates(mGoogleApiClient, locationRequest, this)
-                .setResultCallback(new ResultCallback<Status>() {
+                        @Override
+                        public void onResult(Status status) {
+                            if (status.getStatus().isSuccess()) {
 
-                    @Override
-                    public void onResult(Status status) {
-                        if (status.getStatus().isSuccess()) {
+                                Log.d(TAG, "Successfully requested location updates");
 
-                            Log.d(TAG, "Successfully requested location updates");
-
-                        } else {
-                            Log.e(TAG, "Failed in requesting location updates, "
-                                    + "status code: "
-                                    + status.getStatusCode() + ", message: " + status
-                                    .getStatusMessage());
+                            } else {
+                                Log.e(TAG, "Failed in requesting location updates, "
+                                        + "status code: "
+                                        + status.getStatusCode() + ", message: " + status
+                                        .getStatusMessage());
+                            }
                         }
-                    }
-                });
+                    });
+        } catch(SecurityException e) {
+            e.printStackTrace();
+            Log.e(TAG, "Error Requesting location service (lack of permission)");
+            return;
+        }
     }
 
 
@@ -1066,7 +1073,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                     return true;
 
                 } else if (deviceName.contains(ClientPaths.DUST_BT_NAME)) {
-
                     Log.d("yjcode", "Detected RFduino device: " + deviceName);
                     //add connection for RF duino here as well
                 }
@@ -1103,9 +1109,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         readBuffer = new byte[1024];
         stopWorker = false;
 
-
-
-
         //listener worker thread
         workerThread = new Thread(new Runnable()
         {
@@ -1136,9 +1139,16 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                                         {
 
                                             Log.d(TAG, "Received spiro data: " + data.toString());
+                                            try {
+                                                ClientPaths.addSensorData(ClientPaths.SPIRO_SENSOR_ID, 3, System.currentTimeMillis(), data.toArray());
+                                                //Toast.makeText(MainActivity.this, "PEF Received: " + data.pef + "!", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(MainActivity.this, "Data Received!", Toast.LENGTH_SHORT).show();
+                                            } catch (Exception e) {
+                                                Toast.makeText(MainActivity.this, "Bad Reading: Please try again!", Toast.LENGTH_SHORT).show();
 
-                                            ClientPaths.addSensorData(ClientPaths.SPIRO_SENSOR_ID, 3, System.currentTimeMillis(), data.toArray());
-                                            Toast.makeText(MainActivity.this, "PEF Received: " + data.pef + "!", Toast.LENGTH_SHORT).show();
+                                            }
+
+
 
 //                                            mText_fev1.setText("FEV1: "+ String.valueOf((float)data.fev1 / 100.0) + " Liters");
 //                                            mText_pef.setText("PEF: " + String.valueOf(data.pef) + " Liters/min");
