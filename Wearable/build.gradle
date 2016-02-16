@@ -16,12 +16,9 @@ repositories {
     mavenCentral()
 }
 
-
 dependencies {
-//    compile 'com.github.blackfizz:eazegraph:1.2.2@aar'
-//    compile 'com.nineoldandroids:library:2.4.0+'
-
     compile 'com.android.support:support-v13:23.1.1'
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.google.android.gms:play-services-wearable:8.4.0'
     compile 'com.google.android.gms:play-services-analytics:8.4.0'
     compile 'com.google.android.gms:play-services-location:8.4.0'
@@ -64,19 +61,19 @@ android {
         androidTest.java.srcDirs = ['tests/src']
 
     }
-
-//    buildTypes {
-//        release {
-//            minifyEnabled true
-//            debuggable false
-//            zipAlignEnabled true
-//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-//        }
-//        debug {
-//            minifyEnabled true
-//            debuggable true
-//            zipAlignEnabled true
-//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-//        }
-//    }
+//
+    buildTypes {
+        release {
+            minifyEnabled true
+            debuggable false
+            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            debuggable true
+            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
 }

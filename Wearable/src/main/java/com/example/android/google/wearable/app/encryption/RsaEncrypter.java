@@ -186,7 +186,7 @@ public class RsaEncrypter implements Encrypter {
             pk=null;
             Log.e("RSAEncrypter","Invalid Key");
         }
-
+        Log.d("getPk ", "Retrieved key getPkFromFile: " + pk);
         return pk;
     }
 

@@ -1,4 +1,4 @@
-package com.github.pocmo.sensordashboard;
+package com.breatheplatform.beta.mobile;
 
 import android.app.Notification;
 import android.app.Service;

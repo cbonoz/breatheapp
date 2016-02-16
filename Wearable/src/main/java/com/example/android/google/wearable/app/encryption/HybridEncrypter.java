@@ -19,13 +19,12 @@ package com.example.android.google.wearable.app.encryption;
  * limitations under the License.
  */
 
+import android.util.Log;
+
 import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
 /**
  * This class provides the functionality of encrypting data using AES and transferring its symmetric key using RSA
  * @author adkmobile@niclabs.cl
@@ -59,6 +58,7 @@ public class HybridEncrypter implements Encrypter {
         String iv = aes.getIV();
 
         String symmetric_key_params = password + "\n" + salt  + "\n" + iv + "\n";
+        Log.d("aes key params", symmetric_key_params);
         symmetric_key = rsa.stringEncrypter(symmetric_key_params);
 
         algorithmnotsupported= aes.isWorstcase();
@@ -72,21 +72,23 @@ public class HybridEncrypter implements Encrypter {
      * @param key Key used to encrypt
      * @param ivParams A IvParameterSpec instance with the bytes used as initialization vector (if ivParam is null an initialization vector will be randomly generated)
      */
-    public HybridEncrypter(String path_rsa_key, int key_size, SecretKey key, IvParameterSpec ivParams) throws FileNotFoundException {
-
-        rsa = new RsaEncrypter(path_rsa_key, key_size);
-
-        aes = new AesEncrypter(key, ivParams);
-
-        String salt = aes.getSalt();
-        String password=aes.getPassword();
-        String iv = aes.getIV();
-
-        String symmetric_key_params = password + "\n" + salt  + "\n" + iv + "\n";
-        symmetric_key = rsa.stringEncrypter(symmetric_key_params);
-
-        algorithmnotsupported= aes.isWorstcase();
-    }
+//    public HybridEncrypter(String path_rsa_key, int key_size, SecretKey key, IvParameterSpec ivParams) throws FileNotFoundException {
+//
+//        rsa = new RsaEncrypter(path_rsa_key, key_size);
+//
+//        aes = new AesEncrypter(key, ivParams);
+//
+//        String salt = aes.getSalt();
+//        String password=aes.getPassword();
+//        String iv = aes.getIV();
+//
+//        String symmetric_key_params = password + "\n" + salt  + "\n" + iv + "\n";
+//        Log.d("aes key params",symmetric_key_params);
+//
+//        symmetric_key = rsa.stringEncrypter(symmetric_key_params);
+//
+//        algorithmnotsupported= aes.isWorstcase();
+//    }
 
     /**
      * @return true if PBKDF2WithHmacSHA1 is not supported
@@ -139,7 +141,7 @@ public class HybridEncrypter implements Encrypter {
 
         byte[] encrypted_data = aes.stringEncrypter(plain);
 
-        ret=merge(symmetric_key, encrypted_data, encrypted_data.length);
+            ret=merge(symmetric_key, encrypted_data, encrypted_data.length);
 
         return ret;
     }
@@ -150,11 +152,8 @@ public class HybridEncrypter implements Encrypter {
      * @return The encrypted bytes
      */
     public byte[] fileEncrypter(String in) throws IOException {
-
         byte[] encrypted_data = aes.fileEncrypter(in);
-
         byte[] ret = merge(symmetric_key, encrypted_data, encrypted_data.length);
-
         return ret;
     }
 
@@ -165,13 +164,18 @@ public class HybridEncrypter implements Encrypter {
      * @param append If true encrypted data will be appended to out, otherwise out will be overwritten
      */
     public void fileEncrypter(String in, String out, boolean append) throws IOException{
+        try {
+            BufferedOutputStream bw = null;
+            bw = new BufferedOutputStream(new FileOutputStream(out, append), 8192);
+            bw.write(symmetric_key);
+            bw.flush();
+            bw.close();
 
-        BufferedOutputStream bw = null;
-        bw = new BufferedOutputStream(new FileOutputStream(out, append), 8192);
-        bw.write(symmetric_key);
-        bw.flush();
-        bw.close();
-
-        aes.fileEncrypter(in, out, true);
+            aes.fileEncrypter(in, out, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e("HybridEncrypter", "[Handled] Error writing enc file");
+            return;
+        }
     }
 }

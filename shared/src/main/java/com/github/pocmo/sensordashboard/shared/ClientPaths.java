@@ -1,4 +1,4 @@
-package com.github.pocmo.sensordashboard.shared;
+package com.breatheplatform.beta.mobile.shared;
 
 import android.location.Location;
 import android.util.Log;

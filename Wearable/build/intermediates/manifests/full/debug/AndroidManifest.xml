@@ -17,6 +17,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.android.google.wearable.app"
     android:launchMode="singleInstance"
+    android:permission="android.permission.RECEIVE_BOOT_COMPLETED"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -69,6 +70,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name="android.support.wearable.activity.ConfirmationActivity" >
+        </activity>
 
         <service android:name="com.example.android.google.wearable.app.bluetooth.RFduinoService" >
             <intent-filter>
@@ -76,11 +79,32 @@
             </intent-filter>
         </service>
 
-        <receiver android:name="com.example.android.google.wearable.app.MyBroadCastReceiver" >
+        <receiver android:name="com.example.android.google.wearable.app.autostart.BootReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+
+        <!-- <receiver android:name=".data.BatteryReceiver"> -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="android.intent.action.BATTERY_CHANGED"/> -->
+        <!-- </intent-filter> -->
+        <!-- </receiver> -->
+
+
+        <!-- <meta-data -->
+        <!-- android:name="com.google.android.gms.version" -->
+        <!-- android:value="@integer/google_play_services_version" /> -->
+
+
+        <!-- <service -->
+        <!-- android:name=".data.DataLayerListenerService" > -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="com.google.android.gms.wearable.BIND_LISTENER" /> -->
+        <!-- </intent-filter> -->
+        <!-- </service> -->
 
         <uses-library
             android:name="com.google.android.wearable"

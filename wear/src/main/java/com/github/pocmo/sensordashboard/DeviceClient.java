@@ -1,11 +1,11 @@
-package com.github.pocmo.sensordashboard;
+package com.breatheplatform.beta.mobile;
 
 import android.content.Context;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.util.SparseLongArray;
 
-import com.github.pocmo.sensordashboard.shared.DataMapKeys;
+import com.breatheplatform.beta.mobile.shared.DataMapKeys;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;

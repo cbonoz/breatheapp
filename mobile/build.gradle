@@ -5,34 +5,36 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        applicationId "com.github.pocmo.sensordashboard"
+        applicationId "com.breatheplatform.beta"
         minSdkVersion 21
-        targetSdkVersion 22
+        targetSdkVersion 23
         versionCode 5
         versionName "1.1.1"
     }
     buildTypes {
         release {
+            minifyEnabled true
+            debuggable false
+            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
             minifyEnabled false
+            debuggable true
+            zipAlignEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }
 
 dependencies {
-    wearApp project(':wear')
-
-    compile project(':shared')
-
-    compile 'com.google.android.gms:play-services-wearable:8.3.0'
-    compile 'com.google.android.gms:play-services-analytics:8.3.0'
-    compile 'com.google.android.gms:play-services-location:8.3.0'
-
+    wearApp project(':Wearable')
+    compile 'com.google.android.gms:play-services-wearable:8.4.0'
+    compile 'com.google.android.gms:play-services-analytics:8.4.0'
+    compile 'com.google.android.gms:play-services-location:8.4.0'
     compile 'com.android.support:design:23.1.1'
     compile 'com.android.support:recyclerview-v7:23.1.1'
     compile 'com.android.support:cardview-v7:23.1.1'
-
     compile 'com.squareup:otto:1.3.6'
-
-    compile 'io.realm:realm-android:0.80.3'
+    compile 'com.android.support:appcompat-v7:23.1.1'
 }

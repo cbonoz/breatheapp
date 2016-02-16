@@ -1,4 +1,4 @@
-package com.github.pocmo.sensordashboard.shared;
+package com.breatheplatform.beta.mobile.shared;
 
 import android.content.Context;
 import android.os.AsyncTask;

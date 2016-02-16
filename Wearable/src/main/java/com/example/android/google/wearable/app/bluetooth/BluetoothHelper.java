@@ -47,8 +47,6 @@ public class BluetoothHelper {
                         output.append(" (\"").append(ascii).append("\")");
                     }
                     break;
-
-
             }
             i += len;
         }

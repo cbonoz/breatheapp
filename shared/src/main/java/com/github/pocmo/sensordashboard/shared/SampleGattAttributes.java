@@ -1,4 +1,4 @@
-package com.github.pocmo.sensordashboard.shared;
+package com.breatheplatform.beta.mobile.shared;
 
 /**
  * Created by cbono on 12/25/15.

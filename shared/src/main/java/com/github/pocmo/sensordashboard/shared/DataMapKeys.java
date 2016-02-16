@@ -1,4 +1,4 @@
-package com.github.pocmo.sensordashboard.shared;
+package com.breatheplatform.beta.mobile.shared;
 
 public class DataMapKeys {
     public static final String ACCURACY = "accuracy";

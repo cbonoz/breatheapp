@@ -35,14 +35,14 @@ public class SensorNames {
         names.append(Sensor.TYPE_SIGNIFICANT_MOTION, "Significant Motion");
         names.append(Sensor.TYPE_STEP_COUNTER, "Step Counter");
         names.append(Sensor.TYPE_STEP_DETECTOR, "Step Detector");
-        names.append(21, "Ss Heart Rate");
+        names.append(ClientPaths.SS_HEART_ID, "Ss Heart Rate");
         names.append(ClientPaths.DUST_SENSOR_ID, "Dust Sensor");
         names.append(ClientPaths.SPIRO_SENSOR_ID, "Spirometer Sensor");
 
         serverSensors.append(ClientPaths.DUST_SENSOR_ID, 4);
         serverSensors.append(ClientPaths.SPIRO_SENSOR_ID, 5);
         serverSensors.append(Sensor.TYPE_HEART_RATE, 3);
-        serverSensors.append(21, 3);
+        serverSensors.append(ClientPaths.SS_HEART_ID, 3);
         serverSensors.append(Sensor.TYPE_LINEAR_ACCELERATION, 2);
 
     }

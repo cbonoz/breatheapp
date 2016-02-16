@@ -1,12 +1,12 @@
-package com.github.pocmo.sensordashboard;
+package com.breatheplatform.beta.mobile;
 
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.net.Uri;
 import android.util.Log;
 
-import com.github.pocmo.sensordashboard.shared.ClientPaths;
-import com.github.pocmo.sensordashboard.shared.DataMapKeys;
+import com.breatheplatform.beta.mobile.shared.ClientPaths;
+import com.breatheplatform.beta.mobile.shared.DataMapKeys;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;

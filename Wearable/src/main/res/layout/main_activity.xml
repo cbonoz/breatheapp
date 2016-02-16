@@ -9,6 +9,9 @@
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
      limitations under the License.
+
+     See:
+     https://github.com/googlesamples/android-WatchViewStub/tree/master/Wearable/src/main
 -->
 
 <FrameLayout
@@ -21,8 +24,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/stub"
-        app:rectLayout="@layout/main_activity_rect"
-        app:roundLayout="@layout/main_activity_round"/>
+        app:rectLayout="@layout/rect_layout"
+        app:roundLayout="@layout/round_layout"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        />
 
     <android.support.wearable.view.DismissOverlayView
         android:id="@+id/dismiss_overlay"

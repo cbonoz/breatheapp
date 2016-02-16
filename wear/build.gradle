@@ -6,7 +6,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        applicationId "com.github.pocmo.sensordashboard"
+        applicationId "com.breatheplatform.beta.mobile"
         minSdkVersion 21
         targetSdkVersion 23
         versionCode 5

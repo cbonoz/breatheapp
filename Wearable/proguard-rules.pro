@@ -1,0 +1,2 @@
+#-optimizations "*"
+-optimizationpasses 64
