@@ -1,34 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
- Copyright (C) 2014 The Android Open Source Project
-
-     Licensed under the Apache License, Version 2.0 (the "License");
-     you may not use this file except in compliance with the License.
-     You may obtain a copy of the License at
-
-          http://www.apache.org/licenses/LICENSE-2.0
-
-     Unless required by applicable law or agreed to in writing, software
-     distributed under the License is distributed on an "AS IS" BASIS,
-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-     See the License for the specific language governing permissions and
-     limitations under the License.
--->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.android.google.wearable.app"
+    package="com.breatheplatform.beta"
     android:launchMode="singleInstance"
-    android:permission="android.permission.RECEIVE_BOOT_COMPLETED"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionCode="5"
+    android:versionName="1.1.1" >
 
     <uses-sdk
         android:minSdkVersion="20"
-        android:targetSdkVersion="23" />
+        android:targetSdkVersion="22" />
 
     <!-- permissions -->
 
     <uses-feature android:name="android.hardware.type.watch" />
-
     <!-- Required to act as a custom watch face. -->
     <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND" />
 
@@ -55,17 +38,19 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.DeviceDefault" >
+        android:theme="@style/AppTheme" >
         <activity
-            android:name="com.example.android.google.wearable.app.MainActivity"
-            android:label="@string/app_name" >
+            android:name="com.breatheplatform.beta.MainActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleInstance"
+            android:windowSwipeToDismiss="false" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <action android:name="com.google.android.clockwork.example.SKELETON" />
+                <action android:name="com.google.android.google.wearable.app" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -73,13 +58,16 @@
         <activity android:name="android.support.wearable.activity.ConfirmationActivity" >
         </activity>
 
-        <service android:name="com.example.android.google.wearable.app.bluetooth.RFduinoService" >
+        <service android:name="com.breatheplatform.beta.bluetooth.RFduinoService" >
             <intent-filter>
-                <action android:name="com.breatheplatform.asthma.bluetooth.RFduinoService" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
 
-        <receiver android:name="com.example.android.google.wearable.app.autostart.BootReceiver" >
+        <receiver
+            android:name="com.breatheplatform.beta.autostart.StartMyActivityAtBootReceiver"
+            android:enabled="true"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
 

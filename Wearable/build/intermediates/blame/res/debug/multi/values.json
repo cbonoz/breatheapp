@@ -756,11 +756,11 @@
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/color.xml",
                     "position": {
-                        "startLine": 5,
+                        "startLine": 2,
                         "startColumn": 4,
-                        "startOffset": 58,
+                        "startOffset": 55,
                         "endColumn": 40,
-                        "endOffset": 94
+                        "endOffset": 91
                     }
                 }
             },
@@ -2395,6 +2395,27 @@
                         "startOffset": 1010,
                         "endColumn": 61,
                         "endOffset": 1067
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 147,
+                    "startColumn": 4,
+                    "startOffset": 17126,
+                    "endLine": 150,
+                    "endColumn": 12,
+                    "endOffset": 17331
+                },
+                "from": {
+                    "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/style.xml",
+                    "position": {
+                        "startLine": 3,
+                        "startColumn": 4,
+                        "startOffset": 56,
+                        "endLine": 6,
+                        "endColumn": 12,
+                        "endOffset": 261
                     }
                 }
             }

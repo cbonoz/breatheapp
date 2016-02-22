@@ -1,4 +1,4 @@
-package com.breatheplatform.beta.mobile;
+package com.breatheplatform.beta.beta;
 
 import org.junit.Test;
 

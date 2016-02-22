@@ -1,4 +1,4 @@
-package com.breatheplatform.beta.mobile.shared;
+package com.breatheplatform.beta.shared;
 
 public class DataMapKeys {
     public static final String ACCURACY = "accuracy";

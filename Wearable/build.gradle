@@ -39,10 +39,11 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        versionCode 1
-        versionName "1.0"
+        applicationId "com.breatheplatform.beta"
+        versionCode 5
+        versionName "1.1.1"
 
-        targetSdkVersion 23
+        targetSdkVersion 22
     }
 
     compileOptions {

@@ -1,4 +1,4 @@
-package com.breatheplatform.beta.mobile.shared;
+package com.breatheplatform.beta.shared;
 
 import android.content.Context;
 import android.os.AsyncTask;

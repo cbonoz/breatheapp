@@ -1,4 +1,4 @@
-package com.breatheplatform.beta.mobile.shared;
+package com.breatheplatform.beta.shared;
 
 /**
  * Created by cbono on 12/25/15.
