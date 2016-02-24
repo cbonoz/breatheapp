@@ -223,20 +223,20 @@ public class UploadTask extends AsyncTask<String, Void, String> {
                         }
                     }
                     break;
-                case ClientPaths.PUBLIC_KEY_API:
-                    try {
-                        String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
-                        final JSONObject resJson = new JSONObject(jsonString);
-                        String key = "";
-                        ClientPaths.writeDataToFile(key, ClientPaths.publicKeyFile, false);
-                        ClientPaths.createEncrypter();
-                        break;
-                    } catch (Exception e) {
-
-                        Log.e(TAG, "[Handled] Error response from key api");
-                        return statusCode + ": JSON Parse Error";
-                    }
-
+//                case ClientPaths.PUBLIC_KEY_API:
+//                    try {
+//                        String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
+//                        final JSONObject resJson = new JSONObject(jsonString);
+//                        String key = "";
+//                        ClientPaths.writeDataToFile(key, ClientPaths.publicKeyFile, false);
+//                        ClientPaths.createEncrypter();
+//                        break;
+//                    } catch (Exception e) {
+//
+//                        Log.e(TAG, "[Handled] Error response from key api");
+//                        return statusCode + ": JSON Parse Error";
+//                    }
+//
 
             }
 
@@ -257,7 +257,7 @@ public class UploadTask extends AsyncTask<String, Void, String> {
                         public void run() {
                             //Do something on UiThread
                             Log.d(TAG, "updateRiskUI " + newRisk);
-                            ((MainActivity) ClientPaths.mainContext).updateRiskUI(newRisk, false);
+                            ((MainActivity) ClientPaths.mainContext).updateRiskUI(newRisk);
 
                         }
                     });

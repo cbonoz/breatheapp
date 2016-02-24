@@ -29,6 +29,10 @@ class TestData {
         return new float[]{fev1, pef, good_test ? 1 : 0};
 
     }
+
+    public float getPef() {
+        return pef;
+    }
 }
 
 //./adb pull /storage/emulated/legacy/SensorData.txt ~/Downloads/Sensordata.txt

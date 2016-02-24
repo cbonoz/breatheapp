@@ -784,17 +784,18 @@ containing a value of this type.
         public static final int generic_confirmation=0x7f02002f;
         public static final int generic_confirmation_animation=0x7f020030;
         public static final int happy_face=0x7f020031;
-        public static final int ic_full_cancel=0x7f020032;
-        public static final int ic_full_sad=0x7f020033;
-        public static final int ic_launcher=0x7f020034;
-        public static final int neutral_face=0x7f020035;
-        public static final int open_on_phone=0x7f020036;
-        public static final int open_on_phone_animation=0x7f020037;
-        public static final int places_ic_clear=0x7f020038;
-        public static final int places_ic_search=0x7f020039;
-        public static final int powered_by_google_dark=0x7f02003a;
-        public static final int powered_by_google_light=0x7f02003b;
-        public static final int water_bg=0x7f02003c;
+        public static final int heart=0x7f020032;
+        public static final int ic_full_cancel=0x7f020033;
+        public static final int ic_full_sad=0x7f020034;
+        public static final int ic_launcher=0x7f020035;
+        public static final int neutral_face=0x7f020036;
+        public static final int open_on_phone=0x7f020037;
+        public static final int open_on_phone_animation=0x7f020038;
+        public static final int places_ic_clear=0x7f020039;
+        public static final int places_ic_search=0x7f02003a;
+        public static final int powered_by_google_dark=0x7f02003b;
+        public static final int powered_by_google_light=0x7f02003c;
+        public static final int water_bg=0x7f02003d;
     }
     public static final class id {
         public static final int adjust_height=0x7f0e0007;
@@ -810,7 +811,7 @@ containing a value of this type.
         public static final int center_vertical=0x7f0e0015;
         public static final int clip_horizontal=0x7f0e0016;
         public static final int clip_vertical=0x7f0e0017;
-        public static final int copyRightView=0x7f0e003a;
+        public static final int copyRightView=0x7f0e003c;
         public static final int dark=0x7f0e0012;
         public static final int dismiss_overlay=0x7f0e0029;
         public static final int dismiss_overlay_button=0x7f0e0022;
@@ -821,9 +822,11 @@ containing a value of this type.
         public static final int fill_vertical=0x7f0e001b;
         public static final int fit=0x7f0e0006;
         public static final int fragment_container=0x7f0e0024;
+        public static final int heartImage=0x7f0e0038;
+        public static final int heartText=0x7f0e0039;
         public static final int hybrid=0x7f0e000a;
         public static final int icon_only=0x7f0e000e;
-        public static final int idButton=0x7f0e0039;
+        public static final int idButton=0x7f0e003b;
         public static final int imageView=0x7f0e0026;
         public static final int lastSensorView=0x7f0e0037;
         public static final int left=0x7f0e0002;
@@ -844,7 +847,7 @@ containing a value of this type.
         public static final int rel_layout=0x7f0e0025;
         public static final int right=0x7f0e0003;
         public static final int riskView=0x7f0e0033;
-        public static final int round_layout=0x7f0e0038;
+        public static final int round_layout=0x7f0e003a;
         public static final int satellite=0x7f0e000c;
         public static final int smileView=0x7f0e0036;
         public static final int spiroToggleButton=0x7f0e0035;
@@ -853,9 +856,9 @@ containing a value of this type.
         public static final int stub=0x7f0e0028;
         public static final int subjectText=0x7f0e0034;
         public static final int terrain=0x7f0e000d;
-        public static final int text=0x7f0e003c;
+        public static final int text=0x7f0e003e;
         public static final int textview=0x7f0e0027;
-        public static final int title=0x7f0e003b;
+        public static final int title=0x7f0e003d;
         public static final int top=0x7f0e0004;
         public static final int wide=0x7f0e0010;
     }

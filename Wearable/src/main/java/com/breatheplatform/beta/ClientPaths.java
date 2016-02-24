@@ -348,7 +348,7 @@ public class ClientPaths {
 
         //if accuracy rating too low, reject
         if (accuracy < 2) {
-            Log.d(TAG, "Blocked " + sensorName+ " " + Arrays.toString(values) + " reading - accuracy < 2");
+            Log.d(TAG, "Blocked " + sensorName+ " " + Arrays.toString(values) + " reading, " + accuracy + " accuracy < 2");
             return;
 
         }

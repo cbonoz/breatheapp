@@ -121,10 +121,10 @@ public final class R {
 		public static final int close_button = 0x7f020003;
 		public static final int generic_confirmation = 0x7f02002f;
 		public static final int generic_confirmation_animation = 0x7f020030;
-		public static final int ic_full_cancel = 0x7f020032;
-		public static final int ic_full_sad = 0x7f020033;
-		public static final int open_on_phone = 0x7f020036;
-		public static final int open_on_phone_animation = 0x7f020037;
+		public static final int ic_full_cancel = 0x7f020033;
+		public static final int ic_full_sad = 0x7f020034;
+		public static final int open_on_phone = 0x7f020037;
+		public static final int open_on_phone_animation = 0x7f020038;
 	}
 	public static final class id {
 		public static final int alertTitle = 0x7f0e001f;
@@ -149,8 +149,8 @@ public final class R {
 		public static final int parentPanel = 0x7f0e001d;
 		public static final int right = 0x7f0e0003;
 		public static final int start = 0x7f0e001c;
-		public static final int text = 0x7f0e003c;
-		public static final int title = 0x7f0e003b;
+		public static final int text = 0x7f0e003e;
+		public static final int title = 0x7f0e003d;
 		public static final int top = 0x7f0e0004;
 	}
 	public static final class interpolator {
