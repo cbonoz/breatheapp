@@ -1,10 +1,9 @@
 package com.breatheplatform.beta.messaging;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.breatheplatform.beta.ClientPaths;
@@ -19,6 +18,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URL;
 
 
@@ -43,7 +44,6 @@ public class UploadTask extends AsyncTask<String, Void, String> {
 
     private URL url;
 
-    private static String currentNetwork = "";
 
     private static Integer newRisk=ClientPaths.NO_VALUE;
     private static String urlString;
@@ -72,30 +72,7 @@ public class UploadTask extends AsyncTask<String, Void, String> {
 
     private WifiManager wifiManager;
     private WifiManager.WifiLock lock;
-
-
-
-    private void getNetwork() {
-        if (ClientPaths.mainContext == null) return;
-        try {
-            //using ClientPaths.mainContext was giving issues here (throwing exception)
-                ConnectivityManager cm =
-                        (ConnectivityManager) ClientPaths.mainContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-                NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-                boolean isConnected = activeNetwork != null &&
-                        activeNetwork.isConnectedOrConnecting();
-
-                currentNetwork = activeNetwork.getTypeName();
-                Log.d(TAG, "Current Network Found: " + currentNetwork);
-
-
-        } catch (Exception e) {
-            Log.e(TAG, "[Handled] No context for getNetwork..continuing");
-            currentNetwork=null;
-        }
-
-    }
+//    private static int linkSpeed = ClientPaths.NO_VALUE;
 
 
 
@@ -108,7 +85,6 @@ public class UploadTask extends AsyncTask<String, Void, String> {
 //                Log.d(TAG, "Appended " + data.length() + " data points to " + ClientPaths.sensorFile.toString());
 //        }
 
-        getNetwork();
 
         int statusCode = 0;
         InputStream is=null;
@@ -120,16 +96,38 @@ public class UploadTask extends AsyncTask<String, Void, String> {
         Log.i(url.toString(), "NOW Sending: "+data);
 
         try {
-            if (currentNetwork==null) {
-                Log.d(TAG, "Network Check Result - Not Connected");
-                return "0";
-            } else if (currentNetwork.equals("PROXY")) {
-                Log.d(TAG, "Proxy detected - sending message");
-                ClientPaths.sendDataToMobile(data,urlString);
-                return "0";
+            String currentNetwork = ClientPaths.connectionInfo;
+            Log.d(TAG, "Connection: " + currentNetwork);
+
+//            if (currentNetwork==null) {
+//                return "0";
+//            }
+
+             if (currentNetwork.equals("PROXY")) {
+                //ClientPaths.sendDataToMobile(data, urlString);
+
+                String proxyString = Settings.Global.getString(ClientPaths.mainContext.getContentResolver(), Settings.Global.HTTP_PROXY);
+                if (proxyString != null) {
+                    String proxyAddress = proxyString.split(":")[0];
+                    int proxyPort = Integer.parseInt(proxyString.split(":")[1]);
+                    Log.d(TAG, "Proxyinfo: " + proxyAddress + " " + proxyPort);
+
+                    Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyAddress, proxyPort));
+                    conn = (HttpURLConnection) url.openConnection(proxy);
+                }
+                else {
+                    Log.d(TAG, "No Proxyinfo found");
+                    conn = (HttpURLConnection) url.openConnection();
+                }
+
+
+            } else {
+                conn = (HttpURLConnection) url.openConnection();
             }
 
-            conn = (HttpURLConnection) url.openConnection();
+
+
+//            conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(10000 /*milliseconds*/);
             conn.setConnectTimeout(15000 /* milliseconds */);
             conn.setRequestMethod("POST");

@@ -1,4 +1,4 @@
-package com.breatheplatform.beta;
+package com.breatheplatform.beta.data;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

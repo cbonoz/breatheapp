@@ -35,15 +35,20 @@ public class SensorNames {
         names.append(Sensor.TYPE_SIGNIFICANT_MOTION, "Significant Motion");
         names.append(Sensor.TYPE_STEP_COUNTER, "Step Counter");
         names.append(Sensor.TYPE_STEP_DETECTOR, "Step Detector");
-        names.append(ClientPaths.SS_HEART_SENSOR_ID, "Ss Heart Rate");
+//        names.append(ClientPaths.SS_HEART_SENSOR_ID, "Ss Heart Rate");
         names.append(ClientPaths.DUST_SENSOR_ID, "Dust Sensor");
+        names.append(ClientPaths.HEART_SENSOR_ID, "Heart Rate");
         names.append(ClientPaths.SPIRO_SENSOR_ID, "Spirometer Sensor");
+        names.append(ClientPaths.ENERGY_SENSOR_ID, "Energy Calculation");
 
-        serverSensors.append(ClientPaths.DUST_SENSOR_ID, 4);
-        serverSensors.append(ClientPaths.SPIRO_SENSOR_ID, 5);
-        serverSensors.append(Sensor.TYPE_HEART_RATE, 3);
-        serverSensors.append(ClientPaths.SS_HEART_SENSOR_ID, 3);
-        serverSensors.append(Sensor.TYPE_LINEAR_ACCELERATION, 2);
+
+//                serverSensors.append(ClientPaths.HEART_SENSOR_ID, 3);
+        serverSensors.append(Sensor.TYPE_LINEAR_ACCELERATION, 1);
+        serverSensors.append(Sensor.TYPE_HEART_RATE, 2);
+        serverSensors.append(ClientPaths.DUST_SENSOR_ID, 3);
+        serverSensors.append(ClientPaths.SPIRO_SENSOR_ID, 4);
+        serverSensors.append(ClientPaths.ENERGY_SENSOR_ID, 5);
+//
 
     }
 
