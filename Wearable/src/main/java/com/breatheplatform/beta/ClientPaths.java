@@ -4,14 +4,9 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.location.Location;
 import android.util.Log;
-import android.util.SparseLongArray;
 
 import com.breatheplatform.beta.data.SensorNames;
 import com.breatheplatform.beta.encryption.HybridEncrypter;
-import com.breatheplatform.beta.messaging.UploadTask;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -21,7 +16,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.TimeZone;
 
 /* Class: ClientPaths
@@ -106,13 +100,6 @@ public class ClientPaths {
 
 //    private static DeviceClient client = null;
 
-    private static int bytesWritten = 0;
-
-    private static SparseLongArray lastSensorData = new SparseLongArray();
-    private static HybridEncrypter hybridEncrypter = createEncrypter();
-
-    private static JSONArray sensorData = new JSONArray();
-    private static Integer recordCount = 0;
 
 
     public static Location currentLocation = null;
@@ -126,14 +113,7 @@ public class ClientPaths {
         return f;
     }
 
-    //is synchronized necessary here?
-    public synchronized static void incrementCount() {
-        recordCount++;
-        Log.d(TAG, "recordCount: " + recordCount);
-        if (recordCount.equals(RECORD_LIMIT)) {
-            createDataPostRequest();
-        }
-    }
+
 
     public static HybridEncrypter createEncrypter() {
         int key_size_bits = PUBLIC_KEY.length()*8;
@@ -219,10 +199,6 @@ public class ClientPaths {
             Log.d(TAG, "wrote to " + file.toString());
             Log.d(TAG, "filelength " + file.length());
 
-            if (file.toString().equals(sensorFile.toString())) {
-                bytesWritten += data.length();
-                Log.d(TAG, "bytesWritten " + bytesWritten);
-            }
             return true;
 
         } catch (Exception e) {
@@ -250,242 +226,6 @@ public class ClientPaths {
             SUBJECT_ID = sid;//getSubjectID();
         } else {
             Log.e(TAG, "Failed to write to sid to " + subjectFile);
-        }
-    }
-
-    public static void checkLastDust() {
-        long last_time = lastSensorData.get(DUST_SENSOR_ID);
-        if ((System.currentTimeMillis()-last_time)>30000) {
-            dustConnected=false;
-        }
-    }
-
-
-    public static void appendData(JSONObject jObj) {
-        sensorData.put(jObj);
-    }
-
-    public static void clearData() {
-        sensorData = new JSONArray();
-        recordCount = 0;
-    }
-
-    public static JSONArray getData() {
-        return sensorData;
-    }
-
-    private static void createDataPostRequest() {
-        Log.d(TAG, "createDataPostRequest");
-        JSONObject jsonBody = new JSONObject();
-        checkLastDust();
-        String sensorDataString = "";
-        byte[] encSensorData;
-
-        try {
-
-            // \n becomes the delimiter on the server to split data entries
-            sensorDataString = sensorData.join("\n");
-//
-//
-//            if (encrypting && hybridEncrypter!=null) {
-//                Log.d(TAG, "pre-encrypted length: " + sensorDataString.length());
-////                sensorDataString = new String(hybridEncrypter.stringEncrypter(sensorDataString));
-//                encSensorData = hybridEncrypter.stringEncrypter(sensorDataString);
-//                Log.d(TAG, "encrypted length: " + encSensorData.length);
-//                jsonBody.put("data", encSensorData);
-//
-//                if (writing) {
-//                    writeDataToFile(sensorDataString, sensorFile, false);
-//                    hybridEncrypter.fileEncrypter(sensorDirectory, encSensorDirectory, false);//change false to true for append
-//                    Log.d(TAG, "Wrote to Sensorfile, size now: " + sensorFile.length() + "B");
-//                }
-//            } else {
-//                jsonBody.put("data", sensorDataString);
-//            }
-//
-//
-//            if (writing) {
-//                writeDataToFile(sensorDataString, sensorFile, false);
-//                Log.d(TAG, "Wrote to Sensorfile, size now: " + sensorFile.length() /1024 + "kB");
-//            }
-
-            jsonBody.put("data", sensorDataString);
-
-            if (SUBJECT_ID==NO_VALUE) {
-                SUBJECT_ID = getSubjectID();
-
-
-            }
-            jsonBody.put("subject_id", SUBJECT_ID);
-            jsonBody.put("key", API_KEY);
-            jsonBody.put("connection", connectionInfo);
-
-            //data is the only object that needs to be encrypted
-
-
-
-        } catch (Exception e) {
-            Log.e(TAG, "Error creating jsonBody");
-            e.printStackTrace();
-        }
-
-//        Log.d("JSONBODY RESULT: ", jsonBody.toString());
-
-        if (sending) {
-
-            Log.d(TAG, "Uploading sensor data");
-
-            //uploadTask will take care of the post request, and writing the data to the auxiliary sensorData subjectFile should the post request be unsuccessful
-            //this is done on a background task thread
-            UploadTask uploadTask = new UploadTask(MULTI_FULL_API, null);//, ROOT + File.separator + SENSOR_FNAME);
-            uploadTask.execute(jsonBody.toString());
-
-
-        }
-
-        Log.d(TAG, "Exiting send block");
-        //reset recordCount value
-        clearData();
-    }
-
-    //for energy measurements
-    private static float sumX =0, sumY = 0, sumZ = 0;
-    private static float timeEnergyStart = System.currentTimeMillis();
-
-    private static float energy = 0;
-
-    private static void addEnergyData() {
-        long t = System.currentTimeMillis();
-        addSensorData(ClientPaths.ENERGY_SENSOR_ID, 0, t, new float[]{energy, timeEnergyStart});
-        sumX = 0;
-        sumY = 0;
-        sumZ = 0;
-        timeEnergyStart=t;
-        energy = 0;
-    }
-
-//     END WRITE AND SEND BLOCK
-    public static void addSensorData(final int sensorType, final int accuracy, final long t, final float[] values) {
-
-        long lastTimeStamp = lastSensorData.get(sensorType);
-        long timeAgo = t - lastTimeStamp;
-        String sensorName = sensorNames.getName(sensorType);
-        if (lastTimeStamp != 0) {
-            if (timeAgo < ClientPaths.SENSOR_DELAY_CUSTOM) {
-                Log.d(TAG, "Blocked " + sensorName + " " + Arrays.toString(values) + " too soon  ");
-                return; //wait until SENSOR_DELAY_CUSTOM until next reading
-            }
-        }
-
-
-        //if accuracy rating too low, reject
-        if (accuracy < 2 && !(sensorName.equals("Linear Acceleration"))) {
-            Log.d(TAG, "Blocked " + sensorName+ " " + Arrays.toString(values) + " reading, accuracy " + accuracy + " < 2");
-            return;
-        }
-        //ClientPaths.createDataEntry(sensorType, accuracy, timestamp, values);
-
-        JSONObject jsonDataEntry = new JSONObject();
-        JSONObject jsonValue = new JSONObject();
-
-        Boolean validEvent = false;
-        //Log.d(TAG, "Received " + sensorName + " (" + sensorType + ") = " + Arrays.toString(values));
-
-        try {
-
-            switch (sensorType) {
-                case (Sensor.TYPE_LINEAR_ACCELERATION):
-
-                    jsonValue.put("x", round5(values[0]));
-                    jsonValue.put("y", round5(values[1]));
-                    jsonValue.put("z", round5(values[2]));
-                    sumX+=round5(values[0]);
-                    sumY+=round5(values[1]);
-                    sumZ+=round5(values[2]);
-                    energy += Math.pow(sumX,2) + Math.pow(sumY,2) + Math.pow(sumZ, 2);
-                    //jsonDataEntry.put("sensor_type", sensorType);
-                    validEvent = true;
-                    break;
-                case (Sensor.TYPE_HEART_RATE):
-                case (REG_HEART_SENSOR_ID):
-                case (DUST_SENSOR_ID):
-                    if (values[0]<=0) {
-                        Log.d(TAG, "Received "+sensorName+" data=0 - skip");
-                        return;
-                    }
-                    //jsonDataEntry.put("sensor_type", 21);
-                    jsonValue.put("v", values[0]);
-                    validEvent = true;
-                    break;
-                case (Sensor.TYPE_AMBIENT_TEMPERATURE):
-                    //case (Sensor.TYPE_STEP_COUNTER):
-                    jsonValue.put("v", values[0]);
-                    //jsonDataEntry.put("sensor_type", sensorType);
-                    validEvent = true;
-                    break;
-                case (SPIRO_SENSOR_ID):
-                    //add spirometer data point
-//                    fev1, pef, fev1_best, pef_best, fev1_percent, pef_percent, green_zone, yellow_zone, orange_zone
-                    jsonValue.put("fev1", values[0]);
-                    jsonValue.put("pef", values[1]);
-                    jsonValue.put("goodtest", values[2]);
-
-                    validEvent = true;
-                    break;
-                case (ENERGY_SENSOR_ID):
-                    jsonValue.put("energy", values[0]);
-                    jsonValue.put("start",values[1]);
-                    validEvent = true;
-
-                    break;
-                default:
-                    break;
-            }
-
-            jsonValue.put("accuracy",accuracy);
-            jsonValue.put("battery", batteryLevel);
-
-            //jsonDataEntry.put("sensor_name", sensorName);
-            jsonDataEntry.put("value", jsonValue);
-
-            jsonDataEntry.put("last", lastTimeStamp);
-            jsonDataEntry.put("timestamp", t);//System.currentTimeMillis());
-            jsonDataEntry.put("timezone", getTimeZone());
-
-            jsonDataEntry.put("sensor_id", sensorNames.getServerID(sensorType));//will be changed to actual sensor (sensorType)
-            //jsonDataEntry.put("sensor_id",sensorType);
-
-            if (currentLocation!=null) {
-                jsonDataEntry.put("lat", currentLocation.getLatitude());
-                jsonDataEntry.put("long", currentLocation.getLongitude());
-                jsonDataEntry.put("accuracy", currentLocation.getAccuracy());
-            } else {
-                jsonDataEntry.put("lat",NO_VALUE);
-                jsonDataEntry.put("long",NO_VALUE);
-                jsonDataEntry.put("accuracy", NO_VALUE);
-            }
-
-        } catch (Exception e) {
-            Log.e(TAG, "error in creating jsonDataEntry");
-            e.printStackTrace();
-            return;
-        }
-
-        if (!validEvent) {
-            Log.d(TAG, "Encountered undesired sensor (" + sensorType + "): " + sensorName + ". skipping..");
-            return;
-        }
-
-        appendData(jsonDataEntry);
-        incrementCount();
-        Log.d(TAG, "Data Added: " + jsonDataEntry.toString());
-        lastSensorData.put(sensorType, t);
-
-        //if spirometer send immediately
-        if(sensorType==SPIRO_SENSOR_ID) {
-            Log.d(TAG, "Received spiro: " + values[1]);
-            Log.d(TAG, "Immediately sending " + jsonDataEntry.toString());
-            createDataPostRequest();
         }
     }
 

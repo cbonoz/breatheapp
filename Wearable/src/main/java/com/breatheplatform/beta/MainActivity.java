@@ -54,6 +54,7 @@ import com.breatheplatform.beta.bluetooth.HexAsciiHelper;
 import com.breatheplatform.beta.bluetooth.RFduinoService;
 import com.breatheplatform.beta.data.ConnectionReceiver;
 import com.breatheplatform.beta.data.DustData;
+import com.breatheplatform.beta.data.SensorAddService;
 import com.breatheplatform.beta.messaging.UploadTask;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -206,8 +207,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         retrieveDeviceNode(); //set up mobileNode
 //        setAmbientEnabled();
 
-        Log.i(TAG, "startSensors");
-        startMeasurement();
+
 
         spiroToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -249,6 +249,12 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
         subjectView.setText(st);
         riskView.setText(tt);
+        Log.i(TAG, "startSensors");
+        startMeasurement();
+
+        Log.i(TAG, "startDust");
+
+
 
         scheduleGetRisk();
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -543,6 +549,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             Log.d(TAG, "connReceiver off");
         }
         closeBT();
+        closeDust();
 
     }
 
@@ -600,7 +607,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                     }
                     Log.d(TAG, "Dust Reading: " + vals[0]);
                     //client.sendSensorData(event.sensor.getType(), event.accuracy, event.timestamp, event.values);
-                    ClientPaths.addSensorData(ClientPaths.DUST_SENSOR_ID, 3, System.currentTimeMillis(), vals);
+                    addSensorData(ClientPaths.DUST_SENSOR_ID, 3, System.currentTimeMillis(), vals);
                     if (lastSensorView!=null)
                         lastSensorView.setText("Last: " + ClientPaths.getSensorName(ClientPaths.DUST_SENSOR_ID) + "\nConnected Dust: " + (ClientPaths.dustConnected ? "Yes" : "No"));
                 }
@@ -821,7 +828,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         long timestamp = System.currentTimeMillis();
 
         int sensorId = event.sensor.getType();
-        ClientPaths.addSensorData(sensorId, event.accuracy, timestamp, event.values);
+        addSensorData(sensorId, event.accuracy, timestamp, event.values);
 
         if (sensorId == ClientPaths.REG_HEART_SENSOR_ID || sensorId == ClientPaths.HEART_SENSOR_ID ) {
             lastHeartRate = event.accuracy > 1 ? event.values[0] : ClientPaths.NO_VALUE;
@@ -1035,7 +1042,9 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
                                             Log.d(TAG, "Received spiro data: " + data.toString());
                                             try {
-                                                ClientPaths.addSensorData(ClientPaths.SPIRO_SENSOR_ID, 3, System.currentTimeMillis(), data.toArray());
+                                                addSensorData(ClientPaths.SPIRO_SENSOR_ID, 3, System.currentTimeMillis(), data.toArray());
+
+
 //                                                Toast.makeText(MainActivity.this, "PEF Received: " + data.pef + "!", Toast.LENGTH_SHORT).show();
                                                 Toast.makeText(MainActivity.this, "Data Received!", Toast.LENGTH_SHORT).show();
 
@@ -1111,59 +1120,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Log.d(TAG, "spiro bluetooth closed");
     }
 
-    //Message / Data Layer API methods
-//    @Override
-//    public void onDataChanged(DataEventBuffer dataEvents) {
-//        Log.d(TAG, "onDataChanged(): " + dataEvents);
-//
-//        for (DataEvent event : dataEvents) {
-//            String path = event.getDataItem().getUri().getPath();
-//            String data = event.getDataItem().toString();
-//            Log.d(TAG, "Received: " + data);
-////
-////            if (event.getType() == DataEvent.TYPE_CHANGED) {
-////
-////                if (DataLayerListenerService.IMAGE_PATH.equals(path)) {
-////                    DataMapItem dataMapItem = DataMapItem.fromDataItem(event.getDataItem());
-////                    Asset photoAsset = dataMapItem.getDataMap()
-////                            .getAsset(DataLayerListenerService.IMAGE_KEY);
-////                    // Loads image on background thread.
-////                    new LoadBitmapAsyncTask().execute(photoAsset);
-////
-////                } else if (DataLayerListenerService.COUNT_PATH.equals(path)) {
-////                    Log.d(TAG, "Data Changed for COUNT_PATH");
-////                    mDataFragment.appendItem("DataItem Changed", event.getDataItem().toString());
-////                } else {
-////                    Log.d(TAG, "Unrecognized path: " + path);
-////                }
-////
-////            } else if (event.getType() == DataEvent.TYPE_DELETED) {
-////                mDataFragment.appendItem("DataItem Deleted", event.getDataItem().toString());
-////            } else {
-////                mDataFragment.appendItem("Unknown data event type", "Type = " + event.getType());
-////            }
-//        }
-//    }
-//
-//    @Override
-//    public void onMessageReceived(MessageEvent event) {
-//        Log.d(TAG, "onMessageReceived: " + event);
-//
-//    }
-//
-//    @Override
-//    public void onPeerConnected(Node node) {
-//        Log.d(TAG, "onPeerConnected: " + node.getId());
-//
-//    }
-//
-//    @Override
-//    public void onPeerDisconnected(Node node) {
-//        Log.d(TAG, "onPeerDisconnected: " + node.getId());
-//
-//    }
-
-
     BluetoothSocket dustSocket;
     BluetoothDevice dustDevice;
     InputStream dustStream;
@@ -1236,7 +1192,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
                                             Log.d(TAG, "Received dust data: " + encodedBytes.toString());
                                             try {
-                                                //ClientPaths.addSensorData(ClientPaths.SPIRO_SENSOR_ID, 3, System.currentTimeMillis(), data.toArray());
+
+//                                                addSensorData(ClientPaths.SPIRO_SENSOR_ID, 3, System.currentTimeMillis(), encodedBytes);
                                                 //Toast.makeText(MainActivity.this, "PEF Received: " + data.pef + "!", Toast.LENGTH_SHORT).show();
 
 
@@ -1269,9 +1226,15 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         dustThread.start();
     }
 
+    private void addSensorData(final int sensorType, final int accuracy, final long t, final float[] values) {
+        Intent i = new Intent(this, SensorAddService.class);
+        i.putExtra("sensorType", sensorType);
+        i.putExtra("accuracy", accuracy);
+        i.putExtra("time",t);
+        i.putExtra("values",values);
+        startService(i);
+    }
 //
-//    Intent mServiceIntent = new Intent(this, SensorAddService.class).setData(
-//    mServiceIntent.
-//    this.startService(mServiceIntent);
+
 
 }

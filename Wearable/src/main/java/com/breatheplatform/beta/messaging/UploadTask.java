@@ -45,10 +45,10 @@ public class UploadTask extends AsyncTask<String, Void, String> {
     private URL url;
 
 
-    private static Integer newRisk=ClientPaths.NO_VALUE;
-    private static String urlString;
-    private static Context context;
-    private static String data;
+    private Integer newRisk=ClientPaths.NO_VALUE;
+    private String urlString;
+    private Context context;
+    private String data;
 
     //loading a json object could have a large amount of temporary data overhead if the app is not
     // connected to the internet and the sensors are running. Going to use a file approach, where the
@@ -210,17 +210,6 @@ public class UploadTask extends AsyncTask<String, Void, String> {
                         return statusCode + ": JSON Parse Error";
                     }
                     break;
-                case ClientPaths.MULTI_FULL_API:
-                    if (result!=null) {
-                        if (result.contains("done")) {
-                            Log.d(TAG, "Successful data post");
-                            //clear saved data files
-                            //ClientPaths.writeDataToFile("", ClientPaths.sensorFile, false); //clears file
-                            //ClientPaths.writeDataToFile("", ClientPaths.encSensorFile, false); //clears enc sensorfile
-                            return "";
-                        }
-                    }
-                    break;
 //                case ClientPaths.PUBLIC_KEY_API:
 //                    try {
 //                        String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
@@ -241,7 +230,7 @@ public class UploadTask extends AsyncTask<String, Void, String> {
 
         } catch (Exception e) {
 
-            Log.e(TAG, "[Handled] Returning from Upload Task - Could not Connect to Internet (timeout)");
+            Log.e(TAG, "[Handled] Could not Connect to Internet (" + urlString + ")");
             newRisk = ClientPaths.NO_VALUE;
 
         } finally {
