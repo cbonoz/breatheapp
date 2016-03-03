@@ -176,6 +176,15 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private RelativeLayout mRoundBackground;
 
 
+    // State machine
+    final private static int STATE_BLUETOOTH_OFF = 1;
+    final private static int STATE_DISCONNECTED = 2;
+    final private static int STATE_CONNECTING = 3;
+    final private static int STATE_CONNECTED = 4;
+
+    private int state;
+
+
 
 
 
@@ -609,29 +618,29 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                     //client.sendSensorData(event.sensor.getType(), event.accuracy, event.timestamp, event.values);
                     addSensorData(ClientPaths.DUST_SENSOR_ID, 3, System.currentTimeMillis(), vals);
                     if (lastSensorView!=null)
-                        lastSensorView.setText("Last: " + ClientPaths.getSensorName(ClientPaths.DUST_SENSOR_ID) + "\nConnected Dust: " + (ClientPaths.dustConnected ? "Yes" : "No"));
+                        lastSensorView.setText("Last: " + ClientPaths.getSensorName(ClientPaths.DUST_SENSOR_ID) + "\nConnected Dust: " + ClientPaths.dustConnected);
                 }
 
             }
         }
     }
 
-//    private void upgradeState(int newState) {
-//        if (newState > state) {
-//            updateState(newState);
-//        }
-//    }
-//
-//    private void downgradeState(int newState) {
-//        if (newState < state) {
-//            updateState(newState);
-//        }
-//    }
-//
-//    private void updateState(int newState) {
-//        state = newState;
-//    }
-//
+    private void upgradeState(int newState) {
+        if (newState > state) {
+            updateState(newState);
+        }
+    }
+
+    private void downgradeState(int newState) {
+        if (newState < state) {
+            updateState(newState);
+        }
+    }
+
+    private void updateState(int newState) {
+        state = newState;
+    }
+
 
     private void addData(byte[] data) {
         //Log.i(TAG, "in BT addData");
@@ -662,12 +671,12 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private final BroadcastReceiver bluetoothStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-//            int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
-//            if (state == BluetoothAdapter.STATE_ON) {
-//                upgradeState(STATE_DISCONNECTED);
-//            } else if (state == BluetoothAdapter.STATE_OFF) {
-//                downgradeState(STATE_BLUETOOTH_OFF);
-//            }
+            int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
+            if (state == BluetoothAdapter.STATE_ON) {
+                upgradeState(STATE_DISCONNECTED);
+            } else if (state == BluetoothAdapter.STATE_OFF) {
+                downgradeState(STATE_BLUETOOTH_OFF);
+            }
         }
     };
 
@@ -686,9 +695,9 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             if (rfduinoService.initialize()) {
                 boolean result = rfduinoService.connect(bluetoothDevice.getAddress());
 
-//                if (result) {
-//                    upgradeState(STATE_CONNECTING);
-//                }
+                if (result) {
+                    upgradeState(STATE_CONNECTING);
+                }
             }
         }
 
@@ -696,7 +705,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
         public void onServiceDisconnected(ComponentName name) {
             rfduinoService = null;
-//            downgradeState(STATE_DISCONNECTED);
+            downgradeState(STATE_DISCONNECTED);
         }
     };
 
@@ -704,16 +713,17 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-//            if (RFduinoService.ACTION_CONNECTED.equals(action)) {
-//
-//                upgradeState(STATE_CONNECTED);
-//            } else if (RFduinoService.ACTION_DISCONNECTED.equals(action)) {
-//                downgradeState(STATE_DISCONNECTED);
-//            } else if (RFduinoService.ACTION_DATA_AVAILABLE.equals(action)) {
-//                addData(intent.getByteArrayExtra(RFduinoService.EXTRA_DATA));
-//            }
+            if (RFduinoService.ACTION_CONNECTED.equals(action)) {
+
+                upgradeState(STATE_CONNECTED);
+            } else if (RFduinoService.ACTION_DISCONNECTED.equals(action)) {
+                downgradeState(STATE_DISCONNECTED);
+            } else if (RFduinoService.ACTION_DATA_AVAILABLE.equals(action)) {
+                addData(intent.getByteArrayExtra(RFduinoService.EXTRA_DATA));
+            }
         }
     };
+
 
     public void onFinishActivity(View view) {
         setResult(RESULT_OK);

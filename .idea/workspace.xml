@@ -23,7 +23,6 @@
     </layouts>
   </component>
   <component name="AndroidLogFilters">
-    <option name="TOOL_WINDOW_CUSTOM_FILTER" value="RF" />
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
   </component>
   <component name="ChangeListManager">
@@ -123,19 +122,23 @@
       <file leaf-file-name="MainActivity.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Wearable/src/main/java/com/breatheplatform/beta/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-2.951724">
-              <caret line="923" column="25" selection-start-line="923" selection-start-column="19" selection-end-line="923" selection-end-column="25" />
+            <state vertical-scroll-proportion="-1.9689655">
+              <caret line="192" column="22" selection-start-line="192" selection-start-column="17" selection-end-line="192" selection-end-column="22" />
               <folding>
-                <element signature="e#0#45085#0" expanded="true" />
+                <element signature="e#0#45256#0" expanded="true" />
                 <element signature="imports" expanded="true" />
-                <element signature="e#11043#11311#0" expanded="true" />
-                <element signature="e#11310#11311#0" expanded="true" />
-                <element signature="e#23551#23996#0" expanded="true" />
-                <element signature="e#23995#23996#0" expanded="true" />
-                <element signature="e#24055#24264#0" expanded="true" />
-                <element signature="e#24263#24264#0" expanded="true" />
-                <element signature="e#25040#25645#0" expanded="true" />
-                <element signature="e#25644#25645#0" expanded="true" />
+                <element signature="e#11298#11566#0" expanded="true" />
+                <element signature="e#11565#11566#0" expanded="true" />
+                <element signature="e#22685#22686#0" expanded="true" />
+                <element signature="e#22717#22718#0" expanded="true" />
+                <element signature="e#23160#23686#0" expanded="true" />
+                <element signature="e#23685#23686#0" expanded="true" />
+                <element signature="e#23757#24190#0" expanded="true" />
+                <element signature="e#24189#24190#0" expanded="true" />
+                <element signature="e#24249#24458#0" expanded="true" />
+                <element signature="e#24457#24458#0" expanded="true" />
+                <element signature="e#25226#25815#0" expanded="true" />
+                <element signature="e#25814#25815#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -190,8 +193,8 @@
       <file leaf-file-name="RFduinoService.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Wearable/src/main/java/com/breatheplatform/beta/bluetooth/RFduinoService.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="90.18519">
-              <caret line="101" column="43" selection-start-line="101" selection-start-column="32" selection-end-line="101" selection-end-column="43" />
+            <state vertical-scroll-proportion="-10.925926">
+              <caret line="288" column="26" selection-start-line="288" selection-start-column="23" selection-end-line="288" selection-end-column="26" />
               <folding />
             </state>
           </provider>
@@ -2636,9 +2639,9 @@
         <option value="$PROJECT_DIR$/Wearable/src/main/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/Wearable/src/main/java/com/breatheplatform/beta/data/SensorUploadService.java" />
         <option value="$PROJECT_DIR$/Wearable/src/main/java/com/breatheplatform/beta/ClientPaths.java" />
-        <option value="$PROJECT_DIR$/Wearable/src/main/java/com/breatheplatform/beta/MainActivity.java" />
         <option value="$PROJECT_DIR$/Wearable/src/main/java/com/breatheplatform/beta/messaging/UploadTask.java" />
         <option value="$PROJECT_DIR$/Wearable/src/main/java/com/breatheplatform/beta/data/SensorAddService.java" />
+        <option value="$PROJECT_DIR$/Wearable/src/main/java/com/breatheplatform/beta/MainActivity.java" />
       </list>
     </option>
   </component>
@@ -3207,16 +3210,20 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#0#45085#0" expanded="true" />
+            <element signature="e#0#45256#0" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="e#11043#11311#0" expanded="true" />
-            <element signature="e#11310#11311#0" expanded="true" />
-            <element signature="e#23551#23996#0" expanded="true" />
-            <element signature="e#23995#23996#0" expanded="true" />
-            <element signature="e#24055#24264#0" expanded="true" />
-            <element signature="e#24263#24264#0" expanded="true" />
-            <element signature="e#25040#25645#0" expanded="true" />
-            <element signature="e#25644#25645#0" expanded="true" />
+            <element signature="e#11298#11566#0" expanded="true" />
+            <element signature="e#11565#11566#0" expanded="true" />
+            <element signature="e#22685#22686#0" expanded="true" />
+            <element signature="e#22717#22718#0" expanded="true" />
+            <element signature="e#23160#23686#0" expanded="true" />
+            <element signature="e#23685#23686#0" expanded="true" />
+            <element signature="e#23757#24190#0" expanded="true" />
+            <element signature="e#24189#24190#0" expanded="true" />
+            <element signature="e#24249#24458#0" expanded="true" />
+            <element signature="e#24457#24458#0" expanded="true" />
+            <element signature="e#25226#25815#0" expanded="true" />
+            <element signature="e#25814#25815#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -3305,16 +3312,20 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="349" column="22" selection-start-line="349" selection-start-column="22" selection-end-line="349" selection-end-column="22" />
           <folding>
-            <element signature="e#0#45085#0" expanded="true" />
+            <element signature="e#0#45256#0" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="e#11043#11311#0" expanded="true" />
-            <element signature="e#11310#11311#0" expanded="true" />
-            <element signature="e#23551#23996#0" expanded="true" />
-            <element signature="e#23995#23996#0" expanded="true" />
-            <element signature="e#24055#24264#0" expanded="true" />
-            <element signature="e#24263#24264#0" expanded="true" />
-            <element signature="e#25040#25645#0" expanded="true" />
-            <element signature="e#25644#25645#0" expanded="true" />
+            <element signature="e#11298#11566#0" expanded="true" />
+            <element signature="e#11565#11566#0" expanded="true" />
+            <element signature="e#22685#22686#0" expanded="true" />
+            <element signature="e#22717#22718#0" expanded="true" />
+            <element signature="e#23160#23686#0" expanded="true" />
+            <element signature="e#23685#23686#0" expanded="true" />
+            <element signature="e#23757#24190#0" expanded="true" />
+            <element signature="e#24189#24190#0" expanded="true" />
+            <element signature="e#24249#24458#0" expanded="true" />
+            <element signature="e#24457#24458#0" expanded="true" />
+            <element signature="e#25226#25815#0" expanded="true" />
+            <element signature="e#25814#25815#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -3371,16 +3382,20 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="669" column="19" selection-start-line="669" selection-start-column="19" selection-end-line="670" selection-end-column="21" />
           <folding>
-            <element signature="e#0#45085#0" expanded="true" />
+            <element signature="e#0#45256#0" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="e#11043#11311#0" expanded="true" />
-            <element signature="e#11310#11311#0" expanded="true" />
-            <element signature="e#23551#23996#0" expanded="true" />
-            <element signature="e#23995#23996#0" expanded="true" />
-            <element signature="e#24055#24264#0" expanded="true" />
-            <element signature="e#24263#24264#0" expanded="true" />
-            <element signature="e#25040#25645#0" expanded="true" />
-            <element signature="e#25644#25645#0" expanded="true" />
+            <element signature="e#11298#11566#0" expanded="true" />
+            <element signature="e#11565#11566#0" expanded="true" />
+            <element signature="e#22685#22686#0" expanded="true" />
+            <element signature="e#22717#22718#0" expanded="true" />
+            <element signature="e#23160#23686#0" expanded="true" />
+            <element signature="e#23685#23686#0" expanded="true" />
+            <element signature="e#23757#24190#0" expanded="true" />
+            <element signature="e#24189#24190#0" expanded="true" />
+            <element signature="e#24249#24458#0" expanded="true" />
+            <element signature="e#24457#24458#0" expanded="true" />
+            <element signature="e#25226#25815#0" expanded="true" />
+            <element signature="e#25814#25815#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -3619,27 +3634,31 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Wearable/src/main/java/com/breatheplatform/beta/bluetooth/RFduinoService.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="90.18519">
-          <caret line="101" column="43" selection-start-line="101" selection-start-column="32" selection-end-line="101" selection-end-column="43" />
+        <state vertical-scroll-proportion="-10.925926">
+          <caret line="288" column="26" selection-start-line="288" selection-start-column="23" selection-end-line="288" selection-end-column="26" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Wearable/src/main/java/com/breatheplatform/beta/MainActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-2.951724">
-          <caret line="923" column="25" selection-start-line="923" selection-start-column="19" selection-end-line="923" selection-end-column="25" />
+        <state vertical-scroll-proportion="-1.9689655">
+          <caret line="192" column="22" selection-start-line="192" selection-start-column="17" selection-end-line="192" selection-end-column="22" />
           <folding>
-            <element signature="e#0#45085#0" expanded="true" />
+            <element signature="e#0#45256#0" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="e#11043#11311#0" expanded="true" />
-            <element signature="e#11310#11311#0" expanded="true" />
-            <element signature="e#23551#23996#0" expanded="true" />
-            <element signature="e#23995#23996#0" expanded="true" />
-            <element signature="e#24055#24264#0" expanded="true" />
-            <element signature="e#24263#24264#0" expanded="true" />
-            <element signature="e#25040#25645#0" expanded="true" />
-            <element signature="e#25644#25645#0" expanded="true" />
+            <element signature="e#11298#11566#0" expanded="true" />
+            <element signature="e#11565#11566#0" expanded="true" />
+            <element signature="e#22685#22686#0" expanded="true" />
+            <element signature="e#22717#22718#0" expanded="true" />
+            <element signature="e#23160#23686#0" expanded="true" />
+            <element signature="e#23685#23686#0" expanded="true" />
+            <element signature="e#23757#24190#0" expanded="true" />
+            <element signature="e#24189#24190#0" expanded="true" />
+            <element signature="e#24249#24458#0" expanded="true" />
+            <element signature="e#24457#24458#0" expanded="true" />
+            <element signature="e#25226#25815#0" expanded="true" />
+            <element signature="e#25814#25815#0" expanded="true" />
           </folding>
         </state>
       </provider>
