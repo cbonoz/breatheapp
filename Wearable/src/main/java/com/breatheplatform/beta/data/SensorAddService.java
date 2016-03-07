@@ -24,6 +24,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.TimeZone;
 
 /**
  * Created by cbono on 3/2/16.
@@ -48,16 +49,28 @@ public class SensorAddService extends IntentService {
     public static final int HEART_SENSOR_ID = Sensor.TYPE_HEART_RATE;
     public static final int LA_SENSOR_ID = Sensor.TYPE_LINEAR_ACCELERATION;
 
+    private static final int ENERGY_LIMIT = 10;
+
+    private static Boolean encrypting = true;
+    private static Boolean sending = true;
+
     //for energy measurements
     private static float sumX =0, sumY = 0, sumZ = 0;
-    private static float timeEnergyStart = System.currentTimeMillis();
 
     private static float energy = 0;
 
-    private static int bytesWritten = 0;
+//    private static int bytesWritten = 0;
+    private static long dataSent = 0;
 
+    private static SparseLongArray lastSensorData = initLastData();
 
-    private static SparseLongArray lastSensorData = new SparseLongArray();
+    private static SparseLongArray initLastData() {
+        SparseLongArray temp = new SparseLongArray();
+        long last = System.currentTimeMillis();
+        temp.put(ENERGY_SENSOR_ID, last);
+        return temp;
+    }
+
     private static HybridEncrypter hybridEncrypter = ClientPaths.createEncrypter();
 
     private static JSONArray sensorData = new JSONArray();
@@ -78,21 +91,26 @@ public class SensorAddService extends IntentService {
         }
     }
 
+    private static String tz = initTimeZone();
+    private static String initTimeZone() {
+        TimeZone tz = TimeZone.getDefault();
 
-    private static void addEnergyData() {
-        long t = System.currentTimeMillis();
-        addSensorData(ClientPaths.ENERGY_SENSOR_ID, 0, t, new float[]{energy, timeEnergyStart});
-        sumX = 0;
-        sumY = 0;
-        sumZ = 0;
-        timeEnergyStart=t;
-        energy = 0;
+        String tzone;
+        try {
+            tzone = tz.getDisplayName();
+        } catch (Exception e) {
+            Log.e(TAG, "[Handled] could not get time zone");
+            tzone = "US - Default";
+        }
+        return tzone;
     }
 
-    private static double round5(double v) {
-        return Math.round(v * 100000.0) / 100000.0;
-    }
 
+
+//    private static double round5(double v) {
+//        return Math.round(v * 100000.0) / 100000.0;
+//    }
+//
 
     public SensorAddService() {
         super("SensorAddService");
@@ -112,7 +130,9 @@ public class SensorAddService extends IntentService {
         recordCount++;
         Log.d(TAG, "recordCount: " + recordCount);
         if (recordCount.equals(RECORD_LIMIT)) {
-            createDataPostRequest();
+            if (sending)
+                createDataPostRequest();
+            clearData();
         }
     }
 
@@ -133,18 +153,18 @@ public class SensorAddService extends IntentService {
 
     }
 
+    private static float x,y,z;
+    private static int energyCount = 0;
+
+
+
     // END WRITE AND SEND BLOCK
-    private static void addSensorData(final int sensorType, final int accuracy, final long t, final float[] values) {
+    private static void addSensorData(final int sensorType, final int accuracy, final long currentTime, final float[] values) {
 
         long lastTimeStamp = lastSensorData.get(sensorType);
-        long timeAgo = t - lastTimeStamp;
+        long timeAgo = currentTime - lastTimeStamp;
         String sensorName = sensorNames.getName(sensorType);
-        if (lastTimeStamp != 0) {
-            if (timeAgo < ClientPaths.SENSOR_DELAY_CUSTOM) {
-                Log.d(TAG, "Blocked " + sensorName + " " + Arrays.toString(values) + " too soon ");
-                return; //wait until SENSOR_DELAY_CUSTOM until next reading
-            }
-        }
+
 
 
         //if accuracy rating too low, reject
@@ -164,14 +184,16 @@ public class SensorAddService extends IntentService {
 
             switch (sensorType) {
                 case (Sensor.TYPE_LINEAR_ACCELERATION):
+//                    x=round5(values[0]);
+//                    y=round5(values[1]);
+//                    z=round5(values[2]);
+                    x=values[0];
+                    y=values[1];
+                    z=values[2];
+                    jsonValue.put("x", x);
+                    jsonValue.put("y", y);
+                    jsonValue.put("z", z);
 
-                    jsonValue.put("x", round5(values[0]));
-                    jsonValue.put("y", round5(values[1]));
-                    jsonValue.put("z", round5(values[2]));
-                    sumX+=round5(values[0]);
-                    sumY+=round5(values[1]);
-                    sumZ+=round5(values[2]);
-                    energy += Math.pow(sumX,2) + Math.pow(sumY,2) + Math.pow(sumZ, 2);
                     //jsonDataEntry.put("sensor_type", sensorType);
                     validEvent = true;
                     break;
@@ -203,12 +225,19 @@ public class SensorAddService extends IntentService {
                     break;
                 case (ENERGY_SENSOR_ID):
                     jsonValue.put("energy", values[0]);
-                    jsonValue.put("start",values[1]);
+
                     validEvent = true;
 
                     break;
                 default:
                     break;
+            }
+
+            if (lastTimeStamp != 0) {
+                if (timeAgo < ClientPaths.SENSOR_DELAY_CUSTOM) {
+                    Log.d(TAG, "Blocked " + sensorName + " " + Arrays.toString(values) + " too soon ");
+                    return; //wait until SENSOR_DELAY_CUSTOM until next reading
+                }
             }
 
             jsonValue.put("accuracy",accuracy);
@@ -218,8 +247,8 @@ public class SensorAddService extends IntentService {
             jsonDataEntry.put("value", jsonValue);
 
             jsonDataEntry.put("last", lastTimeStamp);
-            jsonDataEntry.put("timestamp", t);//System.currentTimeMillis());
-            jsonDataEntry.put("timezone", ClientPaths.getTimeZone());
+            jsonDataEntry.put("timestamp", currentTime);//System.currentTimeMillis());
+            jsonDataEntry.put("timezone", tz);
 
             jsonDataEntry.put("sensor_id", sensorNames.getServerID(sensorType));//will be changed to actual sensor (sensorType)
             //jsonDataEntry.put("sensor_id",sensorType);
@@ -247,8 +276,9 @@ public class SensorAddService extends IntentService {
 
         appendData(jsonDataEntry);
         incrementCount();
+        lastSensorData.put(sensorType, currentTime);
+
         Log.d(TAG, "Data Added: " + jsonDataEntry.toString());
-        lastSensorData.put(sensorType, t);
 
         //if spirometer send immediately
         if(sensorType==SPIRO_SENSOR_ID) {
@@ -256,6 +286,31 @@ public class SensorAddService extends IntentService {
             Log.d(TAG, "Immediately sending " + jsonDataEntry.toString());
             createDataPostRequest();
         }
+        else if (sensorType==LA_SENSOR_ID) {
+            energyCount++;
+            sumX += x;
+            sumY += y;
+            sumZ += z;
+            if (energyCount==ENERGY_LIMIT) {
+                energy+=Math.pow(sumX,2) + Math.pow(sumY,2) + Math.pow(sumZ,2);
+                addSensorData(ClientPaths.ENERGY_SENSOR_ID, 3, currentTime, new float[]{energy});
+                sumX = 0;
+                sumY = 0;
+                sumZ = 0;
+                energy = 0;
+                energyCount=0;
+            }
+        }
+
+
+    }
+
+
+    private static void addEnergyData() {
+        long t = System.currentTimeMillis();
+
+
+
     }
 
 
@@ -357,12 +412,13 @@ public class SensorAddService extends IntentService {
 
 
 //            conn = (HttpURLConnection) url.openConnection();
+            long dataLength = data.getBytes().length;
             conn.setReadTimeout(10000 /*milliseconds*/);
             conn.setConnectTimeout(15000 /* milliseconds */);
             conn.setRequestMethod("POST");
             conn.setDoInput(true);
             conn.setDoOutput(true);
-            conn.setFixedLengthStreamingMode(data.getBytes().length);
+            conn.setFixedLengthStreamingMode(dataLength);
             conn.setRequestProperty("connection", "close"); // disables Keep Alive
             //conn.setChunkedStreamingMode(0);
 
@@ -375,6 +431,7 @@ public class SensorAddService extends IntentService {
             os = new BufferedOutputStream(conn.getOutputStream());
 
             os.write(data.getBytes());
+            dataSent += dataLength;
             os.flush();
             os.close();
 
@@ -433,7 +490,8 @@ public class SensorAddService extends IntentService {
                 ClientPaths.writeDataToFile("", ClientPaths.sensorFile, false);
             }
 
-            clearData();
+//            clearData();
+            Log.d(TAG, "dataSent: " + dataSent/1000 + "kB");
         }
     }
 

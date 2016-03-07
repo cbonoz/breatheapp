@@ -59,7 +59,7 @@ public class RFduinoService extends Service {
             if (newState == BluetoothProfile.STATE_CONNECTED)
             {
                 Log.i(TAG, "Connected to RFduino.");
-                ClientPaths.dustConnected=true;
+//                ClientPaths.dustConnected=true;
                 Log.i(TAG, "Attempting to start service discovery:" +
                         mBluetoothGatt.discoverServices());
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED)

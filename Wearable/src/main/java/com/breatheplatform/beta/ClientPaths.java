@@ -16,7 +16,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.TimeZone;
 
 /* Class: ClientPaths
  * This class contains all the shared constants used by client services
@@ -80,7 +79,7 @@ public class ClientPaths {
     private static final String publicKeyDirectory = ROOT + "/PublicKey.pem";
     public static final File publicKeyFile = createFile(publicKeyDirectory);
 
-    private static final String timezone = initTimeZone();
+
 
     //controls whether data should be sent to server
     private static final Boolean sending = true;
@@ -136,22 +135,6 @@ public class ClientPaths {
         return null;
     }
 
-    public static String getTimeZone() {
-        return timezone;
-    }
-
-    private static String initTimeZone() {
-        TimeZone tz = TimeZone.getDefault();
-
-        String tzone;
-        try {
-            tzone = tz.getDisplayName();
-        } catch (Exception e) {
-            Log.e(TAG, "[Handled] could not get time zone");
-            tzone = "US - Default";
-        }
-        return tzone;
-    }
 
     private static double round5(double v) {
         return Math.round(v * 100000.0) / 100000.0;
