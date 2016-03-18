@@ -26,7 +26,8 @@
     <string name="show_notification"> Show Notification </string>
     <string name="notification_title"> Breathe App Notification </string>
     <string name="action_launch_activity">Launch Activity</string>
-
+    <string name="spiro_title">Spirometer Time</string>
+    <string name="spiro_desc">Please take Spirometer Reading</string>
 
 
 </resources>

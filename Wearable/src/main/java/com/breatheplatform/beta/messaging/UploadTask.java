@@ -3,7 +3,6 @@ package com.breatheplatform.beta.messaging;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
-import android.provider.Settings;
 import android.util.Log;
 
 import com.breatheplatform.beta.ClientPaths;
@@ -18,8 +17,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.net.URL;
 
 
@@ -106,23 +103,28 @@ public class UploadTask extends AsyncTask<String, Void, String> {
              if (currentNetwork.equals("PROXY")) {
                 //ClientPaths.sendDataToMobile(data, urlString);
 
-                String proxyString = Settings.Global.getString(ClientPaths.mainContext.getContentResolver(), Settings.Global.HTTP_PROXY);
-                if (proxyString != null) {
-                    String proxyAddress = proxyString.split(":")[0];
-                    int proxyPort = Integer.parseInt(proxyString.split(":")[1]);
-                    Log.d(TAG, "Proxyinfo: " + proxyAddress + " " + proxyPort);
 
-                    Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyAddress, proxyPort));
-                    conn = (HttpURLConnection) url.openConnection(proxy);
-                }
-                else {
-                    Log.d(TAG, "No Proxyinfo found");
-                    conn = (HttpURLConnection) url.openConnection();
-                }
+
+
+//
+//                String proxyString = Settings.Global.getString(ClientPaths.mainContext.getContentResolver(), Settings.Global.HTTP_PROXY);
+//                if (proxyString != null) {
+//                    String proxyAddress = proxyString.split(":")[0];
+//                    int proxyPort = Integer.parseInt(proxyString.split(":")[1]);
+//                    Log.d(TAG, "Proxyinfo: " + proxyAddress + " " + proxyPort);
+//
+//                    Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyAddress, proxyPort));
+//                    conn = (HttpURLConnection) url.openConnection(proxy);
+//                }
+//                else {
+//                    Log.d(TAG, "No Proxyinfo found");
+//                    conn = (HttpURLConnection) url.openConnection();
+//                }
 
 
             } else {
                 conn = (HttpURLConnection) url.openConnection();
+                 
             }
 
 

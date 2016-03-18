@@ -42,7 +42,7 @@ android {
         applicationId "com.breatheplatform.beta"
         versionCode 5
         versionName "1.1.1"
-
+        minSdkVersion 21
         targetSdkVersion 22
     }
 

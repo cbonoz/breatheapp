@@ -55,10 +55,6 @@ public class ClientPaths {
     public static final int ONE_SEC_IN_MICRO = 1000000;
     public static final int NO_VALUE = -1;
 
-    //number of sensor data entries between each send
-    private static final Integer RECORD_LIMIT = 50;
-
-
     private static final SensorNames sensorNames = new SensorNames();
 
     public static String getSensorName(int id) {
@@ -80,13 +76,11 @@ public class ClientPaths {
     public static final File publicKeyFile = createFile(publicKeyDirectory);
 
 
+    public static int activityConfidence = NO_VALUE;
+    public static String activityName = "None";
 
-    //controls whether data should be sent to server
-    private static final Boolean sending = true;
-    //controls encryption in post request
-    private static Boolean encrypting = true;
-    //controls writing sensorData to file
     public static Boolean writing = true;
+    public static Boolean encrypting = false;
 
     public static Context mainContext = null;
     public static void setContext(Context c) {
@@ -103,7 +97,7 @@ public class ClientPaths {
 
     public static Location currentLocation = null;
     public static Integer SUBJECT_ID = getSubjectID();
-
+    public static String mobileNodeId = null;
 
     private static File createFile(String fname) {
         Log.d(TAG, "Creating file: " + fname);

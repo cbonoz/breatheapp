@@ -3,12 +3,18 @@ package com.breatheplatform.beta.data;
 import android.app.IntentService;
 import android.content.Intent;
 import android.hardware.Sensor;
-import android.provider.Settings;
+import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseLongArray;
 
 import com.breatheplatform.beta.ClientPaths;
-import com.breatheplatform.beta.encryption.HybridEncrypter;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,16 +26,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by cbono on 3/2/16.
  */
-public class SensorAddService extends IntentService {
+public class SensorAddService extends IntentService implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = "SensorAddService";
 
@@ -52,7 +58,7 @@ public class SensorAddService extends IntentService {
     private static final int ENERGY_LIMIT = 10;
 
     private static Boolean encrypting = true;
-    private static Boolean sending = true;
+    private static Boolean sending = false;
 
     //for energy measurements
     private static float sumX =0, sumY = 0, sumZ = 0;
@@ -61,6 +67,8 @@ public class SensorAddService extends IntentService {
 
 //    private static int bytesWritten = 0;
     private static long dataSent = 0;
+
+
 
     private static SparseLongArray lastSensorData = initLastData();
 
@@ -71,7 +79,8 @@ public class SensorAddService extends IntentService {
         return temp;
     }
 
-    private static HybridEncrypter hybridEncrypter = ClientPaths.createEncrypter();
+    //private static HybridEncrypter hybridEncrypter = ClientPaths.createEncrypter();
+
 
     private static JSONArray sensorData = new JSONArray();
     private static Integer recordCount = 0;
@@ -107,6 +116,7 @@ public class SensorAddService extends IntentService {
 
 
 
+
 //    private static double round5(double v) {
 //        return Math.round(v * 100000.0) / 100000.0;
 //    }
@@ -126,7 +136,7 @@ public class SensorAddService extends IntentService {
     }
 
     //is synchronized necessary here?
-    public synchronized static void incrementCount() {
+    public void incrementCount() {
         recordCount++;
         Log.d(TAG, "recordCount: " + recordCount);
         if (recordCount.equals(RECORD_LIMIT)) {
@@ -156,10 +166,8 @@ public class SensorAddService extends IntentService {
     private static float x,y,z;
     private static int energyCount = 0;
 
-
-
     // END WRITE AND SEND BLOCK
-    private static void addSensorData(final int sensorType, final int accuracy, final long currentTime, final float[] values) {
+    private void addSensorData(final int sensorType, final int accuracy, final long currentTime, final float[] values) {
 
         long lastTimeStamp = lastSensorData.get(sensorType);
         long timeAgo = currentTime - lastTimeStamp;
@@ -225,6 +233,8 @@ public class SensorAddService extends IntentService {
                     break;
                 case (ENERGY_SENSOR_ID):
                     jsonValue.put("energy", values[0]);
+                    jsonValue.put("activity", ClientPaths.activityName);
+                    jsonValue.put("confidence", ClientPaths.activityConfidence);
 
                     validEvent = true;
 
@@ -305,6 +315,66 @@ public class SensorAddService extends IntentService {
 
     }
 
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.d(TAG, "onConnectionSuspended");
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Log.d(TAG, "onConnected to Mobile - " + ClientPaths.mobileNodeId);
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.e(TAG, "SendPostToMobile: Connection Failed");
+    }
+
+    private Boolean routeDataToMobile(String data, String urlString) {
+
+        Log.d(TAG, "Called sendDataToMobile with " + urlString);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Wearable.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
+        ConnectionResult connectionResult = mGoogleApiClient.blockingConnect(10, TimeUnit.SECONDS);
+
+        // Extract the payload from the message
+
+        if (this.mGoogleApiClient.isConnected()) {
+
+            PutDataMapRequest putDataMapRequest = PutDataMapRequest.create("/data-api");
+            putDataMapRequest.getDataMap().putString(data, "data");
+//            putDataMapRequest.getDataMap().putString(Constants.KEY_TITLE, "title");
+            PutDataRequest request = putDataMapRequest.asPutDataRequest();
+
+            // push data to wear app here
+            Wearable.DataApi.putDataItem(mGoogleApiClient, request)
+                    .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+                        @Override
+                        public void onResult(DataApi.DataItemResult dataItemResult) {
+                            if (!dataItemResult.getStatus().isSuccess()) {
+                                Log.e(TAG, "Failed to set the data, status: " + dataItemResult.getStatus().getStatusCode());
+                            } else {
+                                // get here, but no message received from wear
+                                Log.i(TAG, "SUCCESSFUL RESPONSE RECEIVED FROM MOBILE " + ClientPaths.mobileNodeId);
+
+                            }
+                            mGoogleApiClient.disconnect();
+                        }
+                    });
+
+        } else {
+            Log.e(TAG, "no Google API Client connection");
+        }
+        return true;
+    }
+
+
+
 
     private static void addEnergyData() {
         long t = System.currentTimeMillis();
@@ -314,7 +384,7 @@ public class SensorAddService extends IntentService {
     }
 
 
-    private static void createDataPostRequest() {
+    private void createDataPostRequest() {
         Log.d(TAG, "createDataPostRequest");
         JSONObject jsonBody = new JSONObject();
 
@@ -371,6 +441,8 @@ public class SensorAddService extends IntentService {
         String data = jsonBody.toString();
         //start post
 
+
+
         int statusCode = 0;
         InputStream is=null;
         OutputStream os;
@@ -389,21 +461,26 @@ public class SensorAddService extends IntentService {
 //                return "0";
 //            }
 
+            //if proxy, route request to phone
             if (currentNetwork.equals("PROXY")) {
                 //ClientPaths.sendDataToMobile(data, urlString);
+//                routeDataToMobile()
+                routeDataToMobile(data, urlString);
+                return;
 
-                String proxyString = Settings.Global.getString(ClientPaths.mainContext.getContentResolver(), Settings.Global.HTTP_PROXY);
-                if (proxyString != null) {
-                    String proxyAddress = proxyString.split(":")[0];
-                    int proxyPort = Integer.parseInt(proxyString.split(":")[1]);
-                    Log.d(TAG, "Proxyinfo: " + proxyAddress + " " + proxyPort);
-
-                    Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyAddress, proxyPort));
-                    conn = (HttpURLConnection) url.openConnection(proxy);
-                } else {
-                    Log.d(TAG, "No Proxyinfo found");
-                    conn = (HttpURLConnection) url.openConnection();
-                }
+//                String proxyString = Settings.Global.getString(ClientPaths.mainContext.getContentResolver(), Settings.Global.HTTP_PROXY);
+//                if (proxyString != null) {
+//
+//                    String proxyAddress = proxyString.split(":")[0];
+//                    int proxyPort = Integer.parseInt(proxyString.split(":")[1]);
+//                    Log.d(TAG, "Proxyinfo: " + proxyAddress + " " + proxyPort);
+//
+//                    Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyAddress, proxyPort));
+//                    conn = (HttpURLConnection) url.openConnection(proxy);
+//                } else {
+//                    Log.d(TAG, "No Proxyinfo found");
+//                    conn = (HttpURLConnection) url.openConnection();
+//                }
 
 
             } else {
@@ -497,10 +574,14 @@ public class SensorAddService extends IntentService {
 
     //Mobile COMM Method
 
-    public static boolean sendDataToMobile(String d, String urlString) {
-//        client.
-        Log.d(TAG, "Called sendDataToMobile with " + urlString);
+    private GoogleApiClient mGoogleApiClient;
 
-        return true;
-    }
+//  For DataSendService (when implemented
+//    Intent i = new Intent(this, DataSendService.class);
+//    i.putExtra("data", sensorData.toString());
+//    i.putExtra("url", urlString);
+//    //            i.putExtra("time",t);
+////            i.putExtra("values", values);
+//    startService(i);
+
 }

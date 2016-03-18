@@ -1,18 +1,24 @@
 package com.breatheplatform.beta;
+
 import android.net.Uri;
 import android.util.Log;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.data.FreezableUtils;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
-import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by cbono on 2/6/16.
@@ -22,6 +28,56 @@ import java.net.HttpURLConnection;
 public class ReceiverService extends WearableListenerService {
     private static final String TAG = "ReceiverService";
 
+    private static final String START_ACTIVITY_PATH = "/start-activity";
+    private static final String DATA_PROCESSED = "/data-processed";
+    private static final String DATA_API = "/data-api";
+    private static final String RISK_API = "/risk-api";
+
+
+    @Override
+    public void onDataChanged(DataEventBuffer dataEvents) {
+        Log.d(TAG, "Mobile receiver onDataChanged()");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "onDataChanged: " + dataEvents);
+        }
+
+        final List events = FreezableUtils
+                .freezeIterable(dataEvents);
+
+        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Wearable.API)
+                .build();
+
+        ConnectionResult connectionResult =
+                googleApiClient.blockingConnect(30, TimeUnit.SECONDS);
+
+        if (!connectionResult.isSuccess()) {
+            Log.e(TAG, "Failed to connect to GoogleApiClient.");
+            return;
+        }
+
+
+
+        // Loop through the events and send a message
+        // to the node that created the data item.
+        for (DataEvent event : dataEvents) {
+
+            DataItem dataItem = event.getDataItem();
+            Uri uri = dataItem.getUri();
+            String path = uri.getPath();
+
+            //createPostRequest(DataMapItem.fromDataItem(dataItem).getDataMap());
+
+            // Get the node id from the host value of the URI
+            String nodeId = uri.getHost();
+            // Set the data of the message to be the bytes of the URI
+            byte[] payload = uri.toString().getBytes();
+
+            // Send the RPC
+            Wearable.MessageApi.sendMessage(googleApiClient, nodeId,
+                    DATA_PROCESSED, payload);
+        }
+    }
 
     @Override
     public void onCreate() {
@@ -43,28 +99,6 @@ public class ReceiverService extends WearableListenerService {
         Log.i(TAG, "Disconnected: " + peer.getDisplayName() + " (" + peer.getId() + ")");
     }
 
-    @Override
-    public void onDataChanged(DataEventBuffer dataEvents) {
-        Log.d(TAG, "Mobile receiver onDataChanged()");
-
-        for (DataEvent dataEvent : dataEvents) {
-            if (dataEvent.getType() == DataEvent.TYPE_CHANGED) {
-                DataItem dataItem = dataEvent.getDataItem();
-                Uri uri = dataItem.getUri();
-                String path = uri.getPath();
-
-                createPostRequest(DataMapItem.fromDataItem(dataItem).getDataMap());
-
-//                if (path.startsWith("/sensors/")) {
-//                    unpackSensorData(
-//                            DataMapItem.fromDataItem(dataItem).getDataMap()
-//                    );
-//                } else if (path.startsWith("/subject/")) {
-//                    return;
-//                }
-            }
-        }
-    }
 
     private void createPostRequest(DataMap dataMap) {
         Log.d(TAG, "Mobile createPostRequest with: " + dataMap.toString());

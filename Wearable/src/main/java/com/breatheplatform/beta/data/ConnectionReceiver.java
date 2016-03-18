@@ -50,8 +50,6 @@ public class ConnectionReceiver extends BroadcastReceiver {
     public static String getConnInfo(int type, int subType) {
         if (type == ConnectivityManager.TYPE_WIFI) {
 
-
-
             return "WIFI";
         }
         else if (type == ConnectivityManager.TYPE_MOBILE) {
