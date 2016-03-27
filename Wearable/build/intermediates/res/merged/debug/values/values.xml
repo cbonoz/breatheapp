@@ -134,10 +134,14 @@
     <string name="common_open_on_phone">Open on phone</string>
     <string name="common_signin_button_text">Sign in</string>
     <string name="common_signin_button_text_long">Sign in with Google</string>
+    <string name="danger_desc">Please contact your Doctor</string>
+    <string name="danger_title">Health Warning!</string>
     <string name="dismiss_overlay_button_label">Quit</string>
     <string name="finish_activity"> Finish Activity </string>
     <string name="grid_activity_title_text"> Grid Activity </string>
     <string name="intro_text">Long press to go back home.</string>
+    <string name="json_post_body" translatable="false">json_post_body</string>
+    <string name="json_post_url" translatable="false">json_post_url</string>
     <string name="main_activity_title_text"> Breathe App</string>
     <string name="notification_title"> Breathe App Notification </string>
     <string name="place_autocomplete_clear_button">Clear search</string>

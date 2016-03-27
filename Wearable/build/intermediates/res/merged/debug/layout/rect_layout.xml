@@ -109,6 +109,16 @@
         android:layout_toEndOf="@+id/smileView"
         android:paddingLeft="2dp" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="conn"
+        android:id="@+id/connText"
+        android:layout_above="@+id/lastSensorView"
+        android:layout_alignParentStart="true"
+        android:textSize="12sp" />
+
 
 </RelativeLayout>
 

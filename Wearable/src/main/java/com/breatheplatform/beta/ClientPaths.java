@@ -27,10 +27,10 @@ public class ClientPaths {
     public static final String DUST_BT_NAME = "HaikRF";
 
     public static final String BASE = "http://www.breatheplatform.com";
-    public static final String SUBJECT_API = BASE + "/api/subject/add";
-    public static final String MULTI_FULL_API = BASE + "/api/multisensor/add";
-    public static final String RISK_API = BASE + "/api/risk/get";
-    public static final String PUBLIC_KEY_API = BASE + "/api/publickey/get";
+    public static final String SUBJECT_API = "/api/subject/add";
+    public static final String MULTI_API = "/api/multisensor/add";
+    public static final String RISK_API = "/api/risk/get";
+    public static final String PUBLIC_KEY_API = "/api/publickey/get";
     public static final String PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuvzFRohXhgcG7y5Ly3QX\n" +
             "ypBF7IrC1x6coF3Ok/87dVxcTQJv7uFbhOlqQcka/1S6gNZ2huc23BWdMGB9UIb1\n" +
             "owx/QNPZrb7m4En6wvgHIngkBc+5YgxgG5oTRUzG9AsemyrPbBQl+kL5cdpZWmPb\n" +
@@ -39,13 +39,17 @@ public class ClientPaths {
             "bvksBlqwVUQW67vmFfv/zpjeEFK+ADnGLcCgvmK+b+nMfhpqO7/2xczvqeXK11XP\n" +
             "jwIDAQAB";
 
+//    public static final String RISK_CASE = "r";
+//    public static final String MULTI_CASE = "m";
+//    public static final String SUBJECT_CASE = "s";
+
     public static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";//"GWTgVdeNeVwsGqQHHhChfiPgDxxgXJzLoxUD0R64Gns";
 
     public static final int DUST_SENSOR_ID = 999;
     public static final int SPIRO_SENSOR_ID = 998;
     public static final int ENERGY_SENSOR_ID = 997;
     public static final int REG_HEART_SENSOR_ID = 65562;
-//    public static final int SS_HEART_SENSOR_ID = 21;
+    //    public static final int SS_HEART_SENSOR_ID = 21;
     public static final int HEART_SENSOR_ID = Sensor.TYPE_HEART_RATE;
     public static final int LA_SENSOR_ID = Sensor.TYPE_LINEAR_ACCELERATION;
 
@@ -72,9 +76,11 @@ public class ClientPaths {
     private static final String encSensorDirectory = ROOT + "/EncSensorData.txt";
     public static final File encSensorFile = createFile(encSensorDirectory);
 
-    private static final String publicKeyDirectory = ROOT + "/PublicKey.pem";
-    public static final File publicKeyFile = createFile(publicKeyDirectory);
+    private static final String rsaKeyDirectory = ROOT + "/PublicKey.pem";
+    public static final File rsaKeyFile = createFile(rsaKeyDirectory);
 
+    private static final String aesKeyDirectory = ROOT + "/AesKey.pem";
+    public static final File aesKeyFile = createFile(aesKeyDirectory);
 
     public static int activityConfidence = NO_VALUE;
     public static String activityName = "None";
@@ -82,9 +88,12 @@ public class ClientPaths {
     public static Boolean writing = true;
     public static Boolean encrypting = false;
 
+
     public static Context mainContext = null;
     public static void setContext(Context c) {
+
         mainContext = c;
+
     }
 
     public volatile static Boolean dustConnected = false;
@@ -92,8 +101,6 @@ public class ClientPaths {
     public volatile static String connectionInfo = "Waiting";
 
 //    private static DeviceClient client = null;
-
-
 
     public static Location currentLocation = null;
     public static Integer SUBJECT_ID = getSubjectID();
@@ -106,19 +113,20 @@ public class ClientPaths {
         return f;
     }
 
+    private static HybridEncrypter hybridEncrypter = createEncrypter();
 
 
-    public static HybridEncrypter createEncrypter() {
+    private static HybridEncrypter createEncrypter() {
         int key_size_bits = PUBLIC_KEY.length()*8;
 
-
         try {
-            writeDataToFile(PUBLIC_KEY, publicKeyFile, false);
-            String k= readDataFromFile(publicKeyFile);
+            writeDataToFile(PUBLIC_KEY, rsaKeyFile, false);
+            String k= readDataFromFile(rsaKeyFile);
             Log.d("Public keyfile contents", k);
             if (SUBJECT_ID!=NO_VALUE) {
-                return new HybridEncrypter(publicKeyDirectory, key_size_bits, SUBJECT_ID.toString());
+                SUBJECT_ID = getSubjectID();
             }
+            return new HybridEncrypter(rsaKeyDirectory, key_size_bits, SUBJECT_ID.toString());
 
         } catch (Exception e) {
             Log.e(TAG, "[Handled] Could not create hybridEncrypter (keyfile may not exist)");
@@ -130,9 +138,41 @@ public class ClientPaths {
     }
 
 
+    public static byte[] encString(String s) {
+
+        try {
+            return hybridEncrypter.stringEncrypter(s);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "error encrypting string");
+            return null;
+        }
+
+    }
+
+    public static String decString(byte[] s) {
+
+        try {
+            return hybridEncrypter.stringDecrypter(s);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "error decrypting string");
+            return null;
+        }
+
+    }
+
+    public static byte[] getSymKey() {
+        return hybridEncrypter.getSymmetricKey();
+    }
+
     private static double round5(double v) {
         return Math.round(v * 100000.0) / 100000.0;
     }
+
+
 
     public static Integer getSubjectID() {
         //attempt to read subject_ID
@@ -205,6 +245,19 @@ public class ClientPaths {
             Log.e(TAG, "Failed to write to sid to " + subjectFile);
         }
     }
+
+
+
+//    public static Integer getSubjectID() {
+//
+//
+//
+//    }
+//
+//    public static void setSubjectID(Integer sid) {
+//
+//
+//    }
 
 
 

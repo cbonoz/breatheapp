@@ -811,7 +811,8 @@ containing a value of this type.
         public static final int center_vertical=0x7f0e0015;
         public static final int clip_horizontal=0x7f0e0016;
         public static final int clip_vertical=0x7f0e0017;
-        public static final int copyRightView=0x7f0e003d;
+        public static final int connText=0x7f0e003b;
+        public static final int copyRightView=0x7f0e003e;
         public static final int dark=0x7f0e0012;
         public static final int dismiss_overlay=0x7f0e002a;
         public static final int dismiss_overlay_button=0x7f0e0022;
@@ -827,7 +828,7 @@ containing a value of this type.
         public static final int heartText=0x7f0e003a;
         public static final int hybrid=0x7f0e000a;
         public static final int icon_only=0x7f0e000e;
-        public static final int idButton=0x7f0e003c;
+        public static final int idButton=0x7f0e003d;
         public static final int imageView=0x7f0e0026;
         public static final int lastSensorView=0x7f0e0038;
         public static final int left=0x7f0e0002;
@@ -848,7 +849,7 @@ containing a value of this type.
         public static final int rel_layout=0x7f0e0025;
         public static final int right=0x7f0e0003;
         public static final int riskView=0x7f0e0034;
-        public static final int round_layout=0x7f0e003b;
+        public static final int round_layout=0x7f0e003c;
         public static final int satellite=0x7f0e000c;
         public static final int smileView=0x7f0e0037;
         public static final int spiroToggleButton=0x7f0e0036;
@@ -857,9 +858,10 @@ containing a value of this type.
         public static final int stub=0x7f0e0028;
         public static final int subjectText=0x7f0e0035;
         public static final int terrain=0x7f0e000d;
-        public static final int text=0x7f0e003f;
+        public static final int text=0x7f0e0041;
+        public static final int textView=0x7f0e003f;
         public static final int textview=0x7f0e0027;
-        public static final int title=0x7f0e003e;
+        public static final int title=0x7f0e0040;
         public static final int top=0x7f0e0004;
         public static final int wide=0x7f0e0010;
     }
@@ -926,19 +928,23 @@ containing a value of this type.
         public static final int common_open_on_phone=0x7f08001a;
         public static final int common_signin_button_text=0x7f08001b;
         public static final int common_signin_button_text_long=0x7f08001c;
+        public static final int danger_desc=0x7f080024;
+        public static final int danger_title=0x7f080025;
         public static final int dismiss_overlay_button_label=0x7f08001f;
-        public static final int finish_activity=0x7f080024;
-        public static final int grid_activity_title_text=0x7f080025;
-        public static final int intro_text=0x7f080026;
-        public static final int main_activity_title_text=0x7f080027;
-        public static final int notification_title=0x7f080028;
+        public static final int finish_activity=0x7f080026;
+        public static final int grid_activity_title_text=0x7f080027;
+        public static final int intro_text=0x7f080028;
+        public static final int json_post_body=0x7f080029;
+        public static final int json_post_url=0x7f08002a;
+        public static final int main_activity_title_text=0x7f08002b;
+        public static final int notification_title=0x7f08002c;
         public static final int place_autocomplete_clear_button=0x7f08001d;
         public static final int place_autocomplete_search_hint=0x7f08001e;
-        public static final int sensor_toggle=0x7f080029;
-        public static final int show_notification=0x7f08002a;
-        public static final int spiro_desc=0x7f08002b;
-        public static final int spiro_title=0x7f08002c;
-        public static final int start_timer=0x7f08002d;
+        public static final int sensor_toggle=0x7f08002d;
+        public static final int show_notification=0x7f08002e;
+        public static final int spiro_desc=0x7f08002f;
+        public static final int spiro_title=0x7f080030;
+        public static final int start_timer=0x7f080031;
     }
     public static final class style {
         public static final int AppTheme=0x7f090019;

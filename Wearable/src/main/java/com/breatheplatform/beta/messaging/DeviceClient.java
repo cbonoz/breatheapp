@@ -5,8 +5,10 @@ package com.breatheplatform.beta.messaging;
  */
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 
+import com.breatheplatform.beta.MainActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -42,34 +44,58 @@ public class DeviceClient {
     public DeviceClient(Context context) {
         this.context = context;
 
-        googleApiClient = new GoogleApiClient.Builder(context).addApi(Wearable.API).build();
+        googleApiClient = new GoogleApiClient.Builder(context)
+                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                    @Override
+                    public void onConnected(Bundle connectionHint) {
+                        Log.d(TAG, "onConnected: " + connectionHint);
+                        // Now you can use the Data Layer API
+//
+//                        List<Node> connectedNodes =
+//                                Wearable.NodeApi.getConnectedNodes(googleApiClient).await().getNodes();
+//                        Log.d(TAG, "connectedNodes: " + connectedNodes.toString());
+
+                    }
+                    @Override
+                    public void onConnectionSuspended(int cause) {
+                        Log.d(TAG, "onConnectionSuspended: " + cause);
+                    }
+                })
+                .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+                    @Override
+                    public void onConnectionFailed(ConnectionResult result) {
+                        Log.d(TAG, "onConnectionFailed: " + result);
+                    }
+                })
+                        // Request access only to the Wearable API
+                .addApi(Wearable.API)
+                .build();
 
         executorService = Executors.newCachedThreadPool();
 
     }
 
 
-
-    public void sendSensorData(final String sensorData, final String url) {
+    public void sendPostRequest(final String data, final String apiUrl) {
+        Log.d(TAG, "Sending " + apiUrl + "request");
         executorService.submit(new Runnable() {
             @Override
             public void run() {
-                sendSensorDataInBackground(sensorData, url);
+                sendPostRequestInBackground(data, apiUrl);
             }
         });
     }
 
-    private void sendSensorDataInBackground(String sensorData, String url) {
+    private void sendPostRequestInBackground(final String data, final String url) {
+        PutDataMapRequest dataMap = PutDataMapRequest.create(url);
 
-
-        PutDataMapRequest dataMap = PutDataMapRequest.create("/sensors/api");
-        dataMap.getDataMap().putString("data", sensorData);
-        dataMap.getDataMap().putString("url", url);
-
+        dataMap.getDataMap().putString("data", data);
 
         PutDataRequest putDataRequest = dataMap.asPutDataRequest();
+
         send(putDataRequest);
     }
+
 
     private boolean validateConnection() {
         if (googleApiClient.isConnected()) {
@@ -82,7 +108,9 @@ public class DeviceClient {
     }
 
     private void send(PutDataRequest putDataRequest) {
-        if (validateConnection()) {
+        boolean res = validateConnection();
+        debugMsg("Valid connection: " + res);
+        if (res) {
             Wearable.DataApi.putDataItem(googleApiClient, putDataRequest).setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
                 @Override
                 public void onResult(DataApi.DataItemResult dataItemResult) {
@@ -91,4 +119,17 @@ public class DeviceClient {
             });
         }
     }
+
+    public void debugMsg(final String msg) {
+        if(context!=null) {
+            ((MainActivity) context).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, msg);
+                }
+            });
+        }
+    }
+
+
 }

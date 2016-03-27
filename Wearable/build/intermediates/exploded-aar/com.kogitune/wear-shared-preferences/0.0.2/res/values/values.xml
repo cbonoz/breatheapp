@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/Users/takam/git/WearSharedPreferences/wear-shared-preferences/build/generated/res/generated/release/values/generated.xml -->
+    <eat-comment/>
+    <item name="key_preference_increment" type="string">key_preference_increment</item>
+    <item name="key_preference_text_edit" type="string">key_preference_text_edit</item>
+</resources>

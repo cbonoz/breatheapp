@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.kogitune.wearsharedpreference"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="15"
+        android:targetSdkVersion="21" />
+
+    <meta-data
+        android:name="com.google.android.gms.version"
+        android:value="@integer/google_play_services_version" />
+
+    <application>
+        <service
+            android:name="com.kogitune.wearsharedpreference.PreferencesSaveService"
+            android:exported="true"
+            android:process=":remote" >
+        </service>
+
+        <receiver
+            android:name="com.kogitune.wearsharedpreference.WearListenerReceiver"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter android:priority="100" >
+                <action android:name="WearListenerReceiver" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

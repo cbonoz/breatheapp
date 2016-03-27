@@ -149,8 +149,8 @@ public final class R {
 		public static final int parentPanel = 0x7f0e001d;
 		public static final int right = 0x7f0e0003;
 		public static final int start = 0x7f0e001c;
-		public static final int text = 0x7f0e003f;
-		public static final int title = 0x7f0e003e;
+		public static final int text = 0x7f0e0041;
+		public static final int title = 0x7f0e0040;
 		public static final int top = 0x7f0e0004;
 	}
 	public static final class interpolator {

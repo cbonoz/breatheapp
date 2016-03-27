@@ -137,5 +137,15 @@
         android:layout_toEndOf="@+id/heartImage"
         android:paddingLeft="2dp" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="conn"
+        android:id="@+id/textView"
+        android:textSize="12sp"
+        android:layout_below="@+id/heartImage"
+        android:layout_alignParentStart="true" />
+
 </RelativeLayout>
 

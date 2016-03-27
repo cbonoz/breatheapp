@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.breatheplatform.beta"
-    android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
+    package="com.breatheplatform.beta">
 
-    <!-- Required to act as a custom watch face. -->
-    <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND" />
 
     <!-- Calendar permission used by CalendarWatchFaceService -->
     <uses-permission android:name="android.permission.READ_CALENDAR" />
@@ -33,11 +30,12 @@
     <uses-permission
         android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION"/>
 
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="Breathe App"
-        android:name=".MobileActivity">
+
+        android:label="Breathe App">
 
 
         <!--<receiver android:name=".autostart">-->
@@ -47,23 +45,54 @@
         <!--</receiver>-->
 
 
-    <meta-data
+        <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"/>
 
-        <service android:name=".ReceiverService" android:label="My Service">
-            <intent-filter>
-                <action android:name="com.myapp.MyService" />
-            </intent-filter>
-        </service>
 
-        <receiver
-            android:name=".StartMyServiceAtBootReceiver"
-            android:label="StartMyServiceAtBootReceiver">
+
+        <!--<service android:name=".MobileReceiverService">-->
+            <!--<intent-filter>-->
+                <!--<action-->
+                    <!--android:name="com.google.android.gms.wearable.BIND_LISTENER" />-->
+            <!--</intent-filter>-->
+        <!--</service>-->
+
+
+        <service android:name=".MobileUploadService" />
+
+        <!--<receiver-->
+        <!--android:name=".StartMyServiceAtBootReceiver"-->
+        <!--android:label="StartMyServiceAtBootReceiver">-->
+        <!--<intent-filter>-->
+        <!--<action android:name="android.intent.action.BOOT_COMPLETED" />-->
+        <!--</intent-filter>-->
+        <!--</receiver>-->
+
+        <activity
+            android:windowSwipeToDismiss="false"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.NoDisplay"
+
+
+            android:name=".MobileActivity"
+            android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-        </receiver>
+            <!--<intent-filter>-->
+            <!--<action android:name="com.google.android.google.wearable.app"/>-->
+            <!--<category android:name="android.intent.category.DEFAULT"/>-->
+            <!--</intent-filter>]-->
+
+
+            <service
+                android:name="data.ActivityRecognitionService">
+            </service>
+
+
+        </activity>
 
     </application>
 

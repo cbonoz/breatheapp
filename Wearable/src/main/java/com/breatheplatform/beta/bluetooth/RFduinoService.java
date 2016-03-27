@@ -110,7 +110,7 @@ public class RFduinoService extends Service {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
             }
 
-            
+
         }
 
         @Override
@@ -200,35 +200,37 @@ public class RFduinoService extends Service {
     /**
      * Connects to the GATT server hosted on the Bluetooth LE device.
      *
-     * @param address The device address of the destination device.
+     * @param device     the destination device.
      *
      * @return Return true if the connection is initiated successfully. The connection result
      *         is reported asynchronously through the
      *         {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
      *         callback.
      */
-    public boolean connect(final String address)
+    public boolean connect(final BluetoothDevice device) //(final String address)
     {
-        if (mBluetoothAdapter == null || address == null)
+        if (mBluetoothAdapter == null || device == null)
         {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
             return false;
         }
 
-        // Previously connected device.  Try to reconnect.
-        if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress)
+//         Previously connected device.  Try to reconnect.
+        if (mBluetoothDeviceAddress != null && device.getAddress().equals(mBluetoothDeviceAddress)
                 && mBluetoothGatt != null)
         {
             Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
             return mBluetoothGatt.connect();
         }
 
-        final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+
+
+//        final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         // We want to directly connect to the device, so we are setting the autoConnect
         // parameter to false.
         mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
         Log.d(TAG, "Trying to create a new connection.");
-        mBluetoothDeviceAddress = address;
+        mBluetoothDeviceAddress = device.getAddress();//address;
         return true;
     }
 

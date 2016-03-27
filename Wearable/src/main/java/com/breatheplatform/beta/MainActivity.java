@@ -16,10 +16,8 @@
 
 package com.breatheplatform.beta;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.KeyguardManager;
-import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -61,28 +59,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.breatheplatform.beta.bluetooth.BluetoothConnection;
 import com.breatheplatform.beta.bluetooth.HexAsciiHelper;
 import com.breatheplatform.beta.bluetooth.RFduinoService;
-import com.breatheplatform.beta.data.ActivityRecognitionService;
 import com.breatheplatform.beta.data.ConnectionReceiver;
-import com.breatheplatform.beta.data.DustData;
 import com.breatheplatform.beta.data.SensorAddService;
+import com.breatheplatform.beta.messaging.DeviceClient;
 import com.breatheplatform.beta.messaging.UploadTask;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.wearable.DataApi;
-import com.google.android.gms.wearable.DataEvent;
-import com.google.android.gms.wearable.DataEventBuffer;
-import com.google.android.gms.wearable.Node;
-import com.google.android.gms.wearable.NodeApi;
-import com.google.android.gms.wearable.PutDataMapRequest;
-import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import org.json.JSONObject;
@@ -92,7 +82,6 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -101,8 +90,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import me.denley.courier.BackgroundThread;
+import me.denley.courier.Courier;
+import me.denley.courier.ReceiveData;
+import me.denley.courier.ReceiveMessages;
+
+//import com.kogitune.wearsharedpreference.WearSharedPreference;
+
 public class MainActivity extends WearableActivity implements BluetoothAdapter.LeScanCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        LocationListener, SensorEventListener, DataApi.DataListener
+        LocationListener, SensorEventListener
         //,DataApi.DataListener, MessageApi.MessageListener,NodeApi.NodeListener
 {
     private static final SimpleDateFormat AMBIENT_DATE_FORMAT =
@@ -111,29 +107,12 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private static final String TAG = "MainActivity";
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 2;
-    private static final int MIN_BATTERY_LEVEL = 5;
-
-    private static final int ONE_SEC_MS = 1000;
-
-
-        //https://github.com/blackfizz/EazeGraph
-//    https://github.com/blackfizz/EazeGraph/blob/b4b0785e1e080f5ff6e826aa105deb49b8451fbc/EazeGraphLibrary/src/main/java/org/eazegraph/lib/charts/PieChart.java
 
     private String receiveBuffer;
     private RFduinoService rfduinoService;
     private BluetoothDevice bluetoothDevice;
     private GoogleApiClient mGoogleApiClient;
     private ScheduledExecutorService mScheduler;
-
-
-    // State machine
-//    final private static int STATE_BLUETOOTH_OFF = 1;
-//    final private static int STATE_DISCONNECTED = 2;
-//    final private static int STATE_CONNECTING = 3;
-//    final private static int STATE_CONNECTED = 4;
-//    private int state;
-
-
 
     private static final int SENS_LINEAR_ACCELERATION = Sensor.TYPE_LINEAR_ACCELERATION;
     private static final int SENS_HEARTRATE = Sensor.TYPE_HEART_RATE;
@@ -156,8 +135,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private SensorManager mSensorManager;
     private Sensor mHeartrateSensor;
     private Sensor linearAccelerationSensor;
-//    private static BatteryReceiver batteryReceiver;
-
 
     private static final int NAME_REQUEST_CODE = 1;
     private static final int ID_REQUEST_CODE = 2;
@@ -166,16 +143,10 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private static final int HIGH_RISK = 0;
     private final int MIN_CLICK_INTERVAL =5000;
 
-
-    private final Random RAND = new Random();
-
-    private ToggleButton sensorToggleButton;
     private ToggleButton spiroToggleButton;
     private Boolean sensorChecked;
     private ConnectionReceiver connReceiver;
-
-
-    private Boolean isConnected;
+    private Boolean spiroScanning = false;
     private static String statusString;
 
     private TextView mClockView;
@@ -185,16 +156,13 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private TextView lastSensorView=null;
     private ImageView smileView;
 
-//    private static TimerTask riskTask;
-//    private static Timer riskTimer;
-
-    private static Long lastChecked = null;
     private static int lastRiskValue = LOW_RISK;//ClientPaths.NO_VALUE;
-//    private static String mobileNodeId;
 
     private RelativeLayout mRectBackground;
     private RelativeLayout mRoundBackground;
 
+    private DeviceClient client=null;
+//    private WearSharedPreference wearPref;
 
     // State machine
     final private static int STATE_BLUETOOTH_OFF = 1;
@@ -203,14 +171,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     final private static int STATE_CONNECTED = 4;
 
     private int state;
-
-    private Boolean spiroScanning = false;
-
-
-    private PowerManager.WakeLock wl;
-
+    private PowerManager.WakeLock wl = null;
     private static final int SUBJECT_REQUEST_CODE = 0;
-
 
     private void setConnectivity() {
         final int LEVELS = 5;
@@ -238,43 +200,43 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     //this function is called during onCreate (if the user has not registered an ID yet, will be called after
 //    a valid ID has been registered during the boot up registration process)
     private void setup() {
-
         Log.d(TAG, "MainActivity setup");
+
+        Courier.startReceiving(this);
+
+//        client = DeviceClient.getInstance(this);
 
         Settings.System.putString(getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, "60000"); //set to 1 minute timeout
 
         lastSensorView = (TextView) findViewById(R.id.lastSensorView);
         spiroToggleButton = (ToggleButton) findViewById(R.id.spiroToggleButton);
-        subjectView = (TextView) findViewById(R.id.subjectText);
-        riskView = (TextView) findViewById(R.id.riskView);
-        subjectView = (TextView) findViewById(R.id.subjectText);
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
+        subjectView = (TextView) findViewById(R.id.subjectText);
         String st = "Subject: " + ClientPaths.SUBJECT_ID;
+        subjectView.setText(st);
+
+        riskView = (TextView) findViewById(R.id.riskView);
         String tt = "Risk: Please Wait..";
+        riskView.setText(tt);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
-                .addApi(ActivityRecognition.API)
-                .addApi(Wearable.API)
+//                .addApi(ActivityRecognition.API)
+//                .addApi(Wearable.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
         mGoogleApiClient.connect();
 
-
-
-        retrieveDeviceNode(); //set up mobileNode
+//        retrieveDeviceNode(); //set up mobileNode
         setAmbientEnabled();
-
-
-
 
         spiroToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Log.d(TAG, "onCheckCHanged");
-                if (SystemClock.elapsedRealtime() - mLastClickTime < 5000){
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 5000) {
                     if (isChecked) {
 
                         Log.d(TAG, "Spiro Button blocked - currently connecting");
@@ -284,9 +246,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 }
 
                 mLastClickTime = SystemClock.elapsedRealtime();
-
-
-
 
 
                 if (isChecked) {
@@ -319,15 +278,27 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             }
         });
 
-        subjectView.setText(st);
-        riskView.setText(tt);
+
         Log.i(TAG, "start sensors");
         startMeasurement();
 
         Log.i(TAG, "start scheduled tasks");
         scheduleGetRisk();
-        registerDust();
+        //require dust sensor to be paired ahead of time, no need to scan
+//        registerDust();
+        //will attempt to reconnect periodically if not connected
         scheduleDustScan();
+
+        if (!ClientPaths.dustConnected) {
+            Log.d(TAG, "Dust not connected - attempting to reconnect");
+//            registerDust();
+            findBT(ClientPaths.DUST_SENSOR_ID);
+            if (dustDevice != null) {
+                if (openDust()) {
+                    Log.d(TAG, "Opened dust connection");
+                }
+            }
+        }
 
         updateRiskUI(LOW_RISK);
 
@@ -339,18 +310,33 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         //prevent app screen from dimming - lock app on screen (confirmed)
 //        getWindoonDestoryw().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "My Tag");
-        wl.acquire();
+//        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+//        wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "My Tag");
+//        wl.acquire();
+//
+//        KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Activity.KEYGUARD_SERVICE);
+//        lock = keyguardManager.newKeyguardLock(KEYGUARD_SERVICE);
+//        lock.disableKeyguard();
 
-
-
-        KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Activity.KEYGUARD_SERVICE);
-        lock = keyguardManager.newKeyguardLock(KEYGUARD_SERVICE);
-        lock.disableKeyguard();
 
 
 //        createSpiroNotification();
+//        wearPref = new WearSharedPreference(this.getApplicationContext());
+//
+//        wearPref.registerOnPreferenceChangeListener(new WearSharedPreference.OnPreferenceChangeListener() {
+//            @Override
+//            public void onPreferenceChange(WearSharedPreference preference, String key, Bundle bundle) {
+//
+//                final String value = bundle.getString(key);
+//                Log.d(TAG, "Received wearPref update: val");
+//
+//
+//                // You can use changed photoUrl.
+//            }
+//        });
+
+//        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("upload-data"));
+        //end setup
     }
 
     private void createSpiroNotification() {
@@ -376,6 +362,19 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
 //        cardFragment.dismiss();
         //remember to set on click dismissal for card
+    }
+
+
+    private void createDangerNotification() {
+        final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setTitle(R.string.danger_title);
+        alertDialog.setMessage("Please Contact your Doctor!");
+        alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                alertDialog.dismiss();
+            }
+        });
+        alertDialog.show();
     }
 
     private KeyguardManager.KeyguardLock lock;
@@ -411,7 +410,12 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 Toast.makeText(MainActivity.this, "Success SID: " + sid, Toast.LENGTH_SHORT).show();
                 ClientPaths.setSubjectID(sid);
 
-                setup();
+//                setup();
+
+                //update the subject ID
+                subjectView = (TextView) findViewById(R.id.subjectText);
+                String st = "Subject: " + sid;
+                subjectView.setText(st);
 
 
             } catch (Exception e) {
@@ -467,63 +471,59 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         });
     }
 
-    private void retrieveDeviceNode() {
+//    private void retrieveDeviceNode() {
+//
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                mGoogleApiClient.blockingConnect(10000, TimeUnit.MILLISECONDS);
+//                NodeApi.GetConnectedNodesResult result =
+//                        Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
+//                List<Node> nodes = result.getNodes();
+//                Log.d(TAG, "retrieveDeviceNode found: " + nodes.toString());
+//                if (nodes.size() > 0) {
+//                    ClientPaths.mobileNodeId = nodes.get(0).getId();
+//                    Log.d(TAG, "connecting to first node for comm " + ClientPaths.mobileNodeId);
+//                }
+//                //client.disconnect();
+//            }
+//        }).start();
+//    }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mGoogleApiClient.blockingConnect(10000, TimeUnit.MILLISECONDS);
-                NodeApi.GetConnectedNodesResult result =
-                        Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
-                List<Node> nodes = result.getNodes();
-                Log.d(TAG, "retrieveDeviceNode found: " + nodes.toString());
-                if (nodes.size() > 0) {
-                    ClientPaths.mobileNodeId = nodes.get(0).getId();
-                    Log.d(TAG, "connecting to first node for comm " + ClientPaths.mobileNodeId);
-                }
-                //client.disconnect();
-            }
-        }).start();
-    }
+    private Boolean healthDanger = false;
 
     public void updateRiskUI(int value) {
-
-        //alert of risk change
-        if (lastRiskValue!=HIGH_RISK && value==HIGH_RISK) {
-            Toast.makeText(MainActivity.this, "Risk Warning", Toast.LENGTH_SHORT).show();
-            createSpiroNotification();
-        } else if (lastRiskValue!=MED_RISK && value==MED_RISK) {
-            createSpiroNotification();
-        } else if (lastRiskValue!=LOW_RISK && value==LOW_RISK) {
-            Toast.makeText(MainActivity.this, "Normal Reading", Toast.LENGTH_SHORT).show();
-        }
-
-        lastRiskValue = value;
 
         riskText = (TextView) findViewById(R.id.riskView);
         smileView = (ImageView) findViewById(R.id.smileView);
 
-        switch(lastRiskValue) {
+        switch(value) {
             case LOW_RISK:
                 smileView.setImageResource(R.drawable.happy_face);
                 statusString = "Risk: Low";
                 riskText.setTextColor(Color.GREEN);
+                if (lastRiskValue!=LOW_RISK)
+                    Toast.makeText(MainActivity.this, "Normal Reading", Toast.LENGTH_SHORT).show();
                 break;
             case MED_RISK:
                 smileView.setImageResource(R.drawable.neutral_face);
                 statusString = "Risk: Medium";
+                if (lastRiskValue!=MED_RISK)
+                    Toast.makeText(MainActivity.this, "Risk Warning - Please use Spirometer", Toast.LENGTH_SHORT).show();
                 riskText.setTextColor(Color.parseColor("#ffa500"));
                 break;
             case HIGH_RISK:
                 smileView.setImageResource(R.drawable.frowny_face);
                 statusString = "Risk: High";
                 riskText.setTextColor(Color.RED);
+                if (lastRiskValue!=HIGH_RISK) {
+                    Toast.makeText(MainActivity.this, "Risk Warning - Please use Spirometer", Toast.LENGTH_SHORT).show();
+                }
                 break;
             case ClientPaths.NO_VALUE:
                 statusString = "Risk: Low";
                 smileView.setImageResource(R.drawable.happy_face);
                 riskText.setTextColor(Color.GREEN);
-                riskText.setText(statusString);
                 return;
             default:
                 smileView.setImageResource(R.drawable.happy_face);
@@ -534,6 +534,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         }
 
 //        statusString += " (" + lastRiskValue + ")";
+        lastRiskValue = value;
+
         riskText.setText(statusString);
         Log.d(TAG, "updateUI - " + statusString);
     }
@@ -546,10 +548,18 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         public void run()
         {
             createRiskPostRequest();
+            updateConnText();
+            Log.d(TAG, "Connection: " + ClientPaths.connectionInfo);
             updateBatteryLevel();
             taskHandler.postDelayed(this, RISK_TASK_PERIOD);
         }
     };
+
+    private void updateConnText() {
+        TextView connText = (TextView) findViewById(R.id.connText);
+        connText.setText(ClientPaths.connectionInfo);
+
+    }
 
     private Runnable dustTask = new Runnable()
     {
@@ -589,107 +599,93 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             Intent batteryStatus = this.registerReceiver(null, ifilter);
             int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
             ClientPaths.batteryLevel = level;
-//            if (level < MIN_BATTERY_LEVEL) {
-//
-//                onDestroy();
-//            }
+
         } catch (Exception e) {
             Log.e(TAG, "[Handled] Error getting battery level value");
-            return;
+
         }
     }
 
-
-
-    private void registerDust() {
-        Log.d(TAG, "registerDust");
-        try {
-            bluetoothAdapter.stopLeScan(MainActivity.this);
-            bluetoothAdapter.startLeScan(new UUID[]{RFduinoService.UUID_SERVICE}, MainActivity.this);
-
-        } catch ( Exception e) {
-            Log.d(TAG, "[Handled] registerDust called when scan started already");
-
-        }
-        try {
-            registerReceiver(scanModeReceiver, new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED));
-            registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
-            registerReceiver(rfduinoReceiver, RFduinoService.getIntentFilter());
-        } catch ( Exception e) {
-            Log.d(TAG, "[Handled] registerDust called when scan started already");
-            return;
-        }
+    @ReceiveData(ClientPaths.RISK_API)
+    void onRiskReceived(int value, String nodeId) { // The nodeId parameter is optional
+        Log.d(TAG, "received " + value);
+        // ...
     }
 
-    private void unregisterDust() {
-        Log.d(TAG, "Unregister Dust");
-        try {
-            bluetoothAdapter.stopLeScan(this);
 
-            if (scanModeReceiver != null)
-                unregisterReceiver(scanModeReceiver);
-
-            if (bluetoothStateReceiver != null)
-                unregisterReceiver(bluetoothStateReceiver);
-
-            if (rfduinoReceiver != null)
-                unregisterReceiver(rfduinoReceiver);
-            unbindService(rfduinoServiceConnection);
-        } catch (Exception e) {
-            Log.e(TAG, "[Handled] Error unregistering dust receiver");
-
-        }
-
+    @ReceiveData(ClientPaths.MULTI_API)
+    void onMultiReceived(String data, String nodeId) { // The nodeId parameter is optional
+        Log.d(TAG, "received " + data);
+        // ...
     }
+
+
 
     private void createRiskPostRequest() {
 
         Log.d(TAG, "Called createRiskPostRequest");
-        JSONObject jsonBody = new JSONObject();
         try {
-            jsonBody.put("key", ClientPaths.API_KEY);
-            jsonBody.put("subject_id", ClientPaths.SUBJECT_ID);
-            jsonBody.put("connection", ClientPaths.connectionInfo);
+            JSONObject jsonBody = new JSONObject();
 
             jsonBody.put("timestamp",System.currentTimeMillis());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-        String data = jsonBody.toString();
+            jsonBody.put("subject_id", ClientPaths.SUBJECT_ID);
+            jsonBody.put("key", ClientPaths.API_KEY);
+            jsonBody.put("battery",ClientPaths.batteryLevel);
+            jsonBody.put("connection", ClientPaths.connectionInfo);
 
-        if (ClientPaths.connectionInfo.equals("PROXY")) {
-            if (mGoogleApiClient.isConnected()) {
+            String data = jsonBody.toString();
+            Log.d(TAG, "risk post: " + data);
 
-                PutDataMapRequest putDataMapRequest = PutDataMapRequest.create("/risk-api");
-                putDataMapRequest.getDataMap().putString(data, "data");
-//            putDataMapRequest.getDataMap().putString(Constants.KEY_TITLE, "title");
-                PutDataRequest request = putDataMapRequest.asPutDataRequest();
+            if (true) { //(ClientPaths.connectionInfo.equals("PROXY")) {
 
-                // push data to wear app here
-                Wearable.DataApi.putDataItem(mGoogleApiClient, request)
-                        .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
-                            @Override
-                            public void onResult(DataApi.DataItemResult dataItemResult) {
-                                if (!dataItemResult.getStatus().isSuccess()) {
-                                    Log.e(TAG, "Failed to set the data, status: " + dataItemResult.getStatus().getStatusCode());
-                                } else {
-                                    // get here, but no message received from wear
-                                    Log.i(TAG, "SUCCESSFUL RESPONSE RECEIVED FROM MOBILE " + ClientPaths.mobileNodeId);
+                Courier.deliverData(this, ClientPaths.RISK_API, data);
+                Log.d(TAG, "courier sent riskapi data");
 
-                                }
-                                mGoogleApiClient.disconnect();
-                            }
-                        });
 
-            } else { //Non-Proxy connection (non-mobile)
-                Log.e(TAG, "No Google API Client connection");
+
+
+
+//                PutDataMapRequest putDataMapReq = PutDataMapRequest.create(ClientPaths.RISK_API);
+//                DataMap dm = putDataMapReq.getDataMap();
+//                dm.putString("data", data);
+//
+//                PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
+//                PendingResult<DataApi.DataItemResult> pendingResult =
+//                        Wearable.DataApi.putDataItem(mGoogleApiClient, putDataReq);
+//                if (client!=null)
+//                    client.sendPostRequest(data, ClientPaths.RISK_API);
+//                else
+//                    Log.e(TAG, "postcancel - client is null (risk)");
+                return;
             }
-        } else {
-            UploadTask uploadTask = new UploadTask(ClientPaths.RISK_API, MainActivity.this);//, root + File.separator + SENSOR_FNAME);
+
+
+            UploadTask uploadTask = new UploadTask(ClientPaths.BASE + ClientPaths.RISK_API, MainActivity.this);//, root + File.separator + SENSOR_FNAME);
             uploadTask.execute(data);
+
+//            client.sendPostRequest(data, ClientPaths.RISK_CASE);
+
+//            wearPref.put(getString(R.string.json_post_body), data);
+//            wearPref.put(getString(R.string.json_post_url), ClientPaths.RISK_API);
+//            wearPref.sync(new WearSharedPreference.OnSyncListener() {
+//                @Override
+//                public void onSuccess() {
+//                    Log.d(TAG, "wearPref sync success");
+//                }
+//
+//                @Override
+//                public void onFail(Exception e) {
+//                    Log.d(TAG, "wearPref sync fail");
+//                }
+//            });
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            Log.e(TAG, "[Handled] Error creating risk post request");
         }
-        //uploadTask.cleanUp();
+
+
     }
     /**
      * Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
@@ -707,6 +703,13 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "MainActivity onDestroy");
+
+
+        Courier.stopReceiving(this);
+
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+
+
         try {
             taskHandler.removeCallbacks(riskTask);
         } catch (Exception e) {
@@ -719,6 +722,14 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             Log.e(TAG, "Dust scan off");
         }
 
+
+        try {
+            unbindService(rfduinoServiceConnection);
+            Log.d(TAG, "unbound rfduinoService");
+        } catch (Exception e) {
+            Log.e(TAG, "unbind rfduinoService");
+        }
+
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi
                     .removeLocationUpdates(mGoogleApiClient, this);
@@ -728,16 +739,14 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 //            ActivityRecognition.ActivityRecognitionApi
 //                    .removeActivityUpdates(activityClient, getActivityDetectionPendingIntent());
 //        }
-        try {
-            Wearable.DataApi.removeListener(mGoogleApiClient, this);
-        } catch(Exception e) {
-            Log.e(TAG, "DataApi off");
-        }
 
+//        Wearable.DataApi.removeListener(mGoogleApiClient, this);
         mGoogleApiClient.disconnect();
 
         stopMeasurement();
-        unregisterDust();
+        closeSpiro();
+        closeDust();
+//        unregisterDust(); //old method of connecting to dust sensor
 
         try {
             if (connReceiver != null)
@@ -745,14 +754,14 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         } catch( Exception e) {
             Log.e(TAG, "connReceiver off");
         }
-        closeSpiro();
-        closeDust();
+
         try {
             wl.release();
             lock.disableKeyguard();
         } catch (Exception e) {
             Log.e(TAG, "Wakelock off");
         }
+
     }
 
     @Override
@@ -783,12 +792,63 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         }
     }
 
+//    private void registerDust() {
+//        Log.d(TAG, "registerDust");
+//
+////        try {
+////            bluetoothAdapter.stopLeScan(this);
+////        } catch (Exception e) {
+////            Log.e(TAG, "stopLeScan");
+////        }
+////        unregisterDust();
+//
+//        bluetoothAdapter.startLeScan(new UUID[]{RFduinoService.UUID_SERVICE}, MainActivity.this);
+//        try {
+//            registerReceiver(scanModeReceiver, new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED));
+//            registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+//            registerReceiver(rfduinoReceiver, RFduinoService.getIntentFilter());
+//        } catch ( Exception e) {
+//            e.printStackTrace();
+//            Log.d(TAG, "[Handled] Receivers registered already");
+//
+//        }
+//    }
+
+    private void unregisterDust() {
+        Log.d(TAG, "Unregister Dust");
+//        try {
+//            bluetoothAdapter.stopLeScan(this);
+//        } catch (Exception e) {
+//            Log.e(TAG, "stopLeScan");
+//        }
+        try {
+            if (scanModeReceiver != null)
+                unregisterReceiver(scanModeReceiver);
+
+            if (bluetoothStateReceiver != null)
+                unregisterReceiver(bluetoothStateReceiver);
+
+            if (rfduinoReceiver != null)
+                unregisterReceiver(rfduinoReceiver);
+            unbindService(rfduinoServiceConnection);
+        } catch (Exception e) {
+            Log.e(TAG, "[Handled] Error unregistering dust receiver");
+
+        }
+    }
+
+    private void addData(byte[] data) {
+        //Log.i(TAG, "in BT addData");
+        String ascii = HexAsciiHelper.bytesToAsciiMaybe(data);
+        if (ascii != null) {
+            ProcessReceivedData(ascii);
+        }
+    }
 
     public void ProcessReceivedData(String data) {
 //        Log.d(TAG, "ProcessReceivedData (Dust) called");
         if (!ClientPaths.dustConnected) {
             ClientPaths.dustConnected = true; //we received the data
-            receiveBuffer = "";
         }
 
         //receiveBuffer = receiveBuffer + data;
@@ -806,17 +866,17 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             if (newString.contains(":")) {
                 String[] data_split = newString.split(":");
                 if (data_split.length == 2) {
-                    DustData NewData = new DustData(data_split[0], data_split[1]);
-                    float[] vals = new float[1];
+                    //DustData NewData = new DustData(data_split[0], data_split[1]);
+                    float[] vals = new float[]{-1};
                     try {
-                        vals[0] = Integer.parseInt(NewData.iValue);
+                        vals[0] = Integer.parseInt(data_split[1]);
                     } catch (Exception e) {
                         e.printStackTrace();
                         return;
                     }
                     Log.d(TAG, "Dust Reading: " + vals[0]);
                     //client.sendSensorData(event.sensor.getType(), event.accuracy, event.timestamp, event.values);
-                    addSensorData(ClientPaths.DUST_SENSOR_ID, 3, System.currentTimeMillis(), vals);
+                    addSensorData(ClientPaths.DUST_SENSOR_ID, ClientPaths.NO_VALUE, System.currentTimeMillis(), vals);
                     updateLastView(ClientPaths.DUST_SENSOR_ID);
                 }
 
@@ -840,14 +900,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         state = newState;
     }
 
-
-    private void addData(byte[] data) {
-        //Log.i(TAG, "in BT addData");
-        String ascii = HexAsciiHelper.bytesToAsciiMaybe(data);
-        if (ascii != null) {
-            ProcessReceivedData(ascii);
-        }
-    }
 
     @Override
     public void onLeScan(BluetoothDevice device, final int rssi, final byte[] scanRecord) {
@@ -887,26 +939,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         }
     };
 
-    private final ServiceConnection rfduinoServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            rfduinoService = ((RFduinoService.LocalBinder) service).getService();
-            if (rfduinoService.initialize()) {
-                boolean result = rfduinoService.connect(bluetoothDevice.getAddress());
-
-                if (result) {
-                    upgradeState(STATE_CONNECTING);
-                }
-            }
-        }
-
-        @Override
-
-        public void onServiceDisconnected(ComponentName name) {
-            rfduinoService = null;
-            downgradeState(STATE_DISCONNECTED);
-        }
-    };
 
     private final BroadcastReceiver rfduinoReceiver = new BroadcastReceiver() {
         @Override
@@ -922,6 +954,27 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             }
         }
     };
+
+//    private final ServiceConnection rfduinoServiceConnection = new ServiceConnection() {
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//            rfduinoService = ((RFduinoService.LocalBinder) service).getService();
+//            if (rfduinoService.initialize()) {
+//                boolean result = rfduinoService.connect(bluetoothDevice.getAddress());
+//
+//                if (result) {
+//                    upgradeState(STATE_CONNECTING);
+//                }
+//            }
+//        }
+//
+//        @Override
+//
+//        public void onServiceDisconnected(ComponentName name) {
+//            rfduinoService = null;
+//            downgradeState(STATE_DISCONNECTED);
+//        }
+//    };
 
 
     public void onFinishActivity(View view) {
@@ -982,6 +1035,12 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             Log.d(TAG, "No Heartrate Sensor found");
         }
 
+//        if (linearAccelerationSensor != null) {
+//            mSensorManager.registerListener(this, linearAccelerationSensor, 1000000);
+//        }  else {
+//            Log.d(TAG, "No Linear Acceleration Sensor found");
+//        }
+
         if (linearAccelerationSensor != null) {
 //            mSensorManager.registerListener(this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
@@ -1034,66 +1093,80 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        int sensorId = event.sensor.getType();
         long timestamp = System.currentTimeMillis();
 
-        int sensorId = event.sensor.getType();
-        addSensorData(sensorId, event.accuracy, timestamp, event.values);
-
         if (sensorId == ClientPaths.REG_HEART_SENSOR_ID || sensorId == ClientPaths.HEART_SENSOR_ID ) {
-            lastHeartRate = event.accuracy > 1 ? event.values[0] : ClientPaths.NO_VALUE;
+
+            if (event.accuracy>1) {
+                lastHeartRate = event.values[0];
+                addSensorData(sensorId, event.accuracy, timestamp, event.values);
+            } else {
+                lastHeartRate = ClientPaths.NO_VALUE;
+            }
             updateHeartView();
+        } else {
+            addSensorData(sensorId, event.accuracy, timestamp, event.values);
         }
+
         updateLastView(sensorId);
-
-
     }
 
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
 
     private static final Integer UPDATE_INTERVAL_MS = 1000 * 60 * 2; //request ever 2 min
 
-    private static PendingIntent pendingIntent;
+//    private static PendingIntent pendingIntent;
+//
+//    private PendingIntent getActivityDetectionPendingIntent() {
+//        Intent intent = new Intent(this, ActivityRecognitionService.class);
+//        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//    }
 
-    private PendingIntent getActivityDetectionPendingIntent() {
-        Intent intent = new Intent(this, ActivityRecognitionService.class);
-        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-    private GoogleApiClient activityClient;
+//    private GoogleApiClient activityClient;
     /**
      * Runs when a GoogleApiClient object successfully connects.
      * http://stackoverflow.com/questions/27779974/getting-googleapiclient-to-work-with-activity-recognition
      * http://www.sitepoint.com/google-play-services-location-activity-recognition/
      */
+
+
     @Override
     public void onConnected(Bundle bundle) {
         Log.d(TAG, "GoogleApiClient onConnected");
+//        Wearable.DataApi.addListener(mGoogleApiClient, MainActivity.this);
 
-        //Request Activity Updates from GoogleAPIClient
-        try {
-            ActivityRecognition.ActivityRecognitionApi
-                    .requestActivityUpdates(mGoogleApiClient, 1000, getActivityDetectionPendingIntent())
-                    .setResultCallback(new ResultCallback<Status>() {
-
-                        @Override
-                        public void onResult(Status status) {
-                            if (status.getStatus().isSuccess()) {
-
-                                Log.d(TAG, "Successfully requested activity updates");
-
-                            } else {
-                                Log.e(TAG, "Failed in requesting acitivity updates, "
-                                        + "status code: "
-                                        + status.getStatusCode() + ", message: " + status
-                                        .getStatusMessage());
-                            }
-                        }
-                    });
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, "[Handled] Error Requesting location service (lack of permission)");
-
-        }
+//
+//        //Request Activity Updates from GoogleAPIClient
+//        try {
+//
+//
+//
+//            ActivityRecognition.ActivityRecognitionApi
+//                    .requestActivityUpdates(mGoogleApiClient, 1000, getActivityDetectionPendingIntent())
+//                    .setResultCallback(new ResultCallback<Status>() {
+//
+//                        @Override
+//                        public void onResult(Status status) {
+//                            if (status.getStatus().isSuccess()) {
+//
+//                                Log.d(TAG, "Successfully requested activity updates");
+//
+//                            } else {
+//                                Log.e(TAG, "Failed in requesting acitivity updates, "
+//                                        + "status code: "
+//                                        + status.getStatusCode() + ", message: " + status
+//                                        .getStatusMessage());
+//                            }
+//                        }
+//                    });
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            Log.e(TAG, "[Handled] Error Requesting location service (lack of permission)");
+//
+//        }
 
         //Request Location Updates from Google API Client
         LocationRequest locationRequest = LocationRequest.create()
@@ -1126,27 +1199,14 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             Log.e(TAG, "[Handled] Error Requesting location service (lack of permission)");
         }
 
-        //add listener for DataApi
-//        http://developer.android.com/training/wearables/data-layer/events.html
-        Wearable.DataApi.addListener(mGoogleApiClient, this);
     }
 
-    @Override
-    public void onDataChanged(DataEventBuffer dataEvents) {
-        for (DataEvent event : dataEvents) {
-            if (event.getType() == DataEvent.TYPE_DELETED) {
-                Log.d(TAG, "DataItem deleted: " + event.getDataItem().getUri());
-            } else if (event.getType() == DataEvent.TYPE_CHANGED) {
-                Log.d(TAG, "DataItem changed: " + event.getDataItem().getUri());
-            }
-        }
-    }
 
     @Override
     public  void onConnectionSuspended(int i) {
         Log.d(TAG, "onConnectionSuspended called");
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, getActivityDetectionPendingIntent());
+//        ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, getActivityDetectionPendingIntent());
     }
 
     @Override
@@ -1158,8 +1218,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     public void onLocationChanged (Location location)
     {
         Log.d(TAG, "onLocationChanged: " + location.getLatitude() + "," + location.getLongitude());
-        if (location!=null)
-            ClientPaths.currentLocation = location;
+        ClientPaths.currentLocation = location;
     }
 
     @Override
@@ -1208,14 +1267,16 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 for (BluetoothDevice device : pairedDevices) {
                     deviceName = device.getName();
 
-
                     // TODO(yjchoi): remove hardcoded names
-                    if (deviceName.matches("ASMA_\\d\\d\\d\\d"))   // Find a device with name ASMA_####
-                    {
-                        mmDevice = device;
-                        Log.d("yjcode", "Detected spiro device: " + deviceName);
-                        return true;
-
+                    try {
+                        if (deviceName.matches("ASMA_\\d\\d\\d\\d"))   // Find a device with name ASMA_####
+                        {
+                            mmDevice = device;
+                            Log.d("yjcode", "Detected spiro device: " + deviceName);
+                            return true;
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Handled exception in device name");
 
                     }
                 }
@@ -1231,7 +1292,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                     // TODO(yjchoi): remove hardcoded names
                     if (deviceName.contains(ClientPaths.DUST_BT_NAME)) {
                         dustDevice = device;
-                        Log.d("yjcode", "Detected RFduino device: " + deviceName);
+                        Log.d("yjcode", "Detected RFduino device: " + deviceName + " " + dustDevice.getAddress());
                         //add connection for RF duino here as well
                         return true;
                     }
@@ -1247,16 +1308,22 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     }
 
+    private BluetoothConnection spiroConn = null;
+
     public Boolean openSpiro()
     {
         try {
             UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
+
             mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
             mmSocket.connect();
             mmInputStream = mmSocket.getInputStream();
             beginListenForData();
+//            spiroConn = new BluetoothConnection(mmDevice, this);
+//            spiroConn.run();
+
         } catch (Exception e) {
-//            e.printStackTrace();
+            e.printStackTrace();
             Log.e(TAG, "[Handled] openSpiro unsuccessful");
             return false;
         }
@@ -1272,6 +1339,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 mmInputStream.close();
             if (mmSocket!=null)
                 mmSocket.close();
+
+//            spiroConn.cancel();
 
         } catch (Exception e) {
             //e.printStackTrace();
@@ -1379,13 +1448,76 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     byte[] dustBuffer;
     Thread dustThread;
 
+    private BluetoothConnection dustConn=null;
+
+    private ServiceConnection rfduinoServiceConnection=null;
+
     public Boolean openDust() {
         try {
-            UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
-            dustSocket = dustDevice.createRfcommSocketToServiceRecord(uuid);
-            dustSocket.connect();
-            dustStream = dustSocket.getInputStream();
-            dustListen();
+//            UUID uuid = UUID.fromString("00002221-0000-1000-8000-00805f9b34fb"); //rfduino listen service
+//            bluetoothAdapter.cancelDiscovery();
+//            dustSocket = dustDevice.createRfcommSocketToServiceRecord(uuid);
+//            Method m = dustDevice.getClass().getMethod("createRfcommSocket", new Class[]{int.class});
+//            dustSocket = (BluetoothSocket) m.invoke(dustDevice, 1);
+//
+////            dustSocket = dustDevice.createRfcommSocketToServiceRecord(uuid);
+//            dustSocket.connect();
+//            dustStream = dustSocket.getInputStream();
+//            dustListen();
+
+//            dustConn = new BluetoothConnection(dustDevice,this);
+//            dustConn.run();
+
+//            try {
+//                unbindService(rfduinoServiceConnection);
+//                Log.d(TAG, "unbound rfduinoService");
+//            } catch (Exception e) {
+//                Log.e(TAG, "unbind rfduinoService");
+//            }
+            if (rfduinoServiceConnection!=null) {
+                try {
+                    unregisterDust();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "unregisterDust");
+                }
+            }
+
+            rfduinoServiceConnection = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder service) {
+                    rfduinoService = ((RFduinoService.LocalBinder) service).getService();
+                    if (rfduinoService.initialize()) {
+                        boolean result = rfduinoService.connect(dustDevice);
+
+                        if (result) {
+                            upgradeState(STATE_CONNECTING);
+                        }
+                    }
+                }
+
+                @Override
+
+                public void onServiceDisconnected(ComponentName name) {
+                    rfduinoService = null;
+                    downgradeState(STATE_DISCONNECTED);
+                }
+            };
+
+            Intent rfduinoIntent = new Intent(MainActivity.this, RFduinoService.class);
+            bindService(rfduinoIntent, rfduinoServiceConnection, BIND_AUTO_CREATE);
+
+            try {
+                registerReceiver(scanModeReceiver, new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED));
+                registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+                registerReceiver(rfduinoReceiver, RFduinoService.getIntentFilter());
+            } catch ( Exception e) {
+                e.printStackTrace();
+                Log.d(TAG, "[Handled] Receivers registered already");
+
+            }
+
+
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, "[Handled] openDust unsuccessful");
@@ -1398,10 +1530,15 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     public void closeDust() {
         try {
 
-            if (dustStream!=null)
-                dustStream.close();
-            if (dustSocket!=null)
-                dustSocket.close();
+//            if (dustStream!=null)
+//                dustStream.close();
+//            if (dustSocket!=null)
+//                dustSocket.close();
+
+//            if (dustConn!=null)
+//                dustConn.cancel();
+
+            unregisterDust();
 
         } catch (Exception e) {
             //e.printStackTrace();
@@ -1487,23 +1624,40 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         dustThread.start();
     }
 
-    public class ActivityDetectionBroadcastReceiver extends BroadcastReceiver {
-        protected static final String TAG = "activity-detection-response-receiver";
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "Activity onReceive");
-        }
-    }
 
     //append sensor data
     private void addSensorData(final int sensorType, final int accuracy, final long t, final float[] values) {
+
         Intent i = new Intent(this, SensorAddService.class);
         i.putExtra("sensorType", sensorType);
         i.putExtra("accuracy", accuracy);
         i.putExtra("time",t);
         i.putExtra("values",values);
+
         startService(i);
     }
 
+//    // Our handler for received Intents. This will be called whenever an Intent
+//// with an action named "custom-event-name" is broadcasted.
+//    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            // Get extra data included in the Intent
+//            String data = intent.getStringExtra("data");
+////            String urlString = intent.getStringExtra("url");
+////            int riskValue = intent.getIntExtra("risk", ClientPaths.NO_VALUE);
+////            Log.d("local broadcast receiver", "Got message: " + message);
+//            Log.d("local broadcast receiver", "data length" + data.length());
+//
+//            PutDataMapRequest putDataMapReq = PutDataMapRequest.create(ClientPaths.MULTI_API);
+//            DataMap dm = putDataMapReq.getDataMap();
+//            dm.putString("data", data);
+//
+//            PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
+//            com.google.android.gms.common.api.PendingResult<DataApi.DataItemResult> pendingResult =
+//                    Wearable.DataApi.putDataItem(mGoogleApiClient, putDataReq);
+
+//        }
+//    };
 }

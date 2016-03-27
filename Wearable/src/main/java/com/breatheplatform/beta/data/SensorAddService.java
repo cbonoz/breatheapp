@@ -3,18 +3,11 @@ package com.breatheplatform.beta.data;
 import android.app.IntentService;
 import android.content.Intent;
 import android.hardware.Sensor;
-import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseLongArray;
 
 import com.breatheplatform.beta.ClientPaths;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.wearable.DataApi;
-import com.google.android.gms.wearable.PutDataMapRequest;
-import com.google.android.gms.wearable.PutDataRequest;
-import com.google.android.gms.wearable.Wearable;
+import com.breatheplatform.beta.messaging.DeviceClient;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,6 +15,7 @@ import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -29,17 +23,19 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
+
+import me.denley.courier.Courier;
 
 /**
  * Created by cbono on 3/2/16.
  */
-public class SensorAddService extends IntentService implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+public class SensorAddService extends IntentService {
 
     private static final String TAG = "SensorAddService";
 
     private static final SensorNames sensorNames = new SensorNames();
+
+//    private static final HybridEncrypter hybridEncypter = ClientPaths.createEncrypter();
 
     public static String getSensorName(int id) {
         return sensorNames.getName(id);
@@ -58,17 +54,16 @@ public class SensorAddService extends IntentService implements GoogleApiClient.C
     private static final int ENERGY_LIMIT = 10;
 
     private static Boolean encrypting = true;
-    private static Boolean sending = false;
+    private static Boolean sending = true;
+    private static Boolean writing = true;
 
     //for energy measurements
     private static float sumX =0, sumY = 0, sumZ = 0;
 
     private static float energy = 0;
 
-//    private static int bytesWritten = 0;
+    //    private static int bytesWritten = 0;
     private static long dataSent = 0;
-
-
 
     private static SparseLongArray lastSensorData = initLastData();
 
@@ -79,20 +74,18 @@ public class SensorAddService extends IntentService implements GoogleApiClient.C
         return temp;
     }
 
-    //private static HybridEncrypter hybridEncrypter = ClientPaths.createEncrypter();
-
 
     private static JSONArray sensorData = new JSONArray();
     private static Integer recordCount = 0;
 
-    private static int RECORD_LIMIT = 50;
+    private static int RECORD_LIMIT = 10;
 
-    private static String urlString = ClientPaths.MULTI_FULL_API;
+    private static String urlString = ClientPaths.BASE + ClientPaths.MULTI_API;
     private static URL url = createURL();
 
     private static URL createURL() {
         try {
-            return new URL(urlString);// URL(MULTI_FULL_API);
+            return new URL(urlString);// URL(MULTI_API);
         } catch (Exception e) {
             Log.d(TAG, "Error creating URL");
             e.printStackTrace();
@@ -114,7 +107,7 @@ public class SensorAddService extends IntentService implements GoogleApiClient.C
         return tzone;
     }
 
-
+    private DeviceClient client=null;
 
 
 //    private static double round5(double v) {
@@ -124,6 +117,10 @@ public class SensorAddService extends IntentService implements GoogleApiClient.C
 
     public SensorAddService() {
         super("SensorAddService");
+        if (ClientPaths.mainContext!=null)
+            client = DeviceClient.getInstance(ClientPaths.mainContext);
+        else
+            client = DeviceClient.getInstance(this);
     }
 
     public static void appendData(JSONObject jObj) {
@@ -139,10 +136,11 @@ public class SensorAddService extends IntentService implements GoogleApiClient.C
     public void incrementCount() {
         recordCount++;
         Log.d(TAG, "recordCount: " + recordCount);
-        if (recordCount.equals(RECORD_LIMIT)) {
+//        if (recordCount.equals(RECORD_LIMIT)) {
+        if (recordCount % RECORD_LIMIT == 0 && recordCount > 0) {
             if (sending)
                 createDataPostRequest();
-            clearData();
+//            clearData();
         }
     }
 
@@ -151,8 +149,6 @@ public class SensorAddService extends IntentService implements GoogleApiClient.C
     @Override
     protected void onHandleIntent(Intent intent) {
         // Gets data from the incoming Intent
-
-
         long t = intent.getLongExtra("time", ClientPaths.NO_VALUE);
         float[] values = intent.getFloatArrayExtra("values");
         int acc = intent.getIntExtra("accuracy", ClientPaths.NO_VALUE);
@@ -173,15 +169,13 @@ public class SensorAddService extends IntentService implements GoogleApiClient.C
         long timeAgo = currentTime - lastTimeStamp;
         String sensorName = sensorNames.getName(sensorType);
 
-
-
         //if accuracy rating too low, reject
-        if (accuracy < 2 && !(sensorName.equals("Linear Acceleration"))) {
-            Log.d(TAG, "Blocked " + sensorName + "(" + sensorType + ")" + Arrays.toString(values) + " reading, accuracy " + accuracy + " < 2");
-            return;
-        }
-        //ClientPaths.createDataEntry(sensorType, accuracy, timestamp, values);
+//        if (accuracy < 2 && (sensorName.contains("Heart"))) {
+//            Log.d(TAG, "Blocked " + sensorName + "(" + sensorType + ")" + Arrays.toString(values) + " reading, accuracy " + accuracy + " < 2");
+//            return;
+//        }
 
+        //ClientPaths.createDataEntry(sensorType, accuracy, timestamp, values);
         JSONObject jsonDataEntry = new JSONObject();
         JSONObject jsonValue = new JSONObject();
 
@@ -192,52 +186,49 @@ public class SensorAddService extends IntentService implements GoogleApiClient.C
 
             switch (sensorType) {
                 case (Sensor.TYPE_LINEAR_ACCELERATION):
-//                    x=round5(values[0]);
-//                    y=round5(values[1]);
-//                    z=round5(values[2]);
                     x=values[0];
                     y=values[1];
                     z=values[2];
                     jsonValue.put("x", x);
                     jsonValue.put("y", y);
                     jsonValue.put("z", z);
-
-                    //jsonDataEntry.put("sensor_type", sensorType);
                     validEvent = true;
                     break;
                 case (Sensor.TYPE_HEART_RATE):
                 case (REG_HEART_SENSOR_ID):
-                case (DUST_SENSOR_ID):
                     if (values[0]<=0) {
-                        Log.d(TAG, "Received "+sensorName+" data=0 - skip");
+                        Log.d(TAG, "Received heart data<=0 - skip");
                         return;
                     }
-                    //jsonDataEntry.put("sensor_type", 21);
                     jsonValue.put("v", values[0]);
                     validEvent = true;
                     break;
-                case (Sensor.TYPE_AMBIENT_TEMPERATURE):
-                    //case (Sensor.TYPE_STEP_COUNTER):
+                case (DUST_SENSOR_ID):
+                    if (values[0]<=0) {
+                        Log.d(TAG, "Received dust data<=0 - skip");
+                        return;
+                    }
                     jsonValue.put("v", values[0]);
-                    //jsonDataEntry.put("sensor_type", sensorType);
                     validEvent = true;
                     break;
+                //                    fev1, pef, fev1_best, pef_best, fev1_percent, pef_percent, green_zone, yellow_zone, orange_zone
                 case (SPIRO_SENSOR_ID):
-                    //add spirometer data point
-//                    fev1, pef, fev1_best, pef_best, fev1_percent, pef_percent, green_zone, yellow_zone, orange_zone
                     jsonValue.put("fev1", values[0]);
                     jsonValue.put("pef", values[1]);
                     jsonValue.put("goodtest", values[2]);
-
                     validEvent = true;
                     break;
                 case (ENERGY_SENSOR_ID):
                     jsonValue.put("energy", values[0]);
                     jsonValue.put("activity", ClientPaths.activityName);
-                    jsonValue.put("confidence", ClientPaths.activityConfidence);
-
+                    jsonValue.put("activity_confidence", ClientPaths.activityConfidence);
                     validEvent = true;
 
+                    break;
+                case (Sensor.TYPE_AMBIENT_TEMPERATURE):
+                    //case (Sensor.TYPE_STEP_COUNTER):
+                    jsonValue.put("v", values[0]);
+                    validEvent = true;
                     break;
                 default:
                     break;
@@ -250,10 +241,8 @@ public class SensorAddService extends IntentService implements GoogleApiClient.C
                 }
             }
 
-            jsonValue.put("accuracy",accuracy);
-            jsonValue.put("battery", ClientPaths.batteryLevel);
+            jsonValue.put("sensor_accuracy",accuracy);
 
-            //jsonDataEntry.put("sensor_name", sensorName);
             jsonDataEntry.put("value", jsonValue);
 
             jsonDataEntry.put("last", lastTimeStamp);
@@ -261,16 +250,15 @@ public class SensorAddService extends IntentService implements GoogleApiClient.C
             jsonDataEntry.put("timezone", tz);
 
             jsonDataEntry.put("sensor_id", sensorNames.getServerID(sensorType));//will be changed to actual sensor (sensorType)
-            //jsonDataEntry.put("sensor_id",sensorType);
 
             if (ClientPaths.currentLocation!=null) {
                 jsonDataEntry.put("lat", ClientPaths.currentLocation.getLatitude());
                 jsonDataEntry.put("long", ClientPaths.currentLocation.getLongitude());
-                jsonDataEntry.put("accuracy", ClientPaths.currentLocation.getAccuracy());
+                jsonDataEntry.put("location_accuracy", ClientPaths.currentLocation.getAccuracy());
             } else {
                 jsonDataEntry.put("lat",ClientPaths.NO_VALUE);
                 jsonDataEntry.put("long",ClientPaths.NO_VALUE);
-                jsonDataEntry.put("accuracy", ClientPaths.NO_VALUE);
+                jsonDataEntry.put("location_accuracy", ClientPaths.NO_VALUE);
             }
 
         } catch (Exception e) {
@@ -311,277 +299,199 @@ public class SensorAddService extends IntentService implements GoogleApiClient.C
                 energyCount=0;
             }
         }
-
-
     }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.d(TAG, "onConnectionSuspended");
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        Log.d(TAG, "onConnected to Mobile - " + ClientPaths.mobileNodeId);
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.e(TAG, "SendPostToMobile: Connection Failed");
-    }
-
-    private Boolean routeDataToMobile(String data, String urlString) {
-
-        Log.d(TAG, "Called sendDataToMobile with " + urlString);
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(Wearable.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-
-        ConnectionResult connectionResult = mGoogleApiClient.blockingConnect(10, TimeUnit.SECONDS);
-
-        // Extract the payload from the message
-
-        if (this.mGoogleApiClient.isConnected()) {
-
-            PutDataMapRequest putDataMapRequest = PutDataMapRequest.create("/data-api");
-            putDataMapRequest.getDataMap().putString(data, "data");
-//            putDataMapRequest.getDataMap().putString(Constants.KEY_TITLE, "title");
-            PutDataRequest request = putDataMapRequest.asPutDataRequest();
-
-            // push data to wear app here
-            Wearable.DataApi.putDataItem(mGoogleApiClient, request)
-                    .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
-                        @Override
-                        public void onResult(DataApi.DataItemResult dataItemResult) {
-                            if (!dataItemResult.getStatus().isSuccess()) {
-                                Log.e(TAG, "Failed to set the data, status: " + dataItemResult.getStatus().getStatusCode());
-                            } else {
-                                // get here, but no message received from wear
-                                Log.i(TAG, "SUCCESSFUL RESPONSE RECEIVED FROM MOBILE " + ClientPaths.mobileNodeId);
-
-                            }
-                            mGoogleApiClient.disconnect();
-                        }
-                    });
-
-        } else {
-            Log.e(TAG, "no Google API Client connection");
-        }
-        return true;
-    }
-
-
-
-
-    private static void addEnergyData() {
-        long t = System.currentTimeMillis();
-
-
-
-    }
-
 
     private void createDataPostRequest() {
         Log.d(TAG, "createDataPostRequest");
         JSONObject jsonBody = new JSONObject();
 
-        String sensorDataString = "";
-        byte[] encSensorData;
-
         try {
 
             // \n becomes the delimiter on the server to split data entries
-            sensorDataString = sensorData.join("\n");
-//
-//
-//            if (ClientPaths.encrypting && hybridEncrypter!=null) {
-//                Log.d(TAG, "pre-encrypted length: " + sensorDataString.length());
-////                sensorDataString = new String(hybridEncrypter.stringEncrypter(sensorDataString));
-//                encSensorData = hybridEncrypter.stringEncrypter(sensorDataString);
-//                Log.d(TAG, "encrypted length: " + encSensorData.length);
-//                jsonBody.put("data", encSensorData);
-//
-//                if (writing) {
-//                    writeDataToFile(sensorDataString, sensorFile, false);
-//                    hybridEncrypter.fileEncrypter(sensorDirectory, encSensorDirectory, false);//change false to true for append
-//                    Log.d(TAG, "Wrote to Sensorfile, size now: " + sensorFile.length() + "B");
-//                }
-//            } else {
-//                jsonBody.put("data", sensorDataString);
-//            }
-//
-//
-//            if (writing) {
-//                writeDataToFile(sensorDataString, sensorFile, false);
-//                Log.d(TAG, "Wrote to Sensorfile, size now: " + sensorFile.length() /1024 + "kB");
-//            }
+            String sensorDataString = sensorData.join("\n");
+            byte[] sensorDataBytes = null;
 
-            jsonBody.put("data", sensorDataString);
 
             if (ClientPaths.SUBJECT_ID == ClientPaths.NO_VALUE)
                 ClientPaths.SUBJECT_ID = ClientPaths.getSubjectID();
 
+            jsonBody.put("timestamp",System.currentTimeMillis());
             jsonBody.put("subject_id", ClientPaths.SUBJECT_ID);
-            jsonBody.put("key", API_KEY);
+            jsonBody.put("key", ClientPaths.API_KEY);
+            jsonBody.put("battery",ClientPaths.batteryLevel);
             jsonBody.put("connection", ClientPaths.connectionInfo);
+
+            if (encrypting) {
+                sensorDataBytes = ClientPaths.encString(sensorDataString);
+                jsonBody.put("data", sensorDataBytes);// String(sensorDataBytes, "ISO-8859-1"));
+                jsonBody.put("data_key", ClientPaths.getSymKey());//new String(ClientPaths.getSymKey(), "ISO-8859-1"));
+                Log.d(TAG, "Sym key: " + jsonBody.get("data_key"));
+                Log.d(TAG, ClientPaths.decString(sensorDataBytes));
+            } else {
+                jsonBody.put("data", sensorDataString);
+            }
+
+            String jsonString = jsonBody.toString();
+
+            byte[] data = jsonString.getBytes("ISO-8859-1");
+
+            if (writing) {
+                Log.d(TAG, "jsonBody length: " + jsonString.length());
+                Log.d(TAG, "bytes length: " + data.length);
+
+
+                FileOutputStream fos = new FileOutputStream(ClientPaths.sensorFile);
+//                fos.write(data);
+                fos.write(data); //write encrypted data
+                fos.close();
+
+
+//                fos = new FileOutputStream(ClientPaths.aesKeyFile);
+////                fos.write(data);
+//                fos.write(ClientPaths.getSymKey()); //write aes key
+//                fos.close();
+
+
+
+                writing = false;
+            }
+
+            //start post
+
+            if (true) { //send post body to mobile for forwarding to server
+//            if (ClientPaths.connectionInfo.equals("PROXY")) {
+//                Log.d(TAG, "data len1: " + data.length);
+//                Intent i = new Intent("upload-data");
+//                // You can also include some extra data.
+//                i.putExtra("data", data);
+//                LocalBroadcastManager.getInstance(this).sendBroadcast(i);
+                Log.d(TAG, "multi post: " + jsonString);
+//                if (client!=null)
+//                    client.sendPostRequest(jsonString, ClientPaths.MULTI_API);
+//                else {
+//                    Log.e(TAG, "postcancel - client is null (multi)");
+//                }
+//                clearData();
+//                return;
+
+                Courier.deliverMessage(ClientPaths.mainContext, ClientPaths.MULTI_API, jsonString);
+                Log.d(TAG, "courier sent multiapi data");
+                clearData();
+                return;
+
+            }
+
+
+            int statusCode = 0;
+            InputStream is=null;
+            OutputStream os;
+            HttpURLConnection conn=null;
+
+            String result = null;
+
+
+            Log.i(url.toString(), "NOW Sending: " + data);
+
+            try {
+                String currentNetwork = ClientPaths.connectionInfo;
+                Log.d(TAG, "Connection: " + currentNetwork);
+
+                conn = (HttpURLConnection) url.openConnection();
+
+
+
+                long dataLength = data.length;
+                conn.setReadTimeout(10000 /*milliseconds*/);
+                conn.setConnectTimeout(15000 /* milliseconds */);
+                conn.setRequestMethod("POST");
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+                conn.setFixedLengthStreamingMode(dataLength);
+                conn.setRequestProperty("connection", "close"); // disables Keep Alive
+                //conn.setChunkedStreamingMode(0);
+
+                //make some HTTP header nicety
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+
+                conn.connect();
+
+                os = new BufferedOutputStream(conn.getOutputStream());
+
+                os.write(data);
+                dataSent += dataLength;
+                os.flush();
+                os.close();
+
+                statusCode = conn.getResponseCode();
+
+                StringBuffer sb = new StringBuffer();
+
+                try {
+                    is = new BufferedInputStream(conn.getInputStream());
+                    BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                    String inputLine = "";
+                    while ((inputLine = br.readLine()) != null) {
+                        sb.append(inputLine);
+                    }
+                    result = sb.toString();
+                }    catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, "Error reading InputStream");
+                    result = null;
+                }
+                finally {
+                    if (is != null) {
+                        try {
+                            is.close();
+                        }
+                        catch (Exception e) {
+                            Log.i(TAG, "Error closing InputStream");
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+
+                Log.i(TAG, "Response: " + result);
+                Log.i(TAG, "From " + urlString);
+
+                if (result!=null) {
+                    if (result.contains("done")) {
+                        Log.d(TAG, "Successful data post");
+                        //clear saved data files
+                        //ClientPaths.writeDataToFile("", ClientPaths.sensorFile, false); //clears file
+                        //ClientPaths.writeDataToFile("", ClientPaths.encSensorFile, false); //clears enc sensorfile
+                    }
+                }
+
+
+            } catch (Exception e) {
+                Log.e(TAG, "[Handled] Returning from SensorAddService - Could not Connect to Internet (timeout)");
+                e.printStackTrace();
+
+            } finally {
+                if (conn != null)
+                    conn.disconnect();
+                //clear sensorDataFile if needed
+//                if (ClientPaths.sensorFile.length()>0) {
+//                    Log.d(TAG, "clearing sensorDataFile");
+//                    ClientPaths.writeDataToFile("", ClientPaths.sensorFile, false);
+//                }
+
+                clearData();
+                Log.d(TAG, "dataSent: " + dataSent/1000 + "kB");
+            }
+
+//            client.sendPostRequest(data, ClientPaths.MULTI_CASE);
 
             //data is the only object that needs to be encrypted
 
 
         } catch (Exception e) {
-            Log.e(TAG, "Error creating jsonBody");
+            Log.e(TAG, "[Handled] Error creating sensor post request");
             e.printStackTrace();
-            return;
-        }
-
-
-        String data = jsonBody.toString();
-        //start post
-
-
-
-        int statusCode = 0;
-        InputStream is=null;
-        OutputStream os;
-        HttpURLConnection conn=null;
-
-        String result = null;
-
-
-        Log.i(url.toString(), "NOW Sending: " + data);
-
-        try {
-            String currentNetwork = ClientPaths.connectionInfo;
-            Log.d(TAG, "Connection: " + currentNetwork);
-
-//            if (currentNetwork==null) {
-//                return "0";
-//            }
-
-            //if proxy, route request to phone
-            if (currentNetwork.equals("PROXY")) {
-                //ClientPaths.sendDataToMobile(data, urlString);
-//                routeDataToMobile()
-                routeDataToMobile(data, urlString);
-                return;
-
-//                String proxyString = Settings.Global.getString(ClientPaths.mainContext.getContentResolver(), Settings.Global.HTTP_PROXY);
-//                if (proxyString != null) {
-//
-//                    String proxyAddress = proxyString.split(":")[0];
-//                    int proxyPort = Integer.parseInt(proxyString.split(":")[1]);
-//                    Log.d(TAG, "Proxyinfo: " + proxyAddress + " " + proxyPort);
-//
-//                    Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyAddress, proxyPort));
-//                    conn = (HttpURLConnection) url.openConnection(proxy);
-//                } else {
-//                    Log.d(TAG, "No Proxyinfo found");
-//                    conn = (HttpURLConnection) url.openConnection();
-//                }
-
-
-            } else {
-                conn = (HttpURLConnection) url.openConnection();
-            }
-
-
-//            conn = (HttpURLConnection) url.openConnection();
-            long dataLength = data.getBytes().length;
-            conn.setReadTimeout(10000 /*milliseconds*/);
-            conn.setConnectTimeout(15000 /* milliseconds */);
-            conn.setRequestMethod("POST");
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-            conn.setFixedLengthStreamingMode(dataLength);
-            conn.setRequestProperty("connection", "close"); // disables Keep Alive
-            //conn.setChunkedStreamingMode(0);
-
-            //make some HTTP header nicety
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
-            conn.connect();
-
-            os = new BufferedOutputStream(conn.getOutputStream());
-
-            os.write(data.getBytes());
-            dataSent += dataLength;
-            os.flush();
-            os.close();
-
-            statusCode = conn.getResponseCode();
-
-            StringBuffer sb = new StringBuffer();
-
-            try {
-                is = new BufferedInputStream(conn.getInputStream());
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                String inputLine = "";
-                while ((inputLine = br.readLine()) != null) {
-                    sb.append(inputLine);
-                }
-                result = sb.toString();
-            }    catch (Exception e) {
-                Log.i(TAG, "Error reading InputStream");
-                result = null;
-            }
-            finally {
-                if (is != null) {
-                    try {
-                        is.close();
-                    }
-                    catch (Exception e) {
-                        Log.i(TAG, "Error closing InputStream");
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-
-            Log.i(TAG, "Response: " + result);
-            Log.i(TAG, "From " + urlString);
-
-            if (result!=null) {
-                if (result.contains("done")) {
-                    Log.d(TAG, "Successful data post");
-                    //clear saved data files
-                    //ClientPaths.writeDataToFile("", ClientPaths.sensorFile, false); //clears file
-                    //ClientPaths.writeDataToFile("", ClientPaths.encSensorFile, false); //clears enc sensorfile
-                }
-            }
-
-
-        } catch (Exception e) {
-            Log.e(TAG, "[Handled] Returning from SensorAddService - Could not Connect to Internet (timeout)");
-            e.printStackTrace();
-
-        } finally {
-            if (conn != null)
-                conn.disconnect();
-            //clear sensorDataFile if needed
-            if (ClientPaths.sensorFile.length()>0) {
-                Log.d(TAG, "clearing sensorDataFile");
-                ClientPaths.writeDataToFile("", ClientPaths.sensorFile, false);
-            }
-
-//            clearData();
-            Log.d(TAG, "dataSent: " + dataSent/1000 + "kB");
+            clearData();
         }
     }
-
-    //Mobile COMM Method
-
-    private GoogleApiClient mGoogleApiClient;
-
-//  For DataSendService (when implemented
-//    Intent i = new Intent(this, DataSendService.class);
-//    i.putExtra("data", sensorData.toString());
-//    i.putExtra("url", urlString);
-//    //            i.putExtra("time",t);
-////            i.putExtra("values", values);
-//    startService(i);
-
 }

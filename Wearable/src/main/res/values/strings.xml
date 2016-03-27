@@ -28,6 +28,8 @@
     <string name="action_launch_activity">Launch Activity</string>
     <string name="spiro_title">Spirometer Time</string>
     <string name="spiro_desc">Please take Spirometer Reading</string>
+    <string name="danger_title">Health Warning!</string>
+    <string name="danger_desc">Please contact your Doctor</string>
 
 
 </resources>

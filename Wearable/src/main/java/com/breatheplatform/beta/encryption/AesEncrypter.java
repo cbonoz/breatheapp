@@ -27,7 +27,7 @@ import javax.crypto.spec.SecretKeySpec;
  * This class provides the functionality of a cryptographic cipher for encryption using AES.
  * @author adkmobile@niclabs.cl
  */
-public class AesEncrypter implements com.breatheplatform.beta.encryption.Encrypter {
+public class    AesEncrypter implements com.breatheplatform.beta.encryption.Encrypter {
 
     private final int iterationCount = 2000;
     private final int salt_pass_Length = 32;
@@ -40,6 +40,7 @@ public class AesEncrypter implements com.breatheplatform.beta.encryption.Encrypt
     private byte[] salt;
     private String password;
     private boolean algorithmnotsupported = false;
+    private byte[] aesKeyBytes;
 
     /**
      * Constructor that initializes the cipher with a key generated from the human phrase given by the user
@@ -88,6 +89,7 @@ public class AesEncrypter implements com.breatheplatform.beta.encryption.Encrypt
                 keySpec = new SecretKeySpec(aux, 0, salt_pass_Length, "AES");
                 keyFactory = SecretKeyFactory.getInstance("DES");
                 keyBytes = keyFactory.generateSecret(keySpec).getEncoded();
+
             } catch (NoSuchAlgorithmException e) {
                 Log.e("AESEncrypter", "Cant use DES");
             } catch (InvalidKeySpecException e) {
@@ -96,6 +98,12 @@ public class AesEncrypter implements com.breatheplatform.beta.encryption.Encrypt
         }
 
         key = new SecretKeySpec(keyBytes, "AES");
+        aesKeyBytes = keyBytes;//key.getEncoded();
+        try {
+            Log.d("AES", new String(aesKeyBytes, "ISO-8859-1"));
+        }catch ( Exception e) {
+
+        }
 
         try {
             cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
@@ -119,6 +127,10 @@ public class AesEncrypter implements com.breatheplatform.beta.encryption.Encrypt
             hexString.append(Integer.toHexString(intVal));
         }
         return hexString.toString();
+    }
+
+    public byte[] getKey() {
+        return aesKeyBytes;
     }
 
     /**
@@ -210,6 +222,25 @@ public class AesEncrypter implements com.breatheplatform.beta.encryption.Encrypt
         } catch (Exception e) {
         }
         return ret;
+    }
+
+    public String stringDecrypter(final byte[] text) {
+        try {
+            iv = new byte[cipher.getBlockSize()];
+            SecureRandom random = new SecureRandom();
+            random.nextBytes(iv);
+            IvParameterSpec ivParams = new IvParameterSpec(iv);
+            SecretKey key = new SecretKeySpec(aesKeyBytes, "AES");
+            cipher.init(Cipher.DECRYPT_MODE, key, ivParams);
+            if (text==null)
+                return null;
+            String decrypted = new String(cipher.doFinal(text));
+            return decrypted;
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
     public byte[] fileEncrypter(String in) throws IOException {

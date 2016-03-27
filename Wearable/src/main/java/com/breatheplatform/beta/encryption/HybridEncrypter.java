@@ -25,6 +25,7 @@ import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
 /**
  * This class provides the functionality of encrypting data using AES and transferring its symmetric key using RSA
  * @author adkmobile@niclabs.cl
@@ -137,13 +138,25 @@ public class HybridEncrypter implements Encrypter {
      */
     public byte[] stringEncrypter(String plain) {
 
-        byte[] ret;
+//        byte[] ret;
+//
+//        byte[] encrypted_data = aes.stringEncrypter(plain);
+//
+//        ret=merge(symmetric_key, encrypted_data, encrypted_data.length);
+//
+//        return ret;
 
-        byte[] encrypted_data = aes.stringEncrypter(plain);
+        return aes.stringEncrypter(plain);
+    }
 
-            ret=merge(symmetric_key, encrypted_data, encrypted_data.length);
+    public String stringDecrypter(byte[] text) {
+        return aes.stringDecrypter(text);
+    }
 
-        return ret;
+
+    public byte[] getSymmetricKey() {
+
+        return aes.getKey();
     }
 
     /**

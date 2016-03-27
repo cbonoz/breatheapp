@@ -49,7 +49,7 @@ public class RsaEncrypter implements Encrypter {
         rsa_pk = getPKfromFile(key_path);
         key_length = length / 8;
         try {
-            cipher = Cipher.getInstance("RSA/ECB/NOPADDING");
+            cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");// Cipher.getInstance("RSA/ECB/NOPADDING");
             cipher.init(Cipher.ENCRYPT_MODE, rsa_pk);
         } catch (Exception e) {
             Log.e("RSAEncrypter","Failed to initialize cipher");
