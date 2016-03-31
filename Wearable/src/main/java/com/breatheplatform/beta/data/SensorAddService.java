@@ -7,15 +7,12 @@ import android.util.Log;
 import android.util.SparseLongArray;
 
 import com.breatheplatform.beta.ClientPaths;
-import com.breatheplatform.beta.shared.PostData;
 import com.breatheplatform.beta.messaging.DeviceClient;
-
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URL;
-import java.util.Arrays;
 import java.util.TimeZone;
 
 import me.denley.courier.Courier;
@@ -72,7 +69,7 @@ public class SensorAddService extends IntentService {
     private static JSONArray sensorData = new JSONArray();
     private static Integer recordCount = 0;
 
-    private static int RECORD_LIMIT = 10;
+    private static int RECORD_LIMIT = 100;
 
     private static String urlString = ClientPaths.BASE + ClientPaths.MULTI_API;
     private static URL url = createURL();
@@ -150,6 +147,11 @@ public class SensorAddService extends IntentService {
         int sType = intent.getIntExtra("sensorType",ClientPaths.NO_VALUE);
         addSensorData(sType, acc,t,values);
 
+        if (sType == ClientPaths.TERMINATE_SENSOR_ID) {
+            createDataPostRequest();
+            return;
+        }
+
         // Do work here, based on the contents of dataString
 
     }
@@ -223,12 +225,12 @@ public class SensorAddService extends IntentService {
                     break;
             }
 
-            if (lastTimeStamp != 0) {
-                if (timeAgo < ClientPaths.SENSOR_DELAY_CUSTOM) {
-                    Log.d(TAG, "Blocked " + sensorName + " " + Arrays.toString(values) + " too soon ");
-                    return; //wait until SENSOR_DELAY_CUSTOM until next reading
-                }
-            }
+//            if (lastTimeStamp != 0) {
+//                if (timeAgo < ClientPaths.SENSOR_DELAY_CUSTOM) {
+//                    Log.d(TAG, "Blocked " + sensorName + " " + Arrays.toString(values) + " too soon ");
+//                    return; //wait until SENSOR_DELAY_CUSTOM until next reading
+//                }
+//            }
 
             jsonValue.put("sensor_accuracy",accuracy);
 
@@ -340,13 +342,13 @@ public class SensorAddService extends IntentService {
             if (true) { //send post body to mobile for forwarding to server
 //            if (ClientPaths.connectionInfo.equals("PROXY")) {
 //                Log.d(TAG, "multi post: " + jsonString);
-                PostData pd = new PostData();
-
-                pd.data = jsonString;
+//                PostData pd = new PostData();
+//
+//                pd.data = jsonString;
 
                 try {
 //                    Courier.deliverData(ClientPaths.mainContext, ClientPaths.MULTI_API, pd);
-                    Courier.deliverData(ClientPaths.mainContext, ClientPaths.MULTI_API,pd);
+                    Courier.deliverData(ClientPaths.mainContext, ClientPaths.MULTI_API,jsonString);
                     Log.d(TAG, "courier sent multiapi data");
                 } catch (Exception e) {
                     Log.d(TAG, "courier sent multiapi data (with error)");

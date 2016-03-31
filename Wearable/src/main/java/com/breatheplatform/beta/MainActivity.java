@@ -126,7 +126,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private static final int SENS_GYRO = Sensor.TYPE_GYROSCOPE;
     private static final int RISK_TASK_PERIOD=10000; //10 seconds
     private static final int ACTIVITY_REQUEST_PERIOD = RISK_TASK_PERIOD*2; //20 seconds
-    private static final int BT_TASK_PERIOD=RISK_TASK_PERIOD*3; //30 seconds
+    private static final int BT_TASK_PERIOD=RISK_TASK_PERIOD*6; //60 seconds
     private static final int SPEECH_ID_REQUEST_CODE = 0;
 
     BluetoothAdapter bluetoothAdapter;
@@ -206,12 +206,17 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     private long mLastClickTime = 0;
     private Boolean sensorControl = true;
+    RelativeLayout progressBar;
     //this function is called during onCreate (if the user has not registered an ID yet, will be called after
 //    a valid ID has been registered during the boot up registration process)
     private void setup() {
         Log.d(TAG, "MainActivity setup");
 
         Courier.startReceiving(this);
+
+        //http://stackoverflow.com/questions/5442183/using-the-animated-circle-in-an-imageview-while-loading-stuff
+        progressBar = (RelativeLayout) findViewById(R.id.loadingPanel);
+        progressBar.setVisibility(View.GONE);
 
 //        LocalBroadcastManager.getInstance(this).registerReceiver(activityReceiver,
 //                new IntentFilter(Constants.BROADCAST_ACTION));
@@ -225,9 +230,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
-        subjectView = (TextView) findViewById(R.id.subjectText);
-        String st = "Subject: " + ClientPaths.SUBJECT_ID;
-        subjectView.setText(st);
 
         riskView = (TextView) findViewById(R.id.riskView);
         String tt = "Risk: Please Wait..";
@@ -256,8 +258,14 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
                 mLastClickTime = SystemClock.elapsedRealtime();
 
+                progressBar.setVisibility(View.VISIBLE);
+                progressBar.bringToFront();
+
                 if (isChecked) {
                     Log.d(TAG, "startSpiro");
+
+
+
 
                     Toast.makeText(MainActivity.this, "Connecting...", Toast.LENGTH_SHORT).show();
 
@@ -274,6 +282,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                     Log.i(TAG, "stopSpiro");
                     closeSpiro();
                 }
+
+                progressBar.setVisibility(View.GONE);
             }
         });
 
@@ -521,6 +531,15 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     private Boolean healthDanger = false;
 
+    public void updateSubjectUI(String sub) {
+
+        ClientPaths.setSubjectID(Integer.parseInt(sub));
+        subjectView = (TextView) findViewById(R.id.subjectText);
+        String st = "Subject: " + sub;
+        subjectView.setText(st);
+
+    }
+
     public void updateRiskUI(int value) {
 
         riskText = (TextView) findViewById(R.id.riskView);
@@ -642,6 +661,15 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     void onRiskReceived(int value) { // The nodeId parameter is optional
         Log.d(TAG, "ReceiveMessage risk: " + value);
         updateRiskUI(value);
+
+        // ...
+    }
+
+    @BackgroundThread
+    @ReceiveMessages(ClientPaths.SUBJECT_API)
+    void onSubjectReceived(String sub) { // The nodeId parameter is optional
+        Log.d(TAG, "ReceiveMessage subject: " + sub);
+        updateSubjectUI(sub);
 
         // ...
     }
@@ -1063,62 +1091,63 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                     }, 1, measurementDuration + measurementBreak, TimeUnit.SECONDS);
 
 
-
         } else {
             Log.d(TAG, "No Heartrate Sensor found");
         }
 
-        //http://stackoverflow.com/questions/30153904/android-how-to-set-sensor-delay
-//        if (linearAccelerationSensor != null) {
-//            mSensorManager.registerListener(this, linearAccelerationSensor, 1000000, 1000000);
-//        }  else {
-//            Log.d(TAG, "No Linear Acceleration Sensor found");
-//        }
 
-        if (linearAccelerationSensor != null) {
+        if (!sensorControl) { //normal speed of sensor logging
+            if (linearAccelerationSensor != null) {
 //            mSensorManager.registerListener(this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
 //            mScheduler = Executors.newScheduledThreadPool(1);
-            //sum of these achieves sampling rate of 1hz
-            final int measurementDuration = 300;   // ms
-            final int measurementBreak = 700;    // Seconds
-            mScheduler.scheduleAtFixedRate(
-                    new Runnable() {
-                        @Override
-                        public void run() {
+                //sum of these achieves sampling rate of 1hz
+                final int measurementDuration = 300;   // ms
+                final int measurementBreak = 700;    // Seconds
+                mScheduler.scheduleAtFixedRate(
+                        new Runnable() {
+                            @Override
+                            public void run() {
 //                            Log.d(TAG, "register LA Sensor");
-                            mSensorManager.registerListener(MainActivity.this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
-                            if (sensorControl)
-                                mSensorManager.registerListener(MainActivity.this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
+                                mSensorManager.registerListener(MainActivity.this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
+                                if (sensorControl)
+                                    mSensorManager.registerListener(MainActivity.this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
 
-                            try {
-                                Thread.sleep(measurementDuration);
-                            } catch (InterruptedException e) {
-                                Log.e(TAG, "Interrupted while waitting to unregister LA Sensor");
-                            }
+                                try {
+                                    Thread.sleep(measurementDuration);
+                                } catch (InterruptedException e) {
+                                    Log.e(TAG, "Interrupted while waitting to unregister LA Sensor");
+                                }
 
 //                            Log.d(TAG, "unregister LA Sensor");
-                            mSensorManager.unregisterListener(MainActivity.this, linearAccelerationSensor);
-                            if (sensorControl)
-                                mSensorManager.unregisterListener(MainActivity.this, gyroSensor);
+                                mSensorManager.unregisterListener(MainActivity.this, linearAccelerationSensor);
+                                if (sensorControl)
+                                    mSensorManager.unregisterListener(MainActivity.this, gyroSensor);
 
-                        }
-                    }, 1, measurementDuration + measurementBreak, TimeUnit.MILLISECONDS);
+                            }
+                        }, 1, measurementDuration + measurementBreak, TimeUnit.MILLISECONDS);
 
 
+            } else {
+                Log.d(TAG, "No Linear Acceleration Sensor found");
+            }
         } else {
-            Log.d(TAG, "No Linear Acceleration Sensor found");
+            //http://stackoverflow.com/questions/30153904/android-how-to-set-sensor-delay
+            if (linearAccelerationSensor != null) {
+                mSensorManager.registerListener(this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);// 1000000, 1000000);
+            }  else {
+                Log.d(TAG, "No Linear Acceleration Sensor found");
+            }
+
+
+            if (gyroSensor != null) {
+                mSensorManager.registerListener(this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
+            } else {
+                Log.w(TAG, "No Gyroscope Sensor found");
+            }
         }
 
-//        if (sensorControl) {
-//            gyroSensor = mSensorManager.getDefaultSensor(SENS_GYRO);
-//            if (gyroSensor != null) {
-//                mSensorManager.registerListener(this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
-//            } else {
-//                Log.w(TAG, "No Gyroscope Sensor found");
-//            }
-//        }
 
 
 //        if (heartrateSamsungSensor != null) {

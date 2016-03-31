@@ -2706,9 +2706,9 @@ containing a value of this type.
         public static final int clip_horizontal=0x7f0f0051;
         public static final int clip_vertical=0x7f0f0052;
         public static final int collapseActionView=0x7f0f002a;
-        public static final int connText=0x7f0f00bc;
+        public static final int connText=0x7f0f00bd;
         public static final int contentPanel=0x7f0f0067;
-        public static final int copyRightView=0x7f0f00c1;
+        public static final int copyRightView=0x7f0f00c2;
         public static final int custom=0x7f0f006d;
         public static final int customPanel=0x7f0f006c;
         public static final int dark=0x7f0f0032;
@@ -2746,7 +2746,7 @@ containing a value of this type.
         public static final int hybrid=0x7f0f0026;
         public static final int icon=0x7f0f005f;
         public static final int icon_only=0x7f0f002e;
-        public static final int idButton=0x7f0f00c0;
+        public static final int idButton=0x7f0f00c1;
         public static final int ifRoom=0x7f0f002b;
         public static final int image=0x7f0f005c;
         public static final int imageView=0x7f0f008c;
@@ -2758,6 +2758,7 @@ containing a value of this type.
         public static final int line3=0x7f0f00a8;
         public static final int listMode=0x7f0f000a;
         public static final int list_item=0x7f0f005e;
+        public static final int loadingPanel=0x7f0f00bc;
         public static final int logo_only=0x7f0f0044;
         public static final int match_parent=0x7f0f003d;
         public static final int media_actions=0x7f0f00a2;
@@ -2790,7 +2791,7 @@ containing a value of this type.
         public static final int rel_layout=0x7f0f008b;
         public static final int right=0x7f0f0017;
         public static final int riskView=0x7f0f00b5;
-        public static final int round_layout=0x7f0f00bf;
+        public static final int round_layout=0x7f0f00c0;
         public static final int route_name=0x7f0f0093;
         public static final int sandbox=0x7f0f0038;
         public static final int satellite=0x7f0f0027;
@@ -2810,7 +2811,7 @@ containing a value of this type.
         public static final int search_voice_btn=0x7f0f0084;
         public static final int select_dialog_listview=0x7f0f0085;
         public static final int selectionDetails=0x7f0f003c;
-        public static final int sensorSwitch=0x7f0f00bd;
+        public static final int sensorSwitch=0x7f0f00be;
         public static final int settings=0x7f0f0094;
         public static final int shortcut=0x7f0f0070;
         public static final int showCustom=0x7f0f0010;
@@ -2839,9 +2840,9 @@ containing a value of this type.
         public static final int text=0x7f0f00a9;
         public static final int text2=0x7f0f00a7;
         public static final int textSpacerNoButtons=0x7f0f006a;
-        public static final int textView=0x7f0f00c2;
-        public static final int textView2=0x7f0f00be;
-        public static final int textView3=0x7f0f00c3;
+        public static final int textView=0x7f0f00c3;
+        public static final int textView2=0x7f0f00bf;
+        public static final int textView3=0x7f0f00c4;
         public static final int textview=0x7f0f008d;
         public static final int time=0x7f0f00a5;
         public static final int title=0x7f0f0060;

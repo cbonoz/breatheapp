@@ -6,9 +6,12 @@ Workflow:
     (they will say their number on the very first login only)
 3. Only watch is required for app to run. Watch will provide watch face
 
-Observation:
-watch still needs phone in order to use fused location api (probably because wifi routed through phone)
-if phone is on, requests don't get through (still need to fix this)
+Currently working on implementing a UI-based registration process on the mobile device.
+
+
+Wearable must be paired to both the desired phone, spirometer, and dust sensor before use.
+
+
 
 
 http://stackoverflow.com/questions/18755739/how-to-delete-an-app-from-adb-without-knowing-its-package-name

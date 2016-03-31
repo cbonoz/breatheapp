@@ -56,6 +56,7 @@ public class ClientPaths {
     public static final int DUST_SENSOR_ID = 999;
     public static final int SPIRO_SENSOR_ID = 998;
     public static final int ENERGY_SENSOR_ID = 997;
+    public static final int TERMINATE_SENSOR_ID = 555;
     public static final int REG_HEART_SENSOR_ID = 65562;
     //    public static final int SS_HEART_SENSOR_ID = 21;
     public static final int HEART_SENSOR_ID = Sensor.TYPE_HEART_RATE;

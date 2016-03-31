@@ -89,6 +89,10 @@ public class MainActivity$$Delivery<T extends MainActivity> implements Courier.D
             final int as_int = Packager.unpack(context, data, int.class);
 
             target.onRiskReceived(as_int);
+        } else if (path.equals("/api/subject/add")) {
+            final java.lang.String as_java_lang_String = Packager.unpack(context, data, java.lang.String.class);
+
+            target.onSubjectReceived(as_java_lang_String);
         } else if (path.equals("/api/multisensor/add")) {
             final int as_int = Packager.unpack(context, data, int.class);
 

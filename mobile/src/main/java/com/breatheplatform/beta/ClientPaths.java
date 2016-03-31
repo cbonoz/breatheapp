@@ -29,6 +29,7 @@ public class ClientPaths {
     public static final String SUBJECT_API = "/api/subject/add";
     public static final String MULTI_API = "/api/multisensor/add";
     public static final String RISK_API = "/api/risk/get";
+    public static final String CALENDAR_API = "/api/calendar/add";
 
 
     public static final String PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuvzFRohXhgcG7y5Ly3QX\n" +
@@ -45,7 +46,7 @@ public class ClientPaths {
     public static String activityName = "None";
 
 
-    private static File createFile(String fname) {
+    public static File createFile(String fname) {
         Log.d(TAG, "Creating file: " + fname);
         File f = new File(fname);
         //f.mkdirs();
@@ -60,8 +61,7 @@ public class ClientPaths {
 
             f.close();
 
-            Log.d(TAG, "wrote to " + file.toString());
-            Log.d(TAG, "filelength " + file.length());
+            Log.d(TAG,file.toString()+ " filelength " + file.length() + "B");
 
             return true;
 

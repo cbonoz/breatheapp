@@ -23,4 +23,10 @@
     <string name="activity_updates_removed">Activity updates removed</string>
 
     <string name="not_connected">GoogleApiClient not yet connected. Try again.</string>
+
+    <string name="passcode">Enter Clinician Passcode</string>
+    <string name="subject">Enter Subject ID</string>
+    <string name="submit">Submit</string>
+    <string name="welcome">Welcome to Breathe App. </string>
+    <string name="welcome_text">Please type your provided Clinician Code and Subject ID to register the patient on the Wearable</string>
 </resources>

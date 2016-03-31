@@ -792,9 +792,9 @@ int id classic 0x7f0f0048
 int id clip_horizontal 0x7f0f0051
 int id clip_vertical 0x7f0f0052
 int id collapseActionView 0x7f0f002a
-int id connText 0x7f0f00bc
+int id connText 0x7f0f00bd
 int id contentPanel 0x7f0f0067
-int id copyRightView 0x7f0f00c1
+int id copyRightView 0x7f0f00c2
 int id custom 0x7f0f006d
 int id customPanel 0x7f0f006c
 int id dark 0x7f0f0032
@@ -832,7 +832,7 @@ int id homeAsUp 0x7f0f000e
 int id hybrid 0x7f0f0026
 int id icon 0x7f0f005f
 int id icon_only 0x7f0f002e
-int id idButton 0x7f0f00c0
+int id idButton 0x7f0f00c1
 int id ifRoom 0x7f0f002b
 int id image 0x7f0f005c
 int id imageView 0x7f0f008c
@@ -844,6 +844,7 @@ int id line1 0x7f0f00a4
 int id line3 0x7f0f00a8
 int id listMode 0x7f0f000a
 int id list_item 0x7f0f005e
+int id loadingPanel 0x7f0f00bc
 int id logo_only 0x7f0f0044
 int id match_parent 0x7f0f003d
 int id media_actions 0x7f0f00a2
@@ -876,7 +877,7 @@ int id rect_layout 0x7f0f00b4
 int id rel_layout 0x7f0f008b
 int id right 0x7f0f0017
 int id riskView 0x7f0f00b5
-int id round_layout 0x7f0f00bf
+int id round_layout 0x7f0f00c0
 int id route_name 0x7f0f0093
 int id sandbox 0x7f0f0038
 int id satellite 0x7f0f0027
@@ -896,7 +897,7 @@ int id search_src_text 0x7f0f0080
 int id search_voice_btn 0x7f0f0084
 int id select_dialog_listview 0x7f0f0085
 int id selectionDetails 0x7f0f003c
-int id sensorSwitch 0x7f0f00bd
+int id sensorSwitch 0x7f0f00be
 int id settings 0x7f0f0094
 int id shortcut 0x7f0f0070
 int id showCustom 0x7f0f0010
@@ -925,9 +926,9 @@ int id test 0x7f0f003a
 int id text 0x7f0f00a9
 int id text2 0x7f0f00a7
 int id textSpacerNoButtons 0x7f0f006a
-int id textView 0x7f0f00c2
-int id textView2 0x7f0f00be
-int id textView3 0x7f0f00c3
+int id textView 0x7f0f00c3
+int id textView2 0x7f0f00bf
+int id textView3 0x7f0f00c4
 int id textview 0x7f0f008d
 int id time 0x7f0f00a5
 int id title 0x7f0f0060

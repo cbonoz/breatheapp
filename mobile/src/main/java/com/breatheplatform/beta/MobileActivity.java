@@ -6,15 +6,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.breatheplatform.beta.encryption.MyEncrypter;
 import com.breatheplatform.beta.services.Constants;
 import com.breatheplatform.beta.services.DetectedActivitiesIntentService;
-import com.breatheplatform.beta.shared.PostData;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -25,6 +28,7 @@ import com.google.android.gms.location.DetectedActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import me.denley.courier.BackgroundThread;
@@ -53,11 +57,35 @@ public class MobileActivity extends Activity implements
      * Request code for launching the Intent to resolve Google Play services errors.
      */
     private static final int REQUEST_RESOLVE_ERROR = 1000;
-
-
+    public static final String MY_PREFS_NAME = "SubjectFile";
     //    public GoogleApiClient mGoogleApiClient;
-    private int count = 0;
 
+    public String getCountandIncrement() {
+        if (prefs==null) {
+            Log.e(TAG, "getCount but prefs is null");
+            return "-1";
+        }
+        String count = prefs.getString("subject", null);
+        if (count == null) {
+            count = "0";
+        }
+
+        String newCount = (Integer.parseInt(count) + 1)+"";
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("count", newCount);
+        editor.commit();
+
+        return count;
+    }
+
+    public static String labelDirectory = null;
+    public static File labelFile = null;// = createFile(sensorDirectory);
+
+    public File nextLabelFile() {
+        labelDirectory = ClientPaths.ROOT + "/Breathe" + getCountandIncrement() + ".txt";
+        return ClientPaths.createFile(labelDirectory);
+    }
 
     /**
      * Gets a PendingIntent to be sent for each activity detection.
@@ -70,17 +98,63 @@ public class MobileActivity extends Activity implements
         return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
+    private static String code = "5555";
+    private SharedPreferences prefs = null;
+    private String subject;
+
+    public Boolean acceptCredentials(String pw) {
+        return code.equals(pw);
+    }
+
+    public void setSubjectAndClose(String subject_id) {
+
+        Courier.deliverMessage(this,ClientPaths.SUBJECT_API,subject_id);
+        subject = subject_id;
+
+        setTheme(android.R.style.Theme_NoDisplay);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("subject", subject_id);
+        editor.commit();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(android.R.style.Theme_NoDisplay);
+
+        prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
+
+
+
+        subject = prefs.getString("subject", null);
+        if (subject == null) {
+            setTheme(android.R.style.Theme_DeviceDefault);
+
+            setContentView(R.layout.mobile_activity);
+
+            Button subjectButton = (Button) findViewById(R.id.subjectButton);
+            subjectButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    EditText codeText = (EditText) findViewById(R.id.codeText);
+                    EditText subjectText = (EditText) findViewById(R.id.subjectText);
+
+                    if (acceptCredentials(codeText.getText().toString())) {
+                        setSubjectAndClose(subjectText.getText().toString());
+                        Toast.makeText(MobileActivity.this, "Registered Patient",Toast.LENGTH_SHORT).show();
+
+                    } else {
+                        Toast.makeText(MobileActivity.this, "Clinician Code Not Valid",Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
         super.onCreate(savedInstanceState);
         Courier.startReceiving(this);
 
-
-        mBroadcastReceiver = new ActivityDetectionBroadcastReceiver();
+//        mBroadcastReceiver = new ActivityDetectionBroadcastReceiver();
 
         buildGoogleApiClient();
         Log.d(TAG, "created API client");
-
 
         MyEncrypter.createRsaEncrypter(this);
 
@@ -111,8 +185,6 @@ public class MobileActivity extends Activity implements
         mGoogleApiClient.disconnect();
     }
 
-
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -120,6 +192,7 @@ public class MobileActivity extends Activity implements
         // object broadcast sent by the intent service.
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver,
                 new IntentFilter(Constants.BROADCAST_ACTION));
+        finish();
     }
 
     @Override
@@ -137,8 +210,6 @@ public class MobileActivity extends Activity implements
     public void onConnected(Bundle connectionHint) {
 
         Log.i(TAG, "Connected to GoogleApiClient");
-
-
         //Request Activity Updates from GoogleAPIClient
 //        try {
 //            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
@@ -182,8 +253,6 @@ public class MobileActivity extends Activity implements
         Log.i(TAG, "Connection suspended");
         mGoogleApiClient.connect();
     }
-
-
 
 
 //
@@ -230,42 +299,38 @@ public class MobileActivity extends Activity implements
         i.putExtra("data",data);
         i.putExtra("url",ClientPaths.RISK_API);
         startService(i);
-//
-
-
     }
 
-    public String toJSON(MultiData md){
+    @BackgroundThread
+    @ReceiveMessages(ClientPaths.SUBJECT_API)
+    void onSubjectReceived(String data) { // The nodeId parameter is optional
+        //send subject back to watch
+        Courier.deliverMessage(this, ClientPaths.SUBJECT_API, subject);
+    }
 
-        JSONObject jsonBody = new JSONObject();
-        try {
-            jsonBody.put("timestamp",md.timestamp);
-            jsonBody.put("subject_id", md.subject_id);
-            jsonBody.put("key", md.key);
-            jsonBody.put("battery",md.battery);
-            jsonBody.put("connection", md.connection);
-            jsonBody.put("data",md.data);
+//    @BackgroundThread
+//    @ReceiveMessages(ClientPaths.CALENDAR_API)
+//    void onCalendarReceived(String data) { // The nodeId parameter is optional
+//        //create calendar event (if authenticated)
+////        Courier.deliverMessage(this, ClientPaths.SUBJECT_API, subject);
+//    }
 
-            return jsonBody.toString();
-        } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return "";
-        }
+    public void createToast(String s) {
+        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 
 
     private static Boolean writing = true;
-    private static Boolean encrypting = true;
+    private static Boolean encrypting = false;
     private static Boolean collecting = false;
     private static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";//"GWTgVdeNeVwsGqQHHhChfiPgDxxgXJzLoxUD0R64Gns";
 
     @BackgroundThread
     @ReceiveData(ClientPaths.MULTI_API)
-    void onMultiReceived(PostData pd) {
-//    void onMultiReceived(String s) { // The nodeId parameter is optional
+    void onMultiReceived(String s) { // The nodeId parameter is optional
+    //    void onMultiReceived(PostData pd) {
 //        Log.d(TAG, "Received multi " + s);
-        if (pd.data.length()==0) {
+        if (s.length()==0) {
             Log.e(TAG, "Received null multi string");
             return;
         }
@@ -273,7 +338,7 @@ public class MobileActivity extends Activity implements
 
         JSONObject jsonBody;
         try {
-            jsonBody = new JSONObject(pd.data);//pd.data);
+            jsonBody = new JSONObject(s);//pd.data);
         } catch(Exception e) {
             e.printStackTrace();
             Log.e(TAG, "Error creating json Object in multi api");
@@ -303,7 +368,15 @@ public class MobileActivity extends Activity implements
 
             if (writing) {
                 if (collecting) {
-                    ClientPaths.writeDataToFile(sensorData, ClientPaths.sensorFile, true);
+                    labelFile = nextLabelFile();
+                    Boolean result = ClientPaths.writeDataToFile(sensorData, labelFile, false);
+                    if (result) {
+                        createToast(labelDirectory + " created");
+                    } else {
+                        createToast("Label Memory Full");
+                        writing = false;
+                    }
+
                 } else {
                     ClientPaths.writeDataToFile(data, ClientPaths.sensorFile, false);
                     writing = false;
@@ -380,6 +453,27 @@ public class MobileActivity extends Activity implements
                 Log.d(TAG, activity.getType() + " " + activity.getConfidence());
             }
 
+        }
+    }
+
+
+
+    public String toJSON(MultiData md){
+
+        JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("timestamp",md.timestamp);
+            jsonBody.put("subject_id", md.subject_id);
+            jsonBody.put("key", md.key);
+            jsonBody.put("battery",md.battery);
+            jsonBody.put("connection", md.connection);
+            jsonBody.put("data",md.data);
+
+            return jsonBody.toString();
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return "";
         }
     }
 
