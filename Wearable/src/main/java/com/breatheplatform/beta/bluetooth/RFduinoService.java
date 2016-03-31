@@ -18,8 +18,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.breatheplatform.beta.ClientPaths;
-
 import java.util.UUID;
 /*
  * Adapted from:
@@ -64,8 +62,12 @@ public class RFduinoService extends Service {
                         mBluetoothGatt.discoverServices());
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
+                if (status == 133) {
+
+                    //Error 133, defined as: #define GATT_ERROR 0x85 is a general BLE error. It usually appears when a device is not reachable or... from any other occasion.
+                    Log.e(TAG, "Error GATT callback fails to register");
+                }
                 Log.i(TAG, "Disconnected from RFduino.");
-                ClientPaths.dustConnected=false;
                 broadcastUpdate(ACTION_DISCONNECTED);
             }
         }
@@ -229,6 +231,8 @@ public class RFduinoService extends Service {
         // We want to directly connect to the device, so we are setting the autoConnect
         // parameter to false.
         mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
+
+
         Log.d(TAG, "Trying to create a new connection.");
         mBluetoothDeviceAddress = device.getAddress();//address;
         return true;

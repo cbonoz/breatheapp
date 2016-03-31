@@ -19,12 +19,18 @@ package com.breatheplatform.beta.encryption;
  * limitations under the License.
  */
 
+import android.util.Base64;
 import android.util.Log;
 
 import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 
 /**
  * This class provides the functionality of encrypting data using AES and transferring its symmetric key using RSA
@@ -39,6 +45,17 @@ public class HybridEncrypter implements Encrypter {
 
     private byte[] symmetric_key;
     private boolean algorithmnotsupported = false;
+    private final String symmetric_key_params;
+
+    public static SecretKey generateAesKey() throws NoSuchAlgorithmException {
+
+        KeyGenerator keygen;
+        keygen = KeyGenerator.getInstance("AES");
+        keygen.init(128);
+        SecretKey aesKey = keygen.generateKey();
+        return aesKey;
+
+    }
 
     /**
      * Constructor that initialize the RSA cipher with the public key provided by the user
@@ -58,12 +75,52 @@ public class HybridEncrypter implements Encrypter {
         String password=aes.getPassword();
         String iv = aes.getIV();
 
-        String symmetric_key_params = password + "\n" + salt  + "\n" + iv + "\n";
+        symmetric_key_params = password + "\n" + salt  + "\n" + iv + "\n";
         Log.d("aes key params", symmetric_key_params);
         symmetric_key = rsa.stringEncrypter(symmetric_key_params);
 
         algorithmnotsupported= aes.isWorstcase();
     }
+
+    public HybridEncrypter(String path_rsa_key, int key_size, IvParameterSpec ivParams) throws FileNotFoundException {
+
+        SecretKey key = null;
+
+
+        try {
+            key = generateAesKey();
+            rsa = new RsaEncrypter(path_rsa_key, key_size);
+            aes = new AesEncrypter(key, ivParams);
+            algorithmnotsupported= aes.isWorstcase();
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            Log.e("HybridEncrypter", "Error creating Hybrid Encrypter");
+
+        }
+        if (key != null) {
+            symmetric_key_params = key.toString();//Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
+        } else {
+            symmetric_key_params = null;
+        }
+
+
+
+
+    }
+
+    public String getKeyParams() {
+        return symmetric_key_params;
+    }
+
+    public String getEncryptedSymmetricKey() {
+
+        byte[] enc_key=rsa.stringEncrypter(symmetric_key_params);
+
+        return Base64.encodeToString(enc_key, Base64.DEFAULT);
+
+    }
+
 
     /**
      * Constructor that initialize the RSA cipher and the AES cipher with keys provided by the user
@@ -139,15 +196,14 @@ public class HybridEncrypter implements Encrypter {
     public byte[] stringEncrypter(String plain) {
 
 //        byte[] ret;
-//
 //        byte[] encrypted_data = aes.stringEncrypter(plain);
-//
 //        ret=merge(symmetric_key, encrypted_data, encrypted_data.length);
-//
 //        return ret;
 
         return aes.stringEncrypter(plain);
     }
+
+
 
     public String stringDecrypter(byte[] text) {
         return aes.stringDecrypter(text);

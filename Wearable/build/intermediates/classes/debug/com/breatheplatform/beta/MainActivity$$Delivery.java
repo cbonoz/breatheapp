@@ -31,12 +31,14 @@ public class MainActivity$$Delivery<T extends MainActivity> implements Courier.D
     private Context context;
     private Handler handler = new Handler(Looper.getMainLooper());
 
+    private Map<T, MessageApi.MessageListener> messageListeners = new LinkedHashMap<T, MessageApi.MessageListener>();
     private Map<T, DataApi.DataListener> dataListeners = new LinkedHashMap<T, DataApi.DataListener>();
     private Map<T, NodeApi.NodeListener> nodeListeners = new LinkedHashMap<T, NodeApi.NodeListener>();
 
     public void startReceiving(final Context context, final T target) {
         this.context = context;
         initNodeListener(target);
+        initMessageListener(target);
         initDataListener(target);
     }
 
@@ -44,6 +46,11 @@ public class MainActivity$$Delivery<T extends MainActivity> implements Courier.D
         GoogleApiClient apiClient = WearableApis.googleApiClient;
         if(apiClient==null) {
             return;
+        }
+
+        MessageApi.MessageListener ml = messageListeners.remove(target);
+        if(ml!=null) {
+            WearableApis.getMessageApi().removeListener(apiClient, ml);
         }
 
         DataApi.DataListener dl = dataListeners.remove(target);
@@ -56,6 +63,37 @@ public class MainActivity$$Delivery<T extends MainActivity> implements Courier.D
             WearableApis.getNodeApi().removeListener(apiClient, nl);
         }
 
+    }
+
+    private void initMessageListener(final T target) {
+        final MessageApi.MessageListener ml = new MessageApi.MessageListener() {
+            @Override public void onMessageReceived(MessageEvent messageEvent) {
+                deliverMessage(target, messageEvent);
+            }
+        };
+
+        messageListeners.put(target, ml);
+        WearableApis.makeWearableApiCall(context, MESSAGE, new WearableApis.WearableApiRunnable() {
+            public void run(GoogleApiClient apiClient){
+                WearableApis.getMessageApi().addListener(apiClient, ml);
+            }
+        });
+    }
+
+    private void deliverMessage(final T target, final MessageEvent message) {
+        final String path = message.getPath();
+        final byte[] data = message.getData();
+        final String node = message.getSourceNodeId();
+
+        if (path.equals("/api/risk/get")) {
+            final int as_int = Packager.unpack(context, data, int.class);
+
+            target.onRiskReceived(as_int);
+        } else if (path.equals("/api/multisensor/add")) {
+            final int as_int = Packager.unpack(context, data, int.class);
+
+            target.onMultiReceived(as_int);
+        }
     }
 
     private void initNodeListener(final T target) {
@@ -107,22 +145,10 @@ public class MainActivity$$Delivery<T extends MainActivity> implements Courier.D
         final byte[] data = item.getData();
         final String node = item.getUri().getHost();
 
-        if (path.equals("/api/risk/get")) {
+        if (path.equals("/activity")) {
             final int as_int = Packager.unpack(context, item, int.class);
 
-            handler.post(new Runnable() {
-                public void run() {
-                    target.onRiskReceived(as_int, node);
-                }
-            });
-        } else if (path.equals("/api/multisensor/add")) {
-            final java.lang.String as_java_lang_String = Packager.unpack(context, item, java.lang.String.class);
-
-            handler.post(new Runnable() {
-                public void run() {
-                    target.onMultiReceived(as_java_lang_String, node);
-                }
-            });
+            target.onActivityReceived(as_int);
         }
     }
 

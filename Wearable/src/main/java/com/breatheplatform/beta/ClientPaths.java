@@ -9,6 +9,8 @@ import com.breatheplatform.beta.data.SensorNames;
 import com.breatheplatform.beta.encryption.HybridEncrypter;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,6 +18,10 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
+import javax.crypto.spec.IvParameterSpec;
 
 /* Class: ClientPaths
  * This class contains all the shared constants used by client services
@@ -30,6 +36,7 @@ public class ClientPaths {
     public static final String SUBJECT_API = "/api/subject/add";
     public static final String MULTI_API = "/api/multisensor/add";
     public static final String RISK_API = "/api/risk/get";
+    public static final String ACTIVITY_API = "/activity";
     public static final String PUBLIC_KEY_API = "/api/publickey/get";
     public static final String PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuvzFRohXhgcG7y5Ly3QX\n" +
             "ypBF7IrC1x6coF3Ok/87dVxcTQJv7uFbhOlqQcka/1S6gNZ2huc23BWdMGB9UIb1\n" +
@@ -39,7 +46,8 @@ public class ClientPaths {
             "bvksBlqwVUQW67vmFfv/zpjeEFK+ADnGLcCgvmK+b+nMfhpqO7/2xczvqeXK11XP\n" +
             "jwIDAQAB";
 
-//    public static final String RISK_CASE = "r";
+
+    public static final String RISK_CASE = "r";
 //    public static final String MULTI_CASE = "m";
 //    public static final String SUBJECT_CASE = "s";
 
@@ -82,8 +90,8 @@ public class ClientPaths {
     private static final String aesKeyDirectory = ROOT + "/AesKey.pem";
     public static final File aesKeyFile = createFile(aesKeyDirectory);
 
-    public static int activityConfidence = NO_VALUE;
-    public static String activityName = "None";
+//    public static int activityConfidence = NO_VALUE;
+//    public static String activityName = "None";
 
     public static Boolean writing = true;
     public static Boolean encrypting = false;
@@ -126,7 +134,12 @@ public class ClientPaths {
             if (SUBJECT_ID!=NO_VALUE) {
                 SUBJECT_ID = getSubjectID();
             }
-            return new HybridEncrypter(rsaKeyDirectory, key_size_bits, SUBJECT_ID.toString());
+            byte[] ivBytes = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            IvParameterSpec ivParams = new IvParameterSpec(ivBytes);
+
+            return new HybridEncrypter(rsaKeyDirectory, key_size_bits, ivParams);
 
         } catch (Exception e) {
             Log.e(TAG, "[Handled] Could not create hybridEncrypter (keyfile may not exist)");
@@ -137,6 +150,9 @@ public class ClientPaths {
         return null;
     }
 
+    public static String getRawSymKey() {
+        return hybridEncrypter.getKeyParams();
+    }
 
     public static byte[] encString(String s) {
 
@@ -164,9 +180,11 @@ public class ClientPaths {
 
     }
 
-    public static byte[] getSymKey() {
-        return hybridEncrypter.getSymmetricKey();
+    public static String getSymKey() {
+        return hybridEncrypter.getEncryptedSymmetricKey();
     }
+
+
 
     private static double round5(double v) {
         return Math.round(v * 100000.0) / 100000.0;
@@ -244,6 +262,40 @@ public class ClientPaths {
         } else {
             Log.e(TAG, "Failed to write to sid to " + subjectFile);
         }
+    }
+
+
+    public static String compress(String str) throws IOException {
+        if (str == null || str.length() == 0) {
+            return str;
+        }
+        System.out.println("String length : " + str.length());
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        GZIPOutputStream gzip = new GZIPOutputStream(out);
+        gzip.write(str.getBytes());
+
+        gzip.close();
+
+        String outStr = out.toString("ISO-8859-1");//ISO-8859-1
+        System.out.println("Output String length : " + outStr.length());
+
+        return outStr;
+    }
+
+    public static String decompress(String str) throws IOException {
+        if (str == null || str.length() == 0) {
+            return str;
+        }
+        System.out.println("Input String length : " + str.length());
+        GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(str.getBytes("ISO-8859-1")));
+        BufferedReader bf = new BufferedReader(new InputStreamReader(gis, "ISO-8859-1"));
+        String outStr = "";
+        String line;
+        while ((line=bf.readLine())!=null) {
+            outStr += line;
+        }
+        System.out.println("Output String length : " + outStr.length());
+        return outStr;
     }
 
 

@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="json_post_body" translatable="false">json_post_body</string>
-    <string name="json_post_url" translatable="false">json_post_url</string>
-</resources>

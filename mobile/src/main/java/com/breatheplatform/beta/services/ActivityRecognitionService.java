@@ -2,7 +2,6 @@ package com.breatheplatform.beta.services;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.breatheplatform.beta.ClientPaths;
@@ -32,17 +31,19 @@ public class ActivityRecognitionService extends IntentService {
         ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
         DetectedActivity activity = result.getMostProbableActivity();
 
-        String act = getNameFromType(activity.getType());
-        int conf = activity.getConfidence();
-        Log.d("current activity",act);
+        ClientPaths.activityName = getNameFromType(activity.getType());
+        ClientPaths.activityConfidence = activity.getConfidence();
+        Log.d("current activity",ClientPaths.activityName + " " + ClientPaths.activityConfidence);
+
 
 //        ClientPaths.activityName = act;
 //        ClientPaths.activityConfidence = activity.getConfidence();
 //        Toast.makeText(this, getNameFromType(type), Toast.LENGTH_SHORT).show();
-        Intent localIntent = new Intent(ClientPaths.BROADCAST_ACTION);
-        localIntent.putExtra("activity", act);
-        localIntent.putExtra("confidence", conf);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+//        Intent localIntent = new Intent(ClientPaths.BROADCAST_ACTION);
+//        localIntent.putExtra("activity", act);
+//        localIntent.putExtra("confidence", conf);
+//        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+
 
     }
 

@@ -48,6 +48,7 @@ public class SensorNames {
         serverSensors.append(ClientPaths.DUST_SENSOR_ID, 3);
         serverSensors.append(ClientPaths.SPIRO_SENSOR_ID, 4);
         serverSensors.append(ClientPaths.ENERGY_SENSOR_ID, 5);
+        serverSensors.append(Sensor.TYPE_GYROSCOPE, 6);
 //
 
     }

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.breatheplatform.beta" android:launchMode="singleInstance"
-     >
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.breatheplatform.beta"
+    android:launchMode="singleInstance">
 
     <uses-sdk android:minSdkVersion="20"
         android:targetSdkVersion="22" />
@@ -42,7 +43,7 @@
 
 
     <application
-
+        tools:replace="android:label"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -101,14 +102,17 @@
             </intent-filter>
         </service>
 
-        <service
-            android:name="data.ActivityRecognitionService">
-        </service>
+        <!--<service-->
+            <!--android:name="data.ActivityRecognitionService">-->
+        <!--</service>-->
 
         <service
             android:name=".data.SensorAddService"
             android:exported="true"/>
 
+        <service
+            android:name=".activity.DetectedActivitiesIntentService"
+            android:exported="false" />
 
         <!--<receiver android:name=".data.BatteryReceiver">-->
             <!--<intent-filter>-->

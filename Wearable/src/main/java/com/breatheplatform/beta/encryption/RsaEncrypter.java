@@ -64,7 +64,7 @@ public class RsaEncrypter implements Encrypter {
 //        this.context = context;
 //        try {
 //            rsa_pk = getPKfromResources();
-//            rsa_pk = ClientPaths.generateKey();
+//            rsa_pk = ClientPaths.generateAesKey();
 //        } catch (Exception e1) {
 //            Log.e("RSAEncrypter","Failed to get key");
 //        }

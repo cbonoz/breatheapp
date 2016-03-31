@@ -3,7 +3,6 @@ package com.breatheplatform.beta;
 import android.app.IntentService;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -11,12 +10,18 @@ import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.zip.GZIPOutputStream;
+import java.util.zip.GZIPInputStream;
+
+import me.denley.courier.Courier;
 
 /**
  * Created by cbono on 2/15/16.
@@ -58,16 +63,37 @@ public class MobileUploadService extends IntentService {
     private WifiManager wifiManager;
     private WifiManager.WifiLock lock;
 
-    private DeviceClient client;
+    private Boolean writing = true;
+    private Boolean sending = false;
+
+//    private DeviceClient client;
+
+    public static String decompress(String str) throws IOException {
+        if (str == null || str.length() == 0) {
+            return str;
+        }
+        System.out.println("Input String length : " + str.length());
+        GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(str.getBytes("ISO-8859-1")));
+        BufferedReader bf = new BufferedReader(new InputStreamReader(gis, "ISO-8859-1"));
+        String outStr = "";
+        String line;
+        while ((line=bf.readLine())!=null) {
+            outStr += line;
+        }
+        System.out.println("Output String length : " + outStr.length());
+        return outStr;
+    }
+
 
     @Override
     protected void onHandleIntent(Intent intent) {
         // Gets data from the incoming Intent
 
-        client = DeviceClient.getInstance(this);
+//        client = DeviceClient.getInstance(this);
 
         String data = intent.getStringExtra("data");
-        String urlCase = intent.getStringExtra("url");
+        String urlString = intent.getStringExtra("url");
+
 
         int statusCode = 0;
         InputStream is = null;
@@ -77,16 +103,26 @@ public class MobileUploadService extends IntentService {
 
         String result = null;
 
+
         try {
 
+            byte[] dataBytes = data.getBytes();//.getBytes("ISO-8859-1");
 
-
-            switch(urlCase) {
+            switch(urlString) {
                 case ClientPaths.RISK_API:
                     conn = (HttpURLConnection) riskUrl.openConnection();
                     break;
                 case ClientPaths.MULTI_API:
                     conn = (HttpURLConnection) multiUrl.openConnection();
+//                    try {
+//                        data = decompress(data);
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                        Log.e(TAG, "Error decompressing data");
+//                        return;
+//                    }
+
+
                     break;
                 case ClientPaths.SUBJECT_API:
                     URL url = createURL(ClientPaths.BASE + ClientPaths.SUBJECT_API);
@@ -98,33 +134,37 @@ public class MobileUploadService extends IntentService {
                     }
                     break;
                 default:
-                    Log.e(TAG, "Unexpected url case for mobile post message: " + urlCase);
+                    Log.e(TAG, "Unexpected url case for mobile post message: " + urlString);
                     return;
             }
 
-            byte[] dataBytes = data.getBytes("ISO-8859-1");
+
+            if (!sending)
+                return;
 
             Log.d(TAG, "Data: " + data);
+            Log.d(TAG, "data bytes length: " + dataBytes.length);
             Log.d(TAG, "Connecting to: " + conn.getURL().toString());
 
+
+//            conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(10000 /*milliseconds*/);
             conn.setConnectTimeout(15000 /* milliseconds */);
             conn.setRequestMethod("POST");
             conn.setDoInput(true);
             conn.setDoOutput(true);
             conn.setFixedLengthStreamingMode(dataBytes.length);
-            conn.setRequestProperty("connection", "close"); // disables Keep Alive
+//            conn.setRequestProperty("connection", "close"); // disables Keep Alive
+
             //conn.setChunkedStreamingMode(0);
 
             //make some HTTP header nicety
-            conn.setRequestProperty("Content-Type", "gzip");
-            conn.setRequestProperty("Accept-Encoding", "gzip");
-//            conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
 
             conn.connect();
 
-            os = new BufferedOutputStream(new GZIPOutputStream(conn.getOutputStream()));
-//            os = new BufferedOutputStream(conn.getOutputStream()); //was this
+            os = new BufferedOutputStream(conn.getOutputStream());
 
             os.write(dataBytes);
             os.flush();
@@ -142,14 +182,16 @@ public class MobileUploadService extends IntentService {
                     sb.append(inputLine);
                 }
                 result = sb.toString();
-            } catch (Exception e) {
+            }    catch (Exception e) {
                 Log.i(TAG, "Error reading InputStream");
                 result = null;
-            } finally {
+            }
+            finally {
                 if (is != null) {
                     try {
                         is.close();
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e) {
                         Log.i(TAG, "Error closing InputStream");
                         e.printStackTrace();
                     }
@@ -157,52 +199,35 @@ public class MobileUploadService extends IntentService {
             }
 
             Log.i(TAG, "Response: " + result);
-            Log.i(TAG, "From " + urlCase);
+            Log.i(TAG, "From " + urlString);
 
-            switch (urlCase) {
+            switch (urlString) {
                 case ClientPaths.SUBJECT_API:
                     try {
-                        String jsonString = result.substring(result.indexOf("{"), result.indexOf("}") + 1);
+                        String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
                         final JSONObject resJson = new JSONObject(jsonString);
                         int newID = Integer.parseInt(resJson.getString("subject_id"));
                         Log.i(TAG, "Setting new SubjectID: " + newID);
-//                        ClientPaths.setSubjectID(newID);
-                        //send subject ID back to watch (or potentially store on phone
-                        Log.d(TAG, "Registered " + newID);
-                    } catch (Exception e) {
-                        Log.e(TAG, "[Handled] Error response from subject api");
-                        Log.e(TAG, statusCode + ": JSON Parse Error");
+
+
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+
                     }
 
 
                 case ClientPaths.RISK_API:
                     try {
-                        String jsonString = result.substring(result.indexOf("{"), result.indexOf("}") + 1);
+                        String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
                         final JSONObject resJson = new JSONObject(jsonString);
                         newRisk = Integer.parseInt(resJson.getString("risk"));
                         Log.i(TAG, "Setting new riskLevel: " + newRisk);
 //                        ClientPaths.setRiskLevel(newRisk);
 
                     } catch (Exception e) {
-                        newRisk = ClientPaths.NO_VALUE;
+                        newRisk=ClientPaths.NO_VALUE;
                         Log.e(TAG, "[Handled] Error response from risk api");
-
-                    }
-                    break;
-
-                case ClientPaths.MULTI_API:
-                    try {
-                        String jsonString = result.substring(result.indexOf("{"), result.indexOf("}") + 1);
-//                        Log.d(TAG, "MULTI_API response: " + jsonString);
-//                        final JSONObject resJson = new JSONObject(jsonString);
-                        newResponse = jsonString;
-
-
-//                        ClientPaths.setRiskLevel(newRisk);
-
-                    } catch (Exception e) {
-
-                        Log.e(TAG, "[Handled] Error response from multi api");
 
                     }
                     break;
@@ -225,8 +250,8 @@ public class MobileUploadService extends IntentService {
 
 
         } catch (Exception e) {
-
-            Log.e(TAG, "[Handled] Could not Connect to Internet (" + urlCase + ")");
+            e.printStackTrace();
+            Log.e(TAG, "[Handled] Could not Connect to Internet (" + urlString + ")");
             newRisk = ClientPaths.NO_VALUE;
 
         } finally {
@@ -234,19 +259,27 @@ public class MobileUploadService extends IntentService {
             if (conn != null)
                 conn.disconnect();
 
-            Intent i = new Intent("upload-done");
-            i.putExtra("url", urlCase);
-            switch (urlCase) {
+//            Intent i = new Intent("upload-done");
+//            i.putExtra("url", urlCase);
+
+            switch (urlString) {
                 case ClientPaths.RISK_API:
+                    if (newRisk == null)
+                        newRisk = ClientPaths.NO_VALUE;
                     Log.d(TAG, "returning from phone RISK_API - value " + newRisk);
-                    i.putExtra("risk", newRisk);
+                    Courier.deliverMessage(this, ClientPaths.RISK_API, newRisk);
+
+//                    Courier.deliverData(this, ClientPaths.ACTIVITY_API, newRisk, ClientPaths.activityName);
+//                    i.putExtra("risk", newRisk);
                     break;
                 case ClientPaths.MULTI_API:
-                    i.putExtra("response", newResponse);
+                    Courier.deliverMessage(this, ClientPaths.MULTI_API, 1);
+//                    i.putExtra("response", newResponse);
                     break;
             }
 
-            LocalBroadcastManager.getInstance(this).sendBroadcast(i);
+
+//            LocalBroadcastManager.getInstance(this).sendBroadcast(i);
 
         }
     }

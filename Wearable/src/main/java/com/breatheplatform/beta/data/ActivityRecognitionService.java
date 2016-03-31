@@ -4,7 +4,6 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
-import com.breatheplatform.beta.ClientPaths;
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 
@@ -33,8 +32,8 @@ public class ActivityRecognitionService extends IntentService {
         String act = getNameFromType(activity.getType());
         Log.d("current activity",act);
 
-        ClientPaths.activityName = act;
-        ClientPaths.activityConfidence = activity.getConfidence();
+//        ClientPaths.activityName = act;
+//        ClientPaths.activityConfidence = activity.getConfidence();
 //        Toast.makeText(this, getNameFromType(type), Toast.LENGTH_SHORT).show();
 
     }
