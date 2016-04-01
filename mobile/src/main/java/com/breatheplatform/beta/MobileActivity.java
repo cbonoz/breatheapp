@@ -91,7 +91,7 @@ public class MobileActivity extends Activity implements
 
 //    private static
     private SharedPreferences prefs = null;
-    private String subject = null;
+    private String subject = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,13 +100,13 @@ public class MobileActivity extends Activity implements
         prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
 
 
-        subject = prefs.getString("subject", null);
+        subject = prefs.getString("subject", "");
 
 
         Log.d(TAG, "subject " + subject);
 
         //if subject is null, start registration page
-        if (subject == null) {
+        if (subject.equals("")) {
             Intent i = new Intent(this, RegisterActivity.class);
             this.startActivity(i);
         }
@@ -151,7 +151,7 @@ public class MobileActivity extends Activity implements
         Log.d(TAG, "onResume");
 
         //if subject is null onResume, try registering again.
-        if (subject != null) {
+        if (subject.equals("")) {
             Intent i = new Intent(this, RegisterActivity.class);
             this.startActivity(i);
         }

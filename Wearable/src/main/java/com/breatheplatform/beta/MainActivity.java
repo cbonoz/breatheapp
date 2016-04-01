@@ -414,7 +414,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
 
     private void requestSubject() {
-        if (ClientPaths.SUBJECT_ID == null) {
+        //check if SUBJECT ID is "" (null), using "" for serialization purposes via data api
+        if (ClientPaths.SUBJECT_ID.equals("")) {
             Log.d(TAG, "Requesting Subject");
             Courier.deliverMessage(this, ClientPaths.SUBJECT_API, "test");
         } else {
@@ -449,8 +450,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 mRoundBackground = (RelativeLayout) findViewById(R.id.round_layout);
 
                 requestSubject();
-
-
 
             }
         });
@@ -557,7 +556,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private void scheduleGetRisk() {
         Log.d(TAG, "scheduleGetRisk");
         taskHandler.postDelayed(riskTask, RISK_TASK_PERIOD);
-
     }
 
     private void scheduleDustScan() {
@@ -595,10 +593,11 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     @ReceiveMessages(ClientPaths.SUBJECT_API)
     void onSubjectReceived(String sub) { // The nodeId parameter is optional
         Log.d(TAG, "ReceiveMessage subject: " + sub);
-//        updateSubjectUI(sub);
-        if (ClientPaths.SUBJECT_ID == null) {
+        if (ClientPaths.SUBJECT_ID.equals("")) {
             ClientPaths.SUBJECT_ID = sub;
-            setup();
+            setup(); //only call setup once subject received from mobile
+        } else {
+            Log.e(TAG, "onSubjectReceived - received null");
         }
     }
 
@@ -607,7 +606,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     @ReceiveMessages(ClientPaths.LABEL_API)
     void onLabelReceived(String n) { // The nodeId parameter is optional
         Log.d(TAG, "ReceiveMessage label: " + n);
-//        updateSubjectUI(sub);
+
         Toast.makeText(this,"File " + n + " created", Toast.LENGTH_LONG).show();
 
     }

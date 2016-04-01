@@ -109,7 +109,7 @@ public class ClientPaths {
 //    private static DeviceClient client = null;
 
     public static Location currentLocation = null;
-    public static String SUBJECT_ID = null;
+    public static String SUBJECT_ID = "";
     public static String mobileNodeId = null;
 
     private static File createFile(String fname) {

@@ -49,12 +49,22 @@ public class RegisterActivity extends Activity {
                 EditText subjectText = (EditText) findViewById(R.id.subjectText);
 
                 if (acceptCredentials(codeText.getText().toString())) {
-                    setSubjectAndClose(subjectText.getText().toString());
+                    String subject_id = subjectText.getText().toString();
+                    prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString("subject", subject_id);
+                    editor.commit();
+
                     Toast.makeText(RegisterActivity.this, "Registered Patient", Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "Starting Mobile Activity");
-                    Intent i = new Intent(RegisterActivity.this, MobileActivity.class);
-                    finish(); //finish registration, and return to main mobile activity
-                    RegisterActivity.this.startActivity(i);
+
+                    Log.d(TAG, "Starting Mobile Activity - subject now " + prefs.getString("subject", ""));
+
+                    Intent intent = new Intent(getApplicationContext(), MobileActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                    startActivity(intent);
+
+                    RegisterActivity.this.finish();
                 } else {
                     Toast.makeText(RegisterActivity.this, "Clinician Code Not Valid", Toast.LENGTH_SHORT).show();
                 }
