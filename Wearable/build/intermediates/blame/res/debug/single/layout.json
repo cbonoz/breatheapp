@@ -188,6 +188,10 @@
         "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/layout/abc_list_menu_item_layout.xml"
     },
     {
+        "merged": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/res/merged/debug/layout/main_activity_dup.xml",
+        "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/layout/main_activity_dup.xml"
+    },
+    {
         "merged": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/res/merged/debug/layout/abc_action_bar_up_container.xml",
         "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/layout/abc_action_bar_up_container.xml"
     },

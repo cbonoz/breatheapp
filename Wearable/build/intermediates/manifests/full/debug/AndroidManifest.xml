@@ -53,20 +53,16 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name="com.breatheplatform.beta.autostart.StartMyActivityAtBootReceiver"
+            android:enabled="true"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
 
-        <!-- <receiver -->
-        <!-- android:name=".autostart.StartMyActivityAtBootReceiver" -->
-        <!-- android:enabled="true" -->
-
-
-        <!-- android:permission="android.permission.RECEIVE_BOOT_COMPLETED" > -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.BOOT_COMPLETED" /> -->
-
-
-        <!-- <category android:name="android.intent.category.DEFAULT" /> -->
-        <!-- </intent-filter> -->
-        <!-- </receiver> -->
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name="com.breatheplatform.beta.MainActivity"

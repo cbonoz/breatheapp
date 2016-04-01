@@ -7,7 +7,6 @@ import android.util.Log;
 import android.util.SparseLongArray;
 
 import com.breatheplatform.beta.ClientPaths;
-import com.breatheplatform.beta.messaging.DeviceClient;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,15 +24,11 @@ public class SensorAddService extends IntentService {
     private static final String TAG = "SensorAddService";
 
     private static final SensorNames sensorNames = new SensorNames();
-
-//    private static final HybridEncrypter hybridEncypter = ClientPaths.createEncrypter();
-
     public static String getSensorName(int id) {
         return sensorNames.getName(id);
     }
 
-    public static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";//"GWTgVdeNeVwsGqQHHhChfiPgDxxgXJzLoxUD0R64Gns";
-
+//    public static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";//"GWTgVdeNeVwsGqQHHhChfiPgDxxgXJzLoxUD0R64Gns";
     public static final int DUST_SENSOR_ID = 999;
     public static final int SPIRO_SENSOR_ID = 998;
     public static final int ENERGY_SENSOR_ID = 997;
@@ -44,16 +39,15 @@ public class SensorAddService extends IntentService {
 
     private static final int ENERGY_LIMIT = 10;
 
-    private static Boolean encrypting = false;
+//    private static Boolean encrypting = false;
     private static Boolean sending = true;
-    private static Boolean writing = true;
+//    private static Boolean writing = true;
 
     //for energy measurements
     private static float sumX =0, sumY = 0, sumZ = 0;
 
     private static float energy = 0;
 
-    //    private static int bytesWritten = 0;
     private static long dataSent = 0;
 
     private static SparseLongArray lastSensorData = initLastData();
@@ -65,11 +59,10 @@ public class SensorAddService extends IntentService {
         return temp;
     }
 
-
     private static JSONArray sensorData = new JSONArray();
     private static Integer recordCount = 0;
 
-    private static int RECORD_LIMIT = 100;
+    private static Integer RECORD_LIMIT = 100;
 
     private static String urlString = ClientPaths.BASE + ClientPaths.MULTI_API;
     private static URL url = createURL();
@@ -97,21 +90,12 @@ public class SensorAddService extends IntentService {
         }
         return tzone;
     }
-
-    private DeviceClient client=null;
-
-
 //    private static double round5(double v) {
 //        return Math.round(v * 100000.0) / 100000.0;
 //    }
 //
-
     public SensorAddService() {
         super("SensorAddService");
-        if (ClientPaths.mainContext!=null)
-            client = DeviceClient.getInstance(ClientPaths.mainContext);
-        else
-            client = DeviceClient.getInstance(this);
     }
 
     public static void appendData(JSONObject jObj) {
@@ -126,17 +110,13 @@ public class SensorAddService extends IntentService {
     //is synchronized necessary here?
     public void incrementCount() {
         recordCount++;
-
 //        if (recordCount.equals(RECORD_LIMIT)) {
         if (recordCount % RECORD_LIMIT == 0 && recordCount > 0) {
             if (sending)
                 createDataPostRequest();
-//            clearData();
+
         }
     }
-
-
-
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -145,14 +125,14 @@ public class SensorAddService extends IntentService {
         float[] values = intent.getFloatArrayExtra("values");
         int acc = intent.getIntExtra("accuracy", ClientPaths.NO_VALUE);
         int sType = intent.getIntExtra("sensorType",ClientPaths.NO_VALUE);
-        addSensorData(sType, acc,t,values);
 
         if (sType == ClientPaths.TERMINATE_SENSOR_ID) {
             createDataPostRequest();
             return;
         }
 
-        // Do work here, based on the contents of dataString
+        addSensorData(sType, acc,t,values);
+
 
     }
 
@@ -233,7 +213,6 @@ public class SensorAddService extends IntentService {
 //            }
 
             jsonValue.put("sensor_accuracy",accuracy);
-
             jsonDataEntry.put("value", jsonValue);
 
 //            jsonDataEntry.put("last", lastTimeStamp);
@@ -242,6 +221,7 @@ public class SensorAddService extends IntentService {
 
             jsonDataEntry.put("sensor_id", sensorNames.getServerID(sensorType));//will be changed to actual sensor (sensorType)
 
+            //check if the location is currently available
             if (ClientPaths.currentLocation!=null) {
                 jsonDataEntry.put("lat", ClientPaths.currentLocation.getLatitude());
                 jsonDataEntry.put("long", ClientPaths.currentLocation.getLongitude());
@@ -292,8 +272,6 @@ public class SensorAddService extends IntentService {
         }
     }
 
-
-
     private void createDataPostRequest() {
         Log.d(TAG, "createDataPostRequest");
         JSONObject jsonBody = new JSONObject();
@@ -304,58 +282,39 @@ public class SensorAddService extends IntentService {
             byte[] sensorDataBytes = null;
 
 
-            if (ClientPaths.SUBJECT_ID == ClientPaths.NO_VALUE)
-                ClientPaths.SUBJECT_ID = ClientPaths.getSubjectID();
+            if (ClientPaths.SUBJECT_ID == null) {
+                Log.d(TAG, "No Subject detected - blocking multi post");
+            }
 
             jsonBody.put("timestamp",System.currentTimeMillis());
             jsonBody.put("subject_id", ClientPaths.SUBJECT_ID);
             jsonBody.put("key", ClientPaths.API_KEY);
             jsonBody.put("battery",ClientPaths.batteryLevel);
             jsonBody.put("connection", ClientPaths.connectionInfo);
-//
+
 //            MultiData multiData = new MultiData();
-//
 //            multiData.timestamp = System.currentTimeMillis();
 //            multiData.subject_id = ClientPaths.SUBJECT_ID;
 //            multiData.key = ClientPaths.API_KEY;
 //            multiData.battery = ClientPaths.batteryLevel;
 //            multiData.connection = ClientPaths.connectionInfo;
 //            multiData.data = sensorDataString;
-//
 
-//            if (encrypting) {
-//                sensorDataBytes = ClientPaths.encString(sensorDataString);
-//                jsonBody.put("data", Base64.encodeToString(sensorDataBytes, Base64.DEFAULT));
-//
-//                jsonBody.put("data_key", ClientPaths.getSymKey());//new String(ClientPaths.getSymKey(), "ISO-8859-1"));
-//
-//                Log.d(TAG, "Raw sym key: " + ClientPaths.getRawSymKey());
-//                Log.d(TAG, "Sym key: " + jsonBody.get("data_key"));
-////                Log.d(TAG, ClientPaths.decString(sensorDataBytes));
-//            } else {
-//                jsonBody.put("data", sensorDataString);
-//            }
             jsonBody.put("data", sensorDataString);
-//
             String jsonString = jsonBody.toString();
 
             if (true) { //send post body to mobile for forwarding to server
 //            if (ClientPaths.connectionInfo.equals("PROXY")) {
 //                Log.d(TAG, "multi post: " + jsonString);
 //                PostData pd = new PostData();
-//
 //                pd.data = jsonString;
-
                 try {
-//                    Courier.deliverData(ClientPaths.mainContext, ClientPaths.MULTI_API, pd);
-                    Courier.deliverData(ClientPaths.mainContext, ClientPaths.MULTI_API,jsonString);
+                    Courier.deliverData(ClientPaths.mainContext, ClientPaths.MULTI_API,jsonString); //or pd
                     Log.d(TAG, "courier sent multiapi data");
                 } catch (Exception e) {
                     Log.d(TAG, "courier sent multiapi data (with error)");
                 }
-
                 clearData();
-
             }
 
         } catch (Exception e) {

@@ -73,14 +73,15 @@
         <!--</intent-filter>-->
         <!--</receiver>-->
 
-        <activity
-            android:windowSwipeToDismiss="false"
-            android:launchMode="singleInstance"
-            android:theme="@android:style/Theme.NoDisplay"
-
-
+        <!--android:windowSwipeToDismiss="false"-->
+        <!--android:theme="@android:style/Theme.NoDisplay"-->
+        <!--android:launchMode="singleInstance"-->
+       <activity
+        android:launchMode="singleInstance"
             android:name=".MobileActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+           android:theme="@android:style/Theme.NoDisplay" >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -91,9 +92,13 @@
             <!--</intent-filter>]-->
         </activity>
 
-        <service
-            android:name=".services.DetectedActivitiesIntentService"
-            android:exported="false" />
+        <activity android:name=".RegisterActivity"
+            android:label="Register User"
+            android:theme="@style/AppTheme">
+
+
+        </activity>
+
     </application>
 
 

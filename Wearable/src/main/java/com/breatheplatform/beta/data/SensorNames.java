@@ -41,7 +41,6 @@ public class SensorNames {
         names.append(ClientPaths.SPIRO_SENSOR_ID, "Spirometer Sensor");
         names.append(ClientPaths.ENERGY_SENSOR_ID, "Energy Calculation");
 
-
 //                serverSensors.append(ClientPaths.HEART_SENSOR_ID, 3);
         serverSensors.append(Sensor.TYPE_LINEAR_ACCELERATION, 1);
         serverSensors.append(Sensor.TYPE_HEART_RATE, 2);
@@ -49,16 +48,13 @@ public class SensorNames {
         serverSensors.append(ClientPaths.SPIRO_SENSOR_ID, 4);
         serverSensors.append(ClientPaths.ENERGY_SENSOR_ID, 5);
         serverSensors.append(Sensor.TYPE_GYROSCOPE, 6);
-//
-
     }
 
     public String getName(int sensorId) {
         String name = names.get(sensorId);
 
-        if (name == null) {
-            name = "Unknown";
-        }
+        if (name == null)
+            return "Unknown";
 
         return name;
     }

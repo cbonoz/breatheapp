@@ -17,7 +17,6 @@
 package com.breatheplatform.beta;
 
 import android.app.AlertDialog;
-import android.app.KeyguardManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -46,7 +45,6 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.provider.Settings;
-import android.speech.RecognizerIntent;
 import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
@@ -69,7 +67,6 @@ import com.breatheplatform.beta.bluetooth.RFduinoService;
 import com.breatheplatform.beta.data.ConnectionReceiver;
 import com.breatheplatform.beta.data.SensorAddService;
 import com.breatheplatform.beta.messaging.DeviceClient;
-import com.breatheplatform.beta.messaging.UploadTask;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -87,11 +84,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -212,8 +206,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private void setup() {
         Log.d(TAG, "MainActivity setup");
 
-        Courier.startReceiving(this);
-
         //http://stackoverflow.com/questions/5442183/using-the-animated-circle-in-an-imageview-while-loading-stuff
         progressBar = (RelativeLayout) findViewById(R.id.loadingPanel);
         progressBar.setVisibility(View.GONE);
@@ -297,6 +289,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                         Log.d(TAG, " sensorToggle Checked");
                     } else {
                         stopMeasurement();
+                        //trigger a data send event to the mobile device
+                        addSensorData(ClientPaths.TERMINATE_SENSOR_ID, null, null, null);
                         Log.d(TAG, "sensorToggle Not Checked");
                     }
                 }
@@ -328,6 +322,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         }
 
         updateRiskUI(LOW_RISK);
+        updateSubjectUI(ClientPaths.SUBJECT_ID);
         updateBatteryLevel();
 
         setConnectivity();
@@ -417,67 +412,21 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         alertDialog.show();
     }
 
-    private KeyguardManager.KeyguardLock lock;
-    @Override
-    public void onBackPressed() {
-    }
 
-
-    // Create an intent that can start the Speech Recognizer activity
-    private void displaySpeechRecognizer() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-// Start the activity, the intent will be populated with the speech text
-        startActivityForResult(intent, SUBJECT_REQUEST_CODE);
-    }
-
-    // This callback is invoked when the Speech Recognizer returns.
-// This is where you process the intent and extract the speech text from the intent.
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode,
-                                    Intent data) {
-        if (requestCode == SUBJECT_REQUEST_CODE && resultCode == RESULT_OK) {
-            List<String> results = data.getStringArrayListExtra(
-                    RecognizerIntent.EXTRA_RESULTS);
-            String spokenText = results.get(0);
-
-            // Do something with spokenText
-            Log.d(TAG, "onSpeechResult " + spokenText);
-            Integer sid=null;
-            try {
-                sid = Integer.parseInt(spokenText);
-                Toast.makeText(MainActivity.this, "Success SID: " + sid, Toast.LENGTH_SHORT).show();
-                ClientPaths.setSubjectID(sid);
-
-//                setup();
-
-                //update the subject ID
-                subjectView = (TextView) findViewById(R.id.subjectText);
-                String st = "Subject: " + sid;
-                subjectView.setText(st);
-
-
-            } catch (Exception e) {
-                Toast.makeText(this, "Heard " + spokenText + " not a valid # - start app again",Toast.LENGTH_SHORT).show();
-                new Timer().schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        // this code will be executed after 2 seconds
-                        onDestroy();
-                        finish();
-                    }
-                }, 3000);
-            }
-
-
-
+    private void requestSubject() {
+        if (ClientPaths.SUBJECT_ID == null) {
+            Log.d(TAG, "Requesting Subject");
+            Courier.deliverMessage(this, ClientPaths.SUBJECT_API, "test");
+        } else {
+            Log.i(TAG, "Requested Subject, but already have it.");
         }
-        super.onActivityResult(requestCode, resultCode, data);
     }
+
 
     public void onCreate(Bundle b) {
         super.onCreate(b);
+
+        Courier.startReceiving(this);
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
@@ -498,42 +447,19 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
                 mRectBackground = (RelativeLayout) findViewById(R.id.rect_layout);
                 mRoundBackground = (RelativeLayout) findViewById(R.id.round_layout);
-//                updateDisplay();
 
-                if (ClientPaths.getSubjectID() == ClientPaths.NO_VALUE) {
-                    displaySpeechRecognizer();
-                    Toast.makeText(MainActivity.this, "Please say your ID #", Toast.LENGTH_SHORT).show();
-                } else {
-                    setup();
-                }
+                requestSubject();
+
+
+
             }
         });
     }
 
-//    private void retrieveDeviceNode() {
-//
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                mGoogleApiClient.blockingConnect(10000, TimeUnit.MILLISECONDS);
-//                NodeApi.GetConnectedNodesResult result =
-//                        Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
-//                List<Node> nodes = result.getNodes();
-//                Log.d(TAG, "retrieveDeviceNode found: " + nodes.toString());
-//                if (nodes.size() > 0) {
-//                    ClientPaths.mobileNodeId = nodes.get(0).getId();
-//                    Log.d(TAG, "connecting to first node for comm " + ClientPaths.mobileNodeId);
-//                }
-//                //client.disconnect();
-//            }
-//        }).start();
-//    }
-
     private Boolean healthDanger = false;
 
     public void updateSubjectUI(String sub) {
-
-        ClientPaths.setSubjectID(Integer.parseInt(sub));
+//        ClientPaths.SUBJECT_ID = sub;
         subjectView = (TextView) findViewById(R.id.subjectText);
         String st = "Subject: " + sub;
         subjectView.setText(st);
@@ -669,9 +595,21 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     @ReceiveMessages(ClientPaths.SUBJECT_API)
     void onSubjectReceived(String sub) { // The nodeId parameter is optional
         Log.d(TAG, "ReceiveMessage subject: " + sub);
-        updateSubjectUI(sub);
+//        updateSubjectUI(sub);
+        if (ClientPaths.SUBJECT_ID == null) {
+            ClientPaths.SUBJECT_ID = sub;
+            setup();
+        }
+    }
 
-        // ...
+
+    @BackgroundThread
+    @ReceiveMessages(ClientPaths.LABEL_API)
+    void onLabelReceived(String n) { // The nodeId parameter is optional
+        Log.d(TAG, "ReceiveMessage label: " + n);
+//        updateSubjectUI(sub);
+        Toast.makeText(this,"File " + n + " created", Toast.LENGTH_LONG).show();
+
     }
 
 //
@@ -689,11 +627,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Log.d(TAG, "ReceiveActivity: " + value);
         updateRiskUI(value);
 
-        // ...
+
     }
-
-
-
 
     @BackgroundThread
     @ReceiveMessages(ClientPaths.MULTI_API)
@@ -727,28 +662,11 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                     Log.d(TAG, "courier sent riskapi data (with error)");
                 }
 
-
-
-
-
-
-//                PutDataMapRequest putDataMapReq = PutDataMapRequest.create(ClientPaths.RISK_API);
-//                DataMap dm = putDataMapReq.getDataMap();
-//                dm.putString("data", data);
-//
-//                PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
-//                PendingResult<DataApi.DataItemResult> pendingResult =
-//                        Wearable.DataApi.putDataItem(mGoogleApiClient, putDataReq);
-//                if (client!=null)
-//                    client.sendPostRequest(data, ClientPaths.RISK_API);
-//                else
-//                    Log.e(TAG, "postcancel - client is null (risk)");
-                return;
             }
 
-
-            UploadTask uploadTask = new UploadTask(ClientPaths.BASE + ClientPaths.RISK_API, MainActivity.this);//, root + File.separator + SENSOR_FNAME);
-            uploadTask.execute(data);
+//
+//            UploadTask uploadTask = new UploadTask(ClientPaths.BASE + ClientPaths.RISK_API, MainActivity.this);//, root + File.separator + SENSOR_FNAME);
+//            uploadTask.execute(data);
 
 //            client.sendPostRequest(data, ClientPaths.RISK_CASE);
 
@@ -873,13 +791,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             Log.e(TAG, "connReceiver off");
         }
 
-        try {
-            wl.release();
-            lock.disableKeyguard();
-        } catch (Exception e) {
-            Log.e(TAG, "Wakelock off");
-        }
-
     }
 
     @Override
@@ -890,7 +801,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     @Override
     protected void onResume() {
         Log.d(TAG, "onResume");
-
+        requestSubject();
+        Log.d(TAG, "subject " + ClientPaths.SUBJECT_ID);
 //        LocalBroadcastManager.getInstance(this).registerReceiver(activityReceiver,
 //                new IntentFilter(Constants.BROADCAST_ACTION));
         super.onResume();
@@ -1682,7 +1594,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
 
     //append sensor data
-    private void addSensorData(final int sensorType, final int accuracy, final long t, final float[] values) {
+    private void addSensorData(final Integer sensorType, final Integer accuracy, final Long t, final float[] values) {
 
         Intent i = new Intent(this, SensorAddService.class);
         i.putExtra("sensorType", sensorType);

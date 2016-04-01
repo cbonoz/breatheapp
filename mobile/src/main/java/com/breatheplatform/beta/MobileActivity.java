@@ -2,34 +2,24 @@ package com.breatheplatform.beta;
 
 import android.app.Activity;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
+import android.os.StatFs;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.breatheplatform.beta.encryption.MyEncrypter;
-import com.breatheplatform.beta.services.Constants;
 import com.breatheplatform.beta.services.DetectedActivitiesIntentService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
-import com.google.android.gms.location.DetectedActivity;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import me.denley.courier.BackgroundThread;
 import me.denley.courier.Courier;
@@ -50,14 +40,16 @@ public class MobileActivity extends Activity implements
 
     private static final String TAG = "MobileActivity";
 
+
     protected GoogleApiClient mGoogleApiClient;
-    protected ActivityDetectionBroadcastReceiver mBroadcastReceiver;
+//    protected ActivityDetectionBroadcastReceiver activityReceiver;
 
     /**
      * Request code for launching the Intent to resolve Google Play services errors.
      */
     private static final int REQUEST_RESOLVE_ERROR = 1000;
     public static final String MY_PREFS_NAME = "SubjectFile";
+    private static String count = "0";
     //    public GoogleApiClient mGoogleApiClient;
 
     public String getCountandIncrement() {
@@ -65,10 +57,8 @@ public class MobileActivity extends Activity implements
             Log.e(TAG, "getCount but prefs is null");
             return "-1";
         }
-        String count = prefs.getString("subject", null);
-        if (count == null) {
-            count = "0";
-        }
+
+        count = prefs.getString("count", "0");
 
         String newCount = (Integer.parseInt(count) + 1)+"";
 
@@ -84,6 +74,7 @@ public class MobileActivity extends Activity implements
 
     public File nextLabelFile() {
         labelDirectory = ClientPaths.ROOT + "/Breathe" + getCountandIncrement() + ".txt";
+        Log.d(TAG, "Creating Label File " + labelDirectory);
         return ClientPaths.createFile(labelDirectory);
     }
 
@@ -98,67 +89,36 @@ public class MobileActivity extends Activity implements
         return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    private static String code = "5555";
+//    private static
     private SharedPreferences prefs = null;
-    private String subject;
-
-    public Boolean acceptCredentials(String pw) {
-        return code.equals(pw);
-    }
-
-    public void setSubjectAndClose(String subject_id) {
-
-        Courier.deliverMessage(this,ClientPaths.SUBJECT_API,subject_id);
-        subject = subject_id;
-
-        setTheme(android.R.style.Theme_NoDisplay);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("subject", subject_id);
-        editor.commit();
-    }
+    private String subject = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(android.R.style.Theme_NoDisplay);
+        super.onCreate(savedInstanceState);
 
         prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
 
 
-
         subject = prefs.getString("subject", null);
+
+
+        Log.d(TAG, "subject " + subject);
+
+        //if subject is null, start registration page
         if (subject == null) {
-            setTheme(android.R.style.Theme_DeviceDefault);
-
-            setContentView(R.layout.mobile_activity);
-
-            Button subjectButton = (Button) findViewById(R.id.subjectButton);
-            subjectButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    EditText codeText = (EditText) findViewById(R.id.codeText);
-                    EditText subjectText = (EditText) findViewById(R.id.subjectText);
-
-                    if (acceptCredentials(codeText.getText().toString())) {
-                        setSubjectAndClose(subjectText.getText().toString());
-                        Toast.makeText(MobileActivity.this, "Registered Patient",Toast.LENGTH_SHORT).show();
-
-                    } else {
-                        Toast.makeText(MobileActivity.this, "Clinician Code Not Valid",Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
+            Intent i = new Intent(this, RegisterActivity.class);
+            this.startActivity(i);
         }
-        super.onCreate(savedInstanceState);
-        Courier.startReceiving(this);
 
-//        mBroadcastReceiver = new ActivityDetectionBroadcastReceiver();
+        Courier.startReceiving(this);
 
         buildGoogleApiClient();
         Log.d(TAG, "created API client");
 
         MyEncrypter.createRsaEncrypter(this);
-
-
+        Log.d(TAG, "Sending subject_id " + subject + " to watch");
+        Courier.deliverMessage(this,ClientPaths.SUBJECT_API,subject);
     }
 
     /**
@@ -188,20 +148,26 @@ public class MobileActivity extends Activity implements
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume");
+
+        //if subject is null onResume, try registering again.
+        if (subject != null) {
+            Intent i = new Intent(this, RegisterActivity.class);
+            this.startActivity(i);
+        }
+
         // Register the broadcast receiver that informs this activity of the DetectedActivity
         // object broadcast sent by the intent service.
-        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver,
-                new IntentFilter(Constants.BROADCAST_ACTION));
-        finish();
+//        LocalBroadcastManager.getInstance(this).registerReceiver(activityReceiver, new IntentFilter(Constants.BROADCAST_ACTION));
+//        finish();
     }
 
     @Override
     protected void onPause() {
         // Unregister the broadcast receiver that was registered during onResume().
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+//        LocalBroadcastManager.getInstance(this).unregisterReceiver(activityReceiver);
         super.onPause();
     }
-
 
     /**
      * Runs when a GoogleApiClient object successfully connects.
@@ -210,19 +176,6 @@ public class MobileActivity extends Activity implements
     public void onConnected(Bundle connectionHint) {
 
         Log.i(TAG, "Connected to GoogleApiClient");
-        //Request Activity Updates from GoogleAPIClient
-//        try {
-//            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
-//                    mGoogleApiClient,
-//                    Constants.DETECTION_INTERVAL_IN_MILLISECONDS,
-//                    getActivityDetectionPendingIntent()
-//            ).setResultCallback(this);
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            Log.e(TAG, "[Handled] Error Requesting Activity (lack of permission)");
-//
-//        }
     }
 
     @Override
@@ -305,6 +258,7 @@ public class MobileActivity extends Activity implements
     @ReceiveMessages(ClientPaths.SUBJECT_API)
     void onSubjectReceived(String data) { // The nodeId parameter is optional
         //send subject back to watch
+        Log.d(TAG, "Received subject_id request from wear");
         Courier.deliverMessage(this, ClientPaths.SUBJECT_API, subject);
     }
 
@@ -316,13 +270,14 @@ public class MobileActivity extends Activity implements
 //    }
 
     public void createToast(String s) {
-        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, s, Toast.LENGTH_LONG).show();
     }
 
 
     private static Boolean writing = true;
     private static Boolean encrypting = false;
-    private static Boolean collecting = false;
+    private static Boolean collecting = true;
+
     private static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";//"GWTgVdeNeVwsGqQHHhChfiPgDxxgXJzLoxUD0R64Gns";
 
     @BackgroundThread
@@ -371,13 +326,26 @@ public class MobileActivity extends Activity implements
                     labelFile = nextLabelFile();
                     Boolean result = ClientPaths.writeDataToFile(sensorData, labelFile, false);
                     if (result) {
-                        createToast(labelDirectory + " created");
+                        try {
+                            StatFs stats = new StatFs("/data");
+                            int availableBlocks = stats.getAvailableBlocks();
+                            int blockSizeInBytes = stats.getBlockSize();
+                            double freeSpaceInBytes = availableBlocks * blockSizeInBytes;
+                            String info = labelDirectory + " - " + freeSpaceInBytes / 1000 + "kB left";
+                            Log.d(TAG, info);
+                            createToast(info);
+                            Courier.deliverMessage(this,ClientPaths.LABEL_API,count);
+                        } catch (Exception e) {
+                            Log.d(TAG, "Error getting label file stats");
+                        }
+
                     } else {
                         createToast("Label Memory Full");
                         writing = false;
                     }
 
                 } else {
+                    //write the first instance of the multi-api post request body (for testing encryption)
                     ClientPaths.writeDataToFile(data, ClientPaths.sensorFile, false);
                     writing = false;
                 }
@@ -403,21 +371,22 @@ public class MobileActivity extends Activity implements
     protected void onDestroy() {
         super.onDestroy();
         Courier.stopReceiving(this);
-        Toast.makeText(this, "Breathe App onDestroy", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "onDestroy called");
+        createToast("Breathe App onDestroy");
 //        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
 
-        if (mGoogleApiClient.isConnected()) {
-            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
-                    mGoogleApiClient,
-                    getActivityDetectionPendingIntent()
-            ).setResultCallback(this);
-        }
+//        if (mGoogleApiClient.isConnected()) {
+//            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
+//                    mGoogleApiClient,
+//                    getActivityDetectionPendingIntent()
+//            ).setResultCallback(this);
+//        }
 
-        try {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
-        } catch (Exception e) {
-            Log.d(TAG, "BroadCast Receiver unregistered");
-        }
+//        try {
+//            LocalBroadcastManager.getInstance(this).unregisterReceiver(activityReceiver);
+//        } catch (Exception e) {
+//            Log.d(TAG, "BroadCast Receiver unregistered");
+//        }
 //
         if (mGoogleApiClient.isConnected()) {
             try {
@@ -427,12 +396,7 @@ public class MobileActivity extends Activity implements
 
             }
         }
-
-//        Wearable.DataApi.removeListener(mGoogleApiClient, this);
-
-
         mGoogleApiClient.disconnect();
-
     }
 
 
@@ -441,41 +405,20 @@ public class MobileActivity extends Activity implements
      * Receives a list of one or more DetectedActivity objects associated with the current state of
      * the device.
      */
-    public class ActivityDetectionBroadcastReceiver extends BroadcastReceiver {
-        protected static final String TAG = "activity-detection-response-receiver";
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            ArrayList<DetectedActivity> updatedActivities =
-                    intent.getParcelableArrayListExtra(Constants.ACTIVITY_EXTRA);
-
-            for (DetectedActivity activity : updatedActivities) {
-                Log.d(TAG, activity.getType() + " " + activity.getConfidence());
-            }
-
-        }
-    }
-
-
-
-    public String toJSON(MultiData md){
-
-        JSONObject jsonBody = new JSONObject();
-        try {
-            jsonBody.put("timestamp",md.timestamp);
-            jsonBody.put("subject_id", md.subject_id);
-            jsonBody.put("key", md.key);
-            jsonBody.put("battery",md.battery);
-            jsonBody.put("connection", md.connection);
-            jsonBody.put("data",md.data);
-
-            return jsonBody.toString();
-        } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return "";
-        }
-    }
-
+//    public class ActivityDetectionBroadcastReceiver extends BroadcastReceiver {
+//        protected static final String TAG = "activity-detection-response-receiver";
+//
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            ArrayList<DetectedActivity> updatedActivities =
+//                    intent.getParcelableArrayListExtra(Constants.ACTIVITY_EXTRA);
+//
+//            for (DetectedActivity activity : updatedActivities) {
+//                Log.d(TAG, activity.getType() + " " + activity.getConfidence());
+//            }
+//
+//        }
+//    }
+//
 
 }

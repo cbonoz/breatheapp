@@ -147,6 +147,20 @@
         android:layout_below="@+id/heartImage"
         android:layout_alignParentStart="true" />
 
+    <RelativeLayout
+        android:id="@+id/loadingPanel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center" >
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+
     <Switch
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -164,7 +178,8 @@
         android:textSize="10dp"
         android:layout_below="@+id/sensorSwitch"
         android:layout_alignParentRight="true"
-        android:layout_toEndOf="@+id/heartText" />
+        android:layout_toEndOf="@+id/heartText"
+        android:layout_alignStart="@+id/sensorSwitch" />
 
 </RelativeLayout>
 

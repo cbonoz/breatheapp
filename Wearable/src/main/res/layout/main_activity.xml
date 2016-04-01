@@ -14,10 +14,10 @@
      https://github.com/googlesamples/android-WatchViewStub/tree/master/Wearable/src/main
 -->
 
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <android.support.wearable.view.WatchViewStub
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -36,18 +36,20 @@
         android:layout_height="match_parent"
         android:layout_width="match_parent">
 
-        <FrameLayout
-            android:id="@+id/frame_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_box="bottom">
-
-        </FrameLayout>
     </android.support.wearable.view.BoxInsetLayout>
 
     <android.support.wearable.view.DismissOverlayView
         android:id="@+id/dismiss_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <FrameLayout
+        android:id="@+id/frame_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_box="bottom"
+        android:layout_gravity="center">
+
+    </FrameLayout>
 
 </FrameLayout>

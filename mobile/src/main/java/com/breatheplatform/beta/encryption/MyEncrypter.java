@@ -101,13 +101,9 @@ public class MyEncrypter {
 //            return new String(encrypted, "utf-8");
             return Base64.encodeToString(encrypted,Base64.DEFAULT);
 //            return new String(Base64.encode(encrypted, Base64.DEFAULT));
-
-
         } catch (Exception e) {
             return null;
         }
-
-
     }
 
     //http://stackoverflow.com/questions/19623367/rsa-encryption-decryption-using-java

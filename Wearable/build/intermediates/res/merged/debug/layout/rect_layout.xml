@@ -19,8 +19,8 @@
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-    android:clipChildren="false"
-    android:clipToPadding="false"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:id="@+id/rect_layout">
 
 
@@ -66,7 +66,7 @@
     <TextView
         android:layout_width="89dp"
         android:layout_height="wrap_content"
-        android:text="Welcome"
+        android:text="No Subject"
         android:id="@+id/subjectText"
         android:layout_gravity="right|bottom"
         android:gravity="right"
@@ -108,7 +108,8 @@
         <ProgressBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:indeterminate="true" />
+            android:indeterminate="true"
+            android:visibility="gone" />
     </RelativeLayout>
 
     <TextView

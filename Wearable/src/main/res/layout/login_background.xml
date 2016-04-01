@@ -22,7 +22,8 @@
         android:text="Welcome\nto Breathe"
         android:gravity="center"
         android:textSize="20dp"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="36dp" />
 
 </RelativeLayout>

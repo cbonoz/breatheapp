@@ -27,6 +27,6 @@
     <string name="passcode">Enter Clinician Passcode</string>
     <string name="subject">Enter Subject ID</string>
     <string name="submit">Submit</string>
-    <string name="welcome">Welcome to Breathe App. </string>
-    <string name="welcome_text">Please type your provided Clinician Code and Subject ID to register the patient on the Wearable</string>
+    <string name="welcome">Welcome to Breathe</string>
+    <string name="welcome_text">Enter your provided Clinician Code and Subject ID below to register your patient on the paired Wearable</string>
 </resources>

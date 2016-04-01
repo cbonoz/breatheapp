@@ -10,13 +10,10 @@ import java.io.FileWriter;
  * Created by cbono on 3/18/16.
  */
 public class ClientPaths {
-
     public static final String BROADCAST_ACTION = ".BROADCAST_ACTION";
     private static final String TAG = "ClientPaths";
 
     public static final File ROOT = android.os.Environment.getExternalStorageDirectory();
-
-//
 //    public static final String rsaKeyDirectory = ROOT + "/PublicKey.pem";
 //    public static final File rsaKeyFile = createFile(rsaKeyDirectory);
 
@@ -30,6 +27,7 @@ public class ClientPaths {
     public static final String MULTI_API = "/api/multisensor/add";
     public static final String RISK_API = "/api/risk/get";
     public static final String CALENDAR_API = "/api/calendar/add";
+    public static final String LABEL_API = "/label";
 
 
     public static final String PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuvzFRohXhgcG7y5Ly3QX\n" +
@@ -55,24 +53,16 @@ public class ClientPaths {
 
     public static boolean writeDataToFile(String data, File file, Boolean append) {
         try {
-
             BufferedWriter f = new BufferedWriter(new FileWriter(file, append));
             f.write(data);
-
             f.close();
 
             Log.d(TAG,file.toString()+ " filelength " + file.length() + "B");
-
             return true;
 
         } catch (Exception e) {
             e.printStackTrace();
-
             return false;
-
         }
-
     }
-
-
 }

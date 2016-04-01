@@ -10,9 +10,7 @@ import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -63,7 +61,6 @@ public class MobileUploadService extends IntentService {
     private WifiManager wifiManager;
     private WifiManager.WifiLock lock;
 
-    private Boolean writing = true;
     private Boolean sending = false;
 
 //    private DeviceClient client;

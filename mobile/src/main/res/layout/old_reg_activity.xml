@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#d6f4fa"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:id="@+id/mobile_layout">
+
+
+    <Space
+    android:layout_width="match_parent"
+    android:layout_height="75dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/welcome"
+        android:gravity="center"
+        android:textSize="24dp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="25dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/welcome_text"
+        android:gravity="center"/>
+
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+    <!-- -->
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberPassword"
+        android:id="@+id/codeText"
+        android:hint="@string/passcode"
+       />
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="25dp" />
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:id="@+id/subjectText"
+        android:hint="@string/subject" />
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="25dp" />
+
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/subjectButton"
+        android:text="@string/submit" />
+
+
+</LinearLayout>
+
+

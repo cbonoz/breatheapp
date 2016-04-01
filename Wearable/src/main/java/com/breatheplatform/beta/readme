@@ -8,10 +8,6 @@ Workflow:
 
 Currently working on implementing a UI-based registration process on the mobile device.
 
-
 Wearable must be paired to both the desired phone, spirometer, and dust sensor before use.
-
-
-
 
 http://stackoverflow.com/questions/18755739/how-to-delete-an-app-from-adb-without-knowing-its-package-name
