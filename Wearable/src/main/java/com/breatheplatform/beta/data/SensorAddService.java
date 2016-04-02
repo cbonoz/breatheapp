@@ -7,6 +7,7 @@ import android.util.Log;
 import android.util.SparseLongArray;
 
 import com.breatheplatform.beta.ClientPaths;
+import com.breatheplatform.beta.shared.Constants;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -64,7 +65,7 @@ public class SensorAddService extends IntentService {
 
     private static Integer RECORD_LIMIT = 100;
 
-    private static String urlString = ClientPaths.BASE + ClientPaths.MULTI_API;
+    private static String urlString = Constants.BASE + Constants.MULTI_API;
     private static URL url = createURL();
 
     private static URL createURL() {
@@ -121,12 +122,12 @@ public class SensorAddService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         // Gets data from the incoming Intent
-        long t = intent.getLongExtra("time", ClientPaths.NO_VALUE);
+        long t = intent.getLongExtra("time", Constants.NO_VALUE);
         float[] values = intent.getFloatArrayExtra("values");
-        int acc = intent.getIntExtra("accuracy", ClientPaths.NO_VALUE);
-        int sType = intent.getIntExtra("sensorType",ClientPaths.NO_VALUE);
+        int acc = intent.getIntExtra("accuracy", Constants.NO_VALUE);
+        int sType = intent.getIntExtra("sensorType",Constants.NO_VALUE);
 
-        if (sType == ClientPaths.TERMINATE_SENSOR_ID) {
+        if (sType == Constants.TERMINATE_SENSOR_ID) {
             createDataPostRequest();
             return;
         }
@@ -152,7 +153,7 @@ public class SensorAddService extends IntentService {
 //            return;
 //        }
 
-        //ClientPaths.createDataEntry(sensorType, accuracy, timestamp, values);
+        //ActivityConstants.createDataEntry(sensorType, accuracy, timestamp, values);
         JSONObject jsonDataEntry = new JSONObject();
         JSONObject jsonValue = new JSONObject();
 
@@ -227,9 +228,9 @@ public class SensorAddService extends IntentService {
                 jsonDataEntry.put("long", ClientPaths.currentLocation.getLongitude());
                 jsonDataEntry.put("location_accuracy", ClientPaths.currentLocation.getAccuracy());
             } else {
-                jsonDataEntry.put("lat",ClientPaths.NO_VALUE);
-                jsonDataEntry.put("long",ClientPaths.NO_VALUE);
-                jsonDataEntry.put("location_accuracy", ClientPaths.NO_VALUE);
+                jsonDataEntry.put("lat",Constants.NO_VALUE);
+                jsonDataEntry.put("long",Constants.NO_VALUE);
+                jsonDataEntry.put("location_accuracy", Constants.NO_VALUE);
             }
 
         } catch (Exception e) {
@@ -262,7 +263,7 @@ public class SensorAddService extends IntentService {
             sumZ += z;
             if (energyCount==ENERGY_LIMIT) {
                 energy+=Math.pow(sumX,2) + Math.pow(sumY,2) + Math.pow(sumZ,2);
-                addSensorData(ClientPaths.ENERGY_SENSOR_ID, 3, currentTime, new float[]{energy});
+                addSensorData(Constants.ENERGY_SENSOR_ID, 3, currentTime, new float[]{energy});
                 sumX = 0;
                 sumY = 0;
                 sumZ = 0;
@@ -308,8 +309,9 @@ public class SensorAddService extends IntentService {
 //                Log.d(TAG, "multi post: " + jsonString);
 //                PostData pd = new PostData();
 //                pd.data = jsonString;
+
                 try {
-                    Courier.deliverData(ClientPaths.mainContext, ClientPaths.MULTI_API,jsonString); //or pd
+                    Courier.deliverData(ClientPaths.mainContext, Constants.MULTI_API,jsonString); //or pd
                     Log.d(TAG, "courier sent multiapi data");
                 } catch (Exception e) {
                     Log.d(TAG, "courier sent multiapi data (with error)");

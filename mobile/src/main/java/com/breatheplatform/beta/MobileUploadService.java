@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
+import com.breatheplatform.beta.shared.Constants;
+
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
@@ -41,8 +43,8 @@ public class MobileUploadService extends IntentService {
         }
     }
 
-    private static URL multiUrl = createURL(ClientPaths.BASE + ClientPaths.MULTI_API);
-    private static URL riskUrl = createURL(ClientPaths.BASE + ClientPaths.RISK_API);
+    private static URL multiUrl = createURL(Constants.BASE + Constants.MULTI_API);
+    private static URL riskUrl = createURL(Constants.BASE + Constants.RISK_API);
 
     private static String currentNetwork = "";
 
@@ -106,10 +108,10 @@ public class MobileUploadService extends IntentService {
             byte[] dataBytes = data.getBytes();//.getBytes("ISO-8859-1");
 
             switch(urlString) {
-                case ClientPaths.RISK_API:
+                case Constants.RISK_API:
                     conn = (HttpURLConnection) riskUrl.openConnection();
                     break;
-                case ClientPaths.MULTI_API:
+                case Constants.MULTI_API:
                     conn = (HttpURLConnection) multiUrl.openConnection();
 //                    try {
 //                        data = decompress(data);
@@ -121,8 +123,8 @@ public class MobileUploadService extends IntentService {
 
 
                     break;
-                case ClientPaths.SUBJECT_API:
-                    URL url = createURL(ClientPaths.BASE + ClientPaths.SUBJECT_API);
+                case Constants.SUBJECT_API:
+                    URL url = createURL(Constants.BASE + Constants.SUBJECT_API);
                     if (url!=null)
                         conn = (HttpURLConnection) url.openConnection();
                     else {
@@ -199,7 +201,7 @@ public class MobileUploadService extends IntentService {
             Log.i(TAG, "From " + urlString);
 
             switch (urlString) {
-                case ClientPaths.SUBJECT_API:
+                case Constants.SUBJECT_API:
                     try {
                         String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
                         final JSONObject resJson = new JSONObject(jsonString);
@@ -214,27 +216,27 @@ public class MobileUploadService extends IntentService {
                     }
 
 
-                case ClientPaths.RISK_API:
+                case Constants.RISK_API:
                     try {
                         String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
                         final JSONObject resJson = new JSONObject(jsonString);
                         newRisk = Integer.parseInt(resJson.getString("risk"));
                         Log.i(TAG, "Setting new riskLevel: " + newRisk);
-//                        ClientPaths.setRiskLevel(newRisk);
+//                        Constants.setRiskLevel(newRisk);
 
                     } catch (Exception e) {
-                        newRisk=ClientPaths.NO_VALUE;
+                        newRisk=Constants.NO_VALUE;
                         Log.e(TAG, "[Handled] Error response from risk api");
 
                     }
                     break;
-//                case ClientPaths.PUBLIC_KEY_API:
+//                case Constants.PUBLIC_KEY_API:
 //                    try {
 //                        String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
 //                        final JSONObject resJson = new JSONObject(jsonString);
 //                        String key = "";
-//                        ClientPaths.writeDataToFile(key, ClientPaths.publicKeyFile, false);
-//                        ClientPaths.createEncrypter();
+//                        Constants.writeDataToFile(key, Constants.publicKeyFile, false);
+//                        Constants.createEncrypter();
 //                        break;
 //                    } catch (Exception e) {
 //
@@ -249,7 +251,7 @@ public class MobileUploadService extends IntentService {
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, "[Handled] Could not Connect to Internet (" + urlString + ")");
-            newRisk = ClientPaths.NO_VALUE;
+            newRisk = Constants.NO_VALUE;
 
         } finally {
 
@@ -260,17 +262,17 @@ public class MobileUploadService extends IntentService {
 //            i.putExtra("url", urlCase);
 
             switch (urlString) {
-                case ClientPaths.RISK_API:
+                case Constants.RISK_API:
                     if (newRisk == null)
-                        newRisk = ClientPaths.NO_VALUE;
+                        newRisk = Constants.NO_VALUE;
                     Log.d(TAG, "returning from phone RISK_API - value " + newRisk);
-                    Courier.deliverMessage(this, ClientPaths.RISK_API, newRisk);
+                    Courier.deliverMessage(this, Constants.RISK_API, newRisk);
 
-//                    Courier.deliverData(this, ClientPaths.ACTIVITY_API, newRisk, ClientPaths.activityName);
+//                    Courier.deliverData(this, Constants.ACTIVITY_API, newRisk, Constants.activityName);
 //                    i.putExtra("risk", newRisk);
                     break;
-                case ClientPaths.MULTI_API:
-                    Courier.deliverMessage(this, ClientPaths.MULTI_API, 1);
+                case Constants.MULTI_API:
+                    Courier.deliverMessage(this, Constants.MULTI_API, 1);
 //                    i.putExtra("response", newResponse);
                     break;
             }

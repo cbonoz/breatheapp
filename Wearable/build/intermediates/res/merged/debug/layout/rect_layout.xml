@@ -110,7 +110,21 @@
             android:layout_height="wrap_content"
             android:indeterminate="true"
             android:visibility="gone" />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Please start Breathe App on Mobile Device"
+            android:id="@+id/noConnText"
+            android:textSize="10dp"
+            android:gravity="center"
+            android:maxWidth="120dp" />
+
     </RelativeLayout>
+
+
 
     <TextView
         android:layout_width="wrap_content"

@@ -23,11 +23,11 @@ import com.breatheplatform.beta.R;
 import com.google.android.gms.location.DetectedActivity;
 
 /**
- * Constants used in this sample.
+ * ActivityConstants used in this sample.
  */
-public final class Constants {
+public final class ActivityConstants {
 
-    private Constants() {
+    private ActivityConstants() {
     }
 
     public static final String PACKAGE_NAME = "com.google.android.gms.location.activityrecognition";

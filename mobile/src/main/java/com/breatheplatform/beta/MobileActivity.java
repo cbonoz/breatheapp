@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.breatheplatform.beta.encryption.MyEncrypter;
 import com.breatheplatform.beta.services.DetectedActivitiesIntentService;
+import com.breatheplatform.beta.shared.Constants;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -70,7 +71,7 @@ public class MobileActivity extends Activity implements
     }
 
     public static String labelDirectory = null;
-    public static File labelFile = null;// = createFile(sensorDirectory);
+    public static File labelFile  = null;// = createFile(sensorDirectory);
 
     public File nextLabelFile() {
         labelDirectory = ClientPaths.ROOT + "/Breathe" + getCountandIncrement() + ".txt";
@@ -118,7 +119,7 @@ public class MobileActivity extends Activity implements
 
         MyEncrypter.createRsaEncrypter(this);
         Log.d(TAG, "Sending subject_id " + subject + " to watch");
-        Courier.deliverMessage(this,ClientPaths.SUBJECT_API,subject);
+        Courier.deliverMessage(this, Constants.SUBJECT_API,subject);
     }
 
     /**
@@ -207,66 +208,56 @@ public class MobileActivity extends Activity implements
         mGoogleApiClient.connect();
     }
 
-
-//
-//    // Our handler for received Intents. This will be called whenever an Intent
-//// with an action named "upload-done" is broadcasted.
-//    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            // Get extra data included in the Intent
-//
-//            String urlCase = intent.getStringExtra("url");
-////            Log.d("local receiver", urlCase);
-//
-////            PutDataMapRequest putDataMapReq = PutDataMapRequest.create(urlCase);
-////            DataMap dm = putDataMapReq.getDataMap();
-//
-//            switch (urlCase) {
-//                case ClientPaths.RISK_API:
-//                    int riskValue = intent.getIntExtra("risk", ClientPaths.NO_VALUE);
-//                    Courier.deliverMessage(MobileActivity.this,ClientPaths.RISK_API, riskValue);
-////                    dm.putInt("risk", riskValue);
-//                    break;
-//                case ClientPaths.MULTI_API:
-//                    String response = intent.getStringExtra("response");
-//                    Courier.deliverMessage(MobileActivity.this,ClientPaths.MULTI_API, response);
-////                    dm.putString("response",response);
-//                    break;
-//            }
-//
-//
-////            PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
-////            com.google.android.gms.common.api.PendingResult<DataApi.DataItemResult> pendingResult =
-////                    Wearable.DataApi.putDataItem(mGoogleApiClient, putDataReq);
-//        }
-//    };
-
-
-
     @BackgroundThread
-    @ReceiveMessages(ClientPaths.RISK_API)
+    @ReceiveMessages(Constants.RISK_API)
     void onRiskReceived(String data) { // The nodeId parameter is optional
-        Log.d(TAG, "Received message from " + ClientPaths.RISK_API);
+        Log.d(TAG, "Received message from " + Constants.RISK_API);
         Intent i = new Intent(this, MobileUploadService.class);
         i.putExtra("data",data);
-        i.putExtra("url",ClientPaths.RISK_API);
+        i.putExtra("url",Constants.RISK_API);
         startService(i);
     }
 
     @BackgroundThread
-    @ReceiveMessages(ClientPaths.SUBJECT_API)
+    @ReceiveMessages(Constants.SUBJECT_API)
     void onSubjectReceived(String data) { // The nodeId parameter is optional
         //send subject back to watch
         Log.d(TAG, "Received subject_id request from wear");
-        Courier.deliverMessage(this, ClientPaths.SUBJECT_API, subject);
+        Courier.deliverMessage(this, Constants.SUBJECT_API, subject);
+    }
+
+    @BackgroundThread
+    @ReceiveMessages(Constants.FILE_API)
+    void onFileReceived(String data) {
+
+        if (data.equals(Constants.START_WRITE)) {
+            labelFile = nextLabelFile();
+            Log.d(TAG, "Set new labelfile: " + labelFile.toString());
+        } else {
+            try {
+                StatFs stats = new StatFs("/data");
+                int availableBlocks = stats.getAvailableBlocks();
+                int blockSizeInBytes = stats.getBlockSize();
+                double freeSpaceInBytes = availableBlocks * blockSizeInBytes;
+                String info = labelDirectory + " - " + freeSpaceInBytes / 1000 + "kB left";
+                Log.d(TAG, info);
+                createToast(info);
+                ;
+            } catch (Exception e) {
+                Log.d(TAG, "Error getting label file stats");
+            }
+
+            Courier.deliverMessage(this,Constants.LABEL_API,"File " + count + " created");//: " + labelFile.length()/1000 + "kb")
+        }
+
+
     }
 
 //    @BackgroundThread
-//    @ReceiveMessages(ClientPaths.CALENDAR_API)
+//    @ReceiveMessages(Constants.CALENDAR_API)
 //    void onCalendarReceived(String data) { // The nodeId parameter is optional
 //        //create calendar event (if authenticated)
-////        Courier.deliverMessage(this, ClientPaths.SUBJECT_API, subject);
+////        Courier.deliverMessage(this, Constants.SUBJECT_API, subject);
 //    }
 
     public void createToast(String s) {
@@ -281,8 +272,8 @@ public class MobileActivity extends Activity implements
     private static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";//"GWTgVdeNeVwsGqQHHhChfiPgDxxgXJzLoxUD0R64Gns";
 
     @BackgroundThread
-    @ReceiveData(ClientPaths.MULTI_API)
-    void onMultiReceived(String s) { // The nodeId parameter is optional
+    @ReceiveData(Constants.MULTI_API)
+    void onMultiReceived(String s) {
     //    void onMultiReceived(PostData pd) {
 //        Log.d(TAG, "Received multi " + s);
         if (s.length()==0) {
@@ -323,25 +314,12 @@ public class MobileActivity extends Activity implements
 
             if (writing) {
                 if (collecting) {
-                    labelFile = nextLabelFile();
-                    Boolean result = ClientPaths.writeDataToFile(sensorData, labelFile, false);
-                    if (result) {
-                        try {
-                            StatFs stats = new StatFs("/data");
-                            int availableBlocks = stats.getAvailableBlocks();
-                            int blockSizeInBytes = stats.getBlockSize();
-                            double freeSpaceInBytes = availableBlocks * blockSizeInBytes;
-                            String info = labelDirectory + " - " + freeSpaceInBytes / 1000 + "kB left";
-                            Log.d(TAG, info);
-                            createToast(info);
-                            Courier.deliverMessage(this,ClientPaths.LABEL_API,count);
-                        } catch (Exception e) {
-                            Log.d(TAG, "Error getting label file stats");
-                        }
+                    Boolean result = false;
 
+                    if (labelFile !=null) {
+                        result = ClientPaths.writeDataToFile(sensorData, labelFile, true);
                     } else {
-                        createToast("Label Memory Full");
-                        writing = false;
+                        Log.e(TAG, "Attempted to write to labelfile when null");
                     }
 
                 } else {
@@ -354,7 +332,7 @@ public class MobileActivity extends Activity implements
 
             Intent i = new Intent(this, MobileUploadService.class);
             i.putExtra("data",data);
-            i.putExtra("url",ClientPaths.MULTI_API);
+            i.putExtra("url",Constants.MULTI_API);
             startService(i);
 
 

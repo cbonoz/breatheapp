@@ -6,7 +6,7 @@ package com.breatheplatform.beta.encryption;
 
 import android.util.Log;
 
-import com.breatheplatform.beta.ClientPaths;
+import com.breatheplatform.beta.shared.Constants;
 
 import java.security.cert.Certificate;
 
@@ -16,7 +16,7 @@ import javax.net.ssl.SSLSocketFactory;
 
 public class JavaSSLCertificate {
     
-    private static final String HOST_NAME = ClientPaths.BASE;
+    private static final String HOST_NAME = Constants.BASE;
     private static final String TAG = "JavaSSLCertificate";
 
     public static void main(String[] argv) throws Exception {

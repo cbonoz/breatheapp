@@ -97,10 +97,6 @@ public class MainActivity$$Delivery<T extends MainActivity> implements Courier.D
             final java.lang.String as_java_lang_String = Packager.unpack(context, data, java.lang.String.class);
 
             target.onLabelReceived(as_java_lang_String);
-        } else if (path.equals("/api/multisensor/add")) {
-            final int as_int = Packager.unpack(context, data, int.class);
-
-            target.onMultiReceived(as_int);
         }
     }
 

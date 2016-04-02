@@ -40,7 +40,7 @@ public class RsaEncrypter implements Encrypter {
     private PublicKey rsa_pk = null;
     private Cipher cipher = null;
     private int key_length; /* key length in bytes */
-    private Context context;
+    private Context context = null;
     private final int buf_size = 8192; /*default buf value*/
 
     /**
@@ -148,7 +148,7 @@ public class RsaEncrypter implements Encrypter {
 //    }
 
     private PublicKey getPKfromFile(Context c) throws FileNotFoundException {
-
+        context = c;
         BufferedReader br;
         br = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(R.raw.pkey)));
 
