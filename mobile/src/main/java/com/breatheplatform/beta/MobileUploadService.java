@@ -63,7 +63,7 @@ public class MobileUploadService extends IntentService {
     private WifiManager wifiManager;
     private WifiManager.WifiLock lock;
 
-    private Boolean sending = false;
+    private static final Boolean sending = false;
 
 //    private DeviceClient client;
 

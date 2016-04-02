@@ -856,10 +856,10 @@ public final class R {
 		public static final int place_autocomplete_item_powered_by_google = 0x7f03002c;
 		public static final int place_autocomplete_item_prediction = 0x7f03002d;
 		public static final int place_autocomplete_progress = 0x7f03002e;
-		public static final int select_dialog_item_material = 0x7f030031;
-		public static final int select_dialog_multichoice_material = 0x7f030032;
-		public static final int select_dialog_singlechoice_material = 0x7f030033;
-		public static final int support_simple_spinner_dropdown_item = 0x7f030034;
+		public static final int select_dialog_item_material = 0x7f030032;
+		public static final int select_dialog_multichoice_material = 0x7f030033;
+		public static final int select_dialog_singlechoice_material = 0x7f030034;
+		public static final int support_simple_spinner_dropdown_item = 0x7f030035;
 	}
 	public static final class raw {
 		public static final int gtm_analytics = 0x7f070000;
@@ -936,10 +936,10 @@ public final class R {
 		public static final int mr_user_route_category_name = 0x7f08003a;
 		public static final int place_autocomplete_clear_button = 0x7f08003b;
 		public static final int place_autocomplete_search_hint = 0x7f08003c;
-		public static final int shared_name = 0x7f08005d;
+		public static final int shared_name = 0x7f08005e;
 		public static final int status_bar_notification_info_overflow = 0x7f08003d;
-		public static final int store_picture_message = 0x7f080063;
-		public static final int store_picture_title = 0x7f080064;
+		public static final int store_picture_message = 0x7f080064;
+		public static final int store_picture_title = 0x7f080065;
 		public static final int wallet_buy_button_place_holder = 0x7f08003e;
 	}
 	public static final class style {

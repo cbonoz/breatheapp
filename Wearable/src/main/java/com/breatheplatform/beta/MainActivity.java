@@ -200,7 +200,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
 
     private long mLastClickTime = 0;
-    private Boolean sensorControl = true;
+    
     RelativeLayout progressBar;
     //this function is called during onCreate (if the user has not registered an ID yet, will be called after
 //    a valid ID has been registered during the boot up registration process)
@@ -280,7 +280,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             }
         });
 
-        if (sensorControl) {
+        if (Constants.sensorControl) {
             Switch sensorSwitch = (Switch) findViewById(R.id.sensorSwitch);
             sensorSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -984,7 +984,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         }
 
 
-        if (!sensorControl) { //normal speed of sensor logging
+        if (!Constants.sensorControl) { //normal speed of sensor logging
             if (linearAccelerationSensor != null) {
 //            mSensorManager.registerListener(this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
@@ -998,7 +998,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                             public void run() {
 //                            Log.d(TAG, "register LA Sensor");
                                 mSensorManager.registerListener(MainActivity.this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
-                                if (sensorControl)
+                                if (Constants.sensorControl)
                                     mSensorManager.registerListener(MainActivity.this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
 
@@ -1010,7 +1010,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
 //                            Log.d(TAG, "unregister LA Sensor");
                                 mSensorManager.unregisterListener(MainActivity.this, linearAccelerationSensor);
-                                if (sensorControl)
+                                if (Constants.sensorControl)
                                     mSensorManager.unregisterListener(MainActivity.this, gyroSensor);
 
                             }

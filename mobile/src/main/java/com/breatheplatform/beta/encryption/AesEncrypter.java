@@ -10,19 +10,12 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
 
 /**
  * This class provides the functionality of a cryptographic cipher for encryption using AES.
@@ -49,72 +42,72 @@ public class AesEncrypter implements Encrypter {
      *
      * @param human_password
      */
-    public AesEncrypter(String human_password) {
-
-
-
-        SecureRandom random = new SecureRandom();
-        salt = new byte[salt_pass_Length];
-        random.nextBytes(salt);
-
-        if(human_password==null){
-            byte[] aux = new byte[salt_pass_Length/2];
-            random.nextBytes(aux);
-            password=byteArrayToHexString(aux);
-        }
-        else{
-            password=human_password;
-        }
-
-        SecretKeyFactory keyFactory = null;
-        byte[] keyBytes = null;
-        key = null;
-        KeySpec keySpec = null;
-
-        keySpec = new PBEKeySpec(password.toCharArray(), salt, iterationCount,
-                keyLength);
-        try {
-            keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            keyBytes = keyFactory.generateSecret(keySpec).getEncoded();
-        } catch (NoSuchAlgorithmException e1) {
-            algorithmnotsupported = true;
-            Log.i("AESEncrypter", "Cant use PBKDF2WithHmacSHA1, will use DES instead");
-        } catch (InvalidKeySpecException e1) {
-            Log.e("AESEncrypter", "Invalid Key");
-        }
-
-        if (algorithmnotsupported) {
-            try {
-                byte[] bytepass = password.getBytes();
-                byte[] aux = new byte[salt_pass_Length];
-                for (int i = 0; i < salt_pass_Length; i++) {
-                    aux[i] = (byte) (salt[i] ^ bytepass[i % bytepass.length]);
-                }
-                keySpec = new SecretKeySpec(aux, 0, salt_pass_Length, "AES");
-                keyFactory = SecretKeyFactory.getInstance("DES");
-                keyBytes = keyFactory.generateSecret(keySpec).getEncoded();
-
-            } catch (NoSuchAlgorithmException e) {
-                Log.e("AESEncrypter", "Cant use DES");
-            } catch (InvalidKeySpecException e) {
-                Log.e("AESEncrypter", "Invalid Key");
-            }
-        }
-
-        key = new SecretKeySpec(keyBytes, "AES");
-
-        try {
-            cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-
-            iv = new byte[cipher.getBlockSize()];
-            random.nextBytes(iv);
-            IvParameterSpec ivParams = new IvParameterSpec(iv);
-
-            cipher.init(Cipher.ENCRYPT_MODE, key, ivParams);
-        } catch (Exception e) {
-            Log.e("AESEncrypter", "error initializing cipher");
-        }
-    }
+//    public AesEncrypter(String human_password) {
+//
+//
+//
+//        SecureRandom random = new SecureRandom();
+//        salt = new byte[salt_pass_Length];
+//        random.nextBytes(salt);
+//
+//        if(human_password==null){
+//            byte[] aux = new byte[salt_pass_Length/2];
+//            random.nextBytes(aux);
+//            password=byteArrayToHexString(aux);
+//        }
+//        else{
+//            password=human_password;
+//        }
+//
+//        SecretKeyFactory keyFactory = null;
+//        byte[] keyBytes = null;
+//        key = null;
+//        KeySpec keySpec = null;
+//
+//        keySpec = new PBEKeySpec(password.toCharArray(), salt, iterationCount,
+//                keyLength);
+//        try {
+//            keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+//            keyBytes = keyFactory.generateSecret(keySpec).getEncoded();
+//        } catch (NoSuchAlgorithmException e1) {
+//            algorithmnotsupported = true;
+//            Log.i("AESEncrypter", "Cant use PBKDF2WithHmacSHA1, will use DES instead");
+//        } catch (InvalidKeySpecException e1) {
+//            Log.e("AESEncrypter", "Invalid Key");
+//        }
+//
+//        if (algorithmnotsupported) {
+//            try {
+//                byte[] bytepass = password.getBytes();
+//                byte[] aux = new byte[salt_pass_Length];
+//                for (int i = 0; i < salt_pass_Length; i++) {
+//                    aux[i] = (byte) (salt[i] ^ bytepass[i % bytepass.length]);
+//                }
+//                keySpec = new SecretKeySpec(aux, 0, salt_pass_Length, "AES");
+//                keyFactory = SecretKeyFactory.getInstance("DES");
+//                keyBytes = keyFactory.generateSecret(keySpec).getEncoded();
+//
+//            } catch (NoSuchAlgorithmException e) {
+//                Log.e("AESEncrypter", "Cant use DES");
+//            } catch (InvalidKeySpecException e) {
+//                Log.e("AESEncrypter", "Invalid Key");
+//            }
+//        }
+//
+//        key = new SecretKeySpec(keyBytes, "AES");
+//
+//        try {
+//            cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+//
+//            iv = new byte[cipher.getBlockSize()];
+//            random.nextBytes(iv);
+//            IvParameterSpec ivParams = new IvParameterSpec(iv);
+//
+//            cipher.init(Cipher.ENCRYPT_MODE, key, ivParams);
+//        } catch (Exception e) {
+//            Log.e("AESEncrypter", "error initializing cipher");
+//        }
+//    }
 
 
 

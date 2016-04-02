@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.StatFs;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -117,7 +118,17 @@ public class MobileActivity extends Activity implements
         buildGoogleApiClient();
         Log.d(TAG, "created API client");
 
-        MyEncrypter.createRsaEncrypter(this);
+//        MyEncrypter.createRsaEncrypter(this);
+
+        try {
+            MyEncrypter.lAESKey = MyEncrypter.randomKey(MyEncrypter.AES_KEY_SIZE);
+            MyEncrypter.lRSAKey = MyEncrypter.readKeyWrapped(getResources().openRawResource(R.raw.api_public));
+//            MyEncrypter.createRsaEncrypter(this);
+        } catch (Exception e) {
+            encrypting = false;
+        }
+
+
         Log.d(TAG, "Sending subject_id " + subject + " to watch");
         Courier.deliverMessage(this, Constants.SUBJECT_API,subject);
     }
@@ -266,8 +277,8 @@ public class MobileActivity extends Activity implements
 
 
     private static Boolean writing = true;
-    private static Boolean encrypting = false;
-    private static Boolean collecting = true;
+    private static Boolean encrypting = true;
+    private static final Boolean collecting =false;
 
     private static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";//"GWTgVdeNeVwsGqQHHhChfiPgDxxgXJzLoxUD0R64Gns";
 
@@ -299,15 +310,21 @@ public class MobileActivity extends Activity implements
             String sensorData = jsonBody.getString("data");
 
             if (encrypting) {
-                String encSensorData = MyEncrypter.encryptAes(subject, sensorData);//data.getString("data"));
-                Log.d(TAG, "encData: " + encSensorData);
-                jsonBody.put("data", encSensorData);
+                byte[] aesBytes = MyEncrypter.lAESKey.getBytes();
 
-                jsonBody.put("raw_key", MyEncrypter.getAesKey());
-                jsonBody.put("data_key", MyEncrypter.getEncryptedAesKey());
+                String lEncryptedKey = Base64.encodeToString(MyEncrypter.RSAEncrypt(aesBytes, aesBytes), 0);
+                String lEncryptedBody = Base64.encodeToString(MyEncrypter.AESEncrypt(sensorData, MyEncrypter.lAESKey), 0);
 
-                Log.d("data_key", jsonBody.getString("data_key"));
-                Log.d("raw_key", jsonBody.getString("raw_key"));
+//                String lEncryptedKey = MyEncrypter.getEncryptedAesKey();
+//                String lEncryptedBody = MyEncrypter.encryptAes(subject, sensorData);
+
+                jsonBody.put("data", lEncryptedBody);
+                jsonBody.put("data_key", lEncryptedKey);
+                jsonBody.put("raw_key", MyEncrypter.lAESKey);
+
+                Log.d("data", lEncryptedBody);
+                Log.d("data_key", lEncryptedKey);
+                Log.d("raw_key", MyEncrypter.lAESKey);
             }
 
             String data = jsonBody.toString();
@@ -332,6 +349,7 @@ public class MobileActivity extends Activity implements
 
             Intent i = new Intent(this, MobileUploadService.class);
             i.putExtra("data",data);
+            //perhaps add encrypted data bytes here as additional intent parameter
             i.putExtra("url",Constants.MULTI_API);
             startService(i);
 

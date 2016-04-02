@@ -38,6 +38,8 @@ public class Constants {
     public static final String START_WRITE = "start";
     public static final String END_WRITE = "end";
 
+    public static Boolean sensorControl = false;
+
     public static final String BROADCAST_ACTION = ".BROADCAST_ACTION";
 
 }
