@@ -30,6 +30,7 @@
     <string name="spiro_desc">Please take Spirometer Reading</string>
     <string name="danger_title">Health Warning!</string>
     <string name="danger_desc">Please contact your Doctor</string>
+    <string name="no_conn_desc">Please start Breathe App on Mobile Device</string>
 
 
     <!-- Activity detection strings -->

@@ -575,6 +575,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Log.d(TAG, "ReceiveMessage subject: " + sub);
         if (ClientPaths.SUBJECT_ID.equals("")) {
             ClientPaths.SUBJECT_ID = sub;
+            findViewById(R.id.noConnText).setVisibility(View.GONE);
             setup(); //only call setup once subject received from mobile
         } else {
             Log.e(TAG, "onSubjectReceived - received null");
