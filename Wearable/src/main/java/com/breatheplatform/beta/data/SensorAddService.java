@@ -41,7 +41,7 @@ public class SensorAddService extends IntentService {
     private static final int ENERGY_LIMIT = 10;
 
 //    private static Boolean encrypting = false;
-    private static Boolean sending = true;
+    private static Boolean sending = false;
 //    private static Boolean writing = true;
 
     //for energy measurements
@@ -112,10 +112,9 @@ public class SensorAddService extends IntentService {
     public void incrementCount() {
         recordCount++;
 //        if (recordCount.equals(RECORD_LIMIT)) {
-        if (recordCount % RECORD_LIMIT == 0 && recordCount > 0) {
+        if (recordCount >= RECORD_LIMIT) {
             if (sending)
                 createDataPostRequest();
-
         }
     }
 
@@ -194,7 +193,7 @@ public class SensorAddService extends IntentService {
                     break;
                 case (ENERGY_SENSOR_ID):
                     jsonValue.put("energy", values[0]);
-//                    jsonValue.put("activity", ClientPaths.activityName);
+                    jsonValue.put("activity", ClientPaths.activityDetail);
 //                    jsonValue.put("activity_confidence", ClientPaths.activityConfidence);
                     break;
                 case (Sensor.TYPE_AMBIENT_TEMPERATURE):
@@ -263,7 +262,7 @@ public class SensorAddService extends IntentService {
             sumZ += z;
             if (energyCount==ENERGY_LIMIT) {
                 energy+=Math.pow(sumX,2) + Math.pow(sumY,2) + Math.pow(sumZ,2);
-                addSensorData(Constants.ENERGY_SENSOR_ID, 3, currentTime, new float[]{energy});
+                addSensorData(Constants.ENERGY_SENSOR_ID, Constants.NO_VALUE, currentTime, new float[]{energy});
                 sumX = 0;
                 sumY = 0;
                 sumZ = 0;
@@ -280,8 +279,6 @@ public class SensorAddService extends IntentService {
         try {
             // \n becomes the delimiter on the server to split data entries
             String sensorDataString = sensorData.join("\n");
-            byte[] sensorDataBytes = null;
-
 
             if (ClientPaths.SUBJECT_ID == null) {
                 Log.d(TAG, "No Subject detected - blocking multi post");

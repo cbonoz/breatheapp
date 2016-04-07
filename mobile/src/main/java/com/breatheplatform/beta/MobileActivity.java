@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.breatheplatform.beta.encryption.MyEncrypter;
+import com.breatheplatform.beta.services.CalendarService;
 import com.breatheplatform.beta.services.DetectedActivitiesIntentService;
 import com.breatheplatform.beta.shared.Constants;
 import com.google.android.gms.common.ConnectionResult;
@@ -54,6 +55,75 @@ public class MobileActivity extends Activity implements
     private static String count = "0";
     //    public GoogleApiClient mGoogleApiClient;
 
+
+    public static String labelDirectory = null;
+    public static File labelFile  = null;// = createFile(sensorDirectory);
+    private static Boolean unregister = true;
+
+    private static Boolean createCalendarEvent = false;
+
+
+    public void calendarEvent() {
+
+        Intent i = new Intent(this, CalendarService.class);
+        startService(i);
+
+
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+
+        if (createCalendarEvent) {
+            calendarEvent();
+        }
+
+        prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
+
+        if (unregister) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("subject", "");
+            editor.commit();
+            Log.d(TAG, "unregister, id now " + prefs.getString("subject", ""));
+            unregister = false;
+        }
+
+        subject = prefs.getString("subject", "");
+        Log.d(TAG, "subject " + subject);
+
+        //if subject is null, start registration page
+        if (subject.equals("")) {
+//            Intent i = new Intent(this, RegisterActivity.class);
+//            this.startActivity(i);
+//            finish();
+
+            startActivity(new Intent(MobileActivity.this, RegisterActivity.class));
+            finish();
+        }
+
+        Courier.startReceiving(this);
+
+        buildGoogleApiClient();
+        Log.d(TAG, "created API client");
+
+//        MyEncrypter.createRsaEncrypter(this);
+
+        try {
+            MyEncrypter.lAESKey = MyEncrypter.randomKey(MyEncrypter.AES_KEY_SIZE);
+            MyEncrypter.lRSAKey = MyEncrypter.readKeyWrapped(getResources().openRawResource(R.raw.api_public));
+//            MyEncrypter.createRsaEncrypter(this);
+        } catch (Exception e) {
+            encrypting = false;
+        }
+
+
+        Log.d(TAG, "Sending subject_id " + subject + " to watch");
+        Courier.deliverMessage(this, Constants.SUBJECT_API,subject);
+    }
+
+
     public String getCountandIncrement() {
         if (prefs==null) {
             Log.e(TAG, "getCount but prefs is null");
@@ -71,8 +141,6 @@ public class MobileActivity extends Activity implements
         return count;
     }
 
-    public static String labelDirectory = null;
-    public static File labelFile  = null;// = createFile(sensorDirectory);
 
     public File nextLabelFile() {
         labelDirectory = ClientPaths.ROOT + "/Breathe" + getCountandIncrement() + ".txt";
@@ -95,43 +163,6 @@ public class MobileActivity extends Activity implements
     private SharedPreferences prefs = null;
     private String subject = "";
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
-
-
-        subject = prefs.getString("subject", "");
-
-
-        Log.d(TAG, "subject " + subject);
-
-        //if subject is null, start registration page
-        if (subject.equals("")) {
-            Intent i = new Intent(this, RegisterActivity.class);
-            this.startActivity(i);
-        }
-
-        Courier.startReceiving(this);
-
-        buildGoogleApiClient();
-        Log.d(TAG, "created API client");
-
-//        MyEncrypter.createRsaEncrypter(this);
-
-        try {
-            MyEncrypter.lAESKey = MyEncrypter.randomKey(MyEncrypter.AES_KEY_SIZE);
-            MyEncrypter.lRSAKey = MyEncrypter.readKeyWrapped(getResources().openRawResource(R.raw.api_public));
-//            MyEncrypter.createRsaEncrypter(this);
-        } catch (Exception e) {
-            encrypting = false;
-        }
-
-
-        Log.d(TAG, "Sending subject_id " + subject + " to watch");
-        Courier.deliverMessage(this, Constants.SUBJECT_API,subject);
-    }
 
     /**
      * Builds a GoogleApiClient. Uses the {@code #addApi} method to request the
@@ -277,8 +308,8 @@ public class MobileActivity extends Activity implements
 
 
     private static Boolean writing = true;
-    private static Boolean encrypting = true;
-    private static final Boolean collecting =false;
+    private static Boolean encrypting = false;
+    private static final Boolean collecting = true;
 
     private static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";//"GWTgVdeNeVwsGqQHHhChfiPgDxxgXJzLoxUD0R64Gns";
 
@@ -368,7 +399,7 @@ public class MobileActivity extends Activity implements
         super.onDestroy();
         Courier.stopReceiving(this);
         Log.d(TAG, "onDestroy called");
-        createToast("Breathe App onDestroy");
+//        createToast("Breathe App onDestroy");
 //        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
 
 //        if (mGoogleApiClient.isConnected()) {

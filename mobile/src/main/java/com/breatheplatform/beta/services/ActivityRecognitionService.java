@@ -17,17 +17,13 @@ public class ActivityRecognitionService extends IntentService {
 
     public ActivityRecognitionService() {
         super("ActivityRecognitionService");
-//        Toast.makeText(this, "here", Toast.LENGTH_SHORT).show();
-        // TODO Auto-generated constructor stub
+
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.d(TAG, "ActivityRecognitionService intent called");
 
-        // TODO Auto-generated method stub
-
-//        Toast.makeText(this, "here2", Toast.LENGTH_SHORT).show();
         ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
         DetectedActivity activity = result.getMostProbableActivity();
 

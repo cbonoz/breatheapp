@@ -61,10 +61,12 @@ public class ClientPaths {
 
     public volatile static int batteryLevel = Constants.NO_VALUE;
     public volatile static String connectionInfo = "Waiting";
+    public static String activityDetail = "None:"+Constants.NO_VALUE;
 
     public static Location currentLocation = null;
     public static String SUBJECT_ID = "";
     public static String mobileNodeId = null;
+    public static Integer userAge = Constants.NO_VALUE;
 
     private static File createFile(String fname) {
         Log.d(TAG, "Creating file: " + fname);
@@ -77,6 +79,8 @@ public class ClientPaths {
     private static double round5(double v) {
         return Math.round(v * 100000.0) / 100000.0;
     }
+
+
 
 //
 //

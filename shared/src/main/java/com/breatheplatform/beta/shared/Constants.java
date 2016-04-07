@@ -33,12 +33,14 @@ public class Constants {
     public static final int ONE_SEC_IN_MICRO = 1000000;
     public static final String DUST_BT_NAME = "HaikRF";
 
+    public static final String SENSOR_EVENT = "sensor-event"; //for broadcast receiver
+
     public static final int NO_VALUE = -1;
 
     public static final String START_WRITE = "start";
     public static final String END_WRITE = "end";
 
-    public static Boolean sensorControl = false;
+    public static Boolean sensorControl = true;
 
     public static final String BROADCAST_ACTION = ".BROADCAST_ACTION";
 

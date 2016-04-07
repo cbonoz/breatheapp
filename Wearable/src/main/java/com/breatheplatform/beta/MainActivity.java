@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * https://github.com/cyfung/ActivityRecognitionSample/tree/master/app/src/main/java/com/aucy/activityrecognitionsample
  */
 
 package com.breatheplatform.beta;
@@ -29,9 +30,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Color;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.net.ConnectivityManager;
@@ -42,9 +40,9 @@ import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.os.SystemClock;
 import android.provider.Settings;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
@@ -60,6 +58,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.breatheplatform.beta.activity.ActivityConstants;
+import com.breatheplatform.beta.activity.ActivityDetectionService;
 import com.breatheplatform.beta.activity.DetectedActivitiesIntentService;
 import com.breatheplatform.beta.bluetooth.BluetoothConnection;
 import com.breatheplatform.beta.bluetooth.HexAsciiHelper;
@@ -67,9 +66,11 @@ import com.breatheplatform.beta.bluetooth.RFduinoService;
 import com.breatheplatform.beta.data.ConnectionReceiver;
 import com.breatheplatform.beta.data.SensorAddService;
 import com.breatheplatform.beta.messaging.DeviceClient;
+import com.breatheplatform.beta.sensors.SensorService;
 import com.breatheplatform.beta.shared.Constants;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
@@ -88,9 +89,6 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import me.denley.courier.BackgroundThread;
 import me.denley.courier.Courier;
@@ -100,7 +98,7 @@ import me.denley.courier.ReceiveMessages;
 
 
 public class MainActivity extends WearableActivity implements BluetoothAdapter.LeScanCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        LocationListener, SensorEventListener, ResultCallback<Status>
+        LocationListener,  ResultCallback<Status>
         //,DataApi.DataListener, MessageApi.MessageListener,NodeApi.NodeListener
 {
     private static final SimpleDateFormat AMBIENT_DATE_FORMAT =
@@ -114,11 +112,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private RFduinoService rfduinoService;
     private BluetoothDevice bluetoothDevice;
     private GoogleApiClient mGoogleApiClient;
-    private ScheduledExecutorService mScheduler;
 
-    private static final int SENS_LINEAR_ACCELERATION = Sensor.TYPE_LINEAR_ACCELERATION;
-    private static final int SENS_HEARTRATE = Sensor.TYPE_HEART_RATE;
-    private static final int SENS_GYRO = Sensor.TYPE_GYROSCOPE;
+
     private static final int RISK_TASK_PERIOD=10000; //10 seconds
     private static final int ACTIVITY_REQUEST_PERIOD = RISK_TASK_PERIOD*2; //20 seconds
     private static final int BT_TASK_PERIOD=RISK_TASK_PERIOD*6; //60 seconds
@@ -134,11 +129,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     volatile boolean stopWorker;
 
-    //Sensor related
-    private SensorManager mSensorManager;
-    private Sensor heartRateSensor;
-    private Sensor linearAccelerationSensor;
-    private Sensor gyroSensor;
+
 
     private static final int NAME_REQUEST_CODE = 1;
     private static final int ID_REQUEST_CODE = 2;
@@ -174,7 +165,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     final private static int STATE_CONNECTED = 4;
 
     private int state;
-    private PowerManager.WakeLock wl = null;
+
     private static final int SUBJECT_REQUEST_CODE = 0;
 
     private void setConnectivity() {
@@ -200,12 +191,17 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
 
     private long mLastClickTime = 0;
-    
+
+
+
     RelativeLayout progressBar;
     //this function is called during onCreate (if the user has not registered an ID yet, will be called after
 //    a valid ID has been registered during the boot up registration process)
     private void setup() {
         Log.d(TAG, "MainActivity setup");
+
+
+
 
         //http://stackoverflow.com/questions/5442183/using-the-animated-circle-in-an-imageview-while-loading-stuff
         progressBar = (RelativeLayout) findViewById(R.id.loadingPanel);
@@ -289,7 +285,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                         Courier.deliverMessage(MainActivity.this,Constants.FILE_API, Constants.START_WRITE);
                         startMeasurement();
 
-                        Log.d(TAG, " sensorToggle Checked");
+                        Log.d(TAG, "sensorToggle Checked");
                     } else {
                         stopMeasurement();
                         //trigger a data send event to the mobile device
@@ -413,7 +409,11 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
 
         statusString = "";
-        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+        //register sensor listener service
+        LocalBroadcastManager.getInstance(this).registerReceiver(mSensorReceiver,
+                new IntentFilter(Constants.SENSOR_EVENT));
+
         Log.d(TAG, "Sensor delay normal: " + SensorManager.SENSOR_DELAY_NORMAL);
 
         setContentView(R.layout.main_activity);
@@ -573,13 +573,18 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     @ReceiveMessages(Constants.SUBJECT_API)
     void onSubjectReceived(String sub) { // The nodeId parameter is optional
         Log.d(TAG, "ReceiveMessage subject: " + sub);
-        if (ClientPaths.SUBJECT_ID.equals("")) {
-            ClientPaths.SUBJECT_ID = sub;
-            findViewById(R.id.noConnText).setVisibility(View.GONE);
-            setup(); //only call setup once subject received from mobile
-        } else {
-            Log.e(TAG, "onSubjectReceived - received null");
+        try{
+            int num = Integer.parseInt(sub);
+            // is an integer!
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "onSubjectReceived - received " + sub);
+            return;
         }
+
+        ClientPaths.SUBJECT_ID = sub;
+        findViewById(R.id.noConnText).setVisibility(View.GONE);
+        setup(); //only call setup once subject received from mobile
+
     }
 
 
@@ -683,7 +688,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     @Override
     public void onResult(Status status) {
-        if (status.getStatus().isSuccess()) {
+        if (status.isSuccess()) {
 
             Log.d(TAG, "Successfully requested activity updates");
 
@@ -693,6 +698,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                     + status.getStatusCode() + ", message: " + status
                     .getStatusMessage());
         }
+
+
     }
 
 
@@ -701,16 +708,19 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         super.onDestroy();
         Log.d(TAG, "MainActivity onDestroy");
 
+//        unregisterReceiver(mBroadcastReceiver);
 
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mSensorReceiver);
         Courier.stopReceiving(this);
 
-        //LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(mSensorReceiver);
 
         if (mGoogleApiClient.isConnected()) {
             ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
                     mGoogleApiClient,
                     getActivityDetectionPendingIntent()
             ).setResultCallback(this);
+            Log.d(TAG, "Removed activity updates");
         }
 
 
@@ -929,158 +939,41 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         finish();
     }
 
-    private static float lastHeartRate = Constants.NO_VALUE;
+    //sensor BroadCast Listener
+    private BroadcastReceiver mSensorReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            Float lastHeartRate = intent.getFloatExtra("heartrate", Constants.NO_VALUE);
+//            String message = intent.getStringExtra("message");
+            Log.d("sensor receiver", "Got heart rate: " + lastHeartRate.intValue());
+            updateHeartUI(lastHeartRate.intValue());
+        }
+    };
 
-    private void updateHeartView() {
+
+
+    private void updateHeartUI(int lastHeartRate) {
         TextView heartText = (TextView) findViewById(R.id.heartText);
 
         if (lastHeartRate == Constants.NO_VALUE)
             heartText.setText("--");
         else
-            heartText.setText(lastHeartRate+"");
+            heartText.setText(lastHeartRate);
     }
 
     //Sensor Related
     private void startMeasurement() {
-//        if (true)
-//            return;
-        heartRateSensor = mSensorManager.getDefaultSensor(SENS_HEARTRATE);
-        linearAccelerationSensor = mSensorManager.getDefaultSensor(SENS_LINEAR_ACCELERATION);
-        gyroSensor = mSensorManager.getDefaultSensor(SENS_GYRO);
-
-        //final Sensor heartrateSamsungSensor = mSensorManager.getDefaultSensor(ActivityConstants.REG_HEART_SENSOR_ID );//65562
-
         Log.i(TAG, "Start Measurement");
-        mScheduler = Executors.newScheduledThreadPool(2);
-
-
-        if (heartRateSensor != null) {
-            final int measurementDuration = 10;   // Seconds
-            final int measurementBreak = 5;    // Seconds
-
-
-            mScheduler.scheduleAtFixedRate(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-//                            Log.d(TAG, "register Heartrate Sensor");
-                            Log.d(TAG, "Reading Heartrate Sensor");
-                            mSensorManager.registerListener(MainActivity.this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
-
-                            try {
-                                Thread.sleep(measurementDuration * 1000);
-                            } catch (InterruptedException e) {
-                                Log.e(TAG, "Interrupted while waitting to unregister Heartrate Sensor");
-                            }
-
-//                            Log.d(TAG, "unregister Heartrate Sensor");
-                            mSensorManager.unregisterListener(MainActivity.this, heartRateSensor);
-                        }
-                    }, 1, measurementDuration + measurementBreak, TimeUnit.SECONDS);
-
-
-        } else {
-            Log.d(TAG, "No Heartrate Sensor found");
-        }
-
-
-        if (!Constants.sensorControl) { //normal speed of sensor logging
-            if (linearAccelerationSensor != null) {
-//            mSensorManager.registerListener(this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
-
-//            mScheduler = Executors.newScheduledThreadPool(1);
-                //sum of these achieves sampling rate of 1hz
-                final int measurementDuration = 300;   // ms
-                final int measurementBreak = 700;    // Seconds
-                mScheduler.scheduleAtFixedRate(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-//                            Log.d(TAG, "register LA Sensor");
-                                mSensorManager.registerListener(MainActivity.this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
-                                if (Constants.sensorControl)
-                                    mSensorManager.registerListener(MainActivity.this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
-
-
-                                try {
-                                    Thread.sleep(measurementDuration);
-                                } catch (InterruptedException e) {
-                                    Log.e(TAG, "Interrupted while waitting to unregister LA Sensor");
-                                }
-
-//                            Log.d(TAG, "unregister LA Sensor");
-                                mSensorManager.unregisterListener(MainActivity.this, linearAccelerationSensor);
-                                if (Constants.sensorControl)
-                                    mSensorManager.unregisterListener(MainActivity.this, gyroSensor);
-
-                            }
-                        }, 1, measurementDuration + measurementBreak, TimeUnit.MILLISECONDS);
-
-
-            } else {
-                Log.d(TAG, "No Linear Acceleration Sensor found");
-            }
-        } else {
-            //http://stackoverflow.com/questions/30153904/android-how-to-set-sensor-delay
-            if (linearAccelerationSensor != null) {
-                mSensorManager.registerListener(this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);// 1000000, 1000000);
-            }  else {
-                Log.d(TAG, "No Linear Acceleration Sensor found");
-            }
-
-
-            if (gyroSensor != null) {
-                mSensorManager.registerListener(this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
-            } else {
-                Log.w(TAG, "No Gyroscope Sensor found");
-            }
-        }
-
-
-
-//        if (heartrateSamsungSensor != null) {
-//            mSensorManager.registerListener(this, heartrateSamsungSensor, ActivityConstants.SENSOR_DELAY_CUSTOM);
-//        } else {
-//            Log.d(TAG, "Samsungs Heartrate Sensor not found");
-//        }
-
+        startService(new Intent(getBaseContext(), SensorService.class));
     }
 
 
     private void stopMeasurement() {
         Log.i(TAG, "Stop Measurement");
-        if (mSensorManager != null) {
-            mSensorManager.unregisterListener(this);
-        }
-        if (mScheduler != null && !mScheduler.isTerminated()) {
-            mScheduler.shutdown();
-        }
+        stopService(new Intent(getBaseContext(), SensorService.class));
     }
 
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        int sensorId = event.sensor.getType();
-        long timestamp = System.currentTimeMillis();
-
-        if (sensorId == Constants.REG_HEART_SENSOR_ID || sensorId == Constants.HEART_SENSOR_ID ) {
-
-            if (event.accuracy>1) {
-                lastHeartRate = event.values[0];
-                addSensorData(sensorId, event.accuracy, timestamp, event.values);
-            } else {
-                lastHeartRate = Constants.NO_VALUE;
-            }
-            updateHeartView();
-        } else {
-            addSensorData(sensorId, event.accuracy, timestamp, event.values);
-        }
-
-        updateLastView(sensorId);
-    }
-
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
 
     private static final Integer UPDATE_INTERVAL_MS = 1000 * 60 * 2; //request ever 2 min
 
@@ -1095,6 +988,15 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     @Override
     public void onConnected(Bundle bundle) {
         Log.d(TAG, "GoogleApiClient onConnected");
+
+        final PendingResult<Status>
+                statusPendingResult =
+                ActivityRecognition.ActivityRecognitionApi
+                        .requestActivityUpdates(mGoogleApiClient, ACTIVITY_INTERVAL, PendingIntent
+                                .getService(this, 0, new Intent(this, ActivityDetectionService.class),
+                                        PendingIntent.FLAG_UPDATE_CURRENT));
+        statusPendingResult.setResultCallback(this);
+
 //        Wearable.DataApi.addListener(mGoogleApiClient, MainActivity.this);
         //Request Activity Updates from GoogleAPIClient
 //        try {
@@ -1151,6 +1053,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
 //        ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, getActivityDetectionPendingIntent());
     }
+
+
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
@@ -1210,7 +1114,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 for (BluetoothDevice device : pairedDevices) {
                     deviceName = device.getName();
 
-                    // TODO(yjchoi): remove hardcoded names
                     try {
                         if (deviceName.matches("ASMA_\\d\\d\\d\\d"))   // Find a device with name ASMA_####
                         {
@@ -1232,7 +1135,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 for (BluetoothDevice device : pairedDevices) {
                     deviceName = device.getName();
 
-                    // TODO(yjchoi): remove hardcoded names
                     if (deviceName.contains(Constants.DUST_BT_NAME)) {
                         dustDevice = device;
                         Log.d("yjcode", "Detected RFduino device: " + deviceName + " " + dustDevice.getAddress());
@@ -1601,10 +1503,17 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         }
     }
 
+    /* Start example for activity detection */
+
+
+    private static final long ACTIVITY_INTERVAL = 0;//15000;//20000;//ms (0 fastest)
+    private static final String BROADCAST_ACTION = "com.aucy.activityrecognitionsample.broadcast";
+    private static final String DETECTED_ACTIVITIES = "detectedActivities";
+
 
 //    // Our handler for received Intents. This will be called whenever an Intent
 //// with an action named "custom-event-name" is broadcasted.
-//    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+//    private BroadcastReceiver mSensorReceiver = new BroadcastReceiver() {
 //        @Override
 //        public void onReceive(Context context, Intent intent) {
 //            // Get extra data included in the Intent
