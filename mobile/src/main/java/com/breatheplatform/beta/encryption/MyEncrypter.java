@@ -1,7 +1,11 @@
 package com.breatheplatform.beta.encryption;
 
+import android.content.Context;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
+
+import com.breatheplatform.beta.R;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,14 +15,19 @@ import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
@@ -50,8 +59,6 @@ public class MyEncrypter {
     public static String lAESKey = null;
 
 
-
-
     public static String randomKey(int len) {
         Random generator = new Random();
         StringBuilder randomStringBuilder = new StringBuilder();
@@ -75,7 +82,7 @@ public class MyEncrypter {
     }
 
     public static String read(InputStream in) {
-        StringBuilder sb=new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
         String read;
 
@@ -100,6 +107,7 @@ public class MyEncrypter {
         String lRawString = stripKeyHeaders(lStringKey);
         return lRawString.getBytes();//.decode(lRawString, Base64.DEFAULT); //base64(lRawString);
     }
+
     public static String stripKeyHeaders(String key) {
         StringBuilder strippedKey = new StringBuilder();
         String lines[] = key.split("\n");
@@ -118,8 +126,97 @@ public class MyEncrypter {
         PublicKey publicKey = kf.generatePublic(spec);
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-        byte []encryptedBytes = cipher.doFinal(plain);
+        byte[] encryptedBytes = cipher.doFinal(plain);
         return encryptedBytes;
+    }
+
+    private static byte[] aesKey = null;
+    private static final String initVector = "RandomInitVector"; // 16 bytes IV
+
+    public static void createAes() {
+
+        try {
+            byte[] keyStart = "this is a key".getBytes();
+            KeyGenerator kgen = KeyGenerator.getInstance("AES");
+            SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+            sr.setSeed(keyStart);
+            kgen.init(128, sr); // 192 and 256 bits may not be available
+            SecretKey skey = kgen.generateKey();
+            aesKey = skey.getEncoded();
+            Log.d(TAG, "Created AES Key!");
+        } catch (Exception e) {
+            aesKey = null;
+            Log.e(TAG, "Failed to create AES Key");
+        }
+    }
+
+    public static byte[] getAes() {
+        return aesKey;
+    }
+
+    public static byte[] encryptRSA(Context mContext, byte[] message) throws Exception {
+
+        // reads the public key stored in a file
+        InputStream is = mContext.getResources().openRawResource(R.raw.api_public);
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        List<String> lines = new ArrayList<String>();
+        String line = null;
+        while ((line = br.readLine()) != null)
+            lines.add(line);
+
+        // removes the first and last lines of the file (comments)
+        if (lines.size() > 1 && lines.get(0).startsWith("-----") && lines.get(lines.size()-1).startsWith("-----")) {
+            lines.remove(0);
+            lines.remove(lines.size()-1);
+        }
+
+        // concats the remaining lines to a single String
+        StringBuilder sb = new StringBuilder();
+        for (String aLine: lines)
+            sb.append(aLine);
+        String keyString = sb.toString();
+        Log.d("log", "keyString:"+keyString);
+
+        // converts the String to a PublicKey instance
+
+        byte[] keyBytes = Base64.decode(keyString.getBytes("utf-8"), Base64.DEFAULT);
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PublicKey key = keyFactory.generatePublic(spec);
+
+        // decrypts the message
+        byte[] encrypted = null;
+        Cipher cipher = Cipher.getInstance("RSA");
+//        cipher.init(Cipher.DECRYPT_MODE, key);
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        encrypted = cipher.doFinal(Base64.decode(message, Base64.DEFAULT));
+        return encrypted;
+    }
+
+    public static byte[] encryptAES(byte[] clear) throws Exception {
+        try {
+            SecretKeySpec skeySpec = new SecretKeySpec(aesKey, "AES");
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
+            return cipher.doFinal(clear);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static byte[] decryptAES(byte[] encrypted) throws Exception {
+        try {
+            SecretKeySpec skeySpec = new SecretKeySpec(aesKey, "AES");
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+            return cipher.doFinal(encrypted);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 

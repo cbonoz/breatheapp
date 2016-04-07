@@ -110,13 +110,15 @@ public class MobileActivity extends Activity implements
 
 //        MyEncrypter.createRsaEncrypter(this);
 
-        try {
-            MyEncrypter.lAESKey = MyEncrypter.randomKey(MyEncrypter.AES_KEY_SIZE);
-            MyEncrypter.lRSAKey = MyEncrypter.readKeyWrapped(getResources().openRawResource(R.raw.api_public));
-//            MyEncrypter.createRsaEncrypter(this);
-        } catch (Exception e) {
-            encrypting = false;
-        }
+//        try {
+//            MyEncrypter.lAESKey = MyEncrypter.randomKey(MyEncrypter.AES_KEY_SIZE);
+//            MyEncrypter.lRSAKey = MyEncrypter.readKeyWrapped(getResources().openRawResource(R.raw.api_public));
+////            MyEncrypter.createRsaEncrypter(this);
+//        } catch (Exception e) {
+//            encrypting = false;
+//        }
+
+        MyEncrypter.createAes();
 
 
         Log.d(TAG, "Sending subject_id " + subject + " to watch");
@@ -308,8 +310,8 @@ public class MobileActivity extends Activity implements
 
 
     private static Boolean writing = true;
-    private static Boolean encrypting = false;
-    private static final Boolean collecting = true;
+    private static Boolean encrypting = true;
+    private static final Boolean collecting = false;
 
     private static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";//"GWTgVdeNeVwsGqQHHhChfiPgDxxgXJzLoxUD0R64Gns";
 
@@ -341,21 +343,25 @@ public class MobileActivity extends Activity implements
             String sensorData = jsonBody.getString("data");
 
             if (encrypting) {
-                byte[] aesBytes = MyEncrypter.lAESKey.getBytes();
-
-                String lEncryptedKey = Base64.encodeToString(MyEncrypter.RSAEncrypt(aesBytes, aesBytes), 0);
-                String lEncryptedBody = Base64.encodeToString(MyEncrypter.AESEncrypt(sensorData, MyEncrypter.lAESKey), 0);
+//                byte[] aesBytes = MyEncrypter.lAESKey.getBytes();
+//
+//                String lEncryptedKey = Base64.encodeToString(MyEncrypter.RSAEncrypt(aesBytes, aesBytes), 0);
+//                String lEncryptedBody = Base64.encodeToString(MyEncrypter.AESEncrypt(sensorData, MyEncrypter.lAESKey), 0);
 
 //                String lEncryptedKey = MyEncrypter.getEncryptedAesKey();
 //                String lEncryptedBody = MyEncrypter.encryptAes(subject, sensorData);
 
-                jsonBody.put("data", lEncryptedBody);
-                jsonBody.put("data_key", lEncryptedKey);
-                jsonBody.put("raw_key", MyEncrypter.lAESKey);
+                byte[] key = MyEncrypter.getAes();
+                byte[] lEncryptedKey = MyEncrypter.encryptRSA(this, key);
+                byte[] lEncryptedBody = MyEncrypter.encryptAES(sensorData.getBytes());
+                
+                jsonBody.put("data", Base64.encodeToString(lEncryptedBody, Base64.DEFAULT));
+                jsonBody.put("data_key", Base64.encodeToString(lEncryptedKey, Base64.DEFAULT));
+                jsonBody.put("raw_key", Base64.encodeToString(key, Base64.DEFAULT));
 
-                Log.d("data", lEncryptedBody);
-                Log.d("data_key", lEncryptedKey);
-                Log.d("raw_key", MyEncrypter.lAESKey);
+                Log.d("data", Base64.encodeToString(lEncryptedBody, Base64.DEFAULT));
+                Log.d("data_key", Base64.encodeToString(lEncryptedKey, Base64.DEFAULT));
+                Log.d("raw_key", Base64.encodeToString(key, Base64.DEFAULT));
             }
 
             String data = jsonBody.toString();
