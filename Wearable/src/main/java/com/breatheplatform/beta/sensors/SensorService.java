@@ -18,6 +18,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import me.denley.courier.Courier;
+
 /**
  * Created by cbono on 4/5/16.
  * http://www.tutorialspoint.com/android/android_services.htm
@@ -52,30 +54,7 @@ public class SensorService extends Service implements SensorEventListener {
             if (event.accuracy > 1) {
 
 
-                /*
-                Have listeners/messages set up to when heart rate is high
-                (115 bpm for 12 year olds, 130 bpm for 8-12 year olds,
-                find age using sensor ID), activity classified as running
-                (from Anahita's classifier), and inhaler is used
-                (from pulled data from Propeller Health's AsthmaPollus app)
-                so Ohmage can use this data to create triggers
-                for the EMA questionnaire on the phone.
-                 */
-                if (ClientPaths.activityDetail.contains("RUN")) {
-                    if (ClientPaths.userAge <= 12) {
-                        if (heartRate >= 130) {
-                            createQuestionnaire();
-                        }
-                    } else { //older than 12
-                        if (heartRate >= 115) {
-                            createQuestionnaire();
-                        }
-                    }
-                }
-
-
-
-
+                checkForQuestionnaire(heartRate);
 
 
                 addSensorData(sensorId, event.accuracy, timestamp, event.values);
@@ -95,6 +74,29 @@ public class SensorService extends Service implements SensorEventListener {
             addSensorData(sensorId, event.accuracy, timestamp, event.values);
         }
 //            updateLastView(sensorId);
+    }
+
+    /*
+    Have listeners/messages set up to when heart rate is high
+    (115 bpm for 12 year olds, 130 bpm for 8-12 year olds,
+    find age using sensor ID), activity classified as running
+    (from Anahita's classifier), and inhaler is used
+    (from pulled data from Propeller Health's AsthmaPollus app)
+    so Ohmage can use this data to create triggers
+    for the EMA questionnaire on the phone.
+     */
+    private void checkForQuestionnaire(Float heartRate) {
+        if (ClientPaths.activityDetail.contains("RUN")) {
+            if (ClientPaths.userAge <= 12) {
+                if (heartRate >= 130) {
+                    requestQuestionnaire();
+                }
+            } else { //older than 12
+                if (heartRate >= 115) {
+                    requestQuestionnaire();
+                }
+            }
+        }
     }
 
 //    SensorEventListener sensorEventListener = new SensorEventListener() {
@@ -144,19 +146,19 @@ public class SensorService extends Service implements SensorEventListener {
 
         //http://stackoverflow.com/questions/30153904/android-how-to-set-sensor-delay
         if (linearAccelerationSensor != null) {
-            mSensorManager.registerListener(this, linearAccelerationSensor, 1000000, 1000000);
+            mSensorManager.registerListener(this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);//1000000, 1000000);
             Log.d(TAG, "registered accel");
         }  else {
             Log.d(TAG, "No Linear Acceleration Sensor found");
         }
 
 
-//        if (gyroSensor != null) {
-//            mSensorManager.registerListener(this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
-//            Log.d(TAG, "registered gyro");
-//        } else {
-//            Log.w(TAG, "No Gyroscope Sensor found");
-//        }
+        if (gyroSensor != null) {
+            mSensorManager.registerListener(this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
+            Log.d(TAG, "registered gyro");
+        } else {
+            Log.w(TAG, "No Gyroscope Sensor found");
+        }
 
 
         mScheduler = Executors.newScheduledThreadPool(2);
@@ -279,7 +281,9 @@ public class SensorService extends Service implements SensorEventListener {
     }
 
     //TODO: this intent will launch questionnaire activity on the phone
-    private void createQuestionnaire() {
+    private void requestQuestionnaire() {
+
+        Courier.deliverMessage(this, Constants.QUESTION_API, "");
 //        Intent i = new Intent(this, EMAQuestionService.class);
 //        startService(i);
     }

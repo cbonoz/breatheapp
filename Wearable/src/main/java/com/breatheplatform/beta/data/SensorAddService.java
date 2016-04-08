@@ -21,29 +21,12 @@ import me.denley.courier.Courier;
  * Created by cbono on 3/2/16.
  */
 public class SensorAddService extends IntentService {
-
     private static final String TAG = "SensorAddService";
 
     private static final SensorNames sensorNames = new SensorNames();
-    public static String getSensorName(int id) {
-        return sensorNames.getName(id);
-    }
-
-//    public static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";//"GWTgVdeNeVwsGqQHHhChfiPgDxxgXJzLoxUD0R64Gns";
-    public static final int DUST_SENSOR_ID = 999;
-    public static final int SPIRO_SENSOR_ID = 998;
-    public static final int ENERGY_SENSOR_ID = 997;
-    public static final int REG_HEART_SENSOR_ID = 65562;
-    //    public static final int SS_HEART_SENSOR_ID = 21;
-    public static final int HEART_SENSOR_ID = Sensor.TYPE_HEART_RATE;
-    public static final int LA_SENSOR_ID = Sensor.TYPE_LINEAR_ACCELERATION;
 
     private static final int ENERGY_LIMIT = 10;
-
-//    private static Boolean encrypting = false;
-    private static Boolean sending = false;
-//    private static Boolean writing = true;
-
+    private static Boolean sending = true;
     //for energy measurements
     private static float sumX =0, sumY = 0, sumZ = 0;
 
@@ -56,7 +39,7 @@ public class SensorAddService extends IntentService {
     private static SparseLongArray initLastData() {
         SparseLongArray temp = new SparseLongArray();
         long last = System.currentTimeMillis();
-        temp.put(ENERGY_SENSOR_ID, last);
+        temp.put(Constants.ENERGY_SENSOR_ID, last);
         return temp;
     }
 
@@ -126,12 +109,13 @@ public class SensorAddService extends IntentService {
         int acc = intent.getIntExtra("accuracy", Constants.NO_VALUE);
         int sType = intent.getIntExtra("sensorType",Constants.NO_VALUE);
 
+
         if (sType == Constants.TERMINATE_SENSOR_ID) {
             createDataPostRequest();
             return;
         }
 
-        addSensorData(sType, acc,t,values);
+        processSensorData(sType, acc,t,values);
 
 
     }
@@ -140,7 +124,7 @@ public class SensorAddService extends IntentService {
     private static int energyCount = 0;
 
     // END WRITE AND SEND BLOCK
-    private void addSensorData(final int sensorType, final int accuracy, final long currentTime, final float[] values) {
+    private void processSensorData(final int sensorType, final int accuracy, final long currentTime, final float[] values) {
 
         long lastTimeStamp = lastSensorData.get(sensorType);
         long timeAgo = currentTime - lastTimeStamp;
@@ -172,33 +156,34 @@ public class SensorAddService extends IntentService {
                     jsonValue.put("z", z);
                     break;
                 case (Sensor.TYPE_HEART_RATE):
-                case (REG_HEART_SENSOR_ID):
+//                case (REG_HEART_SENSOR_ID):
                     if (values[0]<=0) {
                         Log.d(TAG, "Received heart data<=0 - skip");
                         return;
                     }
+                    jsonValue.put("v", values[0]);
                     break;
-                case (DUST_SENSOR_ID):
+                case (Constants.DUST_SENSOR_ID):
                     if (values[0]<=0) {
                         Log.d(TAG, "Received dust data<=0 - skip");
                         return;
                     }
                     jsonValue.put("v", values[0]);
                     break;
-                //                    fev1, pef, fev1_best, pef_best, fev1_percent, pef_percent, green_zone, yellow_zone, orange_zone
-                case (SPIRO_SENSOR_ID):
+                case (Constants.SPIRO_SENSOR_ID):
                     jsonValue.put("fev1", values[0]);
                     jsonValue.put("pef", values[1]);
                     jsonValue.put("goodtest", values[2]);
                     break;
-                case (ENERGY_SENSOR_ID):
+                case (Constants.ENERGY_SENSOR_ID):
                     jsonValue.put("energy", values[0]);
-                    jsonValue.put("activity", ClientPaths.activityDetail);
-//                    jsonValue.put("activity_confidence", ClientPaths.activityConfidence);
+                    break;
+                case (Constants.ACTIVITY_SENSOR_ID):
+                    jsonValue.put("type", values[0]);
                     break;
                 case (Sensor.TYPE_AMBIENT_TEMPERATURE):
                     //case (Sensor.TYPE_STEP_COUNTER):
-                    jsonValue.put("v", values[0]);
+                    jsonValue.put("temp", values[0]);
                     break;
                 default:
                     validEvent = false;
@@ -250,19 +235,19 @@ public class SensorAddService extends IntentService {
         Log.d(TAG, "Data Added #"+ recordCount + ": " + jsonDataEntry.toString());
 
         //if spirometer send immediately
-        if(sensorType==SPIRO_SENSOR_ID) {
+        if(sensorType==Constants.SPIRO_SENSOR_ID) {
             Log.d(TAG, "Received spiro: " + values[1]);
             Log.d(TAG, "Immediately sending " + jsonDataEntry.toString());
             createDataPostRequest();
         }
-        else if (sensorType==LA_SENSOR_ID) {
+        else if (sensorType==Constants.LA_SENSOR_ID) {
             energyCount++;
             sumX += x;
             sumY += y;
             sumZ += z;
             if (energyCount==ENERGY_LIMIT) {
                 energy+=Math.pow(sumX,2) + Math.pow(sumY,2) + Math.pow(sumZ,2);
-                addSensorData(Constants.ENERGY_SENSOR_ID, Constants.NO_VALUE, currentTime, new float[]{energy});
+                processSensorData(Constants.ENERGY_SENSOR_ID, Constants.NO_VALUE, currentTime, new float[]{energy});
                 sumX = 0;
                 sumY = 0;
                 sumZ = 0;

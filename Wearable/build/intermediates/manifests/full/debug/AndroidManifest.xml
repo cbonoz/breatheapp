@@ -103,9 +103,6 @@
             android:name="com.breatheplatform.beta.activity.ActivityDetectionService"
             android:exported="false" >
         </service>
-        <service
-            android:name="com.breatheplatform.beta.activity.DetectedActivitiesIntentService"
-            android:exported="false" />
 
         <!-- <receiver android:name=".data.BatteryReceiver"> -->
         <!-- <intent-filter> -->

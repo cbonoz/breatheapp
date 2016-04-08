@@ -11,6 +11,7 @@ public class Constants {
     public static final String BASE = "http://www.breatheplatform.com";
 
     public static final String ACTIVITY_API = "/activity";
+    public static final String QUESTION_API = "/question";
     public static final String SUBJECT_API = "/api/subject/add";
     public static final String MULTI_API = "/api/multisensor/add";
     public static final String RISK_API = "/api/risk/get";
@@ -22,7 +23,9 @@ public class Constants {
     public static final int DUST_SENSOR_ID = 999;
     public static final int SPIRO_SENSOR_ID = 998;
     public static final int ENERGY_SENSOR_ID = 997;
+    public static final int ACTIVITY_SENSOR_ID = 996;
     public static final int TERMINATE_SENSOR_ID = 555;
+
     public static final int REG_HEART_SENSOR_ID = 65562;
     //    public static final int SS_HEART_SENSOR_ID = 21;
     public static final int HEART_SENSOR_ID = Sensor.TYPE_HEART_RATE;
@@ -40,7 +43,7 @@ public class Constants {
     public static final String START_WRITE = "start";
     public static final String END_WRITE = "end";
 
-    public static Boolean sensorControl = true;
+    public static Boolean collecting = true;
 
     public static final String BROADCAST_ACTION = ".BROADCAST_ACTION";
 

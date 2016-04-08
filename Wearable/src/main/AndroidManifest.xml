@@ -116,10 +116,6 @@
             android:exported="false">
         </service>
 
-        <service
-            android:name=".activity.DetectedActivitiesIntentService"
-            android:exported="false" />
-
         <!--<receiver android:name=".data.BatteryReceiver">-->
             <!--<intent-filter>-->
                 <!--<action android:name="android.intent.action.BATTERY_CHANGED"/>-->

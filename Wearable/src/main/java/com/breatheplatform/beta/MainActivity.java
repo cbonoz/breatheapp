@@ -57,9 +57,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.breatheplatform.beta.activity.ActivityConstants;
 import com.breatheplatform.beta.activity.ActivityDetectionService;
-import com.breatheplatform.beta.activity.DetectedActivitiesIntentService;
 import com.breatheplatform.beta.bluetooth.BluetoothConnection;
 import com.breatheplatform.beta.bluetooth.HexAsciiHelper;
 import com.breatheplatform.beta.bluetooth.RFduinoService;
@@ -74,7 +72,6 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
-import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -85,7 +82,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -192,6 +188,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     private long mLastClickTime = 0;
 
+    private static final long ACTIVITY_INTERVAL = 0;//15000;//20000;//ms (0 fastest)
 
 
     RelativeLayout progressBar;
@@ -276,18 +273,26 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             }
         });
 
-        if (Constants.sensorControl) {
+        if (Constants.collecting) {
             Switch sensorSwitch = (Switch) findViewById(R.id.sensorSwitch);
             sensorSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (isChecked) {
-                        Courier.deliverMessage(MainActivity.this,Constants.FILE_API, Constants.START_WRITE);
+                        Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.START_WRITE);
                         startMeasurement();
+                        try {
+                            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 0, getActivityDetectionPendingIntent()).setResultCallback(MainActivity.this);
+                            Log.d(TAG, "removed updates");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
 
                         Log.d(TAG, "sensorToggle Checked");
                     } else {
                         stopMeasurement();
+                        ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, getActivityDetectionPendingIntent()).setResultCallback(MainActivity.this);
                         //trigger a data send event to the mobile device
                         addSensorData(Constants.TERMINATE_SENSOR_ID, null, null, null);
                         Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.END_WRITE);
@@ -334,16 +339,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 //        getWindoonDestoryw().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //end setup
-    }
-
-//    protected ActivityDetectionBroadcastReceiver activityReceiver;
-
-    private PendingIntent getActivityDetectionPendingIntent() {
-        Intent intent = new Intent(this, DetectedActivitiesIntentService.class);
-
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
-        // requestActivityUpdates() and removeActivityUpdates().
-        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private void createSpiroNotification() {
@@ -702,6 +697,11 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     }
 
+    private PendingIntent getActivityDetectionPendingIntent() {
+        Intent intent = new Intent(this, ActivityDetectionService.class);
+
+        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
 
     @Override
     protected void onDestroy() {
@@ -714,7 +714,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Courier.stopReceiving(this);
 
         //LocalBroadcastManager.getInstance(this).unregisterReceiver(mSensorReceiver);
-
+//
         if (mGoogleApiClient.isConnected()) {
             ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
                     mGoogleApiClient,
@@ -956,10 +956,16 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private void updateHeartUI(int lastHeartRate) {
         TextView heartText = (TextView) findViewById(R.id.heartText);
 
-        if (lastHeartRate == Constants.NO_VALUE)
-            heartText.setText("--");
-        else
-            heartText.setText(lastHeartRate);
+        Log.d(TAG, "Updating heart UI " + lastHeartRate);
+        try {
+            if (lastHeartRate == Constants.NO_VALUE)
+                heartText.setText("--");
+            else
+                heartText.setText(lastHeartRate + "");
+        } catch (Exception e) {
+            e.printStackTrace();
+//            Log.d(TAG, "Error updating heart UI");
+        }
     }
 
     //Sensor Related
@@ -985,33 +991,24 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
      */
 
 
+
+
     @Override
     public void onConnected(Bundle bundle) {
         Log.d(TAG, "GoogleApiClient onConnected");
 
-        final PendingResult<Status>
-                statusPendingResult =
-                ActivityRecognition.ActivityRecognitionApi
-                        .requestActivityUpdates(mGoogleApiClient, ACTIVITY_INTERVAL, PendingIntent
-                                .getService(this, 0, new Intent(this, ActivityDetectionService.class),
-                                        PendingIntent.FLAG_UPDATE_CURRENT));
-        statusPendingResult.setResultCallback(this);
+        if (!Constants.collecting) {
+            try {
 
-//        Wearable.DataApi.addListener(mGoogleApiClient, MainActivity.this);
-        //Request Activity Updates from GoogleAPIClient
-//        try {
-//            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
-//                    mGoogleApiClient,
-//                    ActivityConstants.DETECTION_INTERVAL_IN_MILLISECONDS,
-//                    getActivityDetectionPendingIntent()
-//            ).setResultCallback(this);
-//            Log.d(TAG, "Sucessfully requested activity updates");
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            Log.e(TAG, "[Handled] Error Requesting Activity (lack of permission)");
-//
-//        }
+                final PendingResult<Status>
+                        statusPendingResult =
+                        ActivityRecognition.ActivityRecognitionApi
+                                .requestActivityUpdates(mGoogleApiClient, ACTIVITY_INTERVAL, getActivityDetectionPendingIntent());
+                statusPendingResult.setResultCallback(this);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         //Request Location Updates from Google API Client
         LocationRequest locationRequest = LocationRequest.create()
@@ -1483,32 +1480,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         startService(i);
     }
 
-    /**
-     * Receiver for intents sent by DetectedActivitiesIntentService via a sendBroadcast().
-     * Receives a list of one or more DetectedActivity objects associated with the current state of
-     * the device.
-     */
-    public class ActivityDetectionBroadcastReceiver extends BroadcastReceiver {
-        protected static final String TAG = "activity-detection-response-receiver";
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            ArrayList<DetectedActivity> updatedActivities =
-                    intent.getParcelableArrayListExtra(ActivityConstants.ACTIVITY_EXTRA);
-
-            for (DetectedActivity activity : updatedActivities) {
-                Log.d(TAG, activity.getType() + " " + activity.getConfidence());
-            }
-
-        }
-    }
-
-    /* Start example for activity detection */
-
-
-    private static final long ACTIVITY_INTERVAL = 0;//15000;//20000;//ms (0 fastest)
-    private static final String BROADCAST_ACTION = "com.aucy.activityrecognitionsample.broadcast";
-    private static final String DETECTED_ACTIVITIES = "detectedActivities";
 
 
 //    // Our handler for received Intents. This will be called whenever an Intent

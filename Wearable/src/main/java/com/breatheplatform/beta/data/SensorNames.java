@@ -48,6 +48,8 @@ public class SensorNames {
         serverSensors.append(Constants.SPIRO_SENSOR_ID, 4);
         serverSensors.append(Constants.ENERGY_SENSOR_ID, 5);
         serverSensors.append(Sensor.TYPE_GYROSCOPE, 6);
+        serverSensors.append(Constants.ACTIVITY_SENSOR_ID, 7);
+
     }
 
     public String getName(int sensorId) {

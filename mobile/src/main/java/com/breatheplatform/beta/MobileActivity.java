@@ -1,7 +1,6 @@
 package com.breatheplatform.beta;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,13 +11,7 @@ import android.widget.Toast;
 
 import com.breatheplatform.beta.encryption.MyEncrypter;
 import com.breatheplatform.beta.services.CalendarService;
-import com.breatheplatform.beta.services.DetectedActivitiesIntentService;
 import com.breatheplatform.beta.shared.Constants;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.ActivityRecognition;
 
 import org.json.JSONObject;
 
@@ -34,8 +27,7 @@ import me.denley.courier.ReceiveMessages;
  * item every second while it is open. Also allows user to take a photo and send that as an asset
  * to the paired wearable.
  */
-public class MobileActivity extends Activity implements
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<Status>
+public class MobileActivity extends Activity
         /*implements
         DataApi.DataListener,
         GoogleApiClient.ConnectionCallbacks,
@@ -44,7 +36,7 @@ public class MobileActivity extends Activity implements
     private static final String TAG = "MobileActivity";
 
 
-    protected GoogleApiClient mGoogleApiClient;
+//    protected GoogleApiClient mGoogleApiClient;
 //    protected ActivityDetectionBroadcastReceiver activityReceiver;
 
     /**
@@ -58,24 +50,18 @@ public class MobileActivity extends Activity implements
 
     public static String labelDirectory = null;
     public static File labelFile  = null;// = createFile(sensorDirectory);
-    private static Boolean unregister = true;
 
+    private static Boolean unregister = false;
     private static Boolean createCalendarEvent = false;
 
-
     public void calendarEvent() {
-
         Intent i = new Intent(this, CalendarService.class);
         startService(i);
-
-
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
         if (createCalendarEvent) {
             calendarEvent();
         }
@@ -105,7 +91,7 @@ public class MobileActivity extends Activity implements
 
         Courier.startReceiving(this);
 
-        buildGoogleApiClient();
+
         Log.d(TAG, "created API client");
 
 //        MyEncrypter.createRsaEncrypter(this);
@@ -150,44 +136,21 @@ public class MobileActivity extends Activity implements
         return ClientPaths.createFile(labelDirectory);
     }
 
-    /**
-     * Gets a PendingIntent to be sent for each activity detection.
-     */
-    private PendingIntent getActivityDetectionPendingIntent() {
-        Intent intent = new Intent(this, DetectedActivitiesIntentService.class);
-
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
-        // requestActivityUpdates() and removeActivityUpdates().
-        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
 //    private static
     private SharedPreferences prefs = null;
     private String subject = "";
 
 
-    /**
-     * Builds a GoogleApiClient. Uses the {@code #addApi} method to request the
-     * ActivityRecognition API.
-     */
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(ActivityRecognition.API)
-                .build();
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
-        mGoogleApiClient.connect();
+//        mGoogleApiClient.connect();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mGoogleApiClient.disconnect();
+//        mGoogleApiClient.disconnect();
     }
 
     @Override
@@ -214,43 +177,6 @@ public class MobileActivity extends Activity implements
         super.onPause();
     }
 
-    /**
-     * Runs when a GoogleApiClient object successfully connects.
-     */
-    @Override
-    public void onConnected(Bundle connectionHint) {
-
-        Log.i(TAG, "Connected to GoogleApiClient");
-    }
-
-    @Override
-    public void onResult(Status status) {
-        if (status.getStatus().isSuccess()) {
-
-            Log.d(TAG, "Successfully requested activity updates");
-
-        } else {
-            Log.e(TAG, "Failed in requesting activity updates, "
-                    + "status code: "
-                    + status.getStatusCode() + ", message: " + status
-                    .getStatusMessage());
-        }
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        // Refer to the javadoc for ConnectionResult to see what error codes might be returned in
-        // onConnectionFailed.
-        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
-    }
-
-    @Override
-    public void onConnectionSuspended(int cause) {
-        // The connection to Google Play services was lost for some reason. We call connect() to
-        // attempt to re-establish the connection.
-        Log.i(TAG, "Connection suspended");
-        mGoogleApiClient.connect();
-    }
 
     @BackgroundThread
     @ReceiveMessages(Constants.RISK_API)
@@ -258,7 +184,7 @@ public class MobileActivity extends Activity implements
         Log.d(TAG, "Received message from " + Constants.RISK_API);
         Intent i = new Intent(this, MobileUploadService.class);
         i.putExtra("data",data);
-        i.putExtra("url",Constants.RISK_API);
+        i.putExtra("url", Constants.RISK_API);
         startService(i);
     }
 
@@ -269,6 +195,15 @@ public class MobileActivity extends Activity implements
         Log.d(TAG, "Received subject_id request from wear");
         Courier.deliverMessage(this, Constants.SUBJECT_API, subject);
     }
+
+    @BackgroundThread
+    @ReceiveMessages(Constants.QUESTION_API)
+    void onQuestionReceived(String data) { // The nodeId parameter is optional
+        //send subject back to watch
+        Log.d(TAG, "Received questionnaire request from wear");
+        //TODO: Start questionnaire here
+    }
+
 
     @BackgroundThread
     @ReceiveMessages(Constants.FILE_API)
@@ -310,21 +245,19 @@ public class MobileActivity extends Activity implements
 
 
     private static Boolean writing = true;
-    private static Boolean encrypting = true;
-    private static final Boolean collecting = false;
+    private static Boolean encrypting = false;
 
-    private static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";//"GWTgVdeNeVwsGqQHHhChfiPgDxxgXJzLoxUD0R64Gns";
+//    private static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";
 
     @BackgroundThread
     @ReceiveData(Constants.MULTI_API)
     void onMultiReceived(String s) {
     //    void onMultiReceived(PostData pd) {
-//        Log.d(TAG, "Received multi " + s);
+        Log.d(TAG, "Received multi data");//+ s);
         if (s.length()==0) {
             Log.e(TAG, "Received null multi string");
             return;
         }
-        Log.d(TAG, "Received multi data");
 
         JSONObject jsonBody;
         try {
@@ -354,7 +287,7 @@ public class MobileActivity extends Activity implements
                 byte[] key = MyEncrypter.getAes();
                 byte[] lEncryptedKey = MyEncrypter.encryptRSA(this, key);
                 byte[] lEncryptedBody = MyEncrypter.encryptAES(sensorData.getBytes());
-                
+
                 jsonBody.put("data", Base64.encodeToString(lEncryptedBody, Base64.DEFAULT));
                 jsonBody.put("data_key", Base64.encodeToString(lEncryptedKey, Base64.DEFAULT));
                 jsonBody.put("raw_key", Base64.encodeToString(key, Base64.DEFAULT));
@@ -367,10 +300,10 @@ public class MobileActivity extends Activity implements
             String data = jsonBody.toString();
 
             if (writing) {
-                if (collecting) {
+                if (Constants.collecting) {
                     Boolean result = false;
 
-                    if (labelFile !=null) {
+                    if (labelFile != null) {
                         result = ClientPaths.writeDataToFile(sensorData, labelFile, true);
                     } else {
                         Log.e(TAG, "Attempted to write to labelfile when null");
@@ -406,52 +339,10 @@ public class MobileActivity extends Activity implements
         Courier.stopReceiving(this);
         Log.d(TAG, "onDestroy called");
 //        createToast("Breathe App onDestroy");
-//        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
 
-//        if (mGoogleApiClient.isConnected()) {
-//            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
-//                    mGoogleApiClient,
-//                    getActivityDetectionPendingIntent()
-//            ).setResultCallback(this);
-//        }
 
-//        try {
-//            LocalBroadcastManager.getInstance(this).unregisterReceiver(activityReceiver);
-//        } catch (Exception e) {
-//            Log.d(TAG, "BroadCast Receiver unregistered");
-//        }
-//
-        if (mGoogleApiClient.isConnected()) {
-            try {
-                ActivityRecognition.ActivityRecognitionApi
-                        .removeActivityUpdates(mGoogleApiClient, getActivityDetectionPendingIntent());
-            } catch (Exception e) {
-
-            }
-        }
-        mGoogleApiClient.disconnect();
     }
 
 
-    /**
-     * Receiver for intents sent by DetectedActivitiesIntentService via a sendBroadcast().
-     * Receives a list of one or more DetectedActivity objects associated with the current state of
-     * the device.
-     */
-//    public class ActivityDetectionBroadcastReceiver extends BroadcastReceiver {
-//        protected static final String TAG = "activity-detection-response-receiver";
-//
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            ArrayList<DetectedActivity> updatedActivities =
-//                    intent.getParcelableArrayListExtra(Constants.ACTIVITY_EXTRA);
-//
-//            for (DetectedActivity activity : updatedActivities) {
-//                Log.d(TAG, activity.getType() + " " + activity.getConfidence());
-//            }
-//
-//        }
-//    }
-//
 
 }

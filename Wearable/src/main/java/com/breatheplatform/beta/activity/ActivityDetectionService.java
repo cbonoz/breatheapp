@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.breatheplatform.beta.ClientPaths;
+import com.breatheplatform.beta.data.SensorAddService;
+import com.breatheplatform.beta.shared.Constants;
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 
@@ -33,8 +35,22 @@ public class ActivityDetectionService extends IntentService {
 
         DetectedActivity activity = activityRecognitionResult.getMostProbableActivity();
 
-        ClientPaths.activityDetail = activityFromType(activity.getType()) + ":" + activity.getConfidence();
+        Integer activityType = activity.getType();
+        String activityName = activityFromType(activityType);
+        Integer activityConfidence = activity.getConfidence();
+
+        //launch question api (questionnaire on phone if transition from stil to running
+        if (activityName.equals("STILL") && ClientPaths.activityDetail.contains("RUN")) {
+            Log.d(TAG, "detected transition from still to running");
+//            Courier.deliverMessage(this,Constants.QUESTION_API,"");
+        }
+
+        ClientPaths.activityDetail = activityName + ":" + activityConfidence;
         Log.d(TAG, "Activity: " + ClientPaths.activityDetail);
+
+
+
+        addSensorData(Constants.ACTIVITY_SENSOR_ID, activityConfidence, System.currentTimeMillis(), new float[]{activityType});
 
 //        sendBroadcast(MainActivity.newBroadcastIntent(probableActivities));
     }
@@ -60,5 +76,17 @@ public class ActivityDetectionService extends IntentService {
             default:
                 return "UNEXPECTED";
         }
+    }
+
+    //append sensor data
+    private void addSensorData(final Integer sensorType, final Integer accuracy, final Long t, final float[] values) {
+
+        Intent i = new Intent(this, SensorAddService.class);
+        i.putExtra("sensorType", sensorType);
+        i.putExtra("accuracy", accuracy);
+        i.putExtra("time", t);
+        i.putExtra("values", values);
+
+        startService(i);
     }
 }
