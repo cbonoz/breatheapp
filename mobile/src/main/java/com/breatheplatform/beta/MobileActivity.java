@@ -51,7 +51,7 @@ public class MobileActivity extends Activity
     public static String labelDirectory = null;
     public static File labelFile  = null;// = createFile(sensorDirectory);
 
-    private static Boolean unregister = false;
+    private static Boolean unregister = true;
     private static Boolean createCalendarEvent = false;
 
     public void calendarEvent() {
@@ -218,7 +218,7 @@ public class MobileActivity extends Activity
                 int availableBlocks = stats.getAvailableBlocks();
                 int blockSizeInBytes = stats.getBlockSize();
                 double freeSpaceInBytes = availableBlocks * blockSizeInBytes;
-                String info = labelDirectory + " - " + freeSpaceInBytes / 1000 + "kB left";
+                String info = labelDirectory + " " + labelFile.length()/1000 + "kB";// + freeSpaceInBytes / 1000 + "kB left";
                 Log.d(TAG, info);
                 createToast(info);
                 ;
@@ -253,7 +253,7 @@ public class MobileActivity extends Activity
     @ReceiveData(Constants.MULTI_API)
     void onMultiReceived(String s) {
     //    void onMultiReceived(PostData pd) {
-        Log.d(TAG, "Received multi data");//+ s);
+//        Log.d(TAG, "Received multi data");//+ s);
         if (s.length()==0) {
             Log.e(TAG, "Received null multi string");
             return;
@@ -272,7 +272,7 @@ public class MobileActivity extends Activity
 //            jsonBody.put("key",API_KEY);
 
             String subject = jsonBody.getInt("subject_id")+"";
-            Log.d(TAG, "parsed subject: " + subject);
+            Log.d(TAG, "Received multi data - subject " + subject);
             String sensorData = jsonBody.getString("data");
 
             if (encrypting) {

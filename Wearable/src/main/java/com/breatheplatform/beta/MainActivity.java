@@ -102,22 +102,19 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_ENABLE_BT = 1;
-    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 2;
 
 
-    private RFduinoService rfduinoService;
-    private BluetoothDevice bluetoothDevice;
     private GoogleApiClient mGoogleApiClient;
 
-
     private static final int RISK_TASK_PERIOD=10000; //10 seconds
-    private static final int ACTIVITY_REQUEST_PERIOD = RISK_TASK_PERIOD*2; //20 seconds
-    private static final int BT_TASK_PERIOD=RISK_TASK_PERIOD*6; //60 seconds
-    private static final int SPEECH_ID_REQUEST_CODE = 0;
+
+    private static final int BT_TASK_PERIOD=RISK_TASK_PERIOD*18; //180 seconds
 
     BluetoothAdapter bluetoothAdapter;
     BluetoothSocket mmSocket;
     BluetoothDevice mmDevice;
+    private RFduinoService rfduinoService;
+    private BluetoothDevice bluetoothDevice;
     InputStream mmInputStream;
     Thread workerThread;
     byte[] readBuffer;
@@ -132,6 +129,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private static final int LOW_RISK = 2;
     private static final int MED_RISK = 1;
     private static final int HIGH_RISK = 0;
+
     private final int MIN_CLICK_INTERVAL =5000;
 
     private ToggleButton spiroToggleButton;
@@ -191,7 +189,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private static final long ACTIVITY_INTERVAL = 0;//15000;//20000;//ms (0 fastest)
 
 
-    RelativeLayout progressBar;
+    private RelativeLayout progressBar;
     //this function is called during onCreate (if the user has not registered an ID yet, will be called after
 //    a valid ID has been registered during the boot up registration process)
     private void setup() {
@@ -236,7 +234,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         spiroToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Log.d(TAG, "onCheckChanged");
-                if (SystemClock.elapsedRealtime() - mLastClickTime < 5000) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < MIN_CLICK_INTERVAL) {
                     if (isChecked)
                         Log.d(TAG, "Spiro Button blocked - currently connecting");
                     return;
@@ -1068,12 +1066,23 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     @Override
     public void onEnterAmbient(Bundle ambientDetails) {
         super.onEnterAmbient(ambientDetails);
+        Log.d(TAG, "onEnterAmbient - remove task callbacks");
+        taskHandler.removeCallbacks(riskTask);
+        taskHandler.removeCallbacks(dustTask);
+
+
         //updateDisplay();
     }
 
     @Override
     public void onUpdateAmbient() {
         super.onUpdateAmbient();
+
+        Log.d(TAG, "onUpdateAmbient");
+        createRiskPostRequest();
+
+
+
         //updateDisplay();
     }
 
@@ -1081,6 +1090,17 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     public void onExitAmbient() {
         //updateDisplay();
         super.onExitAmbient();
+        Log.d(TAG, "onExitAmbient - add task callbacks");
+
+        findBT(Constants.DUST_SENSOR_ID);
+        if (dustDevice != null) {
+            if (openDust()) {
+                Log.d(TAG, "Opened dust connection");
+            }
+        }
+
+        taskHandler.postDelayed(riskTask, RISK_TASK_PERIOD);
+        taskHandler.postDelayed(dustTask, BT_TASK_PERIOD);
     }
 
     //Spirometer connection:
