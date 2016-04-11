@@ -295,8 +295,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             });
         } else {
             sensorSwitch.setVisibility(View.GONE);
-            TextView helpText1 = (TextView) findViewById(R.id.helpText1);
-            helpText1.setVisibility(View.GONE);
+//            TextView helpText1 = (TextView) findViewById(R.id.helpText1);
+//            helpText1.setVisibility(View.GONE);
             startMeasurement();
             try {
                 ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 0, getActivityDetectionPendingIntent()).setResultCallback(MainActivity.this);
