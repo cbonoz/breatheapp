@@ -4164,14 +4164,7 @@
                     "endOffset": 51183
                 },
                 "from": {
-                    "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml",
-                    "position": {
-                        "startLine": 32,
-                        "startColumn": 4,
-                        "startOffset": 1588,
-                        "endColumn": 82,
-                        "endOffset": 1666
-                    }
+                    "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
                 }
             },
             {
@@ -4179,8 +4172,8 @@
                     "startLine": 401,
                     "startColumn": 4,
                     "startOffset": 51188,
-                    "endColumn": 87,
-                    "endOffset": 51271
+                    "endColumn": 49,
+                    "endOffset": 51233
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
@@ -4190,9 +4183,9 @@
                 "to": {
                     "startLine": 402,
                     "startColumn": 4,
-                    "startOffset": 51276,
+                    "startOffset": 51238,
                     "endColumn": 73,
-                    "endOffset": 51345
+                    "endOffset": 51307
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
@@ -4202,9 +4195,9 @@
                 "to": {
                     "startLine": 403,
                     "startColumn": 4,
-                    "startOffset": 51350,
+                    "startOffset": 51312,
                     "endColumn": 51,
-                    "endOffset": 51397
+                    "endOffset": 51359
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
@@ -4214,9 +4207,9 @@
                 "to": {
                     "startLine": 404,
                     "startColumn": 4,
-                    "startOffset": 51402,
+                    "startOffset": 51364,
                     "endColumn": 43,
-                    "endOffset": 51441
+                    "endOffset": 51403
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
@@ -4226,9 +4219,9 @@
                 "to": {
                     "startLine": 405,
                     "startColumn": 4,
-                    "startOffset": 51446,
+                    "startOffset": 51408,
                     "endColumn": 72,
-                    "endOffset": 51514
+                    "endOffset": 51476
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-location/8.4.0/res/values/location_strings.xml"
@@ -4238,9 +4231,9 @@
                 "to": {
                     "startLine": 406,
                     "startColumn": 4,
-                    "startOffset": 51519,
+                    "startOffset": 51481,
                     "endColumn": 65,
-                    "endOffset": 51580
+                    "endOffset": 51542
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-location/8.4.0/res/values/location_strings.xml"
@@ -4250,9 +4243,9 @@
                 "to": {
                     "startLine": 407,
                     "startColumn": 4,
-                    "startOffset": 51585,
+                    "startOffset": 51547,
                     "endColumn": 66,
-                    "endOffset": 51647
+                    "endOffset": 51609
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
@@ -4262,9 +4255,9 @@
                 "to": {
                     "startLine": 408,
                     "startColumn": 4,
-                    "startOffset": 51652,
+                    "startOffset": 51614,
                     "endColumn": 68,
-                    "endOffset": 51716
+                    "endOffset": 51678
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
@@ -4274,9 +4267,9 @@
                 "to": {
                     "startLine": 409,
                     "startColumn": 4,
-                    "startOffset": 51721,
+                    "startOffset": 51683,
                     "endColumn": 43,
-                    "endOffset": 51760
+                    "endOffset": 51722
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
@@ -4286,9 +4279,9 @@
                 "to": {
                     "startLine": 410,
                     "startColumn": 4,
-                    "startOffset": 51765,
+                    "startOffset": 51727,
                     "endColumn": 58,
-                    "endOffset": 51819
+                    "endOffset": 51781
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
@@ -4298,9 +4291,9 @@
                 "to": {
                     "startLine": 411,
                     "startColumn": 4,
-                    "startOffset": 51824,
+                    "startOffset": 51786,
                     "endColumn": 46,
-                    "endOffset": 51866
+                    "endOffset": 51828
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/breathe-android-app/shared/unspecified/res/values/values.xml"
@@ -4310,9 +4303,9 @@
                 "to": {
                     "startLine": 412,
                     "startColumn": 4,
-                    "startOffset": 51871,
+                    "startOffset": 51833,
                     "endColumn": 65,
-                    "endOffset": 51932
+                    "endOffset": 51894
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
@@ -4322,9 +4315,9 @@
                 "to": {
                     "startLine": 413,
                     "startColumn": 4,
-                    "startOffset": 51937,
+                    "startOffset": 51899,
                     "endColumn": 69,
-                    "endOffset": 52002
+                    "endOffset": 51964
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
@@ -4334,9 +4327,9 @@
                 "to": {
                     "startLine": 414,
                     "startColumn": 4,
-                    "startOffset": 52007,
+                    "startOffset": 51969,
                     "endColumn": 55,
-                    "endOffset": 52058
+                    "endOffset": 52020
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
@@ -4346,9 +4339,9 @@
                 "to": {
                     "startLine": 415,
                     "startColumn": 4,
-                    "startOffset": 52063,
+                    "startOffset": 52025,
                     "endColumn": 61,
-                    "endOffset": 52120
+                    "endOffset": 52082
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
@@ -4358,9 +4351,9 @@
                 "to": {
                     "startLine": 416,
                     "startColumn": 4,
-                    "startOffset": 52125,
+                    "startOffset": 52087,
                     "endColumn": 70,
-                    "endOffset": 52191
+                    "endOffset": 52153
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4370,9 +4363,9 @@
                 "to": {
                     "startLine": 417,
                     "startColumn": 4,
-                    "startOffset": 52196,
+                    "startOffset": 52158,
                     "endColumn": 39,
-                    "endOffset": 52231
+                    "endOffset": 52193
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
@@ -4382,9 +4375,9 @@
                 "to": {
                     "startLine": 418,
                     "startColumn": 4,
-                    "startOffset": 52236,
+                    "startOffset": 52198,
                     "endColumn": 95,
-                    "endOffset": 52327
+                    "endOffset": 52289
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-ads/8.4.0/res/values/admob_strings.xml"
@@ -4394,9 +4387,9 @@
                 "to": {
                     "startLine": 419,
                     "startColumn": 4,
-                    "startOffset": 52332,
+                    "startOffset": 52294,
                     "endColumn": 58,
-                    "endOffset": 52386
+                    "endOffset": 52348
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-ads/8.4.0/res/values/admob_strings.xml"
@@ -4406,9 +4399,9 @@
                 "to": {
                     "startLine": 420,
                     "startColumn": 4,
-                    "startOffset": 52391,
+                    "startOffset": 52353,
                     "endColumn": 43,
-                    "endOffset": 52430
+                    "endOffset": 52392
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
@@ -4418,9 +4411,9 @@
                 "to": {
                     "startLine": 421,
                     "startColumn": 4,
-                    "startOffset": 52435,
+                    "startOffset": 52397,
                     "endColumn": 81,
-                    "endOffset": 52512
+                    "endOffset": 52474
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
@@ -4430,9 +4423,9 @@
                 "to": {
                     "startLine": 422,
                     "startColumn": 4,
-                    "startOffset": 52517,
+                    "startOffset": 52479,
                     "endColumn": 52,
-                    "endOffset": 52565
+                    "endOffset": 52527
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
@@ -4442,9 +4435,9 @@
                 "to": {
                     "startLine": 423,
                     "startColumn": 4,
-                    "startOffset": 52570,
+                    "startOffset": 52532,
                     "endColumn": 43,
-                    "endOffset": 52609
+                    "endOffset": 52571
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/strings.xml"
@@ -4454,9 +4447,9 @@
                 "to": {
                     "startLine": 424,
                     "startColumn": 4,
-                    "startOffset": 52614,
+                    "startOffset": 52576,
                     "endColumn": 74,
-                    "endOffset": 52684
+                    "endOffset": 52646
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-wallet/8.4.0/res/values/wallet_strings.xml"
@@ -4466,9 +4459,9 @@
                 "to": {
                     "startLine": 425,
                     "startColumn": 4,
-                    "startOffset": 52689,
+                    "startOffset": 52651,
                     "endColumn": 77,
-                    "endOffset": 52762
+                    "endOffset": 52724
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4478,9 +4471,9 @@
                 "to": {
                     "startLine": 426,
                     "startColumn": 4,
-                    "startOffset": 52767,
+                    "startOffset": 52729,
                     "endColumn": 89,
-                    "endOffset": 52852
+                    "endOffset": 52814
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4490,9 +4483,9 @@
                 "to": {
                     "startLine": 427,
                     "startColumn": 4,
-                    "startOffset": 52857,
+                    "startOffset": 52819,
                     "endColumn": 87,
-                    "endOffset": 52940
+                    "endOffset": 52902
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4502,9 +4495,9 @@
                 "to": {
                     "startLine": 428,
                     "startColumn": 4,
-                    "startOffset": 52945,
+                    "startOffset": 52907,
                     "endColumn": 95,
-                    "endOffset": 53036
+                    "endOffset": 52998
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4514,10 +4507,10 @@
                 "to": {
                     "startLine": 429,
                     "startColumn": 4,
-                    "startOffset": 53041,
+                    "startOffset": 53003,
                     "endLine": 432,
                     "endColumn": 12,
-                    "endOffset": 53246
+                    "endOffset": 53208
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/values/style.xml"
@@ -4527,10 +4520,10 @@
                 "to": {
                     "startLine": 433,
                     "startColumn": 4,
-                    "startOffset": 53251,
+                    "startOffset": 53213,
                     "endLine": 439,
                     "endColumn": 12,
-                    "endOffset": 53747
+                    "endOffset": 53709
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4540,9 +4533,9 @@
                 "to": {
                     "startLine": 440,
                     "startColumn": 4,
-                    "startOffset": 53752,
+                    "startOffset": 53714,
                     "endColumn": 88,
-                    "endOffset": 53836
+                    "endOffset": 53798
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4552,10 +4545,10 @@
                 "to": {
                     "startLine": 441,
                     "startColumn": 4,
-                    "startOffset": 53841,
+                    "startOffset": 53803,
                     "endLine": 444,
                     "endColumn": 12,
-                    "endOffset": 54083
+                    "endOffset": 54045
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4565,10 +4558,10 @@
                 "to": {
                     "startLine": 445,
                     "startColumn": 4,
-                    "startOffset": 54088,
+                    "startOffset": 54050,
                     "endLine": 448,
                     "endColumn": 12,
-                    "endOffset": 54364
+                    "endOffset": 54326
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4578,10 +4571,10 @@
                 "to": {
                     "startLine": 449,
                     "startColumn": 4,
-                    "startOffset": 54369,
+                    "startOffset": 54331,
                     "endLine": 453,
                     "endColumn": 12,
-                    "endOffset": 54649
+                    "endOffset": 54611
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4591,10 +4584,10 @@
                 "to": {
                     "startLine": 454,
                     "startColumn": 4,
-                    "startOffset": 54654,
+                    "startOffset": 54616,
                     "endLine": 459,
                     "endColumn": 12,
-                    "endOffset": 55042
+                    "endOffset": 55004
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4604,10 +4597,10 @@
                 "to": {
                     "startLine": 460,
                     "startColumn": 4,
-                    "startOffset": 55047,
+                    "startOffset": 55009,
                     "endLine": 466,
                     "endColumn": 12,
-                    "endOffset": 55519
+                    "endOffset": 55481
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4617,10 +4610,10 @@
                 "to": {
                     "startLine": 467,
                     "startColumn": 4,
-                    "startOffset": 55524,
+                    "startOffset": 55486,
                     "endLine": 470,
                     "endColumn": 12,
-                    "endOffset": 55741
+                    "endOffset": 55703
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4630,10 +4623,10 @@
                 "to": {
                     "startLine": 471,
                     "startColumn": 4,
-                    "startOffset": 55746,
+                    "startOffset": 55708,
                     "endLine": 474,
                     "endColumn": 12,
-                    "endOffset": 55963
+                    "endOffset": 55925
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4643,10 +4636,10 @@
                 "to": {
                     "startLine": 475,
                     "startColumn": 4,
-                    "startOffset": 55968,
+                    "startOffset": 55930,
                     "endLine": 479,
                     "endColumn": 12,
-                    "endOffset": 56231
+                    "endOffset": 56193
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4656,10 +4649,10 @@
                 "to": {
                     "startLine": 480,
                     "startColumn": 4,
-                    "startOffset": 56236,
+                    "startOffset": 56198,
                     "endLine": 483,
                     "endColumn": 12,
-                    "endOffset": 56458
+                    "endOffset": 56420
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4669,10 +4662,10 @@
                 "to": {
                     "startLine": 484,
                     "startColumn": 4,
-                    "startOffset": 56463,
+                    "startOffset": 56425,
                     "endLine": 487,
                     "endColumn": 12,
-                    "endOffset": 56688
+                    "endOffset": 56650
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4682,10 +4675,10 @@
                 "to": {
                     "startLine": 488,
                     "startColumn": 4,
-                    "startOffset": 56693,
+                    "startOffset": 56655,
                     "endLine": 491,
                     "endColumn": 12,
-                    "endOffset": 56918
+                    "endOffset": 56880
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4695,10 +4688,10 @@
                 "to": {
                     "startLine": 492,
                     "startColumn": 4,
-                    "startOffset": 56923,
+                    "startOffset": 56885,
                     "endLine": 495,
                     "endColumn": 12,
-                    "endOffset": 57148
+                    "endOffset": 57110
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4708,10 +4701,10 @@
                 "to": {
                     "startLine": 496,
                     "startColumn": 4,
-                    "startOffset": 57153,
+                    "startOffset": 57115,
                     "endLine": 499,
                     "endColumn": 12,
-                    "endOffset": 57378
+                    "endOffset": 57340
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4721,10 +4714,10 @@
                 "to": {
                     "startLine": 500,
                     "startColumn": 4,
-                    "startOffset": 57383,
+                    "startOffset": 57345,
                     "endLine": 503,
                     "endColumn": 12,
-                    "endOffset": 57605
+                    "endOffset": 57567
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4734,10 +4727,10 @@
                 "to": {
                     "startLine": 504,
                     "startColumn": 4,
-                    "startOffset": 57610,
+                    "startOffset": 57572,
                     "endLine": 507,
                     "endColumn": 12,
-                    "endOffset": 57844
+                    "endOffset": 57806
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4747,10 +4740,10 @@
                 "to": {
                     "startLine": 508,
                     "startColumn": 4,
-                    "startOffset": 57849,
+                    "startOffset": 57811,
                     "endLine": 511,
                     "endColumn": 12,
-                    "endOffset": 58070
+                    "endOffset": 58032
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4760,10 +4753,10 @@
                 "to": {
                     "startLine": 512,
                     "startColumn": 4,
-                    "startOffset": 58075,
+                    "startOffset": 58037,
                     "endLine": 515,
                     "endColumn": 12,
-                    "endOffset": 58315
+                    "endOffset": 58277
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4773,10 +4766,10 @@
                 "to": {
                     "startLine": 516,
                     "startColumn": 4,
-                    "startOffset": 58320,
+                    "startOffset": 58282,
                     "endLine": 517,
                     "endColumn": 12,
-                    "endOffset": 58445
+                    "endOffset": 58407
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4786,10 +4779,10 @@
                 "to": {
                     "startLine": 518,
                     "startColumn": 4,
-                    "startOffset": 58450,
+                    "startOffset": 58412,
                     "endLine": 519,
                     "endColumn": 12,
-                    "endOffset": 58575
+                    "endOffset": 58537
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4799,10 +4792,10 @@
                 "to": {
                     "startLine": 520,
                     "startColumn": 4,
-                    "startOffset": 58580,
+                    "startOffset": 58542,
                     "endLine": 523,
                     "endColumn": 12,
-                    "endOffset": 58805
+                    "endOffset": 58767
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4812,10 +4805,10 @@
                 "to": {
                     "startLine": 524,
                     "startColumn": 4,
-                    "startOffset": 58810,
+                    "startOffset": 58772,
                     "endLine": 527,
                     "endColumn": 12,
-                    "endOffset": 59053
+                    "endOffset": 59015
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4825,10 +4818,10 @@
                 "to": {
                     "startLine": 528,
                     "startColumn": 4,
-                    "startOffset": 59058,
+                    "startOffset": 59020,
                     "endLine": 531,
                     "endColumn": 12,
-                    "endOffset": 59272
+                    "endOffset": 59234
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4838,10 +4831,10 @@
                 "to": {
                     "startLine": 532,
                     "startColumn": 4,
-                    "startOffset": 59277,
+                    "startOffset": 59239,
                     "endLine": 536,
                     "endColumn": 12,
-                    "endOffset": 59555
+                    "endOffset": 59517
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4851,10 +4844,10 @@
                 "to": {
                     "startLine": 537,
                     "startColumn": 4,
-                    "startOffset": 59560,
+                    "startOffset": 59522,
                     "endLine": 540,
                     "endColumn": 12,
-                    "endOffset": 59763
+                    "endOffset": 59725
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4864,10 +4857,10 @@
                 "to": {
                     "startLine": 541,
                     "startColumn": 4,
-                    "startOffset": 59768,
+                    "startOffset": 59730,
                     "endLine": 543,
                     "endColumn": 12,
-                    "endOffset": 59894
+                    "endOffset": 59856
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4877,10 +4870,10 @@
                 "to": {
                     "startLine": 544,
                     "startColumn": 4,
-                    "startOffset": 59899,
+                    "startOffset": 59861,
                     "endLine": 547,
                     "endColumn": 12,
-                    "endOffset": 60121
+                    "endOffset": 60083
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4890,10 +4883,10 @@
                 "to": {
                     "startLine": 548,
                     "startColumn": 4,
-                    "startOffset": 60126,
+                    "startOffset": 60088,
                     "endLine": 551,
                     "endColumn": 12,
-                    "endOffset": 60367
+                    "endOffset": 60329
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4903,10 +4896,10 @@
                 "to": {
                     "startLine": 552,
                     "startColumn": 4,
-                    "startOffset": 60372,
+                    "startOffset": 60334,
                     "endLine": 555,
                     "endColumn": 12,
-                    "endOffset": 60592
+                    "endOffset": 60554
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4916,10 +4909,10 @@
                 "to": {
                     "startLine": 556,
                     "startColumn": 4,
-                    "startOffset": 60597,
+                    "startOffset": 60559,
                     "endLine": 559,
                     "endColumn": 12,
-                    "endOffset": 60839
+                    "endOffset": 60801
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4929,10 +4922,10 @@
                 "to": {
                     "startLine": 560,
                     "startColumn": 4,
-                    "startOffset": 60844,
+                    "startOffset": 60806,
                     "endLine": 563,
                     "endColumn": 12,
-                    "endOffset": 61060
+                    "endOffset": 61022
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4942,10 +4935,10 @@
                 "to": {
                     "startLine": 564,
                     "startColumn": 4,
-                    "startOffset": 61065,
+                    "startOffset": 61027,
                     "endLine": 567,
                     "endColumn": 12,
-                    "endOffset": 61305
+                    "endOffset": 61267
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4955,10 +4948,10 @@
                 "to": {
                     "startLine": 568,
                     "startColumn": 4,
-                    "startOffset": 61310,
+                    "startOffset": 61272,
                     "endLine": 571,
                     "endColumn": 12,
-                    "endOffset": 61579
+                    "endOffset": 61541
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4968,10 +4961,10 @@
                 "to": {
                     "startLine": 572,
                     "startColumn": 4,
-                    "startOffset": 61584,
+                    "startOffset": 61546,
                     "endLine": 575,
                     "endColumn": 12,
-                    "endOffset": 61880
+                    "endOffset": 61842
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4981,10 +4974,10 @@
                 "to": {
                     "startLine": 576,
                     "startColumn": 4,
-                    "startOffset": 61885,
+                    "startOffset": 61847,
                     "endLine": 579,
                     "endColumn": 12,
-                    "endOffset": 62204
+                    "endOffset": 62166
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -4994,10 +4987,10 @@
                 "to": {
                     "startLine": 580,
                     "startColumn": 4,
-                    "startOffset": 62209,
+                    "startOffset": 62171,
                     "endLine": 583,
                     "endColumn": 12,
-                    "endOffset": 62495
+                    "endOffset": 62457
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5007,10 +5000,10 @@
                 "to": {
                     "startLine": 584,
                     "startColumn": 4,
-                    "startOffset": 62500,
+                    "startOffset": 62462,
                     "endLine": 587,
                     "endColumn": 12,
-                    "endOffset": 62809
+                    "endOffset": 62771
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5020,9 +5013,9 @@
                 "to": {
                     "startLine": 588,
                     "startColumn": 4,
-                    "startOffset": 62814,
+                    "startOffset": 62776,
                     "endColumn": 136,
-                    "endOffset": 62946
+                    "endOffset": 62908
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5032,9 +5025,9 @@
                 "to": {
                     "startLine": 589,
                     "startColumn": 4,
-                    "startOffset": 62951,
+                    "startOffset": 62913,
                     "endColumn": 130,
-                    "endOffset": 63077
+                    "endOffset": 63039
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5044,9 +5037,9 @@
                 "to": {
                     "startLine": 590,
                     "startColumn": 4,
-                    "startOffset": 63082,
+                    "startOffset": 63044,
                     "endColumn": 104,
-                    "endOffset": 63182
+                    "endOffset": 63144
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5056,10 +5049,10 @@
                 "to": {
                     "startLine": 591,
                     "startColumn": 4,
-                    "startOffset": 63187,
+                    "startOffset": 63149,
                     "endLine": 593,
                     "endColumn": 12,
-                    "endOffset": 63386
+                    "endOffset": 63348
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5069,10 +5062,10 @@
                 "to": {
                     "startLine": 594,
                     "startColumn": 4,
-                    "startOffset": 63391,
+                    "startOffset": 63353,
                     "endLine": 596,
                     "endColumn": 12,
-                    "endOffset": 63594
+                    "endOffset": 63556
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5082,10 +5075,10 @@
                 "to": {
                     "startLine": 597,
                     "startColumn": 4,
-                    "startOffset": 63599,
+                    "startOffset": 63561,
                     "endLine": 598,
                     "endColumn": 12,
-                    "endOffset": 63718
+                    "endOffset": 63680
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5095,10 +5088,10 @@
                 "to": {
                     "startLine": 599,
                     "startColumn": 4,
-                    "startOffset": 63723,
+                    "startOffset": 63685,
                     "endLine": 600,
                     "endColumn": 12,
-                    "endOffset": 63842
+                    "endOffset": 63804
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5108,9 +5101,9 @@
                 "to": {
                     "startLine": 601,
                     "startColumn": 4,
-                    "startOffset": 63847,
+                    "startOffset": 63809,
                     "endColumn": 104,
-                    "endOffset": 63947
+                    "endOffset": 63909
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5120,9 +5113,9 @@
                 "to": {
                     "startLine": 602,
                     "startColumn": 4,
-                    "startOffset": 63952,
+                    "startOffset": 63914,
                     "endColumn": 116,
-                    "endOffset": 64064
+                    "endOffset": 64026
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5132,10 +5125,10 @@
                 "to": {
                     "startLine": 603,
                     "startColumn": 4,
-                    "startOffset": 64069,
+                    "startOffset": 64031,
                     "endLine": 605,
                     "endColumn": 12,
-                    "endOffset": 64278
+                    "endOffset": 64240
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5145,10 +5138,10 @@
                 "to": {
                     "startLine": 606,
                     "startColumn": 4,
-                    "startOffset": 64283,
+                    "startOffset": 64245,
                     "endLine": 607,
                     "endColumn": 12,
-                    "endOffset": 64424
+                    "endOffset": 64386
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5158,10 +5151,10 @@
                 "to": {
                     "startLine": 608,
                     "startColumn": 4,
-                    "startOffset": 64429,
+                    "startOffset": 64391,
                     "endLine": 609,
                     "endColumn": 12,
-                    "endOffset": 64564
+                    "endOffset": 64526
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5171,10 +5164,10 @@
                 "to": {
                     "startLine": 610,
                     "startColumn": 4,
-                    "startOffset": 64569,
+                    "startOffset": 64531,
                     "endLine": 611,
                     "endColumn": 12,
-                    "endOffset": 64650
+                    "endOffset": 64612
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5184,10 +5177,10 @@
                 "to": {
                     "startLine": 612,
                     "startColumn": 4,
-                    "startOffset": 64655,
+                    "startOffset": 64617,
                     "endLine": 616,
                     "endColumn": 12,
-                    "endOffset": 64998
+                    "endOffset": 64960
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5197,9 +5190,9 @@
                 "to": {
                     "startLine": 617,
                     "startColumn": 4,
-                    "startOffset": 65003,
+                    "startOffset": 64965,
                     "endColumn": 87,
-                    "endOffset": 65086
+                    "endOffset": 65048
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5209,10 +5202,10 @@
                 "to": {
                     "startLine": 618,
                     "startColumn": 4,
-                    "startOffset": 65091,
+                    "startOffset": 65053,
                     "endLine": 621,
                     "endColumn": 12,
-                    "endOffset": 65316
+                    "endOffset": 65278
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5222,10 +5215,10 @@
                 "to": {
                     "startLine": 622,
                     "startColumn": 4,
-                    "startOffset": 65321,
+                    "startOffset": 65283,
                     "endLine": 627,
                     "endColumn": 12,
-                    "endOffset": 65734
+                    "endOffset": 65696
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5235,10 +5228,10 @@
                 "to": {
                     "startLine": 628,
                     "startColumn": 4,
-                    "startOffset": 65739,
+                    "startOffset": 65701,
                     "endLine": 631,
                     "endColumn": 12,
-                    "endOffset": 65967
+                    "endOffset": 65929
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5248,9 +5241,9 @@
                 "to": {
                     "startLine": 632,
                     "startColumn": 4,
-                    "startOffset": 65972,
+                    "startOffset": 65934,
                     "endColumn": 81,
-                    "endOffset": 66049
+                    "endOffset": 66011
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5260,10 +5253,10 @@
                 "to": {
                     "startLine": 633,
                     "startColumn": 4,
-                    "startOffset": 66054,
+                    "startOffset": 66016,
                     "endLine": 634,
                     "endColumn": 12,
-                    "endOffset": 66147
+                    "endOffset": 66109
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5273,10 +5266,10 @@
                 "to": {
                     "startLine": 635,
                     "startColumn": 4,
-                    "startOffset": 66152,
+                    "startOffset": 66114,
                     "endLine": 645,
                     "endColumn": 12,
-                    "endOffset": 66764
+                    "endOffset": 66726
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5286,9 +5279,9 @@
                 "to": {
                     "startLine": 646,
                     "startColumn": 4,
-                    "startOffset": 66769,
+                    "startOffset": 66731,
                     "endColumn": 99,
-                    "endOffset": 66864
+                    "endOffset": 66826
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5298,10 +5291,10 @@
                 "to": {
                     "startLine": 647,
                     "startColumn": 4,
-                    "startOffset": 66869,
+                    "startOffset": 66831,
                     "endLine": 650,
                     "endColumn": 12,
-                    "endOffset": 67100
+                    "endOffset": 67062
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5311,10 +5304,10 @@
                 "to": {
                     "startLine": 651,
                     "startColumn": 4,
-                    "startOffset": 67105,
+                    "startOffset": 67067,
                     "endLine": 656,
                     "endColumn": 12,
-                    "endOffset": 67524
+                    "endOffset": 67486
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5324,10 +5317,10 @@
                 "to": {
                     "startLine": 657,
                     "startColumn": 4,
-                    "startOffset": 67529,
+                    "startOffset": 67491,
                     "endLine": 660,
                     "endColumn": 12,
-                    "endOffset": 67763
+                    "endOffset": 67725
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5337,9 +5330,9 @@
                 "to": {
                     "startLine": 661,
                     "startColumn": 4,
-                    "startOffset": 67768,
+                    "startOffset": 67730,
                     "endColumn": 93,
-                    "endOffset": 67857
+                    "endOffset": 67819
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5349,9 +5342,9 @@
                 "to": {
                     "startLine": 662,
                     "startColumn": 4,
-                    "startOffset": 67862,
+                    "startOffset": 67824,
                     "endColumn": 88,
-                    "endOffset": 67946
+                    "endOffset": 67908
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5361,10 +5354,10 @@
                 "to": {
                     "startLine": 663,
                     "startColumn": 4,
-                    "startOffset": 67951,
+                    "startOffset": 67913,
                     "endLine": 666,
                     "endColumn": 12,
-                    "endOffset": 68183
+                    "endOffset": 68145
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5374,10 +5367,10 @@
                 "to": {
                     "startLine": 667,
                     "startColumn": 4,
-                    "startOffset": 68188,
+                    "startOffset": 68150,
                     "endLine": 692,
                     "endColumn": 12,
-                    "endOffset": 70134
+                    "endOffset": 70096
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5387,10 +5380,10 @@
                 "to": {
                     "startLine": 693,
                     "startColumn": 4,
-                    "startOffset": 70139,
+                    "startOffset": 70101,
                     "endLine": 696,
                     "endColumn": 12,
-                    "endOffset": 70376
+                    "endOffset": 70338
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5400,10 +5393,10 @@
                 "to": {
                     "startLine": 697,
                     "startColumn": 4,
-                    "startOffset": 70381,
+                    "startOffset": 70343,
                     "endLine": 723,
                     "endColumn": 12,
-                    "endOffset": 72458
+                    "endOffset": 72420
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5413,10 +5406,10 @@
                 "to": {
                     "startLine": 724,
                     "startColumn": 4,
-                    "startOffset": 72463,
+                    "startOffset": 72425,
                     "endLine": 876,
                     "endColumn": 12,
-                    "endOffset": 82140
+                    "endOffset": 82102
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5426,10 +5419,10 @@
                 "to": {
                     "startLine": 877,
                     "startColumn": 4,
-                    "startOffset": 82145,
+                    "startOffset": 82107,
                     "endLine": 898,
                     "endColumn": 12,
-                    "endOffset": 83407
+                    "endOffset": 83369
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5439,10 +5432,10 @@
                 "to": {
                     "startLine": 899,
                     "startColumn": 4,
-                    "startOffset": 83412,
+                    "startOffset": 83374,
                     "endLine": 1051,
                     "endColumn": 12,
-                    "endOffset": 93199
+                    "endOffset": 93161
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5452,10 +5445,10 @@
                 "to": {
                     "startLine": 1052,
                     "startColumn": 4,
-                    "startOffset": 93204,
+                    "startOffset": 93166,
                     "endLine": 1073,
                     "endColumn": 12,
-                    "endOffset": 94480
+                    "endOffset": 94442
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5465,10 +5458,10 @@
                 "to": {
                     "startLine": 1074,
                     "startColumn": 4,
-                    "startOffset": 94485,
+                    "startOffset": 94447,
                     "endLine": 1080,
                     "endColumn": 12,
-                    "endOffset": 95016
+                    "endOffset": 94978
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5478,10 +5471,10 @@
                 "to": {
                     "startLine": 1081,
                     "startColumn": 4,
-                    "startOffset": 95021,
+                    "startOffset": 94983,
                     "endLine": 1085,
                     "endColumn": 12,
-                    "endOffset": 95346
+                    "endOffset": 95308
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5491,10 +5484,10 @@
                 "to": {
                     "startLine": 1086,
                     "startColumn": 4,
-                    "startOffset": 95351,
+                    "startOffset": 95313,
                     "endLine": 1106,
                     "endColumn": 12,
-                    "endOffset": 96469
+                    "endOffset": 96431
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5504,10 +5497,10 @@
                 "to": {
                     "startLine": 1107,
                     "startColumn": 4,
-                    "startOffset": 96474,
+                    "startOffset": 96436,
                     "endLine": 1111,
                     "endColumn": 12,
-                    "endOffset": 96725
+                    "endOffset": 96687
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5517,10 +5510,10 @@
                 "to": {
                     "startLine": 1112,
                     "startColumn": 4,
-                    "startOffset": 96730,
+                    "startOffset": 96692,
                     "endLine": 1116,
                     "endColumn": 12,
-                    "endOffset": 96961
+                    "endOffset": 96923
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5530,10 +5523,10 @@
                 "to": {
                     "startLine": 1117,
                     "startColumn": 4,
-                    "startOffset": 96966,
+                    "startOffset": 96928,
                     "endLine": 1126,
                     "endColumn": 12,
-                    "endOffset": 97508
+                    "endOffset": 97470
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5543,10 +5536,10 @@
                 "to": {
                     "startLine": 1127,
                     "startColumn": 4,
-                    "startOffset": 97513,
+                    "startOffset": 97475,
                     "endLine": 1135,
                     "endColumn": 12,
-                    "endOffset": 98002
+                    "endOffset": 97964
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5556,10 +5549,10 @@
                 "to": {
                     "startLine": 1136,
                     "startColumn": 4,
-                    "startOffset": 98007,
+                    "startOffset": 97969,
                     "endLine": 1144,
                     "endColumn": 12,
-                    "endOffset": 98607
+                    "endOffset": 98569
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5569,10 +5562,10 @@
                 "to": {
                     "startLine": 1145,
                     "startColumn": 4,
-                    "startOffset": 98612,
+                    "startOffset": 98574,
                     "endLine": 1147,
                     "endColumn": 12,
-                    "endOffset": 98755
+                    "endOffset": 98717
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5582,10 +5575,10 @@
                 "to": {
                     "startLine": 1148,
                     "startColumn": 4,
-                    "startOffset": 98760,
+                    "startOffset": 98722,
                     "endLine": 1154,
                     "endColumn": 12,
-                    "endOffset": 99343
+                    "endOffset": 99305
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5595,10 +5588,10 @@
                 "to": {
                     "startLine": 1155,
                     "startColumn": 4,
-                    "startOffset": 99348,
+                    "startOffset": 99310,
                     "endLine": 1162,
                     "endColumn": 12,
-                    "endOffset": 99907
+                    "endOffset": 99869
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5608,10 +5601,10 @@
                 "to": {
                     "startLine": 1163,
                     "startColumn": 4,
-                    "startOffset": 99912,
+                    "startOffset": 99874,
                     "endLine": 1169,
                     "endColumn": 12,
-                    "endOffset": 100282
+                    "endOffset": 100244
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5621,9 +5614,9 @@
                 "to": {
                     "startLine": 1170,
                     "startColumn": 4,
-                    "startOffset": 100287,
+                    "startOffset": 100249,
                     "endColumn": 117,
-                    "endOffset": 100400
+                    "endOffset": 100362
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5633,10 +5626,10 @@
                 "to": {
                     "startLine": 1171,
                     "startColumn": 4,
-                    "startOffset": 100405,
+                    "startOffset": 100367,
                     "endLine": 1179,
                     "endColumn": 12,
-                    "endOffset": 100938
+                    "endOffset": 100900
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5646,10 +5639,10 @@
                 "to": {
                     "startLine": 1180,
                     "startColumn": 4,
-                    "startOffset": 100943,
+                    "startOffset": 100905,
                     "endLine": 1182,
                     "endColumn": 12,
-                    "endOffset": 101095
+                    "endOffset": 101057
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5659,10 +5652,10 @@
                 "to": {
                     "startLine": 1183,
                     "startColumn": 4,
-                    "startOffset": 101100,
+                    "startOffset": 101062,
                     "endLine": 1185,
                     "endColumn": 12,
-                    "endOffset": 101239
+                    "endOffset": 101201
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5672,10 +5665,10 @@
                 "to": {
                     "startLine": 1186,
                     "startColumn": 4,
-                    "startOffset": 101244,
+                    "startOffset": 101206,
                     "endLine": 1190,
                     "endColumn": 12,
-                    "endOffset": 101559
+                    "endOffset": 101521
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5685,10 +5678,10 @@
                 "to": {
                     "startLine": 1191,
                     "startColumn": 4,
-                    "startOffset": 101564,
+                    "startOffset": 101526,
                     "endLine": 1194,
                     "endColumn": 12,
-                    "endOffset": 101815
+                    "endOffset": 101777
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5698,10 +5691,10 @@
                 "to": {
                     "startLine": 1195,
                     "startColumn": 4,
-                    "startOffset": 101820,
+                    "startOffset": 101782,
                     "endLine": 1198,
                     "endColumn": 12,
-                    "endOffset": 101985
+                    "endOffset": 101947
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5711,10 +5704,10 @@
                 "to": {
                     "startLine": 1199,
                     "startColumn": 4,
-                    "startOffset": 101990,
+                    "startOffset": 101952,
                     "endLine": 1201,
                     "endColumn": 12,
-                    "endOffset": 102126
+                    "endOffset": 102088
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5724,9 +5717,9 @@
                 "to": {
                     "startLine": 1202,
                     "startColumn": 4,
-                    "startOffset": 102131,
+                    "startOffset": 102093,
                     "endColumn": 63,
-                    "endOffset": 102190
+                    "endOffset": 102152
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5736,10 +5729,10 @@
                 "to": {
                     "startLine": 1203,
                     "startColumn": 4,
-                    "startOffset": 102195,
+                    "startOffset": 102157,
                     "endLine": 1206,
                     "endColumn": 12,
-                    "endOffset": 102472
+                    "endOffset": 102434
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5749,10 +5742,10 @@
                 "to": {
                     "startLine": 1207,
                     "startColumn": 4,
-                    "startOffset": 102477,
+                    "startOffset": 102439,
                     "endLine": 1210,
                     "endColumn": 12,
-                    "endOffset": 102758
+                    "endOffset": 102720
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5762,10 +5755,10 @@
                 "to": {
                     "startLine": 1211,
                     "startColumn": 4,
-                    "startOffset": 102763,
+                    "startOffset": 102725,
                     "endLine": 1220,
                     "endColumn": 12,
-                    "endOffset": 103434
+                    "endOffset": 103396
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5775,10 +5768,10 @@
                 "to": {
                     "startLine": 1221,
                     "startColumn": 4,
-                    "startOffset": 103439,
+                    "startOffset": 103401,
                     "endLine": 1225,
                     "endColumn": 12,
-                    "endOffset": 103698
+                    "endOffset": 103660
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5788,10 +5781,10 @@
                 "to": {
                     "startLine": 1226,
                     "startColumn": 4,
-                    "startOffset": 103703,
+                    "startOffset": 103665,
                     "endLine": 1232,
                     "endColumn": 12,
-                    "endOffset": 104036
+                    "endOffset": 103998
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5801,10 +5794,10 @@
                 "to": {
                     "startLine": 1233,
                     "startColumn": 4,
-                    "startOffset": 104041,
+                    "startOffset": 104003,
                     "endLine": 1238,
                     "endColumn": 12,
-                    "endOffset": 104389
+                    "endOffset": 104351
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5814,9 +5807,9 @@
                 "to": {
                     "startLine": 1239,
                     "startColumn": 4,
-                    "startOffset": 104394,
+                    "startOffset": 104356,
                     "endColumn": 93,
-                    "endOffset": 104483
+                    "endOffset": 104445
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5826,10 +5819,10 @@
                 "to": {
                     "startLine": 1240,
                     "startColumn": 4,
-                    "startOffset": 104488,
+                    "startOffset": 104450,
                     "endLine": 1242,
                     "endColumn": 12,
-                    "endOffset": 104669
+                    "endOffset": 104631
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5839,10 +5832,10 @@
                 "to": {
                     "startLine": 1243,
                     "startColumn": 4,
-                    "startOffset": 104674,
+                    "startOffset": 104636,
                     "endLine": 1246,
                     "endColumn": 12,
-                    "endOffset": 104975
+                    "endOffset": 104937
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5852,10 +5845,10 @@
                 "to": {
                     "startLine": 1247,
                     "startColumn": 4,
-                    "startOffset": 104980,
+                    "startOffset": 104942,
                     "endLine": 1251,
                     "endColumn": 12,
-                    "endOffset": 105237
+                    "endOffset": 105199
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5865,10 +5858,10 @@
                 "to": {
                     "startLine": 1252,
                     "startColumn": 4,
-                    "startOffset": 105242,
+                    "startOffset": 105204,
                     "endLine": 1253,
                     "endColumn": 12,
-                    "endOffset": 105362
+                    "endOffset": 105324
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5878,10 +5871,10 @@
                 "to": {
                     "startLine": 1254,
                     "startColumn": 4,
-                    "startOffset": 105367,
+                    "startOffset": 105329,
                     "endLine": 1255,
                     "endColumn": 12,
-                    "endOffset": 105489
+                    "endOffset": 105451
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5891,10 +5884,10 @@
                 "to": {
                     "startLine": 1256,
                     "startColumn": 4,
-                    "startOffset": 105494,
+                    "startOffset": 105456,
                     "endLine": 1258,
                     "endColumn": 12,
-                    "endOffset": 105728
+                    "endOffset": 105690
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5904,10 +5897,10 @@
                 "to": {
                     "startLine": 1259,
                     "startColumn": 4,
-                    "startOffset": 105733,
+                    "startOffset": 105695,
                     "endLine": 1261,
                     "endColumn": 12,
-                    "endOffset": 105939
+                    "endOffset": 105901
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5917,10 +5910,10 @@
                 "to": {
                     "startLine": 1262,
                     "startColumn": 4,
-                    "startOffset": 105944,
+                    "startOffset": 105906,
                     "endLine": 1263,
                     "endColumn": 12,
-                    "endOffset": 106058
+                    "endOffset": 106020
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5930,10 +5923,10 @@
                 "to": {
                     "startLine": 1264,
                     "startColumn": 4,
-                    "startOffset": 106063,
+                    "startOffset": 106025,
                     "endLine": 1267,
                     "endColumn": 12,
-                    "endOffset": 106251
+                    "endOffset": 106213
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5943,10 +5936,10 @@
                 "to": {
                     "startLine": 1268,
                     "startColumn": 4,
-                    "startOffset": 106256,
+                    "startOffset": 106218,
                     "endLine": 1274,
                     "endColumn": 12,
-                    "endOffset": 106706
+                    "endOffset": 106668
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5956,10 +5949,10 @@
                 "to": {
                     "startLine": 1275,
                     "startColumn": 4,
-                    "startOffset": 106711,
+                    "startOffset": 106673,
                     "endLine": 1277,
                     "endColumn": 12,
-                    "endOffset": 106887
+                    "endOffset": 106849
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5969,10 +5962,10 @@
                 "to": {
                     "startLine": 1278,
                     "startColumn": 4,
-                    "startOffset": 106892,
+                    "startOffset": 106854,
                     "endLine": 1280,
                     "endColumn": 12,
-                    "endOffset": 107009
+                    "endOffset": 106971
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5982,10 +5975,10 @@
                 "to": {
                     "startLine": 1281,
                     "startColumn": 4,
-                    "startOffset": 107014,
+                    "startOffset": 106976,
                     "endLine": 1284,
                     "endColumn": 12,
-                    "endOffset": 107268
+                    "endOffset": 107230
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -5995,10 +5988,10 @@
                 "to": {
                     "startLine": 1285,
                     "startColumn": 4,
-                    "startOffset": 107273,
+                    "startOffset": 107235,
                     "endLine": 1286,
                     "endColumn": 12,
-                    "endOffset": 107381
+                    "endOffset": 107343
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6008,10 +6001,10 @@
                 "to": {
                     "startLine": 1287,
                     "startColumn": 4,
-                    "startOffset": 107386,
+                    "startOffset": 107348,
                     "endLine": 1290,
                     "endColumn": 12,
-                    "endOffset": 107568
+                    "endOffset": 107530
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6021,10 +6014,10 @@
                 "to": {
                     "startLine": 1291,
                     "startColumn": 4,
-                    "startOffset": 107573,
+                    "startOffset": 107535,
                     "endLine": 1292,
                     "endColumn": 12,
-                    "endOffset": 107670
+                    "endOffset": 107632
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6034,10 +6027,10 @@
                 "to": {
                     "startLine": 1293,
                     "startColumn": 4,
-                    "startOffset": 107675,
+                    "startOffset": 107637,
                     "endLine": 1298,
                     "endColumn": 12,
-                    "endOffset": 108114
+                    "endOffset": 108076
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6047,10 +6040,10 @@
                 "to": {
                     "startLine": 1299,
                     "startColumn": 4,
-                    "startOffset": 108119,
+                    "startOffset": 108081,
                     "endLine": 1300,
                     "endColumn": 12,
-                    "endOffset": 108238
+                    "endOffset": 108200
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6060,10 +6053,10 @@
                 "to": {
                     "startLine": 1301,
                     "startColumn": 4,
-                    "startOffset": 108243,
+                    "startOffset": 108205,
                     "endLine": 1304,
                     "endColumn": 12,
-                    "endOffset": 108523
+                    "endOffset": 108485
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6073,10 +6066,10 @@
                 "to": {
                     "startLine": 1305,
                     "startColumn": 4,
-                    "startOffset": 108528,
+                    "startOffset": 108490,
                     "endLine": 1316,
                     "endColumn": 12,
-                    "endOffset": 109410
+                    "endOffset": 109372
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6086,10 +6079,10 @@
                 "to": {
                     "startLine": 1317,
                     "startColumn": 4,
-                    "startOffset": 109415,
+                    "startOffset": 109377,
                     "endLine": 1322,
                     "endColumn": 12,
-                    "endOffset": 109704
+                    "endOffset": 109666
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6099,10 +6092,10 @@
                 "to": {
                     "startLine": 1323,
                     "startColumn": 4,
-                    "startOffset": 109709,
+                    "startOffset": 109671,
                     "endLine": 1331,
                     "endColumn": 12,
-                    "endOffset": 110274
+                    "endOffset": 110236
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6112,10 +6105,10 @@
                 "to": {
                     "startLine": 1332,
                     "startColumn": 4,
-                    "startOffset": 110279,
+                    "startOffset": 110241,
                     "endLine": 1342,
                     "endColumn": 12,
-                    "endOffset": 111006
+                    "endOffset": 110968
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6125,10 +6118,10 @@
                 "to": {
                     "startLine": 1343,
                     "startColumn": 4,
-                    "startOffset": 111011,
+                    "startOffset": 110973,
                     "endLine": 1345,
                     "endColumn": 12,
-                    "endOffset": 111178
+                    "endOffset": 111140
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6138,10 +6131,10 @@
                 "to": {
                     "startLine": 1346,
                     "startColumn": 4,
-                    "startOffset": 111183,
+                    "startOffset": 111145,
                     "endLine": 1350,
                     "endColumn": 12,
-                    "endOffset": 111514
+                    "endOffset": 111476
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6151,10 +6144,10 @@
                 "to": {
                     "startLine": 1351,
                     "startColumn": 4,
-                    "startOffset": 111519,
+                    "startOffset": 111481,
                     "endLine": 1362,
                     "endColumn": 12,
-                    "endOffset": 112381
+                    "endOffset": 112343
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6164,10 +6157,10 @@
                 "to": {
                     "startLine": 1363,
                     "startColumn": 4,
-                    "startOffset": 112386,
+                    "startOffset": 112348,
                     "endLine": 1367,
                     "endColumn": 12,
-                    "endOffset": 112659
+                    "endOffset": 112621
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6177,10 +6170,10 @@
                 "to": {
                     "startLine": 1368,
                     "startColumn": 4,
-                    "startOffset": 112664,
+                    "startOffset": 112626,
                     "endLine": 1405,
                     "endColumn": 12,
-                    "endOffset": 115521
+                    "endOffset": 115483
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6190,10 +6183,10 @@
                 "to": {
                     "startLine": 1406,
                     "startColumn": 4,
-                    "startOffset": 115526,
+                    "startOffset": 115488,
                     "endLine": 1444,
                     "endColumn": 12,
-                    "endOffset": 118523
+                    "endOffset": 118485
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6203,9 +6196,9 @@
                 "to": {
                     "startLine": 1445,
                     "startColumn": 4,
-                    "startOffset": 118528,
+                    "startOffset": 118490,
                     "endColumn": 61,
-                    "endOffset": 118585
+                    "endOffset": 118547
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6215,10 +6208,10 @@
                 "to": {
                     "startLine": 1446,
                     "startColumn": 4,
-                    "startOffset": 118590,
+                    "startOffset": 118552,
                     "endLine": 1455,
                     "endColumn": 12,
-                    "endOffset": 119215
+                    "endOffset": 119177
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6228,10 +6221,10 @@
                 "to": {
                     "startLine": 1456,
                     "startColumn": 4,
-                    "startOffset": 119220,
+                    "startOffset": 119182,
                     "endLine": 1464,
                     "endColumn": 12,
-                    "endOffset": 119829
+                    "endOffset": 119791
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6241,9 +6234,9 @@
                 "to": {
                     "startLine": 1465,
                     "startColumn": 4,
-                    "startOffset": 119834,
+                    "startOffset": 119796,
                     "endColumn": 85,
-                    "endOffset": 119915
+                    "endOffset": 119877
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6253,10 +6246,10 @@
                 "to": {
                     "startLine": 1466,
                     "startColumn": 4,
-                    "startOffset": 119920,
+                    "startOffset": 119882,
                     "endLine": 1467,
                     "endColumn": 12,
-                    "endOffset": 120028
+                    "endOffset": 119990
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6266,10 +6259,10 @@
                 "to": {
                     "startLine": 1468,
                     "startColumn": 4,
-                    "startOffset": 120033,
+                    "startOffset": 119995,
                     "endLine": 1471,
                     "endColumn": 12,
-                    "endOffset": 120257
+                    "endOffset": 120219
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6279,10 +6272,10 @@
                 "to": {
                     "startLine": 1472,
                     "startColumn": 4,
-                    "startOffset": 120262,
+                    "startOffset": 120224,
                     "endLine": 1474,
                     "endColumn": 12,
-                    "endOffset": 120417
+                    "endOffset": 120379
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6292,10 +6285,10 @@
                 "to": {
                     "startLine": 1475,
                     "startColumn": 4,
-                    "startOffset": 120422,
+                    "startOffset": 120384,
                     "endLine": 1477,
                     "endColumn": 12,
-                    "endOffset": 120569
+                    "endOffset": 120531
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6305,10 +6298,10 @@
                 "to": {
                     "startLine": 1478,
                     "startColumn": 4,
-                    "startOffset": 120574,
+                    "startOffset": 120536,
                     "endLine": 1480,
                     "endColumn": 12,
-                    "endOffset": 120740
+                    "endOffset": 120702
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6318,10 +6311,10 @@
                 "to": {
                     "startLine": 1481,
                     "startColumn": 4,
-                    "startOffset": 120745,
+                    "startOffset": 120707,
                     "endLine": 1483,
                     "endColumn": 12,
-                    "endOffset": 120907
+                    "endOffset": 120869
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6331,10 +6324,10 @@
                 "to": {
                     "startLine": 1484,
                     "startColumn": 4,
-                    "startOffset": 120912,
+                    "startOffset": 120874,
                     "endLine": 1487,
                     "endColumn": 12,
-                    "endOffset": 121150
+                    "endOffset": 121112
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6344,10 +6337,10 @@
                 "to": {
                     "startLine": 1488,
                     "startColumn": 4,
-                    "startOffset": 121155,
+                    "startOffset": 121117,
                     "endLine": 1490,
                     "endColumn": 12,
-                    "endOffset": 121320
+                    "endOffset": 121282
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6357,10 +6350,10 @@
                 "to": {
                     "startLine": 1491,
                     "startColumn": 4,
-                    "startOffset": 121325,
+                    "startOffset": 121287,
                     "endLine": 1493,
                     "endColumn": 12,
-                    "endOffset": 121493
+                    "endOffset": 121455
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6370,10 +6363,10 @@
                 "to": {
                     "startLine": 1494,
                     "startColumn": 4,
-                    "startOffset": 121498,
+                    "startOffset": 121460,
                     "endLine": 1496,
                     "endColumn": 12,
-                    "endOffset": 121664
+                    "endOffset": 121626
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6383,10 +6376,10 @@
                 "to": {
                     "startLine": 1497,
                     "startColumn": 4,
-                    "startOffset": 121669,
+                    "startOffset": 121631,
                     "endLine": 1500,
                     "endColumn": 12,
-                    "endOffset": 121938
+                    "endOffset": 121900
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6396,10 +6389,10 @@
                 "to": {
                     "startLine": 1501,
                     "startColumn": 4,
-                    "startOffset": 121943,
+                    "startOffset": 121905,
                     "endLine": 1503,
                     "endColumn": 12,
-                    "endOffset": 122137
+                    "endOffset": 122099
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6409,10 +6402,10 @@
                 "to": {
                     "startLine": 1504,
                     "startColumn": 4,
-                    "startOffset": 122142,
+                    "startOffset": 122104,
                     "endLine": 1507,
                     "endColumn": 12,
-                    "endOffset": 122342
+                    "endOffset": 122304
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6422,10 +6415,10 @@
                 "to": {
                     "startLine": 1508,
                     "startColumn": 4,
-                    "startOffset": 122347,
+                    "startOffset": 122309,
                     "endLine": 1511,
                     "endColumn": 12,
-                    "endOffset": 122672
+                    "endOffset": 122634
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6435,9 +6428,9 @@
                 "to": {
                     "startLine": 1512,
                     "startColumn": 4,
-                    "startOffset": 122677,
+                    "startOffset": 122639,
                     "endColumn": 83,
-                    "endOffset": 122756
+                    "endOffset": 122718
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6447,9 +6440,9 @@
                 "to": {
                     "startLine": 1513,
                     "startColumn": 4,
-                    "startOffset": 122761,
+                    "startOffset": 122723,
                     "endColumn": 95,
-                    "endOffset": 122852
+                    "endOffset": 122814
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6459,9 +6452,9 @@
                 "to": {
                     "startLine": 1514,
                     "startColumn": 4,
-                    "startOffset": 122857,
+                    "startOffset": 122819,
                     "endColumn": 95,
-                    "endOffset": 122948
+                    "endOffset": 122910
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6471,9 +6464,9 @@
                 "to": {
                     "startLine": 1515,
                     "startColumn": 4,
-                    "startOffset": 122953,
+                    "startOffset": 122915,
                     "endColumn": 97,
-                    "endOffset": 123046
+                    "endOffset": 123008
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6483,9 +6476,9 @@
                 "to": {
                     "startLine": 1516,
                     "startColumn": 4,
-                    "startOffset": 123051,
+                    "startOffset": 123013,
                     "endColumn": 99,
-                    "endOffset": 123146
+                    "endOffset": 123108
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6495,9 +6488,9 @@
                 "to": {
                     "startLine": 1517,
                     "startColumn": 4,
-                    "startOffset": 123151,
+                    "startOffset": 123113,
                     "endColumn": 101,
-                    "endOffset": 123248
+                    "endOffset": 123210
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6507,9 +6500,9 @@
                 "to": {
                     "startLine": 1518,
                     "startColumn": 4,
-                    "startOffset": 123253,
+                    "startOffset": 123215,
                     "endColumn": 101,
-                    "endOffset": 123350
+                    "endOffset": 123312
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6519,9 +6512,9 @@
                 "to": {
                     "startLine": 1519,
                     "startColumn": 4,
-                    "startOffset": 123355,
+                    "startOffset": 123317,
                     "endColumn": 101,
-                    "endOffset": 123452
+                    "endOffset": 123414
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6531,9 +6524,9 @@
                 "to": {
                     "startLine": 1520,
                     "startColumn": 4,
-                    "startOffset": 123457,
+                    "startOffset": 123419,
                     "endColumn": 101,
-                    "endOffset": 123554
+                    "endOffset": 123516
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6543,9 +6536,9 @@
                 "to": {
                     "startLine": 1521,
                     "startColumn": 4,
-                    "startOffset": 123559,
+                    "startOffset": 123521,
                     "endColumn": 101,
-                    "endOffset": 123656
+                    "endOffset": 123618
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6555,9 +6548,9 @@
                 "to": {
                     "startLine": 1522,
                     "startColumn": 4,
-                    "startOffset": 123661,
+                    "startOffset": 123623,
                     "endColumn": 99,
-                    "endOffset": 123756
+                    "endOffset": 123718
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6567,9 +6560,9 @@
                 "to": {
                     "startLine": 1523,
                     "startColumn": 4,
-                    "startOffset": 123761,
+                    "startOffset": 123723,
                     "endColumn": 95,
-                    "endOffset": 123852
+                    "endOffset": 123814
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6579,9 +6572,9 @@
                 "to": {
                     "startLine": 1524,
                     "startColumn": 4,
-                    "startOffset": 123857,
+                    "startOffset": 123819,
                     "endColumn": 111,
-                    "endOffset": 123964
+                    "endOffset": 123926
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6591,9 +6584,9 @@
                 "to": {
                     "startLine": 1525,
                     "startColumn": 4,
-                    "startOffset": 123969,
+                    "startOffset": 123931,
                     "endColumn": 128,
-                    "endOffset": 124093
+                    "endOffset": 124055
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6603,9 +6596,9 @@
                 "to": {
                     "startLine": 1526,
                     "startColumn": 4,
-                    "startOffset": 124098,
+                    "startOffset": 124060,
                     "endColumn": 122,
-                    "endOffset": 124216
+                    "endOffset": 124178
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6615,10 +6608,10 @@
                 "to": {
                     "startLine": 1527,
                     "startColumn": 4,
-                    "startOffset": 124221,
+                    "startOffset": 124183,
                     "endLine": 1528,
                     "endColumn": 12,
-                    "endOffset": 124370
+                    "endOffset": 124332
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6628,10 +6621,10 @@
                 "to": {
                     "startLine": 1529,
                     "startColumn": 4,
-                    "startOffset": 124375,
+                    "startOffset": 124337,
                     "endLine": 1530,
                     "endColumn": 12,
-                    "endOffset": 124524
+                    "endOffset": 124486
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6641,9 +6634,9 @@
                 "to": {
                     "startLine": 1531,
                     "startColumn": 4,
-                    "startOffset": 124529,
+                    "startOffset": 124491,
                     "endColumn": 97,
-                    "endOffset": 124622
+                    "endOffset": 124584
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6653,9 +6646,9 @@
                 "to": {
                     "startLine": 1532,
                     "startColumn": 4,
-                    "startOffset": 124627,
+                    "startOffset": 124589,
                     "endColumn": 113,
-                    "endOffset": 124736
+                    "endOffset": 124698
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6665,9 +6658,9 @@
                 "to": {
                     "startLine": 1533,
                     "startColumn": 4,
-                    "startOffset": 124741,
+                    "startOffset": 124703,
                     "endColumn": 93,
-                    "endOffset": 124830
+                    "endOffset": 124792
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6677,10 +6670,10 @@
                 "to": {
                     "startLine": 1534,
                     "startColumn": 4,
-                    "startOffset": 124835,
+                    "startOffset": 124797,
                     "endLine": 1535,
                     "endColumn": 12,
-                    "endOffset": 124970
+                    "endOffset": 124932
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6690,10 +6683,10 @@
                 "to": {
                     "startLine": 1536,
                     "startColumn": 4,
-                    "startOffset": 124975,
+                    "startOffset": 124937,
                     "endLine": 1537,
                     "endColumn": 12,
-                    "endOffset": 125104
+                    "endOffset": 125066
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6703,9 +6696,9 @@
                 "to": {
                     "startLine": 1538,
                     "startColumn": 4,
-                    "startOffset": 125109,
+                    "startOffset": 125071,
                     "endColumn": 95,
-                    "endOffset": 125200
+                    "endOffset": 125162
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6715,9 +6708,9 @@
                 "to": {
                     "startLine": 1539,
                     "startColumn": 4,
-                    "startOffset": 125205,
+                    "startOffset": 125167,
                     "endColumn": 111,
-                    "endOffset": 125312
+                    "endOffset": 125274
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6727,9 +6720,9 @@
                 "to": {
                     "startLine": 1540,
                     "startColumn": 4,
-                    "startOffset": 125317,
+                    "startOffset": 125279,
                     "endColumn": 99,
-                    "endOffset": 125412
+                    "endOffset": 125374
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6739,9 +6732,9 @@
                 "to": {
                     "startLine": 1541,
                     "startColumn": 4,
-                    "startOffset": 125417,
+                    "startOffset": 125379,
                     "endColumn": 115,
-                    "endOffset": 125528
+                    "endOffset": 125490
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6751,9 +6744,9 @@
                 "to": {
                     "startLine": 1542,
                     "startColumn": 4,
-                    "startOffset": 125533,
+                    "startOffset": 125495,
                     "endColumn": 95,
-                    "endOffset": 125624
+                    "endOffset": 125586
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6763,9 +6756,9 @@
                 "to": {
                     "startLine": 1543,
                     "startColumn": 4,
-                    "startOffset": 125629,
+                    "startOffset": 125591,
                     "endColumn": 111,
-                    "endOffset": 125736
+                    "endOffset": 125698
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6775,10 +6768,10 @@
                 "to": {
                     "startLine": 1544,
                     "startColumn": 4,
-                    "startOffset": 125741,
+                    "startOffset": 125703,
                     "endLine": 1545,
                     "endColumn": 12,
-                    "endOffset": 125876
+                    "endOffset": 125838
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6788,9 +6781,9 @@
                 "to": {
                     "startLine": 1546,
                     "startColumn": 4,
-                    "startOffset": 125881,
+                    "startOffset": 125843,
                     "endColumn": 135,
-                    "endOffset": 126012
+                    "endOffset": 125974
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6800,10 +6793,10 @@
                 "to": {
                     "startLine": 1547,
                     "startColumn": 4,
-                    "startOffset": 126017,
+                    "startOffset": 125979,
                     "endLine": 1548,
                     "endColumn": 12,
-                    "endOffset": 126176
+                    "endOffset": 126138
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6813,9 +6806,9 @@
                 "to": {
                     "startLine": 1549,
                     "startColumn": 4,
-                    "startOffset": 126181,
+                    "startOffset": 126143,
                     "endColumn": 129,
-                    "endOffset": 126306
+                    "endOffset": 126268
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6825,10 +6818,10 @@
                 "to": {
                     "startLine": 1550,
                     "startColumn": 4,
-                    "startOffset": 126311,
+                    "startOffset": 126273,
                     "endLine": 1551,
                     "endColumn": 12,
-                    "endOffset": 126464
+                    "endOffset": 126426
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6838,10 +6831,10 @@
                 "to": {
                     "startLine": 1552,
                     "startColumn": 4,
-                    "startOffset": 126469,
+                    "startOffset": 126431,
                     "endLine": 1553,
                     "endColumn": 12,
-                    "endOffset": 126614
+                    "endOffset": 126576
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6851,9 +6844,9 @@
                 "to": {
                     "startLine": 1554,
                     "startColumn": 4,
-                    "startOffset": 126619,
+                    "startOffset": 126581,
                     "endColumn": 140,
-                    "endOffset": 126755
+                    "endOffset": 126717
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6863,10 +6856,10 @@
                 "to": {
                     "startLine": 1555,
                     "startColumn": 4,
-                    "startOffset": 126760,
+                    "startOffset": 126722,
                     "endLine": 1556,
                     "endColumn": 12,
-                    "endOffset": 126899
+                    "endOffset": 126861
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6876,9 +6869,9 @@
                 "to": {
                     "startLine": 1557,
                     "startColumn": 4,
-                    "startOffset": 126904,
+                    "startOffset": 126866,
                     "endColumn": 134,
-                    "endOffset": 127034
+                    "endOffset": 126996
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6888,9 +6881,9 @@
                 "to": {
                     "startLine": 1558,
                     "startColumn": 4,
-                    "startOffset": 127039,
+                    "startOffset": 127001,
                     "endColumn": 111,
-                    "endOffset": 127146
+                    "endOffset": 127108
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6900,9 +6893,9 @@
                 "to": {
                     "startLine": 1559,
                     "startColumn": 4,
-                    "startOffset": 127151,
+                    "startOffset": 127113,
                     "endColumn": 127,
-                    "endOffset": 127274
+                    "endOffset": 127236
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6912,10 +6905,10 @@
                 "to": {
                     "startLine": 1560,
                     "startColumn": 4,
-                    "startOffset": 127279,
+                    "startOffset": 127241,
                     "endLine": 1561,
                     "endColumn": 12,
-                    "endOffset": 127410
+                    "endOffset": 127372
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6925,10 +6918,10 @@
                 "to": {
                     "startLine": 1562,
                     "startColumn": 4,
-                    "startOffset": 127415,
+                    "startOffset": 127377,
                     "endLine": 1563,
                     "endColumn": 12,
-                    "endOffset": 127552
+                    "endOffset": 127514
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6938,10 +6931,10 @@
                 "to": {
                     "startLine": 1564,
                     "startColumn": 4,
-                    "startOffset": 127557,
+                    "startOffset": 127519,
                     "endLine": 1565,
                     "endColumn": 12,
-                    "endOffset": 127694
+                    "endOffset": 127656
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6951,9 +6944,9 @@
                 "to": {
                     "startLine": 1566,
                     "startColumn": 4,
-                    "startOffset": 127699,
+                    "startOffset": 127661,
                     "endColumn": 111,
-                    "endOffset": 127806
+                    "endOffset": 127768
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6963,9 +6956,9 @@
                 "to": {
                     "startLine": 1567,
                     "startColumn": 4,
-                    "startOffset": 127811,
+                    "startOffset": 127773,
                     "endColumn": 139,
-                    "endOffset": 127946
+                    "endOffset": 127908
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6975,9 +6968,9 @@
                 "to": {
                     "startLine": 1568,
                     "startColumn": 4,
-                    "startOffset": 127951,
+                    "startOffset": 127913,
                     "endColumn": 67,
-                    "endOffset": 128014
+                    "endOffset": 127976
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6987,9 +6980,9 @@
                 "to": {
                     "startLine": 1569,
                     "startColumn": 4,
-                    "startOffset": 128019,
+                    "startOffset": 127981,
                     "endColumn": 72,
-                    "endOffset": 128087
+                    "endOffset": 128049
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -6999,9 +6992,9 @@
                 "to": {
                     "startLine": 1570,
                     "startColumn": 4,
-                    "startOffset": 128092,
+                    "startOffset": 128054,
                     "endColumn": 73,
-                    "endOffset": 128161
+                    "endOffset": 128123
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7011,9 +7004,9 @@
                 "to": {
                     "startLine": 1571,
                     "startColumn": 4,
-                    "startOffset": 128166,
+                    "startOffset": 128128,
                     "endColumn": 72,
-                    "endOffset": 128234
+                    "endOffset": 128196
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7023,9 +7016,9 @@
                 "to": {
                     "startLine": 1572,
                     "startColumn": 4,
-                    "startOffset": 128239,
+                    "startOffset": 128201,
                     "endColumn": 73,
-                    "endOffset": 128308
+                    "endOffset": 128270
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7035,10 +7028,10 @@
                 "to": {
                     "startLine": 1573,
                     "startColumn": 4,
-                    "startOffset": 128313,
+                    "startOffset": 128275,
                     "endLine": 1574,
                     "endColumn": 12,
-                    "endOffset": 128454
+                    "endOffset": 128416
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7048,10 +7041,10 @@
                 "to": {
                     "startLine": 1575,
                     "startColumn": 4,
-                    "startOffset": 128459,
+                    "startOffset": 128421,
                     "endLine": 1576,
                     "endColumn": 12,
-                    "endOffset": 128598
+                    "endOffset": 128560
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7061,10 +7054,10 @@
                 "to": {
                     "startLine": 1577,
                     "startColumn": 4,
-                    "startOffset": 128603,
+                    "startOffset": 128565,
                     "endLine": 1578,
                     "endColumn": 12,
-                    "endOffset": 128736
+                    "endOffset": 128698
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7074,9 +7067,9 @@
                 "to": {
                     "startLine": 1579,
                     "startColumn": 4,
-                    "startOffset": 128741,
+                    "startOffset": 128703,
                     "endColumn": 65,
-                    "endOffset": 128802
+                    "endOffset": 128764
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7086,9 +7079,9 @@
                 "to": {
                     "startLine": 1580,
                     "startColumn": 4,
-                    "startOffset": 128807,
+                    "startOffset": 128769,
                     "endColumn": 89,
-                    "endOffset": 128892
+                    "endOffset": 128854
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7098,9 +7091,9 @@
                 "to": {
                     "startLine": 1581,
                     "startColumn": 4,
-                    "startOffset": 128897,
+                    "startOffset": 128859,
                     "endColumn": 79,
-                    "endOffset": 128972
+                    "endOffset": 128934
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7110,9 +7103,9 @@
                 "to": {
                     "startLine": 1582,
                     "startColumn": 4,
-                    "startOffset": 128977,
+                    "startOffset": 128939,
                     "endColumn": 91,
-                    "endOffset": 129064
+                    "endOffset": 129026
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7122,9 +7115,9 @@
                 "to": {
                     "startLine": 1583,
                     "startColumn": 4,
-                    "startOffset": 129069,
+                    "startOffset": 129031,
                     "endColumn": 97,
-                    "endOffset": 129162
+                    "endOffset": 129124
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7134,10 +7127,10 @@
                 "to": {
                     "startLine": 1584,
                     "startColumn": 4,
-                    "startOffset": 129167,
+                    "startOffset": 129129,
                     "endLine": 1585,
                     "endColumn": 12,
-                    "endOffset": 129272
+                    "endOffset": 129234
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7147,9 +7140,9 @@
                 "to": {
                     "startLine": 1586,
                     "startColumn": 4,
-                    "startOffset": 129277,
+                    "startOffset": 129239,
                     "endColumn": 77,
-                    "endOffset": 129350
+                    "endOffset": 129312
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7159,9 +7152,9 @@
                 "to": {
                     "startLine": 1587,
                     "startColumn": 4,
-                    "startOffset": 129355,
+                    "startOffset": 129317,
                     "endColumn": 105,
-                    "endOffset": 129456
+                    "endOffset": 129418
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7171,9 +7164,9 @@
                 "to": {
                     "startLine": 1588,
                     "startColumn": 4,
-                    "startOffset": 129461,
+                    "startOffset": 129423,
                     "endColumn": 91,
-                    "endOffset": 129548
+                    "endOffset": 129510
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7183,9 +7176,9 @@
                 "to": {
                     "startLine": 1589,
                     "startColumn": 4,
-                    "startOffset": 129553,
+                    "startOffset": 129515,
                     "endColumn": 103,
-                    "endOffset": 129652
+                    "endOffset": 129614
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7195,9 +7188,9 @@
                 "to": {
                     "startLine": 1590,
                     "startColumn": 4,
-                    "startOffset": 129657,
+                    "startOffset": 129619,
                     "endColumn": 109,
-                    "endOffset": 129762
+                    "endOffset": 129724
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7207,10 +7200,10 @@
                 "to": {
                     "startLine": 1591,
                     "startColumn": 4,
-                    "startOffset": 129767,
+                    "startOffset": 129729,
                     "endLine": 1592,
                     "endColumn": 12,
-                    "endOffset": 129884
+                    "endOffset": 129846
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7220,10 +7213,10 @@
                 "to": {
                     "startLine": 1593,
                     "startColumn": 4,
-                    "startOffset": 129889,
+                    "startOffset": 129851,
                     "endLine": 1596,
                     "endColumn": 12,
-                    "endOffset": 130047
+                    "endOffset": 130009
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7233,10 +7226,10 @@
                 "to": {
                     "startLine": 1597,
                     "startColumn": 4,
-                    "startOffset": 130052,
+                    "startOffset": 130014,
                     "endLine": 1600,
                     "endColumn": 12,
-                    "endOffset": 130204
+                    "endOffset": 130166
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7246,10 +7239,10 @@
                 "to": {
                     "startLine": 1601,
                     "startColumn": 4,
-                    "startOffset": 130209,
+                    "startOffset": 130171,
                     "endLine": 1605,
                     "endColumn": 12,
-                    "endOffset": 130506
+                    "endOffset": 130468
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-appinvite/8.4.0/res/values/appinvite_styles.xml"
@@ -7259,9 +7252,9 @@
                 "to": {
                     "startLine": 1606,
                     "startColumn": 4,
-                    "startOffset": 130511,
+                    "startOffset": 130473,
                     "endColumn": 95,
-                    "endOffset": 130602
+                    "endOffset": 130564
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-appinvite/8.4.0/res/values/appinvite_styles.xml"
@@ -7271,10 +7264,10 @@
                 "to": {
                     "startLine": 1607,
                     "startColumn": 4,
-                    "startOffset": 130607,
+                    "startOffset": 130569,
                     "endLine": 1614,
                     "endColumn": 10,
-                    "endOffset": 131026
+                    "endOffset": 130988
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-ads/8.4.0/res/values/admob_iap_style.xml"
@@ -7284,10 +7277,10 @@
                 "to": {
                     "startLine": 1615,
                     "startColumn": 4,
-                    "startOffset": 131031,
+                    "startOffset": 130993,
                     "endLine": 1625,
                     "endColumn": 12,
-                    "endOffset": 131780
+                    "endOffset": 131742
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/values/values.xml"
@@ -7297,10 +7290,10 @@
                 "to": {
                     "startLine": 1626,
                     "startColumn": 4,
-                    "startOffset": 131785,
+                    "startOffset": 131747,
                     "endLine": 1636,
                     "endColumn": 12,
-                    "endOffset": 132529
+                    "endOffset": 132491
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/values/values.xml"
@@ -7310,9 +7303,9 @@
                 "to": {
                     "startLine": 1637,
                     "startColumn": 4,
-                    "startOffset": 132534,
+                    "startOffset": 132496,
                     "endColumn": 79,
-                    "endOffset": 132609
+                    "endOffset": 132571
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7322,9 +7315,9 @@
                 "to": {
                     "startLine": 1638,
                     "startColumn": 4,
-                    "startOffset": 132614,
+                    "startOffset": 132576,
                     "endColumn": 99,
-                    "endOffset": 132709
+                    "endOffset": 132671
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7334,9 +7327,9 @@
                 "to": {
                     "startLine": 1639,
                     "startColumn": 4,
-                    "startOffset": 132714,
+                    "startOffset": 132676,
                     "endColumn": 89,
-                    "endOffset": 132799
+                    "endOffset": 132761
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7346,9 +7339,9 @@
                 "to": {
                     "startLine": 1640,
                     "startColumn": 4,
-                    "startOffset": 132804,
+                    "startOffset": 132766,
                     "endColumn": 109,
-                    "endOffset": 132909
+                    "endOffset": 132871
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7358,9 +7351,9 @@
                 "to": {
                     "startLine": 1641,
                     "startColumn": 4,
-                    "startOffset": 132914,
+                    "startOffset": 132876,
                     "endColumn": 91,
-                    "endOffset": 133001
+                    "endOffset": 132963
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7370,10 +7363,10 @@
                 "to": {
                     "startLine": 1642,
                     "startColumn": 4,
-                    "startOffset": 133006,
+                    "startOffset": 132968,
                     "endLine": 1649,
                     "endColumn": 12,
-                    "endOffset": 133530
+                    "endOffset": 133492
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-wallet/8.4.0/res/values/wallet_styles.xml"
@@ -7383,10 +7376,10 @@
                 "to": {
                     "startLine": 1650,
                     "startColumn": 4,
-                    "startOffset": 133535,
+                    "startOffset": 133497,
                     "endLine": 1652,
                     "endColumn": 12,
-                    "endOffset": 133714
+                    "endOffset": 133676
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-wallet/8.4.0/res/values/wallet_styles.xml"
@@ -7396,10 +7389,10 @@
                 "to": {
                     "startLine": 1653,
                     "startColumn": 4,
-                    "startOffset": 133719,
+                    "startOffset": 133681,
                     "endLine": 1660,
                     "endColumn": 12,
-                    "endOffset": 134243
+                    "endOffset": 134205
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-wallet/8.4.0/res/values/wallet_styles.xml"
@@ -7409,10 +7402,10 @@
                 "to": {
                     "startLine": 1661,
                     "startColumn": 4,
-                    "startOffset": 134248,
+                    "startOffset": 134210,
                     "endLine": 1673,
                     "endColumn": 12,
-                    "endOffset": 135247
+                    "endOffset": 135209
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-wallet/8.4.0/res/values/wallet_styles.xml"
@@ -7422,10 +7415,10 @@
                 "to": {
                     "startLine": 1674,
                     "startColumn": 4,
-                    "startOffset": 135252,
+                    "startOffset": 135214,
                     "endLine": 1675,
                     "endColumn": 12,
-                    "endOffset": 135347
+                    "endOffset": 135309
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7435,10 +7428,10 @@
                 "to": {
                     "startLine": 1676,
                     "startColumn": 4,
-                    "startOffset": 135352,
+                    "startOffset": 135314,
                     "endLine": 1677,
                     "endColumn": 12,
-                    "endOffset": 135459
+                    "endOffset": 135421
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7448,10 +7441,10 @@
                 "to": {
                     "startLine": 1678,
                     "startColumn": 4,
-                    "startOffset": 135464,
+                    "startOffset": 135426,
                     "endLine": 1679,
                     "endColumn": 12,
-                    "endOffset": 135573
+                    "endOffset": 135535
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7461,10 +7454,10 @@
                 "to": {
                     "startLine": 1680,
                     "startColumn": 4,
-                    "startOffset": 135578,
+                    "startOffset": 135540,
                     "endLine": 1681,
                     "endColumn": 12,
-                    "endOffset": 135689
+                    "endOffset": 135651
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7474,10 +7467,10 @@
                 "to": {
                     "startLine": 1682,
                     "startColumn": 4,
-                    "startOffset": 135694,
+                    "startOffset": 135656,
                     "endLine": 1683,
                     "endColumn": 12,
-                    "endOffset": 135805
+                    "endOffset": 135767
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7487,9 +7480,9 @@
                 "to": {
                     "startLine": 1684,
                     "startColumn": 4,
-                    "startOffset": 135810,
+                    "startOffset": 135772,
                     "endColumn": 93,
-                    "endOffset": 135899
+                    "endOffset": 135861
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7499,9 +7492,9 @@
                 "to": {
                     "startLine": 1685,
                     "startColumn": 4,
-                    "startOffset": 135904,
+                    "startOffset": 135866,
                     "endColumn": 113,
-                    "endOffset": 136013
+                    "endOffset": 135975
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7511,9 +7504,9 @@
                 "to": {
                     "startLine": 1686,
                     "startColumn": 4,
-                    "startOffset": 136018,
+                    "startOffset": 135980,
                     "endColumn": 111,
-                    "endOffset": 136125
+                    "endOffset": 136087
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7523,10 +7516,10 @@
                 "to": {
                     "startLine": 1687,
                     "startColumn": 4,
-                    "startOffset": 136130,
+                    "startOffset": 136092,
                     "endLine": 1688,
                     "endColumn": 12,
-                    "endOffset": 136227
+                    "endOffset": 136189
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7536,10 +7529,10 @@
                 "to": {
                     "startLine": 1689,
                     "startColumn": 4,
-                    "startOffset": 136232,
+                    "startOffset": 136194,
                     "endLine": 1690,
                     "endColumn": 12,
-                    "endOffset": 136347
+                    "endOffset": 136309
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7549,10 +7542,10 @@
                 "to": {
                     "startLine": 1691,
                     "startColumn": 4,
-                    "startOffset": 136352,
+                    "startOffset": 136314,
                     "endLine": 1692,
                     "endColumn": 12,
-                    "endOffset": 136469
+                    "endOffset": 136431
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7562,9 +7555,9 @@
                 "to": {
                     "startLine": 1693,
                     "startColumn": 4,
-                    "startOffset": 136474,
+                    "startOffset": 136436,
                     "endColumn": 81,
-                    "endOffset": 136551
+                    "endOffset": 136513
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7574,9 +7567,9 @@
                 "to": {
                     "startLine": 1694,
                     "startColumn": 4,
-                    "startOffset": 136556,
+                    "startOffset": 136518,
                     "endColumn": 103,
-                    "endOffset": 136655
+                    "endOffset": 136617
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7586,9 +7579,9 @@
                 "to": {
                     "startLine": 1695,
                     "startColumn": 4,
-                    "startOffset": 136660,
+                    "startOffset": 136622,
                     "endColumn": 119,
-                    "endOffset": 136775
+                    "endOffset": 136737
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7598,9 +7591,9 @@
                 "to": {
                     "startLine": 1696,
                     "startColumn": 4,
-                    "startOffset": 136780,
+                    "startOffset": 136742,
                     "endColumn": 125,
-                    "endOffset": 136901
+                    "endOffset": 136863
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7610,9 +7603,9 @@
                 "to": {
                     "startLine": 1697,
                     "startColumn": 4,
-                    "startOffset": 136906,
+                    "startOffset": 136868,
                     "endColumn": 97,
-                    "endOffset": 136999
+                    "endOffset": 136961
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7622,9 +7615,9 @@
                 "to": {
                     "startLine": 1698,
                     "startColumn": 4,
-                    "startOffset": 137004,
+                    "startOffset": 136966,
                     "endColumn": 93,
-                    "endOffset": 137093
+                    "endOffset": 137055
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7634,9 +7627,9 @@
                 "to": {
                     "startLine": 1699,
                     "startColumn": 4,
-                    "startOffset": 137098,
+                    "startOffset": 137060,
                     "endColumn": 87,
-                    "endOffset": 137181
+                    "endOffset": 137143
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7646,9 +7639,9 @@
                 "to": {
                     "startLine": 1700,
                     "startColumn": 4,
-                    "startOffset": 137186,
+                    "startOffset": 137148,
                     "endColumn": 111,
-                    "endOffset": 137293
+                    "endOffset": 137255
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7658,9 +7651,9 @@
                 "to": {
                     "startLine": 1701,
                     "startColumn": 4,
-                    "startOffset": 137298,
+                    "startOffset": 137260,
                     "endColumn": 115,
-                    "endOffset": 137409
+                    "endOffset": 137371
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7670,9 +7663,9 @@
                 "to": {
                     "startLine": 1702,
                     "startColumn": 4,
-                    "startOffset": 137414,
+                    "startOffset": 137376,
                     "endColumn": 121,
-                    "endOffset": 137531
+                    "endOffset": 137493
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7682,9 +7675,9 @@
                 "to": {
                     "startLine": 1703,
                     "startColumn": 4,
-                    "startOffset": 137536,
+                    "startOffset": 137498,
                     "endColumn": 111,
-                    "endOffset": 137643
+                    "endOffset": 137605
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7694,10 +7687,10 @@
                 "to": {
                     "startLine": 1704,
                     "startColumn": 4,
-                    "startOffset": 137648,
+                    "startOffset": 137610,
                     "endLine": 1706,
                     "endColumn": 12,
-                    "endOffset": 137818
+                    "endOffset": 137780
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7707,9 +7700,9 @@
                 "to": {
                     "startLine": 1707,
                     "startColumn": 4,
-                    "startOffset": 137823,
+                    "startOffset": 137785,
                     "endColumn": 115,
-                    "endOffset": 137934
+                    "endOffset": 137896
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7719,9 +7712,9 @@
                 "to": {
                     "startLine": 1708,
                     "startColumn": 4,
-                    "startOffset": 137939,
+                    "startOffset": 137901,
                     "endColumn": 85,
-                    "endOffset": 138020
+                    "endOffset": 137982
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7731,9 +7724,9 @@
                 "to": {
                     "startLine": 1709,
                     "startColumn": 4,
-                    "startOffset": 138025,
+                    "startOffset": 137987,
                     "endColumn": 91,
-                    "endOffset": 138112
+                    "endOffset": 138074
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7743,10 +7736,10 @@
                 "to": {
                     "startLine": 1710,
                     "startColumn": 4,
-                    "startOffset": 138117,
+                    "startOffset": 138079,
                     "endLine": 1711,
                     "endColumn": 12,
-                    "endOffset": 138224
+                    "endOffset": 138186
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7756,10 +7749,10 @@
                 "to": {
                     "startLine": 1712,
                     "startColumn": 4,
-                    "startOffset": 138229,
+                    "startOffset": 138191,
                     "endLine": 1713,
                     "endColumn": 12,
-                    "endOffset": 138348
+                    "endOffset": 138310
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7769,9 +7762,9 @@
                 "to": {
                     "startLine": 1714,
                     "startColumn": 4,
-                    "startOffset": 138353,
+                    "startOffset": 138315,
                     "endColumn": 66,
-                    "endOffset": 138415
+                    "endOffset": 138377
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7781,10 +7774,10 @@
                 "to": {
                     "startLine": 1715,
                     "startColumn": 4,
-                    "startOffset": 138420,
+                    "startOffset": 138382,
                     "endLine": 1716,
                     "endColumn": 12,
-                    "endOffset": 138541
+                    "endOffset": 138503
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7794,9 +7787,9 @@
                 "to": {
                     "startLine": 1717,
                     "startColumn": 4,
-                    "startOffset": 138546,
+                    "startOffset": 138508,
                     "endColumn": 67,
-                    "endOffset": 138609
+                    "endOffset": 138571
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7806,10 +7799,10 @@
                 "to": {
                     "startLine": 1718,
                     "startColumn": 4,
-                    "startOffset": 138614,
+                    "startOffset": 138576,
                     "endLine": 1719,
                     "endColumn": 12,
-                    "endOffset": 138737
+                    "endOffset": 138699
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7819,10 +7812,10 @@
                 "to": {
                     "startLine": 1720,
                     "startColumn": 4,
-                    "startOffset": 138742,
+                    "startOffset": 138704,
                     "endLine": 1721,
                     "endColumn": 12,
-                    "endOffset": 138881
+                    "endOffset": 138843
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7832,10 +7825,10 @@
                 "to": {
                     "startLine": 1722,
                     "startColumn": 4,
-                    "startOffset": 138886,
+                    "startOffset": 138848,
                     "endLine": 1723,
                     "endColumn": 12,
-                    "endOffset": 139009
+                    "endOffset": 138971
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7845,9 +7838,9 @@
                 "to": {
                     "startLine": 1724,
                     "startColumn": 4,
-                    "startOffset": 139014,
+                    "startOffset": 138976,
                     "endColumn": 68,
-                    "endOffset": 139078
+                    "endOffset": 139040
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7857,9 +7850,9 @@
                 "to": {
                     "startLine": 1725,
                     "startColumn": 4,
-                    "startOffset": 139083,
+                    "startOffset": 139045,
                     "endColumn": 94,
-                    "endOffset": 139173
+                    "endOffset": 139135
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7869,9 +7862,9 @@
                 "to": {
                     "startLine": 1726,
                     "startColumn": 4,
-                    "startOffset": 139178,
+                    "startOffset": 139140,
                     "endColumn": 114,
-                    "endOffset": 139288
+                    "endOffset": 139250
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7881,9 +7874,9 @@
                 "to": {
                     "startLine": 1727,
                     "startColumn": 4,
-                    "startOffset": 139293,
+                    "startOffset": 139255,
                     "endColumn": 112,
-                    "endOffset": 139401
+                    "endOffset": 139363
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7893,9 +7886,9 @@
                 "to": {
                     "startLine": 1728,
                     "startColumn": 4,
-                    "startOffset": 139406,
+                    "startOffset": 139368,
                     "endColumn": 98,
-                    "endOffset": 139500
+                    "endOffset": 139462
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7905,9 +7898,9 @@
                 "to": {
                     "startLine": 1729,
                     "startColumn": 4,
-                    "startOffset": 139505,
+                    "startOffset": 139467,
                     "endColumn": 108,
-                    "endOffset": 139609
+                    "endOffset": 139571
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7917,9 +7910,9 @@
                 "to": {
                     "startLine": 1730,
                     "startColumn": 4,
-                    "startOffset": 139614,
+                    "startOffset": 139576,
                     "endColumn": 110,
-                    "endOffset": 139720
+                    "endOffset": 139682
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7929,9 +7922,9 @@
                 "to": {
                     "startLine": 1731,
                     "startColumn": 4,
-                    "startOffset": 139725,
+                    "startOffset": 139687,
                     "endColumn": 110,
-                    "endOffset": 139831
+                    "endOffset": 139793
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7941,9 +7934,9 @@
                 "to": {
                     "startLine": 1732,
                     "startColumn": 4,
-                    "startOffset": 139836,
+                    "startOffset": 139798,
                     "endColumn": 100,
-                    "endOffset": 139932
+                    "endOffset": 139894
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7953,9 +7946,9 @@
                 "to": {
                     "startLine": 1733,
                     "startColumn": 4,
-                    "startOffset": 139937,
+                    "startOffset": 139899,
                     "endColumn": 104,
-                    "endOffset": 140037
+                    "endOffset": 139999
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7965,10 +7958,10 @@
                 "to": {
                     "startLine": 1734,
                     "startColumn": 4,
-                    "startOffset": 140042,
+                    "startOffset": 140004,
                     "endLine": 1735,
                     "endColumn": 12,
-                    "endOffset": 140149
+                    "endOffset": 140111
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7978,10 +7971,10 @@
                 "to": {
                     "startLine": 1736,
                     "startColumn": 4,
-                    "startOffset": 140154,
+                    "startOffset": 140116,
                     "endLine": 1737,
                     "endColumn": 12,
-                    "endOffset": 140279
+                    "endOffset": 140241
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -7991,9 +7984,9 @@
                 "to": {
                     "startLine": 1738,
                     "startColumn": 4,
-                    "startOffset": 140284,
+                    "startOffset": 140246,
                     "endColumn": 90,
-                    "endOffset": 140370
+                    "endOffset": 140332
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8003,9 +7996,9 @@
                 "to": {
                     "startLine": 1739,
                     "startColumn": 4,
-                    "startOffset": 140375,
+                    "startOffset": 140337,
                     "endColumn": 122,
-                    "endOffset": 140493
+                    "endOffset": 140455
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8015,10 +8008,10 @@
                 "to": {
                     "startLine": 1740,
                     "startColumn": 4,
-                    "startOffset": 140498,
+                    "startOffset": 140460,
                     "endLine": 1741,
                     "endColumn": 12,
-                    "endOffset": 140605
+                    "endOffset": 140567
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8028,9 +8021,9 @@
                 "to": {
                     "startLine": 1742,
                     "startColumn": 4,
-                    "startOffset": 140610,
+                    "startOffset": 140572,
                     "endColumn": 85,
-                    "endOffset": 140691
+                    "endOffset": 140653
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8040,9 +8033,9 @@
                 "to": {
                     "startLine": 1743,
                     "startColumn": 4,
-                    "startOffset": 140696,
+                    "startOffset": 140658,
                     "endColumn": 103,
-                    "endOffset": 140795
+                    "endOffset": 140757
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8052,10 +8045,10 @@
                 "to": {
                     "startLine": 1744,
                     "startColumn": 4,
-                    "startOffset": 140800,
+                    "startOffset": 140762,
                     "endLine": 1745,
                     "endColumn": 12,
-                    "endOffset": 140903
+                    "endOffset": 140865
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8065,10 +8058,10 @@
                 "to": {
                     "startLine": 1746,
                     "startColumn": 4,
-                    "startOffset": 140908,
+                    "startOffset": 140870,
                     "endLine": 1747,
                     "endColumn": 12,
-                    "endOffset": 141003
+                    "endOffset": 140965
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8078,10 +8071,10 @@
                 "to": {
                     "startLine": 1748,
                     "startColumn": 4,
-                    "startOffset": 141008,
+                    "startOffset": 140970,
                     "endLine": 1749,
                     "endColumn": 12,
-                    "endOffset": 141121
+                    "endOffset": 141083
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8091,10 +8084,10 @@
                 "to": {
                     "startLine": 1750,
                     "startColumn": 4,
-                    "startOffset": 141126,
+                    "startOffset": 141088,
                     "endLine": 1751,
                     "endColumn": 12,
-                    "endOffset": 141225
+                    "endOffset": 141187
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8104,10 +8097,10 @@
                 "to": {
                     "startLine": 1752,
                     "startColumn": 4,
-                    "startOffset": 141230,
+                    "startOffset": 141192,
                     "endLine": 1753,
                     "endColumn": 12,
-                    "endOffset": 141329
+                    "endOffset": 141291
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8117,10 +8110,10 @@
                 "to": {
                     "startLine": 1754,
                     "startColumn": 4,
-                    "startOffset": 141334,
+                    "startOffset": 141296,
                     "endLine": 1755,
                     "endColumn": 12,
-                    "endOffset": 141455
+                    "endOffset": 141417
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8130,9 +8123,9 @@
                 "to": {
                     "startLine": 1756,
                     "startColumn": 4,
-                    "startOffset": 141460,
+                    "startOffset": 141422,
                     "endColumn": 87,
-                    "endOffset": 141543
+                    "endOffset": 141505
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8142,9 +8135,9 @@
                 "to": {
                     "startLine": 1757,
                     "startColumn": 4,
-                    "startOffset": 141548,
+                    "startOffset": 141510,
                     "endColumn": 89,
-                    "endOffset": 141633
+                    "endOffset": 141595
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8154,9 +8147,9 @@
                 "to": {
                     "startLine": 1758,
                     "startColumn": 4,
-                    "startOffset": 141638,
+                    "startOffset": 141600,
                     "endColumn": 109,
-                    "endOffset": 141743
+                    "endOffset": 141705
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8166,9 +8159,9 @@
                 "to": {
                     "startLine": 1759,
                     "startColumn": 4,
-                    "startOffset": 141748,
+                    "startOffset": 141710,
                     "endColumn": 83,
-                    "endOffset": 141827
+                    "endOffset": 141789
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8178,9 +8171,9 @@
                 "to": {
                     "startLine": 1760,
                     "startColumn": 4,
-                    "startOffset": 141832,
+                    "startOffset": 141794,
                     "endColumn": 83,
-                    "endOffset": 141911
+                    "endOffset": 141873
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8190,9 +8183,9 @@
                 "to": {
                     "startLine": 1761,
                     "startColumn": 4,
-                    "startOffset": 141916,
+                    "startOffset": 141878,
                     "endColumn": 53,
-                    "endOffset": 141965
+                    "endOffset": 141927
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8202,9 +8195,9 @@
                 "to": {
                     "startLine": 1762,
                     "startColumn": 4,
-                    "startOffset": 141970,
+                    "startOffset": 141932,
                     "endColumn": 63,
-                    "endOffset": 142029
+                    "endOffset": 141991
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8214,9 +8207,9 @@
                 "to": {
                     "startLine": 1763,
                     "startColumn": 4,
-                    "startOffset": 142034,
+                    "startOffset": 141996,
                     "endColumn": 105,
-                    "endOffset": 142135
+                    "endOffset": 142097
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8226,9 +8219,9 @@
                 "to": {
                     "startLine": 1764,
                     "startColumn": 4,
-                    "startOffset": 142140,
+                    "startOffset": 142102,
                     "endColumn": 109,
-                    "endOffset": 142245
+                    "endOffset": 142207
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8238,9 +8231,9 @@
                 "to": {
                     "startLine": 1765,
                     "startColumn": 4,
-                    "startOffset": 142250,
+                    "startOffset": 142212,
                     "endColumn": 83,
-                    "endOffset": 142329
+                    "endOffset": 142291
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8250,9 +8243,9 @@
                 "to": {
                     "startLine": 1766,
                     "startColumn": 4,
-                    "startOffset": 142334,
+                    "startOffset": 142296,
                     "endColumn": 119,
-                    "endOffset": 142449
+                    "endOffset": 142411
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml"
@@ -8262,10 +8255,10 @@
                 "to": {
                     "startLine": 1767,
                     "startColumn": 4,
-                    "startOffset": 142454,
+                    "startOffset": 142416,
                     "endLine": 1774,
                     "endColumn": 12,
-                    "endOffset": 142969
+                    "endOffset": 142931
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/values/values.xml"
@@ -8275,10 +8268,10 @@
                 "to": {
                     "startLine": 1775,
                     "startColumn": 4,
-                    "startOffset": 142974,
+                    "startOffset": 142936,
                     "endLine": 1782,
                     "endColumn": 12,
-                    "endOffset": 143476
+                    "endOffset": 143438
                 },
                 "from": {
                     "file": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/values/values.xml"

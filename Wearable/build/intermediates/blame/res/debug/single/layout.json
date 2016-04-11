@@ -36,6 +36,10 @@
         "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/layout/notification_template_part_chronometer.xml"
     },
     {
+        "merged": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/res/merged/debug/layout/black_layout.xml",
+        "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/layout/black_layout.xml"
+    },
+    {
         "merged": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/res/merged/debug/layout/abc_action_menu_layout.xml",
         "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/layout/abc_action_menu_layout.xml"
     },

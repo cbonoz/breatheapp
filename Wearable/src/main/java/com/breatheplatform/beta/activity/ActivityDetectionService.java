@@ -10,6 +10,8 @@ import com.breatheplatform.beta.shared.Constants;
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 
+import java.util.List;
+
 /**
  * Created by cbono on 4/5/16.
  */
@@ -33,13 +35,26 @@ public class ActivityDetectionService extends IntentService {
             return;
         }
 
-        DetectedActivity activity = activityRecognitionResult.getMostProbableActivity();
+        DetectedActivity mostProbableActivity = activityRecognitionResult.getMostProbableActivity();
 
-        Integer activityType = activity.getType();
+        Integer activityType = mostProbableActivity.getType();
+//        String activityName = activityFromType(activityType);
+//        Integer activityConfidence = mostProbableActivity.getConfidence();
+
+        //Get Running or Walking if user is on foot
+        if (activityType == DetectedActivity.ON_FOOT) {
+            DetectedActivity betterActivity = walkingOrRunning(activityRecognitionResult.getProbableActivities());
+            if (betterActivity != null) {
+                mostProbableActivity = betterActivity;
+                activityType = mostProbableActivity.getType();
+            }
+        }
+
         String activityName = activityFromType(activityType);
-        Integer activityConfidence = activity.getConfidence();
+        Integer activityConfidence = mostProbableActivity.getConfidence();
 
-        //launch question api (questionnaire on phone if transition from stil to running
+
+        //launch question api (questionnaire on phone if transition from still to running
         if (activityName.equals("STILL") && ClientPaths.activityDetail.contains("RUN")) {
             Log.d(TAG, "detected transition from still to running");
 //            Courier.deliverMessage(this,Constants.QUESTION_API,"");
@@ -48,11 +63,23 @@ public class ActivityDetectionService extends IntentService {
         ClientPaths.activityDetail = activityName + ":" + activityConfidence;
         Log.d(TAG, "Activity: " + ClientPaths.activityDetail);
 
-
-
         addSensorData(Constants.ACTIVITY_SENSOR_ID, activityConfidence, System.currentTimeMillis(), new float[]{activityType});
 
 //        sendBroadcast(MainActivity.newBroadcastIntent(probableActivities));
+    }
+
+    private DetectedActivity walkingOrRunning(List<DetectedActivity> probableActivities) {
+        DetectedActivity myActivity = null;
+        int confidence = 0;
+        for (DetectedActivity activity : probableActivities) {
+            if (activity.getType() != DetectedActivity.RUNNING && activity.getType() != DetectedActivity.WALKING)
+                continue;
+
+            if (activity.getConfidence() > confidence)
+                myActivity = activity;
+        }
+
+        return myActivity;
     }
 
     private String activityFromType(int type ) {

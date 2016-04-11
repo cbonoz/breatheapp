@@ -41,6 +41,7 @@ public class SensorNames {
         names.append(Constants.SPIRO_SENSOR_ID, "Spirometer Sensor");
         names.append(Constants.ENERGY_SENSOR_ID, "Energy Calculation");
 
+
 //                serverSensors.append(ActivityConstants.HEART_SENSOR_ID, 3);
         serverSensors.append(Sensor.TYPE_LINEAR_ACCELERATION, 1);
         serverSensors.append(Sensor.TYPE_HEART_RATE, 2);

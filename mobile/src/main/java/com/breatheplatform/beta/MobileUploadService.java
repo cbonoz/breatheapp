@@ -99,20 +99,20 @@ public class MobileUploadService extends IntentService {
         OutputStream os;
 //        GZIPOutputStream os;
         HttpURLConnection conn = null;
-
         String result = null;
 
-
+        //determine connection endpoint
         try {
-
-            byte[] dataBytes = data.getBytes();//.getBytes("ISO-8859-1");
-
             switch(urlString) {
                 case Constants.RISK_API:
                     conn = (HttpURLConnection) riskUrl.openConnection();
+                    if (Constants.staticApp) //do not send out risk requests
+                        return;
                     break;
                 case Constants.MULTI_API:
                     conn = (HttpURLConnection) multiUrl.openConnection();
+                    if (!sending) //if not sending data return
+                        return;
 //                    try {
 //                        data = decompress(data);
 //                    } catch (Exception e) {
@@ -120,8 +120,6 @@ public class MobileUploadService extends IntentService {
 //                        Log.e(TAG, "Error decompressing data");
 //                        return;
 //                    }
-
-
                     break;
                 case Constants.SUBJECT_API:
                     URL url = createURL(Constants.BASE + Constants.SUBJECT_API);
@@ -132,14 +130,22 @@ public class MobileUploadService extends IntentService {
                         return;
                     }
                     break;
+                case Constants.REGISTER_API:
+
+                    break;
                 default:
                     Log.e(TAG, "Unexpected url case for mobile post message: " + urlString);
                     return;
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
 
 
-            if (!sending)
-                return;
+        //start connection
+        try {
+            byte[] dataBytes = data.getBytes();//.getBytes("ISO-8859-1");
 
             Log.d(TAG, "Data: " + data);
             Log.d(TAG, "data bytes length: " + dataBytes.length);
@@ -230,6 +236,10 @@ public class MobileUploadService extends IntentService {
 
                     }
                     break;
+
+                case Constants.REGISTER_API:
+
+                    break;
 //                case Constants.PUBLIC_KEY_API:
 //                    try {
 //                        String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
@@ -254,6 +264,7 @@ public class MobileUploadService extends IntentService {
             newRisk = Constants.NO_VALUE;
 
         } finally {
+            //process response result
 
             if (conn != null)
                 conn.disconnect();

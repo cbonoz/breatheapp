@@ -3,6 +3,7 @@ package com.breatheplatform.beta.data;
 import android.app.IntentService;
 import android.content.Intent;
 import android.hardware.Sensor;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.util.SparseLongArray;
 
@@ -12,7 +13,6 @@ import com.breatheplatform.beta.shared.Constants;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.net.URL;
 import java.util.TimeZone;
 
 import me.denley.courier.Courier;
@@ -24,17 +24,13 @@ public class SensorAddService extends IntentService {
     private static final String TAG = "SensorAddService";
 
     private static final SensorNames sensorNames = new SensorNames();
+    private static SparseLongArray lastSensorData = initLastData();
 
     private static final int ENERGY_LIMIT = 10;
-    private static Boolean sending = true;
+
     //for energy measurements
     private static float sumX =0, sumY = 0, sumZ = 0;
-
     private static float energy = 0;
-
-    private static long dataSent = 0;
-
-    private static SparseLongArray lastSensorData = initLastData();
 
     private static SparseLongArray initLastData() {
         SparseLongArray temp = new SparseLongArray();
@@ -46,20 +42,20 @@ public class SensorAddService extends IntentService {
     private static JSONArray sensorData = new JSONArray();
     private static Integer recordCount = 0;
 
-    private static Integer RECORD_LIMIT = 100;
+    private static Integer RECORD_LIMIT = 50;
 
-    private static String urlString = Constants.BASE + Constants.MULTI_API;
-    private static URL url = createURL();
-
-    private static URL createURL() {
-        try {
-            return new URL(urlString);// URL(MULTI_API);
-        } catch (Exception e) {
-            Log.d(TAG, "Error creating URL");
-            e.printStackTrace();
-            return null;
-        }
-    }
+//    private static String urlString = Constants.BASE + Constants.MULTI_API;
+//    private static URL url = createURL();
+//
+//    private static URL createURL() {
+//        try {
+//            return new URL(urlString);// URL(MULTI_API);
+//        } catch (Exception e) {
+//            Log.d(TAG, "Error creating URL");
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
 
     private static String tz = initTimeZone();
     private static String initTimeZone() {
@@ -94,11 +90,8 @@ public class SensorAddService extends IntentService {
     //is synchronized necessary here?
     public void incrementCount() {
         recordCount++;
-//        if (recordCount.equals(RECORD_LIMIT)) {
-        if (recordCount >= RECORD_LIMIT) {
-            if (sending)
-                createDataPostRequest();
-        }
+        if (recordCount >= RECORD_LIMIT)
+            createDataPostRequest();
     }
 
     @Override
@@ -114,6 +107,11 @@ public class SensorAddService extends IntentService {
             createDataPostRequest();
             return;
         }
+
+        Intent i = new Intent(Constants.LAST_SENSOR_EVENT);
+        // You can also include some extra data.
+        i.putExtra("sensorId", sType);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(i);
 
         processSensorData(sType, acc,t,values);
 

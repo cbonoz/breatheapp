@@ -399,7 +399,7 @@
     <string name="mr_system_route_name">System</string>
     <string name="mr_user_route_category_name">Devices</string>
     <string name="no_conn_desc">Please start Breathe App on Mobile Device</string>
-    <string name="not_connected">GoogleApiClient not yet connected. Try again.</string>
+    <string name="no_risk">Not Connected</string>
     <string name="notification_title"> Breathe App Notification </string>
     <string name="on_bicycle">On a bicycle</string>
     <string name="on_foot">On foot</string>

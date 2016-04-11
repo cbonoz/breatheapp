@@ -163,9 +163,9 @@ public final class R {
 	}
 	public static final class layout {
 		public static final int alert_dialog_wearable = 0x7f030019;
-		public static final int dismiss_overlay = 0x7f03001a;
-		public static final int error_layout = 0x7f03001b;
-		public static final int watch_card_content = 0x7f030036;
+		public static final int dismiss_overlay = 0x7f03001b;
+		public static final int error_layout = 0x7f03001c;
+		public static final int watch_card_content = 0x7f030037;
 	}
 	public static final class string {
 		public static final int dismiss_overlay_button_label = 0x7f08003f;

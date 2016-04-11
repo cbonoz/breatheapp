@@ -32,14 +32,10 @@ public class MainActivity$$Delivery<T extends MainActivity> implements Courier.D
     private Handler handler = new Handler(Looper.getMainLooper());
 
     private Map<T, MessageApi.MessageListener> messageListeners = new LinkedHashMap<T, MessageApi.MessageListener>();
-    private Map<T, DataApi.DataListener> dataListeners = new LinkedHashMap<T, DataApi.DataListener>();
-    private Map<T, NodeApi.NodeListener> nodeListeners = new LinkedHashMap<T, NodeApi.NodeListener>();
 
     public void startReceiving(final Context context, final T target) {
         this.context = context;
-        initNodeListener(target);
         initMessageListener(target);
-        initDataListener(target);
     }
 
     public void stopReceiving(T target) {
@@ -51,16 +47,6 @@ public class MainActivity$$Delivery<T extends MainActivity> implements Courier.D
         MessageApi.MessageListener ml = messageListeners.remove(target);
         if(ml!=null) {
             WearableApis.getMessageApi().removeListener(apiClient, ml);
-        }
-
-        DataApi.DataListener dl = dataListeners.remove(target);
-        if(dl!=null) {
-            WearableApis.getDataApi().removeListener(apiClient, dl);
-        }
-
-        NodeApi.NodeListener nl = nodeListeners.remove(target);
-        if(nl!=null) {
-            WearableApis.getNodeApi().removeListener(apiClient, nl);
         }
 
     }
@@ -98,74 +84,6 @@ public class MainActivity$$Delivery<T extends MainActivity> implements Courier.D
 
             target.onLabelReceived(as_java_lang_String);
         }
-    }
-
-    private void initNodeListener(final T target) {
-        final NodeApi.NodeListener nl = new NodeApi.NodeListener() {
-            @Override public void onPeerConnected(Node node) {
-                deliverRemoteNodes(target);
-                initializeData(target);
-            }
-            @Override public void onPeerDisconnected(Node node) {
-                deliverRemoteNodes(target);
-            }
-        };
-        nodeListeners.put(target, nl);
-        WearableApis.makeWearableApiCall(context, NODE, new WearableApis.WearableApiRunnable() {
-            public void run(GoogleApiClient apiClient){
-                WearableApis.getNodeApi().addListener(apiClient, nl);
-            }
-        });
-    }
-
-    private void deliverRemoteNodes(final T target) {
-        WearableApis.makeWearableApiCall(context, NODE, new WearableApis.WearableApiRunnable() {
-            public void run(GoogleApiClient apiClient){
-                final List<Node> nodes = WearableApis.getNodeApi().getConnectedNodes(apiClient).await().getNodes();
-
-            }
-        });
-    }
-
-    private void initDataListener(final T target) {
-        final DataApi.DataListener dl = new DataApi.DataListener(){
-            @Override public void onDataChanged(DataEventBuffer dataEvents) {
-                for(DataEvent event:dataEvents) {
-                    deliverData(target, event.getDataItem());
-                }
-            }
-        };
-        dataListeners.put(target, dl);
-        WearableApis.makeWearableApiCall(context, DATA, new WearableApis.WearableApiRunnable() {
-            public void run(GoogleApiClient apiClient){
-                WearableApis.getDataApi().addListener(apiClient, dl);
-            }
-        });
-        initializeData(target);
-    }
-
-    private void deliverData(final T target, final DataItem item) {
-        final String path = item.getUri().getPath();
-        final byte[] data = item.getData();
-        final String node = item.getUri().getHost();
-
-        if (path.equals("/activity")) {
-            final int as_int = Packager.unpack(context, item, int.class);
-
-            target.onActivityReceived(as_int);
-        }
-    }
-
-    private void initializeData(final T target) {
-        WearableApis.makeWearableApiCall(context, DATA, new WearableApis.WearableApiRunnable() {
-            public void run(GoogleApiClient apiClient){
-                final DataItemBuffer existingItems = WearableApis.getDataApi().getDataItems(apiClient).await();
-                for(DataItem item:existingItems) {
-                    deliverData(target, item);
-                }
-                existingItems.release();
-            }
-        });
     }
 
 }

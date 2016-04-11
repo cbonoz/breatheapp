@@ -35,6 +35,8 @@ public class MobileActivity extends Activity
 
     private static final String TAG = "MobileActivity";
 
+    public static Boolean unregisterUser = false;
+
 
 //    protected GoogleApiClient mGoogleApiClient;
 //    protected ActivityDetectionBroadcastReceiver activityReceiver;
@@ -51,7 +53,7 @@ public class MobileActivity extends Activity
     public static String labelDirectory = null;
     public static File labelFile  = null;// = createFile(sensorDirectory);
 
-    private static Boolean unregister = true;
+
     private static Boolean createCalendarEvent = false;
 
     public void calendarEvent() {
@@ -68,12 +70,12 @@ public class MobileActivity extends Activity
 
         prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
 
-        if (unregister) {
+        if (unregisterUser) {
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("subject", "");
             editor.commit();
             Log.d(TAG, "unregister, id now " + prefs.getString("subject", ""));
-            unregister = false;
+            unregisterUser = false;
         }
 
         subject = prefs.getString("subject", "");
@@ -106,9 +108,9 @@ public class MobileActivity extends Activity
 
         MyEncrypter.createAes();
 
-
-        Log.d(TAG, "Sending subject_id " + subject + " to watch");
-        Courier.deliverMessage(this, Constants.SUBJECT_API,subject);
+//
+//        Log.d(TAG, "Sending subject_id " + subject + " to watch");
+//        Courier.deliverMessage(this, Constants.SUBJECT_API,subject);
     }
 
 
@@ -243,9 +245,7 @@ public class MobileActivity extends Activity
         Toast.makeText(this, s, Toast.LENGTH_LONG).show();
     }
 
-
-    private static Boolean writing = true;
-    private static Boolean encrypting = false;
+    public static Boolean writing = true;
 
 //    private static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";
 
@@ -273,9 +273,12 @@ public class MobileActivity extends Activity
 
             String subject = jsonBody.getInt("subject_id")+"";
             Log.d(TAG, "Received multi data - subject " + subject);
-            String sensorData = jsonBody.getString("data");
 
-            if (encrypting) {
+            String sensorData = jsonBody.getString("data");
+            Log.d(TAG, "sensorData: " + sensorData);
+
+            if (Constants.encrypting) {
+                Log.d(TAG, "Encrypting Data");
 //                byte[] aesBytes = MyEncrypter.lAESKey.getBytes();
 //
 //                String lEncryptedKey = Base64.encodeToString(MyEncrypter.RSAEncrypt(aesBytes, aesBytes), 0);
@@ -301,10 +304,8 @@ public class MobileActivity extends Activity
 
             if (writing) {
                 if (Constants.collecting) {
-                    Boolean result = false;
-
                     if (labelFile != null) {
-                        result = ClientPaths.writeDataToFile(sensorData, labelFile, true);
+                        ClientPaths.writeDataToFile(sensorData, labelFile, true);
                     } else {
                         Log.e(TAG, "Attempted to write to labelfile when null");
                     }
@@ -315,22 +316,16 @@ public class MobileActivity extends Activity
                     writing = false;
                 }
             }
-
-
             Intent i = new Intent(this, MobileUploadService.class);
             i.putExtra("data",data);
             //perhaps add encrypted data bytes here as additional intent parameter
             i.putExtra("url",Constants.MULTI_API);
             startService(i);
-
-
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, "Error receiving/processing multi api data");
             return;
         }
-
-
     }
 
     @Override
@@ -339,8 +334,6 @@ public class MobileActivity extends Activity
         Courier.stopReceiving(this);
         Log.d(TAG, "onDestroy called");
 //        createToast("Breathe App onDestroy");
-
-
     }
 
 

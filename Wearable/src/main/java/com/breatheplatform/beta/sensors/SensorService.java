@@ -52,22 +52,15 @@ public class SensorService extends Service implements SensorEventListener {
             Float heartRate = event.values[0];
 
             if (event.accuracy > 1) {
-
-
                 checkForQuestionnaire(heartRate);
-
-
                 addSensorData(sensorId, event.accuracy, timestamp, event.values);
             } else {
                 event.values[0] = Constants.NO_VALUE;
             }
             //update the heart UI (just heart rate currently)
             //http://stackoverflow.com/questions/8802157/how-to-use-localbroadcastmanager
-            Intent i = new Intent(Constants.SENSOR_EVENT);
+            Intent i = new Intent(Constants.HEART_EVENT);
             i.putExtra("heartrate",event.values[0]);
-
-
-
 
             LocalBroadcastManager.getInstance(SensorService.this).sendBroadcast(i);
         } else {
@@ -114,6 +107,7 @@ public class SensorService extends Service implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         eventCallBack(event);
     }
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
@@ -133,35 +127,68 @@ public class SensorService extends Service implements SensorEventListener {
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-
-
         heartRateSensor = mSensorManager.getDefaultSensor(SENS_HEARTRATE);
         linearAccelerationSensor = mSensorManager.getDefaultSensor(SENS_LINEAR_ACCELERATION);
         gyroSensor = mSensorManager.getDefaultSensor(SENS_GYRO);
-
         //final Sensor heartrateSamsungSensor = mSensorManager.getDefaultSensor(ActivityConstants.REG_HEART_SENSOR_ID );//65562
 
         Log.i(TAG, "Start Measurement");
 
 
-        //http://stackoverflow.com/questions/30153904/android-how-to-set-sensor-delay
-        if (linearAccelerationSensor != null) {
-            mSensorManager.registerListener(this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);//1000000, 1000000);
-            Log.d(TAG, "registered accel");
-        }  else {
-            Log.d(TAG, "No Linear Acceleration Sensor found");
-        }
-
-
-        if (gyroSensor != null) {
-            mSensorManager.registerListener(this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
-            Log.d(TAG, "registered gyro");
-        } else {
-            Log.w(TAG, "No Gyroscope Sensor found");
-        }
-
 
         mScheduler = Executors.newScheduledThreadPool(2);
+
+
+        if (Constants.slowSensorRate) { //normal speed of sensor logging
+            if (linearAccelerationSensor != null) {
+//            mSensorManager.registerListener(sensorEventListener, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
+
+//            mScheduler = Executors.newScheduledThreadPool(1);
+                //sum of these achieves sampling rate of 1hz
+                final int measurementDuration = 300;   // ms
+                final int measurementBreak = 700;    // Seconds
+                mScheduler.scheduleAtFixedRate(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+//                            Log.d(TAG, "register LA Sensor");
+                                mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
+                                mSensorManager.registerListener(SensorService.this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
+
+
+                                try {
+                                    Thread.sleep(measurementDuration);
+                                } catch (InterruptedException e) {
+                                    Log.e(TAG, "Interrupted while waitting to unregister LA Sensor");
+                                }
+
+//                            Log.d(TAG, "unregister LA Sensor");
+                                mSensorManager.unregisterListener(SensorService.this, linearAccelerationSensor);
+                                mSensorManager.unregisterListener(SensorService.this, gyroSensor);
+
+                            }
+                        }, 1, measurementDuration + measurementBreak, TimeUnit.MILLISECONDS);
+
+
+            } else {
+                Log.d(TAG, "No Linear Acceleration Sensor found");
+            }
+        } else { //schedule at normal rate (about 5hz)
+            //http://stackoverflow.com/questions/30153904/android-how-to-set-sensor-delay
+            if (linearAccelerationSensor != null) {
+                mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);// 1000000, 1000000);
+            }  else {
+                Log.d(TAG, "No Linear Acceleration Sensor found");
+            }
+
+
+            if (gyroSensor != null) {
+                mSensorManager.registerListener(SensorService.this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
+            } else {
+                Log.w(TAG, "No Gyroscope Sensor found");
+            }
+        }
+
 
         if (heartRateSensor != null) {
             final int measurementDuration = 10;   // Seconds
@@ -192,58 +219,6 @@ public class SensorService extends Service implements SensorEventListener {
             Log.d(TAG, "No Heartrate Sensor found");
         }
 
-//
-//        if (!Constants.sensorControl) { //normal speed of sensor logging
-//            if (linearAccelerationSensor != null) {
-////            mSensorManager.registerListener(sensorEventListener, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
-//
-////            mScheduler = Executors.newScheduledThreadPool(1);
-//                //sum of these achieves sampling rate of 1hz
-//                final int measurementDuration = 300;   // ms
-//                final int measurementBreak = 700;    // Seconds
-//                mScheduler.scheduleAtFixedRate(
-//                        new Runnable() {
-//                            @Override
-//                            public void run() {
-////                            Log.d(TAG, "register LA Sensor");
-//                                mSensorManager.registerListener(sensorEventListener, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
-//                                if (Constants.sensorControl)
-//                                    mSensorManager.registerListener(sensorEventListener, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
-//
-//
-//                                try {
-//                                    Thread.sleep(measurementDuration);
-//                                } catch (InterruptedException e) {
-//                                    Log.e(TAG, "Interrupted while waitting to unregister LA Sensor");
-//                                }
-//
-////                            Log.d(TAG, "unregister LA Sensor");
-//                                mSensorManager.unregisterListener(sensorEventListener, linearAccelerationSensor);
-//                                if (Constants.sensorControl)
-//                                    mSensorManager.unregisterListener(sensorEventListener, gyroSensor);
-//
-//                            }
-//                        }, 1, measurementDuration + measurementBreak, TimeUnit.MILLISECONDS);
-//
-//
-//            } else {
-//                Log.d(TAG, "No Linear Acceleration Sensor found");
-//            }
-//        } else { //schedule at normal rate (about 5hz)
-//            //http://stackoverflow.com/questions/30153904/android-how-to-set-sensor-delay
-//            if (linearAccelerationSensor != null) {
-//                mSensorManager.registerListener(sensorEventListener, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);// 1000000, 1000000);
-//            }  else {
-//                Log.d(TAG, "No Linear Acceleration Sensor found");
-//            }
-//
-//
-//            if (gyroSensor != null) {
-//                mSensorManager.registerListener(sensorEventListener, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
-//            } else {
-//                Log.w(TAG, "No Gyroscope Sensor found");
-//            }
-//        }
 
 //        if (heartrateSamsungSensor != null) {
 //            mSensorManager.registerListener(sensorEventListener, heartrateSamsungSensor, ActivityConstants.SENSOR_DELAY_CUSTOM);
