@@ -24,7 +24,7 @@ public class ConnectionReceiver extends BroadcastReceiver {
         if (cm == null)
             return;
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        String conn = "None";
+        String conn = "";
         if (activeNetwork != null) {
             conn = activeNetwork.getTypeName();
 

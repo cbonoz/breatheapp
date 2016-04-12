@@ -194,6 +194,10 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         ClientPaths.connectionInfo = conn;
     }
 
+    private static Boolean spiroConnected = false;
+    private static Boolean sensorCollecting = false;
+
+
 
     private long mLastClickTime = 0;
 
@@ -208,13 +212,14 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 //    a valid ID has been registered during the boot up registration process)
     private void setupUI() {
         Log.d(TAG, "MainActivity setupUI");
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         //http://stackoverflow.com/questions/5442183/using-the-animated-circle-in-an-imageview-while-loading-stuff
 //        progressBar = (RelativeLayout) findViewById(R.id.loadingPanel);
 //        progressBar.setVisibility(View.GONE);
 
-        //set to 1 minute timeout (for ambient)
-        Settings.System.putString(getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, "60000");
+        //set to 2 minute timeout (for ambient)
+        Settings.System.putString(getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, "120000");
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mLastReceiver,
                 new IntentFilter(Constants.LAST_SENSOR_EVENT));
@@ -226,7 +231,13 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         lastSensorView = (TextView) findViewById(R.id.lastSensorView);
         spiroToggleButton = (ToggleButton) findViewById(R.id.spiroToggleButton);
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        spiroToggleButton.setChecked(false);
+
+        if (mmSocket!=null) {
+            if (mmSocket.isConnected())
+                spiroToggleButton.setChecked(true);
+
+        }
 
         spiroToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -267,6 +278,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             }
         });
 
+
         Switch sensorSwitch = (Switch) findViewById(R.id.sensorSwitch);
         if (Constants.collecting) {
 
@@ -282,6 +294,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+
                         Log.d(TAG, "sensorToggle Checked");
                     } else {
                         stopMeasurement();
@@ -289,6 +302,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                         //trigger a data send event to the mobile device
                         addSensorData(Constants.TERMINATE_SENSOR_ID, null, null, null);
                         Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.END_WRITE);
+
                         Log.d(TAG, "sensorToggle Not Checked");
                     }
                 }
@@ -298,16 +312,16 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 //            TextView helpText1 = (TextView) findViewById(R.id.helpText1);
 //            helpText1.setVisibility(View.GONE);
             startMeasurement();
-            try {
-                ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 0, getActivityDetectionPendingIntent()).setResultCallback(MainActivity.this);
-                Log.d(TAG, "requested activity updates");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+//            try {
+//                ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 0, getActivityDetectionPendingIntent()).setResultCallback(MainActivity.this);
+//                Log.d(TAG, "requested activity updates");
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
         }
 
 //        updateRiskUI(Constants.NO_VALUE);
-        updateRiskUI(LOW_RISK);
+        updateRiskUI(lastRiskValue);
         updateSubjectUI(ClientPaths.SUBJECT_ID);
 
         riskRequest();
@@ -381,10 +395,11 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     public void onCreate(Bundle b) {
         super.onCreate(b);
 
+        spiroConnected = false;
         ClientPaths.setContext(this);
 
         WindowManager.LayoutParams layout = getWindow().getAttributes();
-        layout.screenBrightness = 0F; //value between 0 and 1
+        layout.screenBrightness = .4F; //value between 0 and 1
         getWindow().setAttributes(layout);
 
         Courier.startReceiving(this);
@@ -424,6 +439,9 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
 //        retrieveDeviceNode(); //set up mobileNode
         setAmbientEnabled();
+
+
+
         updateBatteryLevel();
 
 
@@ -437,6 +455,9 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     public void updateSubjectUI(String sub) {
 //        ActivityConstants.SUBJECT_ID = sub;
+        if (sub.equals("")) sub = "3";
+
+        Log.d(TAG, "updating subject UI - " + sub);
         subjectView = (TextView) findViewById(R.id.subjectText);
         if (subjectView != null) {
             String st = "Subject: " + sub;
@@ -573,6 +594,11 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     @BackgroundThread
     @ReceiveMessages(Constants.SUBJECT_API)
     void onSubjectReceived(String sub) { // The nodeId parameter is optional
+        if (sub.equals("")) {
+            Log.e(TAG, "Received blank Subject from message");
+            return;
+        }
+
         Log.d(TAG, "ReceiveMessage subject: " + sub);
         try{
             int num = Integer.parseInt(sub);
@@ -582,12 +608,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             return;
         }
 
-        if(!sub.equals("")) {
-            ClientPaths.SUBJECT_ID = sub;
-            updateSubjectUI(sub);
-        }
-
-
+        ClientPaths.SUBJECT_ID = sub;
+        updateSubjectUI(sub);
     }
 
 
@@ -1066,6 +1088,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
         Log.d(TAG, "Set main layout");
         setContentView(R.layout.main_activity);
+
         stub = (WatchViewStub) findViewById(R.id.stub);
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
@@ -1168,6 +1191,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             mmSocket.connect();
             mmInputStream = mmSocket.getInputStream();
             beginListenForData();
+
 //            spiroConn = new BluetoothConnection(mmDevice, this);
 //            spiroConn.run();
 

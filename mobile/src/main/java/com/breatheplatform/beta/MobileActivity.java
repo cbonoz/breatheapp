@@ -36,6 +36,7 @@ public class MobileActivity extends Activity
     private static final String TAG = "MobileActivity";
 
     public static Boolean unregisterUser = false;
+    public static Boolean writing = true;
 
 
 //    protected GoogleApiClient mGoogleApiClient;
@@ -83,10 +84,6 @@ public class MobileActivity extends Activity
 
         //if subject is null, start registration page
         if (subject.equals("")) {
-//            Intent i = new Intent(this, RegisterActivity.class);
-//            this.startActivity(i);
-//            finish();
-
             startActivity(new Intent(MobileActivity.this, RegisterActivity.class));
             finish();
         }
@@ -108,7 +105,6 @@ public class MobileActivity extends Activity
 
         MyEncrypter.createAes();
 
-//
 //        Log.d(TAG, "Sending subject_id " + subject + " to watch");
 //        Courier.deliverMessage(this, Constants.SUBJECT_API,subject);
     }
@@ -230,8 +226,6 @@ public class MobileActivity extends Activity
 
             Courier.deliverMessage(this,Constants.LABEL_API,"File " + count + " created");//: " + labelFile.length()/1000 + "kb")
         }
-
-
     }
 
 //    @BackgroundThread
@@ -244,8 +238,6 @@ public class MobileActivity extends Activity
     public void createToast(String s) {
         Toast.makeText(this, s, Toast.LENGTH_LONG).show();
     }
-
-    public static Boolean writing = true;
 
 //    private static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";
 
@@ -335,7 +327,4 @@ public class MobileActivity extends Activity
         Log.d(TAG, "onDestroy called");
 //        createToast("Breathe App onDestroy");
     }
-
-
-
 }

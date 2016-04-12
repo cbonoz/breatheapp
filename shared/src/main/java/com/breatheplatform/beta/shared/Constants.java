@@ -37,7 +37,9 @@ public class Constants {
     public static final int ONE_SEC_IN_MICRO = 1000000;
     public static final String DUST_BT_NAME = "HaikRF";
 
-    public static final String HEART_EVENT = "heart-event"; //for broadcast receiver
+
+    //for broadcast receivers
+    public static final String HEART_EVENT = "heart-event";
     public static final String LAST_SENSOR_EVENT = "last-sensor-event";
 
     public static final int NO_VALUE = -1;
@@ -50,9 +52,7 @@ public class Constants {
 
 
     public static final Boolean slowSensorRate = true;
-
     public static final Boolean staticApp = true;
-
 
     public static final String BROADCAST_ACTION = ".BROADCAST_ACTION";
 

@@ -253,8 +253,6 @@ public class MobileUploadService extends IntentService {
 //                        Log.e(TAG, "[Handled] Error response from key api");
 //                        return statusCode + ": JSON Parse Error";
 //                    }
-//
-
             }
 
 
@@ -265,7 +263,6 @@ public class MobileUploadService extends IntentService {
 
         } finally {
             //process response result
-
             if (conn != null)
                 conn.disconnect();
 
@@ -287,8 +284,6 @@ public class MobileUploadService extends IntentService {
 //                    i.putExtra("response", newResponse);
                     break;
             }
-
-
 //            LocalBroadcastManager.getInstance(this).sendBroadcast(i);
 
         }
