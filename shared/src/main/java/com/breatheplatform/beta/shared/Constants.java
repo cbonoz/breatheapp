@@ -9,6 +9,7 @@ public class Constants {
     private static final String TAG = "Constants";
 
     public static final String BASE = "http://www.breatheplatform.com";
+    public static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";
 
 //    public static final String ACTIVITY_API = "/activity";
     public static final String QUESTION_API = "/question";
@@ -48,8 +49,7 @@ public class Constants {
     public static final String END_WRITE = "end";
 
     public static final Boolean collecting = false;
-    public static final Boolean encrypting = false;
-
+    public static final Boolean encrypting = true;
 
     public static final Boolean slowSensorRate = true;
     public static final Boolean staticApp = true;

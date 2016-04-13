@@ -5,17 +5,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.StatFs;
-import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.breatheplatform.beta.encryption.MyEncrypter;
+import com.breatheplatform.beta.encryption.HybridCrypt;
 import com.breatheplatform.beta.services.CalendarService;
+import com.breatheplatform.beta.services.MobileUploadService;
 import com.breatheplatform.beta.shared.Constants;
 
 import org.json.JSONObject;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 
 import me.denley.courier.BackgroundThread;
 import me.denley.courier.Courier;
@@ -62,6 +64,8 @@ public class MobileActivity extends Activity
         startService(i);
     }
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,8 +107,14 @@ public class MobileActivity extends Activity
 //            encrypting = false;
 //        }
 
-        MyEncrypter.createAes();
+//        MyEncrypter.createAes();
 
+        aes = new HybridCrypt(this, subject);
+        aesKeyString = aes.getKeyString();
+        encKeyString = aes.encryptRSA(aesKeyString);
+
+        Log.d("raw_key", aesKeyString);
+        Log.d("enc_key", encKeyString);
 //        Log.d(TAG, "Sending subject_id " + subject + " to watch");
 //        Courier.deliverMessage(this, Constants.SUBJECT_API,subject);
     }
@@ -129,9 +139,9 @@ public class MobileActivity extends Activity
 
 
     public File nextLabelFile() {
-        labelDirectory = ClientPaths.ROOT + "/Breathe" + getCountandIncrement() + ".txt";
+        labelDirectory = ROOT + "/Breathe" + getCountandIncrement() + ".txt";
         Log.d(TAG, "Creating Label File " + labelDirectory);
-        return ClientPaths.createFile(labelDirectory);
+        return createFile(labelDirectory);
     }
 
 //    private static
@@ -241,6 +251,38 @@ public class MobileActivity extends Activity
 
 //    private static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";
 
+
+    private HybridCrypt aes;
+    private String aesKeyString;
+    private String encKeyString;
+
+    private static final File ROOT = android.os.Environment.getExternalStorageDirectory();
+    private static final String sensorDirectory = ROOT + "/SensorData.txt";
+    private static final File sensorFile = createFile(sensorDirectory);
+    
+    private static File createFile(String fname) {
+        Log.d(TAG, "Creating file: " + fname);
+        return new File(fname);
+    }
+
+
+    private static boolean writeDataToFile(String data, File file, Boolean append) {
+        try {
+            BufferedWriter f = new BufferedWriter(new FileWriter(file, append));
+            f.write(data);
+            f.close();
+
+            Log.d(TAG,file.toString()+ " filelength " + file.length() + "B");
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+
+
     @BackgroundThread
     @ReceiveData(Constants.MULTI_API)
     void onMultiReceived(String s) {
@@ -251,23 +293,32 @@ public class MobileActivity extends Activity
             return;
         }
 
-        JSONObject jsonBody;
-        try {
-            jsonBody = new JSONObject(s);//pd.data);
-        } catch(Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, "Error creating json Object in multi api");
-            return;
-        }
+
 
         try {
 //            jsonBody.put("key",API_KEY);
 
-            String subject = jsonBody.getInt("subject_id")+"";
+
+
+
+//            String[] parts = s.split("^^");
+//
+            JSONObject jsonBody;
+            try {
+                jsonBody = new JSONObject(s);//pd.data);
+            } catch(Exception e) {
+                e.printStackTrace();
+                Log.e(TAG, "Error creating json Object in multi api");
+                return;
+            }
+
+            String subject = jsonBody.getString("subject_id");
             Log.d(TAG, "Received multi data - subject " + subject);
 
             String sensorData = jsonBody.getString("data");
             Log.d(TAG, "sensorData: " + sensorData);
+
+            String data;
 
             if (Constants.encrypting) {
                 Log.d(TAG, "Encrypting Data");
@@ -279,39 +330,67 @@ public class MobileActivity extends Activity
 //                String lEncryptedKey = MyEncrypter.getEncryptedAesKey();
 //                String lEncryptedBody = MyEncrypter.encryptAes(subject, sensorData);
 
-                byte[] key = MyEncrypter.getAes();
-                byte[] lEncryptedKey = MyEncrypter.encryptRSA(this, key);
-                byte[] lEncryptedBody = MyEncrypter.encryptAES(sensorData.getBytes());
+//                byte[] key = MyEncrypter.getAes();
+//                byte[] lEncryptedKey = MyEncrypter.encryptRSA(this, key);
+//                byte[] lEncryptedBody = MyEncrypter.encryptAES(parts[1].getBytes());
 
-                jsonBody.put("data", Base64.encodeToString(lEncryptedBody, Base64.DEFAULT));
-                jsonBody.put("data_key", Base64.encodeToString(lEncryptedKey, Base64.DEFAULT));
-                jsonBody.put("raw_key", Base64.encodeToString(key, Base64.DEFAULT));
 
-                Log.d("data", Base64.encodeToString(lEncryptedBody, Base64.DEFAULT));
-                Log.d("data_key", Base64.encodeToString(lEncryptedKey, Base64.DEFAULT));
-                Log.d("raw_key", Base64.encodeToString(key, Base64.DEFAULT));
+                //parts[0] = {"timestamp":1460484850245,"subject_id":"3","key":"I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec","battery":99,"connection":"PROXY"
+
+                String encData = aes.encrypt(sensorData);
+
+                jsonBody.put("data", encData);
+                jsonBody.put("raw_key", aesKeyString);
+                jsonBody.put("enc_key", encKeyString);
+
+                Log.d("encData", encData);
+                Log.d("un_data", aes.decrypt(encData));
+
+
+
+                
+                Log.d("raw_key", aesKeyString);
+                Log.d("enc_key", encKeyString);
+            }
+//            else {
+//                data = jsonBody.toString()
+//            }
+
+            data = jsonBody.toString();
+
+            try {
+                jsonBody = new JSONObject(data);//pd.data);
+            } catch(Exception e) {
+                e.printStackTrace();
+                Log.e(TAG, "Error creating json Object in multi api");
+                return;
             }
 
-            String data = jsonBody.toString();
+            Log.d("reconstructed raw_key", jsonBody.getString("raw_key"));
+
 
             if (writing) {
                 if (Constants.collecting) {
                     if (labelFile != null) {
-                        ClientPaths.writeDataToFile(sensorData, labelFile, true);
+                        writeDataToFile(sensorData, labelFile, true);
                     } else {
                         Log.e(TAG, "Attempted to write to labelfile when null");
                     }
 
                 } else {
                     //write the first instance of the multi-api post request body (for testing encryption)
-                    ClientPaths.writeDataToFile(data, ClientPaths.sensorFile, false);
+
+                    writeDataToFile(data, sensorFile, false);
+                    if (Constants.encrypting)
+                        Log.d(TAG, "Wrote to file " + sensorFile.toString());
+                    Log.d(TAG, "Writing = false");
                     writing = false;
                 }
             }
             Intent i = new Intent(this, MobileUploadService.class);
             i.putExtra("data",data);
             //perhaps add encrypted data bytes here as additional intent parameter
-            i.putExtra("url",Constants.MULTI_API);
+            i.putExtra("url", Constants.MULTI_API);
             startService(i);
         } catch (Exception e) {
             e.printStackTrace();

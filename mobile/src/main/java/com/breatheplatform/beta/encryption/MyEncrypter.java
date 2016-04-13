@@ -8,9 +8,11 @@ import android.util.Log;
 import com.breatheplatform.beta.R;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -191,6 +193,58 @@ public class MyEncrypter {
         cipher.init(Cipher.ENCRYPT_MODE, key);
         encrypted = cipher.doFinal(Base64.decode(message, Base64.DEFAULT));
         return encrypted;
+    }
+
+    private static PublicKey getPKfromFile(Context c) throws FileNotFoundException {
+        BufferedReader br;
+        br = new BufferedReader(new InputStreamReader(c.getResources().openRawResource(R.raw.pkey)));
+
+        List<String> lines = new ArrayList<String>();
+        String line = null;
+        try {
+            while ((line = br.readLine()) != null)
+                lines.add(line);
+            br.close();
+        } catch (IOException e) {
+        }
+
+        if (lines.size() > 1) {
+            if (lines.get(0).startsWith("-----"))
+                lines.remove(0);
+            if (lines.get(lines.size() - 1).startsWith("-----")) {
+                lines.remove(lines.size() - 1);
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (String aLine : lines)
+            sb.append(aLine);
+        String keyString = sb.toString();
+
+        PublicKey pk;
+
+        byte[] keyBytes = null;
+        try {
+            keyBytes = Base64.decode(keyString.getBytes("utf-8"), 0);
+        } catch (UnsupportedEncodingException e1) {}
+
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+
+        KeyFactory keyFactory = null;
+        try {
+            keyFactory = KeyFactory.getInstance("RSA");
+        } catch (NoSuchAlgorithmException e) {
+            Log.e("RSAEncrypter","RSA not suported");
+        }
+
+        try {
+            pk = keyFactory.generatePublic(spec);
+        } catch (InvalidKeySpecException e) {
+            pk=null;
+            Log.e("RSAEncrypter","Invalid Key");
+        }
+        Log.d("getPk ", "Retrieved key getPkFromFile: " + pk);
+        return pk;
     }
 
     public static byte[] encryptAES(byte[] clear) throws Exception {

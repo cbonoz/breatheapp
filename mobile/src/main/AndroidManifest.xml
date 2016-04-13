@@ -64,7 +64,7 @@
         <!--</service>-->
 
 
-        <service android:name=".MobileUploadService" />
+        <service android:name=".services.MobileUploadService" />
         <service android:name=".services.CalendarService" />
 
         <!--<receiver-->

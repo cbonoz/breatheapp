@@ -322,7 +322,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
 //        updateRiskUI(Constants.NO_VALUE);
         updateRiskUI(lastRiskValue);
-        updateSubjectUI(ClientPaths.SUBJECT_ID);
+        updateSubjectUI();
 
         riskRequest();
         dustAndConnectivityRequest();
@@ -381,7 +381,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     private void requestSubject() {
         //check if SUBJECT ID is "" (null), using "" for serialization purposes via data api
-        if (ClientPaths.SUBJECT_ID.equals("")) {
+        if (ClientPaths.subjectId.equals("")) {
             Log.d(TAG, "Requesting Subject");
             Courier.deliverMessage(this, Constants.SUBJECT_API, "");
         } else {
@@ -396,7 +396,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         super.onCreate(b);
 
         spiroConnected = false;
-        ClientPaths.setContext(this);
+        ClientPaths.mainContext = this;
 
         WindowManager.LayoutParams layout = getWindow().getAttributes();
         layout.screenBrightness = .4F; //value between 0 and 1
@@ -453,11 +453,11 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     private Boolean healthDanger = false;
 
-    public void updateSubjectUI(String sub) {
-//        ActivityConstants.SUBJECT_ID = sub;
-        if (sub.equals("")) sub = "3";
+    public void updateSubjectUI() {
 
-        Log.d(TAG, "updating subject UI - " + sub);
+        String sub = ClientPaths.subjectId;
+        if (sub.equals("")) sub = Constants.NO_VALUE+"";
+
         subjectView = (TextView) findViewById(R.id.subjectText);
         if (subjectView != null) {
             String st = "Subject: " + sub;
@@ -465,6 +465,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         } else {
             Log.e(TAG, "Received subject before layout inflated");
         }
+
+        Log.d(TAG, "updated subject UI - " + sub);
 
     }
 
@@ -608,8 +610,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             return;
         }
 
-        ClientPaths.SUBJECT_ID = sub;
-        updateSubjectUI(sub);
+
+        updateSubjectUI();
     }
 
 
@@ -637,8 +639,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             JSONObject jsonBody = new JSONObject();
 
             jsonBody.put("timestamp",System.currentTimeMillis());
-            jsonBody.put("subject_id", ClientPaths.SUBJECT_ID);
-            jsonBody.put("key", ClientPaths.API_KEY);
+            jsonBody.put("subject_id", ClientPaths.subjectId);
+            jsonBody.put("key", Constants.API_KEY);
             jsonBody.put("battery",ClientPaths.batteryLevel);
             jsonBody.put("connection", ClientPaths.connectionInfo);
 
@@ -794,9 +796,9 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 //        onResume();
     }
 
-    private void updateLastView(Integer sensorId) {
+    private void updateLastView(String sensorName) {
         if (lastSensorView!=null)
-            lastSensorView.setText("Last: " + ClientPaths.getSensorName(sensorId) + "\nDust Sensor: " + (dustConnected ? "Yes" : "No"));
+            lastSensorView.setText("Last: " + sensorName + "\nDust Sensor: " + (dustConnected ? "Yes" : "No"));
     }
 
     private void unregisterDust() {
@@ -846,7 +848,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Log.d(TAG, receiveBuffer + " Dust Reading: " + vals[0]);
 
         addSensorData(Constants.DUST_SENSOR_ID, Constants.NO_VALUE, System.currentTimeMillis(), vals);
-        updateLastView(Constants.DUST_SENSOR_ID);
+
 
     }
 
@@ -1190,7 +1192,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
             mmSocket.connect();
             mmInputStream = mmSocket.getInputStream();
-            beginListenForData();
+            beginSpiroListen();
 
 //            spiroConn = new BluetoothConnection(mmDevice, this);
 //            spiroConn.run();
@@ -1234,9 +1236,9 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             return LOW_RISK;
     }
 
-    public void beginListenForData()
+    public void beginSpiroListen()
     {
-        Log.d(TAG, "beginListenForData");
+        Log.d(TAG, "beginSpiroListen");
         final Handler handler = new Handler();
 
         readBufferPosition = 0;
@@ -1495,9 +1497,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         @Override
         public void onReceive(Context context, Intent intent) {
             // Get extra data included in the Intent
-            Integer sensorId = intent.getIntExtra("sensorId",Constants.NO_VALUE);
 //            Log.d("receiver", "Got message: " + sensorId);
-            updateLastView(sensorId);
+            updateLastView(intent.getStringExtra("sensorName"));
 
         }
     };

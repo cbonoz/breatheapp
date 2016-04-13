@@ -26,6 +26,7 @@ dependencies {
     compile 'me.denley.courier:courier:1.2.1'
     provided 'com.google.android.wearable:wearable:1.0.0'
 
+
     compile project(':shared')
 }
 
