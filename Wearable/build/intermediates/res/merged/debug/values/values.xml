@@ -383,6 +383,7 @@
     <string name="detected_activities_title">Detected Activities</string>
     <string name="dismiss_overlay_button_label">Quit</string>
     <string name="finish_activity"> Finish Activity </string>
+    <string name="google_app_id">breathe-e3d3a</string>
     <string name="grid_activity_title_text"> Grid Activity </string>
     <string name="in_vehicle">In a vehicle</string>
     <string name="intro_text">Long press to go back home.</string>

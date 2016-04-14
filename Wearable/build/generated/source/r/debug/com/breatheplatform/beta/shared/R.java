@@ -936,10 +936,10 @@ public final class R {
 		public static final int mr_user_route_category_name = 0x7f08003a;
 		public static final int place_autocomplete_clear_button = 0x7f08003b;
 		public static final int place_autocomplete_search_hint = 0x7f08003c;
-		public static final int shared_name = 0x7f08005e;
+		public static final int shared_name = 0x7f08005f;
 		public static final int status_bar_notification_info_overflow = 0x7f08003d;
-		public static final int store_picture_message = 0x7f080064;
-		public static final int store_picture_title = 0x7f080065;
+		public static final int store_picture_message = 0x7f080065;
+		public static final int store_picture_title = 0x7f080066;
 		public static final int wallet_buy_button_place_holder = 0x7f08003e;
 	}
 	public static final class style {

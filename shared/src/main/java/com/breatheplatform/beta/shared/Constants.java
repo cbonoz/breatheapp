@@ -38,7 +38,6 @@ public class Constants {
     public static final int ONE_SEC_IN_MICRO = 1000000;
     public static final String DUST_BT_NAME = "HaikRF";
 
-
     //for broadcast receivers
     public static final String HEART_EVENT = "heart-event";
     public static final String LAST_SENSOR_EVENT = "last-sensor-event";
@@ -48,12 +47,17 @@ public class Constants {
     public static final String START_WRITE = "start";
     public static final String END_WRITE = "end";
 
-    public static final Boolean collecting = false;
-    public static final Boolean encrypting = true;
+    public static final Boolean collecting = true;
+    public static final Boolean encrypting = false;
 
     public static final Boolean slowSensorRate = true;
     public static final Boolean staticApp = true;
 
+    public static final String START_MOBILE_SERVICE = "/start-mobile";
+
+    public static final String MY_PREFS_NAME = "MyPrefs";
+
     public static final String BROADCAST_ACTION = ".BROADCAST_ACTION";
+
 
 }

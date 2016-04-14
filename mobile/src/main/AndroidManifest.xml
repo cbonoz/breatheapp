@@ -55,13 +55,11 @@
             android:value="@integer/google_play_services_version" />
 
 
-
-        <!--<service android:name=".MobileReceiverService">-->
-            <!--<intent-filter>-->
-                <!--<action-->
-                    <!--android:name="com.google.android.gms.wearable.BIND_LISTENER" />-->
-            <!--</intent-filter>-->
-        <!--</service>-->
+        <service android:name=".services.ListenerServiceFromWear">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
+            </intent-filter>
+        </service>
 
 
         <service android:name=".services.MobileUploadService" />
@@ -78,21 +76,27 @@
         <!--android:windowSwipeToDismiss="false"-->
         <!--android:theme="@android:style/Theme.NoDisplay"-->
         <!--android:launchMode="singleInstance"-->
-       <activity
-        android:launchMode="singleInstance"
-            android:name=".MobileActivity"
-            android:label="@string/app_name"
-           android:theme="@android:style/Theme.NoDisplay" >
+       <!--<activity-->
+        <!--android:launchMode="singleInstance"-->
+            <!--android:name=".MobileActivity"-->
+            <!--android:label="@string/app_name"-->
+           <!--android:theme="@android:style/Theme.NoDisplay" >-->
 
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
             <!--<intent-filter>-->
-            <!--<action android:name="com.google.android.google.wearable.app"/>-->
-            <!--<category android:name="android.intent.category.DEFAULT"/>-->
-            <!--</intent-filter>]-->
-        </activity>
+                <!--<action android:name="android.intent.action.MAIN"/>-->
+                <!--<category android:name="android.intent.category.LAUNCHER"/>-->
+            <!--</intent-filter>-->
+        <!-- -->
+        <!--</activity>-->
+
+
+        <!--<receiver android:name=".receivers.BootCompletedIntentReceiver">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.BOOT_COMPLETED" />-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
+        <!-- -->
+
 
         <activity android:name=".RegisterActivity"
             android:label="Register User"

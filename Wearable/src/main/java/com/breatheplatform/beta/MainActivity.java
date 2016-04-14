@@ -17,6 +17,7 @@
 
 package com.breatheplatform.beta;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
@@ -28,7 +29,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.ConnectivityManager;
@@ -66,6 +69,7 @@ import com.breatheplatform.beta.messaging.DeviceClient;
 import com.breatheplatform.beta.sensors.SensorService;
 import com.breatheplatform.beta.shared.Constants;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -74,12 +78,15 @@ import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.Wearable;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -87,7 +94,7 @@ import java.util.UUID;
 import me.denley.courier.BackgroundThread;
 import me.denley.courier.Courier;
 import me.denley.courier.ReceiveMessages;
-
+import me.denley.courier.RemoteNodes;
 
 
 public class MainActivity extends WearableActivity implements BluetoothAdapter.LeScanCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
@@ -210,6 +217,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private RelativeLayout progressBar;
     //this function is called during onCreate (if the user has not registered an ID yet, will be called after
 //    a valid ID has been registered during the boot up registration process)
+
+
     private void setupUI() {
         Log.d(TAG, "MainActivity setupUI");
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -282,11 +291,15 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Switch sensorSwitch = (Switch) findViewById(R.id.sensorSwitch);
         if (Constants.collecting) {
 
+            sensorSwitch.setChecked(sensorToggled);
+
+
             sensorSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (isChecked) {
-//                    Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.START_WRITE);
+
+                        Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.START_WRITE);
                         startMeasurement();
                         try {
                             ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 0, getActivityDetectionPendingIntent()).setResultCallback(MainActivity.this);
@@ -295,14 +308,23 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                             e.printStackTrace();
                         }
 
+                        sensorToggled = true;
                         Log.d(TAG, "sensorToggle Checked");
                     } else {
                         stopMeasurement();
-                        ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, getActivityDetectionPendingIntent()).setResultCallback(MainActivity.this);
+
                         //trigger a data send event to the mobile device
                         addSensorData(Constants.TERMINATE_SENSOR_ID, null, null, null);
+
                         Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.END_WRITE);
 
+                        try {
+                            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, getActivityDetectionPendingIntent()).setResultCallback(MainActivity.this);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        sensorToggled = false;
                         Log.d(TAG, "sensorToggle Not Checked");
                     }
                 }
@@ -320,9 +342,10 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 //            }
         }
 
+
 //        updateRiskUI(Constants.NO_VALUE);
         updateRiskUI(lastRiskValue);
-        updateSubjectUI();
+        requestSubjectAndUpdateUI();
 
         riskRequest();
         dustAndConnectivityRequest();
@@ -339,6 +362,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
         //end setupUI
     }
+
+    private Boolean sensorToggled = false;
 
     private void createSpiroNotification() {
 //        FragmentManager fragmentManager = getFragmentManager();
@@ -378,22 +403,88 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         alertDialog.show();
     }
 
+    private SharedPreferences prefs;
 
-    private void requestSubject() {
+
+    private void requestSubjectAndUpdateUI() {
         //check if SUBJECT ID is "" (null), using "" for serialization purposes via data api
+        ClientPaths.subjectId = prefs.getString("subject", "");
+
         if (ClientPaths.subjectId.equals("")) {
-            Log.d(TAG, "Requesting Subject");
             Courier.deliverMessage(this, Constants.SUBJECT_API, "");
         } else {
             Log.i(TAG, "Requested Subject, but already have it.");
+            updateSubjectUI();
         }
     }
 
     WatchViewStub stub;
 
+    public static final int REQUEST_GOOGLE_PLAY_SERVICES = 1972;
+
+    private void startRegistrationService() {
+        GoogleApiAvailability api = GoogleApiAvailability.getInstance();
+        int code = api.isGooglePlayServicesAvailable(this);
+        if (code == ConnectionResult.SUCCESS) {
+            onActivityResult(REQUEST_GOOGLE_PLAY_SERVICES, Activity.RESULT_OK, null);
+        } else if (api.isUserResolvableError(code) &&
+                api.showErrorDialogFragment(this, code, REQUEST_GOOGLE_PLAY_SERVICES)) {
+            // wait for onActivityResult call (see below)
+        } else {
+            String str = GoogleApiAvailability.getInstance().getErrorString(code);
+            Toast.makeText(this, str, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch(requestCode) {
+            case REQUEST_GOOGLE_PLAY_SERVICES:
+                if (resultCode == Activity.RESULT_OK) {
+//                    Intent i = new Intent(this, RegistrationService.class);
+//                    startService(i); // OK, init GCM
+                    Log.d(TAG, "Google play services available!");
+
+                } else {
+                    Log.e(TAG, "Google play services  NOT available!");
+                }
+                break;
+
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
+        }
+        Log.d(TAG, "on api client availability result");
+
+    }
+
+    private void buildApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(MainActivity.this)
+                .addApi(LocationServices.API)
+                .addApi(ActivityRecognition.API)
+//                .addApi(Wearable.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
+        mGoogleApiClient.connect();
+    }
+
+    @RemoteNodes
+    void onConnectionStateChanged(List<Node> connectedNodes) {
+        // Do something with the nodes
+        // ...
+        Log.d(TAG, "Remote Nodes: " + connectedNodes.toString());
+        if (!connectedNodes.isEmpty()) {
+
+        }
+    }
 
     public void onCreate(Bundle b) {
         super.onCreate(b);
+
+        prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
+
+
 
         spiroConnected = false;
         ClientPaths.mainContext = this;
@@ -409,7 +500,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
 
         setContentView(R.layout.main_activity);
-        requestSubject();
+
 
         stub = (WatchViewStub) findViewById(R.id.stub);
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
@@ -427,20 +518,12 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         });
 
 
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addApi(ActivityRecognition.API)
-//                .addApi(Wearable.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-        mGoogleApiClient.connect();
+        //start google play registration service
+        startRegistrationService();
+        buildApiClient();
 
 //        retrieveDeviceNode(); //set up mobileNode
         setAmbientEnabled();
-
-
 
         updateBatteryLevel();
 
@@ -453,10 +536,10 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     private Boolean healthDanger = false;
 
-    public void updateSubjectUI() {
+    private void updateSubjectUI() {
 
         String sub = ClientPaths.subjectId;
-        if (sub.equals("")) sub = Constants.NO_VALUE+"";
+
 
         subjectView = (TextView) findViewById(R.id.subjectText);
         if (subjectView != null) {
@@ -465,6 +548,9 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         } else {
             Log.e(TAG, "Received subject before layout inflated");
         }
+
+
+
 
         Log.d(TAG, "updated subject UI - " + sub);
 
@@ -610,6 +696,10 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             return;
         }
 
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("subject", sub);
+        editor.commit();
+        Log.d(TAG, "set subject, id now " + sub);
 
         updateSubjectUI();
     }
@@ -671,7 +761,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
-//                .addApi(Wearable.API)  // used for data layer API
+                .addApi(Wearable.API)  // used for data layer API
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
@@ -782,7 +872,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
-        requestSubject();
+        requestSubjectAndUpdateUI();
 
     }
 
@@ -1047,8 +1137,17 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(ConnectionResult result) {
         Log.e(TAG, "onConnectionFailed called");
+        if (!result.hasResolution()) {
+            GoogleApiAvailability.getInstance().getErrorDialog(this, result.getErrorCode(), 0).show();
+            return;
+        }
+        try {
+            result.startResolutionForResult(this, REQUEST_GOOGLE_PLAY_SERVICES);
+        } catch (IntentSender.SendIntentException e) {
+            Log.e(TAG, "Exception while starting resolution activity", e);
+        }
     }
 
     @Override
@@ -1083,7 +1182,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         super.onExitAmbient();
         Log.d(TAG, "onExitAmbient - add task callbacks");
 
-        riskRequest();
+//        riskRequest();
         dustAndConnectivityRequest();
         scheduleRiskRequest();
         scheduleDustRequest();

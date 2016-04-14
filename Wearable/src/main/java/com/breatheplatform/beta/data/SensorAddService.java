@@ -9,6 +9,7 @@ import android.util.SparseLongArray;
 
 import com.breatheplatform.beta.ClientPaths;
 import com.breatheplatform.beta.shared.Constants;
+import com.breatheplatform.beta.shared.PostData;
 
 import org.json.JSONObject;
 
@@ -105,6 +106,10 @@ public class SensorAddService extends IntentService {
 
     }
 
+    public static PostData pd = new PostData();
+
+
+
     private static float x,y,z;
     private static int energyCount = 0;
 
@@ -132,6 +137,8 @@ public class SensorAddService extends IntentService {
 
 
         Boolean validEvent = true;
+
+
         //Log.d(TAG, "Received " + sensorName + " (" + sensorType + ") = " + Arrays.toString(values));
 
         try {
@@ -280,9 +287,13 @@ public class SensorAddService extends IntentService {
 //            multiData.data = sensorDataString;
 
             jsonBody.put("data", sensorDataString);
-            String jsonString = jsonBody.toString();// + "^^" + sensorDataString;
 
-            Courier.deliverData(ClientPaths.mainContext, Constants.MULTI_API, jsonString);
+
+            String pdString = jsonBody.toString();// + "^^" + sensorDataString;
+
+
+
+            Courier.deliverData(ClientPaths.mainContext, Constants.MULTI_API, pdString);
             Log.d(TAG, "courier sent multiapi data");
 
         } catch (Exception e) {

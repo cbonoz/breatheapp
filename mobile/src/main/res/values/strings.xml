@@ -29,4 +29,8 @@
     <string name="submit">Submit</string>
     <string name="welcome">Welcome to Breathe</string>
     <string name="welcome_text">Enter your provided Clinician Code and Subject ID below to register your patient on the paired Wearable</string>
+
+
+    <string name="question_header">Question Activity</string>
+    <string name="question_text">Please answer the following questions</string>
 </resources>

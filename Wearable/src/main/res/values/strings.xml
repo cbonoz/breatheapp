@@ -34,6 +34,7 @@
 
     <string name="no_risk">Not Connected</string>
 
+    <string name="google_app_id">breathe-e3d3a</string>
 
     <!-- Activity detection strings -->
     <string name="in_vehicle">In a vehicle</string>

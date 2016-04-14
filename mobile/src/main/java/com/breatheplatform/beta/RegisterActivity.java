@@ -2,7 +2,6 @@ package com.breatheplatform.beta;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +12,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.breatheplatform.beta.shared.Constants;
+
+import me.denley.courier.Courier;
+
 /**
  * Created by cbono on 4/1/16.
  */
@@ -22,7 +25,6 @@ public class RegisterActivity extends Activity {
     private static final String TAG = "RegisterActivity";
     private SharedPreferences prefs = null;
     private static final String CLINIC_CODE = "5555";
-    public static final String MY_PREFS_NAME = "SubjectFile";
 
     private EditText codeText;
     private EditText subjectText;
@@ -33,12 +35,6 @@ public class RegisterActivity extends Activity {
         return code.equals(pw);
     }
 
-    public void setSubjectAndClose(String subject_id) {
-        prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("subject", subject_id);
-        editor.commit();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,25 +55,20 @@ public class RegisterActivity extends Activity {
 
 
                 if (acceptCredentials(codeText.getText().toString())) {
-                    String subject_id = subjectText.getText().toString();
-                    prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
+                    String subject = subjectText.getText().toString();
+
+                    prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString("subject", subject_id);
+                    editor.putString("subject", subject);
                     editor.commit();
 
-                    Toast.makeText(RegisterActivity.this, "Success - Registered Patient " + subject_id, Toast.LENGTH_LONG).show();
+                    RegisterActivity.this.finish();
 
+                    Courier.deliverMessage(RegisterActivity.this, Constants.SUBJECT_API, subject);
+                    Toast.makeText(RegisterActivity.this, "Success - Registered Patient " + subject, Toast.LENGTH_LONG).show();
                     Log.d(TAG, "Starting Mobile Activity - subject now " + prefs.getString("subject", ""));
+//                    startActivity(new Intent(RegisterActivity.this, MobileActivity.class));
 
-//                    Intent intent = new Intent(getApplicationContext(), MobileActivity.class);
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//
-//                    startActivity(intent);
-//
-//                    RegisterActivity.this.finish();
-
-                    startActivity(new Intent(RegisterActivity.this, MobileActivity.class));
-                    finish();
                 } else {
                     Toast.makeText(RegisterActivity.this, "Clinician Code Not Valid", Toast.LENGTH_SHORT).show();
                 }
