@@ -50,7 +50,7 @@ public class Constants {
     public static final Boolean collecting = true;
     public static final Boolean encrypting = false;
 
-    public static final Boolean slowSensorRate = true;
+    public static final Boolean slowSensorRate = false;
     public static final Boolean staticApp = true;
 
     public static final String START_MOBILE_SERVICE = "/start-mobile";
