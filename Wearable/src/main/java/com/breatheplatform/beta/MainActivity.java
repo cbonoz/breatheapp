@@ -699,6 +699,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("subject", sub);
         editor.commit();
+        ClientPaths.subjectId = sub;
         Log.d(TAG, "set subject, id now " + sub);
 
         updateSubjectUI();

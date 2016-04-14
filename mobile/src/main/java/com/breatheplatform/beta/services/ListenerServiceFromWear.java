@@ -200,7 +200,7 @@ public class ListenerServiceFromWear extends WearableListenerService {
         //TODO: Start questionnaire here
     }
 
-    private void showToastInIntentService(final String sText)
+    private void showToastInService(final String sText)
     {
         Handler mHandler = new Handler(getMainLooper());
         mHandler.post(new Runnable() {
@@ -222,9 +222,9 @@ public class ListenerServiceFromWear extends WearableListenerService {
                 int availableBlocks = stats.getAvailableBlocks();
                 int blockSizeInBytes = stats.getBlockSize();
                 double freeSpaceInBytes = availableBlocks * blockSizeInBytes;
-                String info = labelDirectory + " !" + labelFile.length()/1000 + "kB";// + freeSpaceInBytes / 1000 + "kB left";
+                String info = labelDirectory + " " + labelFile.length()/1000 + "kB";// + freeSpaceInBytes / 1000 + "kB left";
                 Log.d(TAG, info);
-                showToastInIntentService(info);
+                showToastInService(info);
 
             } catch (Exception e) {
                 Log.d(TAG, "Error getting label file stats");
