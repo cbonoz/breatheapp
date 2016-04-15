@@ -29,7 +29,6 @@ import me.denley.courier.Packager;
  * Created by cbono on 4/13/16.
  */
 public class ListenerServiceFromWear extends WearableListenerService {
-
     private static final String TAG = "ListenerServiceFromWear";
 
     /*
@@ -119,6 +118,8 @@ public class ListenerServiceFromWear extends WearableListenerService {
         startActivity(i);
     }
 
+
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -145,9 +146,19 @@ public class ListenerServiceFromWear extends WearableListenerService {
                 startRegisterActivity();
             }
 
-            aes = new HybridCrypt(this, subject);
-            aesKeyString = aes.getKeyString();
-            encKeyString = aes.encryptRSA(aesKeyString);
+            try {
+                aes = new HybridCrypt(this, subject);
+                aesKeyString = aes.getKeyString();
+//                encKeyString = aes.encryptRSA(aesKeyString);
+                encKeyString = aes.encryptRSA(aesKeyString);//aes.getEncryptedKey();
+                Log.d(TAG, "created encryption object");
+//                encrypting = false;
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e(TAG, "[Critical] Error creating encryption object");
+                aes = null;
+            }
+
 
             Log.d("raw_key", aesKeyString);
             Log.d("enc_key", encKeyString);
@@ -304,14 +315,11 @@ public class ListenerServiceFromWear extends WearableListenerService {
                 String encData = aes.encrypt(sensorData);
 
                 jsonBody.put("data", encData);
-                jsonBody.put("raw_key", aesKeyString);
+//                jsonBody.put("raw_key", aesKeyString);
                 jsonBody.put("enc_key", encKeyString);
 
                 Log.d("encData", encData);
-                Log.d("un_data", aes.decrypt(encData));
-
-
-
+//                Log.d("un_data", aes.decrypt(encData));
 
                 Log.d("raw_key", aesKeyString);
                 Log.d("enc_key", encKeyString);

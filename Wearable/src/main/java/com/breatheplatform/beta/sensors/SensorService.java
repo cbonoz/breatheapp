@@ -140,10 +140,9 @@ public class SensorService extends Service implements SensorEventListener {
 
 
         if (Constants.slowSensorRate) { //normal speed of sensor logging
-            if (linearAccelerationSensor != null) {
+            if (linearAccelerationSensor != null && gyroSensor != null) {
 //            mSensorManager.registerListener(sensorEventListener, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
-//            mScheduler = Executors.newScheduledThreadPool(1);
                 //sum of these achieves sampling rate of 1hz
                 final int measurementDuration = 300;   // ms
                 final int measurementBreak = 700;    // Seconds
@@ -171,8 +170,24 @@ public class SensorService extends Service implements SensorEventListener {
 
 
             } else {
-                Log.d(TAG, "No Linear Acceleration Sensor found");
+                Log.d(TAG, "No Linear Acceleration or Gyro Sensor found");
             }
+
+//            Integer oneHz = 1000000;
+//            if (linearAccelerationSensor != null) {
+//                mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, oneHz);// 1000000, 1000000);
+//            }  else {
+//                Log.d(TAG, "No Linear Acceleration Sensor found");
+//            }
+//
+//
+//            if (gyroSensor != null) {
+//                mSensorManager.registerListener(SensorService.this, gyroSensor, oneHz);
+//            } else {
+//                Log.w(TAG, "No Gyroscope Sensor found");
+//            }
+
+            Log.d(TAG, "Registered sensors at slow rate");
         } else { //schedule at normal rate (about 5hz)
             //http://stackoverflow.com/questions/30153904/android-how-to-set-sensor-delay
             if (linearAccelerationSensor != null) {
@@ -187,6 +202,7 @@ public class SensorService extends Service implements SensorEventListener {
             } else {
                 Log.w(TAG, "No Gyroscope Sensor found");
             }
+            Log.d(TAG, "Registered sensors at fast rate");
         }
 
 

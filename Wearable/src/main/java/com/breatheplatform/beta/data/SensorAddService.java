@@ -9,7 +9,6 @@ import android.util.SparseLongArray;
 
 import com.breatheplatform.beta.ClientPaths;
 import com.breatheplatform.beta.shared.Constants;
-import com.breatheplatform.beta.shared.PostData;
 
 import org.json.JSONObject;
 
@@ -90,7 +89,7 @@ public class SensorAddService extends IntentService {
         long t = intent.getLongExtra("time", Constants.NO_VALUE);
         float[] values = intent.getFloatArrayExtra("values");
         int acc = intent.getIntExtra("accuracy", Constants.NO_VALUE);
-        int sType = intent.getIntExtra("sensorType",Constants.NO_VALUE);
+        int sType = intent.getIntExtra("sensorType", Constants.NO_VALUE);
 
 
         if (sType == Constants.TERMINATE_SENSOR_ID) {
@@ -98,17 +97,8 @@ public class SensorAddService extends IntentService {
             clearData();
             return;
         }
-
-
-
-        processSensorData(sType, acc,t,values);
-
-
+        processSensorData(sType, acc, t, values);
     }
-
-    public static PostData pd = new PostData();
-
-
 
     private static float x,y,z;
     private static int energyCount = 0;

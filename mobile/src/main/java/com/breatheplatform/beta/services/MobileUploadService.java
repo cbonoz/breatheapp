@@ -3,6 +3,7 @@ package com.breatheplatform.beta.services;
 import android.app.IntentService;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.breatheplatform.beta.shared.Constants;
@@ -238,7 +239,20 @@ public class MobileUploadService extends IntentService {
                     break;
 
                 case Constants.REGISTER_API:
+                    Integer res = Constants.NO_VALUE;
+                    try {
+                        String jsonString = result.substring(result.indexOf("{"), result.indexOf("}") + 1);
+                        final JSONObject resJson = new JSONObject(jsonString);
+                        res = Integer.parseInt(resJson.getString("result"));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        res = Constants.NO_VALUE;
 
+                    } finally {
+                        Intent i = new Intent(Constants.REGISTER_EVENT);
+                        intent.putExtra("subjectInt", res);
+                        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+                    }
                     break;
 //                case Constants.PUBLIC_KEY_API:
 //                    try {

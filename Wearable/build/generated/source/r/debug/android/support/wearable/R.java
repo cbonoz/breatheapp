@@ -123,8 +123,8 @@ public final class R {
 		public static final int generic_confirmation_animation = 0x7f02007a;
 		public static final int ic_full_cancel = 0x7f020085;
 		public static final int ic_full_sad = 0x7f020086;
-		public static final int open_on_phone = 0x7f0200a7;
-		public static final int open_on_phone_animation = 0x7f0200a8;
+		public static final int open_on_phone = 0x7f0200a8;
+		public static final int open_on_phone_animation = 0x7f0200a9;
 	}
 	public static final class id {
 		public static final int alertTitle = 0x7f0f0066;

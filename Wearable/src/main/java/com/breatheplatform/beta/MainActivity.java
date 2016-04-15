@@ -18,7 +18,9 @@
 package com.breatheplatform.beta;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -32,6 +34,7 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.ConnectivityManager;
@@ -44,6 +47,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.provider.Settings;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.WatchViewStub;
@@ -65,6 +69,7 @@ import com.breatheplatform.beta.bluetooth.HexAsciiHelper;
 import com.breatheplatform.beta.bluetooth.RFduinoService;
 import com.breatheplatform.beta.data.ConnectionReceiver;
 import com.breatheplatform.beta.data.SensorAddService;
+import com.breatheplatform.beta.messaging.AlarmReceiver;
 import com.breatheplatform.beta.messaging.DeviceClient;
 import com.breatheplatform.beta.sensors.SensorService;
 import com.breatheplatform.beta.shared.Constants;
@@ -78,7 +83,6 @@ import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
 
 import org.json.JSONObject;
@@ -86,7 +90,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -94,7 +97,6 @@ import java.util.UUID;
 import me.denley.courier.BackgroundThread;
 import me.denley.courier.Courier;
 import me.denley.courier.ReceiveMessages;
-import me.denley.courier.RemoteNodes;
 
 
 public class MainActivity extends WearableActivity implements BluetoothAdapter.LeScanCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
@@ -201,11 +203,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         ClientPaths.connectionInfo = conn;
     }
 
-    private static Boolean spiroConnected = false;
-    private static Boolean sensorCollecting = false;
-
-
-
     private long mLastClickTime = 0;
 
     //Intervals in MS
@@ -221,6 +218,9 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     private void setupUI() {
         Log.d(TAG, "MainActivity setupUI");
+
+
+
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         //http://stackoverflow.com/questions/5442183/using-the-animated-circle-in-an-imageview-while-loading-stuff
@@ -298,17 +298,10 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (isChecked) {
-
                         Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.START_WRITE);
                         startMeasurement();
-                        try {
-                            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 0, getActivityDetectionPendingIntent()).setResultCallback(MainActivity.this);
-                            Log.d(TAG, "requested activity updates");
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
 
-                        sensorToggled = true;
+
                         Log.d(TAG, "sensorToggle Checked");
                     } else {
                         stopMeasurement();
@@ -318,28 +311,15 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
                         Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.END_WRITE);
 
-                        try {
-                            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, getActivityDetectionPendingIntent()).setResultCallback(MainActivity.this);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
 
-                        sensorToggled = false;
                         Log.d(TAG, "sensorToggle Not Checked");
                     }
                 }
             });
         } else {
             sensorSwitch.setVisibility(View.GONE);
-//            TextView helpText1 = (TextView) findViewById(R.id.helpText1);
-//            helpText1.setVisibility(View.GONE);
-            startMeasurement();
-//            try {
-//                ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 0, getActivityDetectionPendingIntent()).setResultCallback(MainActivity.this);
-//                Log.d(TAG, "requested activity updates");
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
+            if (!sensorToggled)
+                startMeasurement();
         }
 
 
@@ -366,12 +346,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private Boolean sensorToggled = false;
 
     private void createSpiroNotification() {
-//        FragmentManager fragmentManager = getFragmentManager();
-//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//        CardFragment cardFragment = CardFragment.create(getString(R.string.spiro_title),
-//                getString(R.string.spiro_desc));
-//        fragmentTransaction.add(R.id.frame_layout, cardFragment);
-//        fragmentTransaction.commit();
 
         final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
         alertDialog.setTitle(R.string.spiro_title);
@@ -381,14 +355,10 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 alertDialog.dismiss();
             }
         });
-//        alertDialog.setIcon(R.drawable.error_icon);
-//        LayoutInflater inflater = getLayoutInflater();
-//        View dialoglayout = inflater.inflate(R.layout.frame_layout, null);
-        alertDialog.show();
 
-//        cardFragment.dismiss();
-        //remember to set on click dismissal for card
+        alertDialog.show();
     }
+
 
 
     private void createDangerNotification() {
@@ -469,15 +439,34 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         mGoogleApiClient.connect();
     }
 
-    @RemoteNodes
-    void onConnectionStateChanged(List<Node> connectedNodes) {
-        // Do something with the nodes
-        // ...
-        Log.d(TAG, "Remote Nodes: " + connectedNodes.toString());
-        if (!connectedNodes.isEmpty()) {
+    private AlarmManager alarmManager;
+    private PendingIntent alarmIntent;
+    private static final long START_TIME = 60000;
 
-        }
+    private void scheduleNotification(Notification notification, long start, long delay) {
+        Intent notificationIntent = new Intent(this, AlarmReceiver.class);
+        notificationIntent.putExtra(AlarmReceiver.NOTIFICATION_ID, 1);
+        notificationIntent.putExtra(AlarmReceiver.NOTIFICATION, notification);
+        alarmIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, start, delay, alarmIntent);
     }
+
+    private Notification buildSpiroReminder() {
+        Intent viewIntent = new Intent(this, MainActivity.class);
+        viewIntent.putExtra("event-id",0);
+        PendingIntent viewPendingIntent =
+                PendingIntent.getActivity(this, 0, viewIntent, 0);
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(this)
+//                        .setSmallIcon(R.drawable.ic_spiro)
+                        .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_spiro))
+                        .setContentTitle("Breathe Reminder!")
+                        .setContentText("Time to use Spirometer ->")
+                        .setContentIntent(viewPendingIntent);
+        return builder.build();
+    }
+
 
     public void onCreate(Bundle b) {
         super.onCreate(b);
@@ -486,11 +475,10 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
 
 
-        spiroConnected = false;
         ClientPaths.mainContext = this;
 
         WindowManager.LayoutParams layout = getWindow().getAttributes();
-        layout.screenBrightness = .4F; //value between 0 and 1
+        layout.screenBrightness = .25F; //value between 0 and 1
         getWindow().setAttributes(layout);
 
         Courier.startReceiving(this);
@@ -498,9 +486,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         //register sensor listener service
 
-
         setContentView(R.layout.main_activity);
-
 
         stub = (WatchViewStub) findViewById(R.id.stub);
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
@@ -510,13 +496,15 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                     Log.d(TAG, "Layout Inflated - not ambient");
                     mRectBackground = (RelativeLayout) findViewById(R.id.rect_layout);
                     mRoundBackground = (RelativeLayout) findViewById(R.id.round_layout);
+
                     setupUI();
+                    scheduleNotification(buildSpiroReminder(), START_TIME, AlarmManager.INTERVAL_HOUR);
+                    Log.d(TAG, "schedule alarm");
                 } else {
                     Log.d(TAG, "Layout Inflated - ambient");
                 }
             }
         });
-
 
         //start google play registration service
         startRegistrationService();
@@ -524,14 +512,10 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
 //        retrieveDeviceNode(); //set up mobileNode
         setAmbientEnabled();
-
         updateBatteryLevel();
 
-
-        //TODO: Fix connectivity updates (currently this is just single request)
+        //TODO: additional connectivity updates (this is just single request)
         updateConnectivity();
-
-
     }
 
     private Boolean healthDanger = false;
@@ -676,7 +660,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Log.d(TAG, "ReceiveMessage risk: " + value);
         updateRiskUI(value);
 
-        // ...
     }
 
     @BackgroundThread
@@ -797,6 +780,9 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Log.d(TAG, "MainActivity onDestroy");
 
 //        unregisterReceiver(mBroadcastReceiver);
+        if (alarmManager!= null) {
+            alarmManager.cancel(alarmIntent);
+        }
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mHeartReceiver);
         Courier.stopReceiving(this);
@@ -874,7 +860,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         super.onResume();
         Log.d(TAG, "onResume");
         requestSubjectAndUpdateUI();
-
     }
 
 
@@ -1055,12 +1040,29 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private void startMeasurement() {
         Log.i(TAG, "Start Measurement");
         startService(new Intent(getBaseContext(), SensorService.class));
+        sensorToggled = true;
+        try {
+            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 0, getActivityDetectionPendingIntent()).setResultCallback(MainActivity.this);
+            Log.d(TAG, "requested activity updates");
+        } catch (Exception e) {
+//            e.printStackTrace();
+            Log.e(TAG, "connect - activity client not yet connected");
+        }
+
     }
 
 
     private void stopMeasurement() {
         Log.i(TAG, "Stop Measurement");
         stopService(new Intent(getBaseContext(), SensorService.class));
+        sensorToggled = false;
+
+        try {
+            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, getActivityDetectionPendingIntent()).setResultCallback(MainActivity.this);
+        } catch (Exception e) {
+            Log.e(TAG, "disconnect - activity client not yet connected");
+        }
+
     }
 
 
@@ -1469,7 +1471,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 }
 
                 @Override
-
                 public void onServiceDisconnected(ComponentName name) {
                     rfduinoService = null;
                     downgradeState(STATE_DISCONNECTED);

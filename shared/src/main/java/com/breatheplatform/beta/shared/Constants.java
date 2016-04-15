@@ -41,16 +41,17 @@ public class Constants {
     //for broadcast receivers
     public static final String HEART_EVENT = "heart-event";
     public static final String LAST_SENSOR_EVENT = "last-sensor-event";
+    public static final String REGISTER_EVENT = "register-event";
 
     public static final int NO_VALUE = -1;
 
     public static final String START_WRITE = "start";
     public static final String END_WRITE = "end";
 
-    public static final Boolean collecting = true;
-    public static final Boolean encrypting = false;
+    public static final Boolean collecting = false;
+    public static final Boolean encrypting = true;
 
-    public static final Boolean slowSensorRate = false;
+    public static final Boolean slowSensorRate = true;
     public static final Boolean staticApp = true;
 
     public static final String START_MOBILE_SERVICE = "/start-mobile";

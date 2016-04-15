@@ -1,6 +1,6 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:2:1-156:12
+ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:2:1-159:12
 	package
 		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:4:5-39
 		INJECTED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml
@@ -433,7 +433,7 @@ ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main
 	android:name
 		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:42:22-91
 application
-ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:46:5-151:19
+ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:46:5-154:19
 MERGED from [com.android.support:support-v13:23.1.1] /Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/support-v13/23.1.1/AndroidManifest.xml:22:5-20
 MERGED from [com.android.support:support-v4:23.1.1] /Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/support-v4/23.1.1/AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.gms:play-services-wearable:8.4.0] /Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-wearable/8.4.0/AndroidManifest.xml:19:5-20
@@ -795,6 +795,10 @@ MERGED from [com.google.android.gms:play-services-basement:8.4.0] /Users/cbono/D
 		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:133:13-66
 	android:name
 		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:132:13-58
+receiver#com.breatheplatform.beta.messaging.AlarmReceiver
+ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:149:9-151:20
+	android:name
+		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:149:19-58
 activity#com.google.android.gms.ads.AdActivity
 ADDED from [com.google.android.gms:play-services-ads:8.4.0] /Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-ads/8.4.0/AndroidManifest.xml:26:9-29:64
 	android:configChanges

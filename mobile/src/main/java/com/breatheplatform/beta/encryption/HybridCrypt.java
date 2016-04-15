@@ -9,6 +9,7 @@ import com.breatheplatform.beta.R;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
@@ -28,6 +29,7 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * Created by cbono on 4/12/16.
  * https://github.com/scottyab/AESCrypt-Android/blob/master/aescrypt/src/main/java/com/scottyab/aescrypt/AESCrypt.java
+ * http://peetahzee.com/2015/02/securing-data-and-communication-with-rsa-across-android-app-and-python-server/
  */
 public final class HybridCrypt {
 
@@ -37,7 +39,7 @@ public final class HybridCrypt {
     private static final String AES_MODE = "AES/CBC/PKCS7Padding";
     private static final String CHARSET = "UTF-8";
 
-    //HybridCrypt-ObjC uses SHA-256 (and so a 256-bit key)
+    //HybridCrypt-ObjC uses SHA-256 (and so a 256-bit aesKey) - we clip to 128 later
     private static final String HASH_ALGORITHM = "SHA-256";
 
     //HybridCrypt-ObjC uses blank IV (not the best security, but the aim here is compatibility)
@@ -48,13 +50,14 @@ public final class HybridCrypt {
 
 
     private String password;
-    private SecretKeySpec key;
+    private SecretKeySpec aesKey;
+    private PublicKey publicKey;
 
 
     /**
-     * Generates SHA256 hash of the password which is used as key
+     * Generates SHA256 hash of the password which is used as aesKey
      *
-     * @param password used to generated key
+     * @param password used to generated aesKey
      * @return SHA256 of the password
      */
     private SecretKeySpec generateKey(final String password) throws NoSuchAlgorithmException, UnsupportedEncodingException {
@@ -63,7 +66,7 @@ public final class HybridCrypt {
         digest.update(bytes, 0, bytes.length);
         byte[] key = digest.digest();
 
-        log("SHA-256 key ", key);
+        log("SHA-256 aesKey ", key);
 
         SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
         return secretKeySpec;
@@ -72,29 +75,30 @@ public final class HybridCrypt {
     public HybridCrypt(Context c, String pw) {
         password = pw;
         try {
-            key = generateKey(password);
+            aesKey = generateKey(password);
 
         } catch (Exception e) {
             e.printStackTrace();
-            key = null;
+            aesKey = null;
         }
-
-        try {
-            publicKey = getPKfromFile(c);
-        } catch (Exception e) {
-            e.printStackTrace();
-            publicKey = null;
-        }
+//
+//        try {
+//            publicKey = getPKfromFile(c);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            publicKey = null;
+//        }
+        publicKey = loadPublicKey(c);
     }
 
     public String getKeyString() {
-        return Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
+        return Base64.encodeToString(aesKey.getEncoded(), Base64.DEFAULT);
     }
 
 
 
     /**
-     * Encrypt and encode message using 256-bit AES with key generated from password.
+     * Encrypt and encode message using 256-bit AES with aesKey generated from password.
      *
      *
      *
@@ -108,7 +112,7 @@ public final class HybridCrypt {
         try {
             log("message", message);
 
-            byte[] cipherText = encrypt(key, ivBytes, message.getBytes(CHARSET));
+            byte[] cipherText = encrypt(aesKey, ivBytes, message.getBytes(CHARSET));
 
             //NO_WRAP is important as was getting \n at the end
             String encoded = Base64.encodeToString(cipherText, Base64.NO_WRAP);
@@ -124,7 +128,7 @@ public final class HybridCrypt {
 
     /**
      * More flexible AES encrypt that doesn't encode
-     * @param key AES key typically 128, 192 or 256 bit
+     * @param key AES aesKey typically 128, 192 or 256 bit
      * @param iv Initiation Vector
      * @param message in bytes (assumed it's already been decoded)
      * @return Encrypted cipher text (not encoded)
@@ -144,7 +148,7 @@ public final class HybridCrypt {
 
 
     /**
-     * Decrypt and decode ciphertext using 256-bit AES with key generated from password
+     * Decrypt and decode ciphertext using 256-bit AES with aesKey generated from password
      *
 
      * @param base64EncodedCipherText the encrpyted message encoded with base64
@@ -181,7 +185,7 @@ public final class HybridCrypt {
     /**
      * More flexible AES decrypt that doesn't encode
      *
-     * @param key AES key typically 128, 192 or 256 bit
+     * @param key AES aesKey typically 128, 192 or 256 bit
      * @param iv Initiation Vector
      * @param decodedCipherText in bytes (assumed it's already been decoded)
      * @return Decrypted message cipher text (not encoded)
@@ -236,40 +240,40 @@ public final class HybridCrypt {
 
 //    http://stackoverflow.com/questions/9658921/encrypting-aes-key-with-rsa-public-key
 
-    public String encryptRSA(String s)
-    {
-        Cipher cipher = null;
-        byte[] key = null;
-
-        if (publicKey == null) {
-            Log.e(TAG, "Error getting public key for rsa encryption");
-            return null;
-        }
-
-        try
-        {
-            // initialize the cipher with the user's public key
-            cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            key = cipher.doFinal(Base64.decode(s,Base64.DEFAULT));
-
-
-        }
-        catch(Exception e )
-        {
-            System.out.println("exception encoding key: " + e.getMessage());
+    public String encryptRSA(String s)  {
+        try {
+            Cipher c = Cipher.getInstance("RSA");
+            c.init(Cipher.ENCRYPT_MODE, publicKey);
+            byte[] bytes = c.doFinal(s.getBytes());
+            return Base64.encodeToString(bytes, Base64.DEFAULT);
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
-        return Base64.encodeToString(key, Base64.DEFAULT);
     }
 
-    private PublicKey publicKey;
+    public String getEncryptedKey() {
+        Cipher cipher = null;
+        try {
+            // initialize the cipher with the user's public Key
+            cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            return Base64.encodeToString(cipher.doFinal(aesKey.getEncoded()),Base64.DEFAULT);
+        }
+        catch(Exception e )
+        {
+            System.out.println("exception encoding aesKey: " + e.getMessage());
+            e.printStackTrace();
+
+        }
+        return null;
+    }
+
+
 
     private PublicKey getPKfromFile(Context c) throws FileNotFoundException {
         BufferedReader br;
-        br = new BufferedReader(new InputStreamReader(c.getResources().openRawResource(R.raw.pkey)));
+        br = new BufferedReader(new InputStreamReader(c.getResources().openRawResource(R.raw.public_key)));
 
         List<String> lines = new ArrayList<String>();
         String line = null;
@@ -315,10 +319,70 @@ public final class HybridCrypt {
             pk=null;
             Log.e("RSAEncrypter","Invalid Key");
         }
-        Log.d("getPk ", "Retrieved key getPkFromFile: " + pk);
+        Log.d("getPk ", "Retrieved aesKey getPkFromFile: " + pk);
         return pk;
     }
 
-    private HybridCrypt() {
+
+    private PublicKey loadPublicKey(Context c) {
+
+//        BufferedReader br;
+//        br = new BufferedReader(new InputStreamReader(c.getResources().openRawResource(R.raw.pkey)));
+//
+//        List<String> lines = new ArrayList<String>();
+//        String line = null;
+//        try {
+//            while ((line = br.readLine()) != null)
+//                lines.add(line);
+//            br.close();
+//        } catch (IOException e) {
+//        }
+//
+//        if (lines.size() > 1) {
+//            if (lines.get(0).startsWith("-----"))
+//                lines.remove(0);
+//            if (lines.get(lines.size() - 1).startsWith("-----")) {
+//                lines.remove(lines.size() - 1);
+//            }
+//        }
+//
+//        StringBuilder sb = new StringBuilder();
+//        for (String aLine : lines)
+//            sb.append(aLine);
+//        byte[] keyBytes = sb.toString().getBytes();
+
+//        PublicKey pk;
+
+
+
+
+        // This line is a little mysterious, particularly what the heck is a X509EncodedKey?!
+        // It seems that X509 is the default format that openssl outputs in.
+        try {
+            // Gets the file public_key
+            InputStream is = c.getResources().openRawResource(R.raw.public_key);
+
+            // create a new byte array where we're going to store the binary data to
+            byte[] keyBytes = new byte[is.available()];
+
+            // Read from the file
+            is.read(keyBytes);
+            is.close();
+
+            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+
+            // With the aesKey, generate a PublicKey object
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            return kf.generatePublic(spec);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+
+        }
+
     }
+
+
+
+
 }

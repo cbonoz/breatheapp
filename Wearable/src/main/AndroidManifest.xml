@@ -146,6 +146,9 @@
         <!--</service>-->
 
 
+        <receiver android:name=".messaging.AlarmReceiver">
+
+        </receiver>
         <uses-library android:name="com.google.android.wearable" android:required="false" />
 
     </application>

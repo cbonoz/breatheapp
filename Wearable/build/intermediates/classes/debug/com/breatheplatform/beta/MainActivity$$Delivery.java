@@ -32,11 +32,9 @@ public class MainActivity$$Delivery<T extends MainActivity> implements Courier.D
     private Handler handler = new Handler(Looper.getMainLooper());
 
     private Map<T, MessageApi.MessageListener> messageListeners = new LinkedHashMap<T, MessageApi.MessageListener>();
-    private Map<T, NodeApi.NodeListener> nodeListeners = new LinkedHashMap<T, NodeApi.NodeListener>();
 
     public void startReceiving(final Context context, final T target) {
         this.context = context;
-        initNodeListener(target);
         initMessageListener(target);
     }
 
@@ -49,11 +47,6 @@ public class MainActivity$$Delivery<T extends MainActivity> implements Courier.D
         MessageApi.MessageListener ml = messageListeners.remove(target);
         if(ml!=null) {
             WearableApis.getMessageApi().removeListener(apiClient, ml);
-        }
-
-        NodeApi.NodeListener nl = nodeListeners.remove(target);
-        if(nl!=null) {
-            WearableApis.getNodeApi().removeListener(apiClient, nl);
         }
 
     }
@@ -91,38 +84,6 @@ public class MainActivity$$Delivery<T extends MainActivity> implements Courier.D
 
             target.onLabelReceived(as_java_lang_String);
         }
-    }
-
-    private void initNodeListener(final T target) {
-        final NodeApi.NodeListener nl = new NodeApi.NodeListener() {
-            @Override public void onPeerConnected(Node node) {
-                deliverRemoteNodes(target);
-            }
-            @Override public void onPeerDisconnected(Node node) {
-                deliverRemoteNodes(target);
-            }
-        };
-        nodeListeners.put(target, nl);
-        WearableApis.makeWearableApiCall(context, NODE, new WearableApis.WearableApiRunnable() {
-            public void run(GoogleApiClient apiClient){
-                WearableApis.getNodeApi().addListener(apiClient, nl);
-            }
-        });
-        deliverRemoteNodes(target);
-    }
-
-    private void deliverRemoteNodes(final T target) {
-        WearableApis.makeWearableApiCall(context, NODE, new WearableApis.WearableApiRunnable() {
-            public void run(GoogleApiClient apiClient){
-                final List<Node> nodes = WearableApis.getNodeApi().getConnectedNodes(apiClient).await().getNodes();
-
-                handler.post(new Runnable() {
-                    public void run() {
-                        target.onConnectionStateChanged(nodes);
-                    }
-                });
-            }
-        });
     }
 
 }

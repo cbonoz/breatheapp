@@ -130,6 +130,9 @@
         <!-- </intent-filter> -->
         <!-- </service> -->
 
+        <receiver android:name="com.breatheplatform.beta.messaging.AlarmReceiver" >
+        </receiver>
+
         <uses-library
             android:name="com.google.android.wearable"
             android:required="false" />
