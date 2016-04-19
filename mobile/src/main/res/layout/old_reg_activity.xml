@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:inputType="numberPassword"
         android:id="@+id/codeText"
-        android:hint="@string/passcode"
+        android:hint="@string/clinicTextString"
        />
     <Space
         android:layout_width="match_parent"

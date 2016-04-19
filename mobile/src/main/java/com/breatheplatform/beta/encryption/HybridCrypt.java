@@ -48,11 +48,9 @@ public final class HybridCrypt {
     //togglable log option (please turn off in live!)
     public static boolean DEBUG_LOG_ENABLED = false;
 
-
     private String password;
     private SecretKeySpec aesKey;
     private PublicKey publicKey;
-
 
     /**
      * Generates SHA256 hash of the password which is used as aesKey
@@ -94,8 +92,6 @@ public final class HybridCrypt {
     public String getKeyString() {
         return Base64.encodeToString(aesKey.getEncoded(), Base64.DEFAULT);
     }
-
-
 
     /**
      * Encrypt and encode message using 256-bit AES with aesKey generated from password.
@@ -203,9 +199,6 @@ public final class HybridCrypt {
         return decryptedBytes;
     }
 
-
-
-
     private static void log(String what, byte[] bytes) {
         if (DEBUG_LOG_ENABLED)
             Log.d(TAG, what + "[" + bytes.length + "] [" + bytesToHex(bytes) + "]");
@@ -215,7 +208,6 @@ public final class HybridCrypt {
         if (DEBUG_LOG_ENABLED)
             Log.d(TAG, what + "[" + value.length() + "] [" + value + "]");
     }
-
 
     /**
      * Converts byte array to hexidecimal useful for logging and fault finding
@@ -268,8 +260,6 @@ public final class HybridCrypt {
         }
         return null;
     }
-
-
 
     private PublicKey getPKfromFile(Context c) throws FileNotFoundException {
         BufferedReader br;

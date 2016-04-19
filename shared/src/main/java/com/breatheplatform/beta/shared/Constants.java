@@ -8,12 +8,13 @@ import android.hardware.Sensor;
 public class Constants {
     private static final String TAG = "Constants";
 
-    public static final String BASE = "http://www.breatheplatform.com";
+    //secure http
+    public static final String BASE = "https://www.breatheplatform.com";
     public static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";
 
 //    public static final String ACTIVITY_API = "/activity";
     public static final String QUESTION_API = "/question";
-    public static final String REGISTER_API = "/register";
+    public static final String REGISTER_API = "/reg/check";
     public static final String SUBJECT_API = "/api/subject/add";
     public static final String MULTI_API = "/api/multisensor/add";
     public static final String RISK_API = "/api/risk/get";
@@ -52,7 +53,7 @@ public class Constants {
     public static final Boolean encrypting = true;
 
     public static final Boolean slowSensorRate = true;
-    public static final Boolean staticApp = true;
+    public static final Boolean staticApp = false;
 
     public static final String START_MOBILE_SERVICE = "/start-mobile";
 

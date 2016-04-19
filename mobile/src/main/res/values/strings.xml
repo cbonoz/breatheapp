@@ -24,11 +24,11 @@
 
     <string name="not_connected">GoogleApiClient not yet connected. Try again.</string>
 
-    <string name="passcode">Enter Clinician Passcode</string>
+    <string name="clinicTextString">Enter Clinician Email</string>
     <string name="subject">Enter Subject ID</string>
     <string name="submit">Submit</string>
     <string name="welcome">Welcome to Breathe</string>
-    <string name="welcome_text">Enter your provided Clinician Code and Subject ID below to register your patient on the paired Wearable</string>
+    <string name="welcome_text">Enter your Clinician Email and provided Subject ID below to register your patient on the paired Wearable</string>
 
 
     <string name="question_header">Question Activity</string>

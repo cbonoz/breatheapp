@@ -16,7 +16,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.breatheplatform.beta.services.MobileUploadService;
 import com.breatheplatform.beta.shared.Constants;
+
+import org.json.JSONObject;
 
 import me.denley.courier.Courier;
 
@@ -28,24 +31,21 @@ public class RegisterActivity extends Activity {
 
     private static final String TAG = "RegisterActivity";
     private SharedPreferences prefs = null;
-    private static final String CLINIC_CODE = "5555";
+//    private static final String CLINIC_CODE = "5555";
 
-    private EditText codeText;
+    private EditText clinicText;
     private EditText subjectText;
 
-
-    public Boolean acceptCredentials(String sub, String pw) {
-        return !sub.equals("") && pw.equals(CLINIC_CODE);
-    }
-
-
     // handler for received Intents for the "my-event" event
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver mRegisterReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             // Extract data included in the Intent
-            String sub = intent.getStringExtra("subject");
+
+            String sub = intent.getStringExtra("response");
+
             Log.d("receiver", "Got register response, subject " + sub);
+
             if (!sub.equals(""))
                 saveSubjectAndClose(sub);
             else
@@ -55,7 +55,7 @@ public class RegisterActivity extends Activity {
 
 
     private void saveSubjectAndClose(String subject) {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegisterReceiver);
 
         prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
@@ -70,19 +70,35 @@ public class RegisterActivity extends Activity {
 //                    startActivity(new Intent(RegisterActivity.this, MobileActivity.class));
     }
 
+    private String createRegisterRequest(String clinicEmail, String subject_id) {
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("timestamp",System.currentTimeMillis());
+            jsonObject.put("clinician_email", clinicEmail);
+            jsonObject.put("subject_id", subject_id);
+            jsonObject.put("api_key", Constants.API_KEY);
+
+            return jsonObject.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegisterReceiver,
                 new IntentFilter(Constants.REGISTER_EVENT));
 
         setContentView(R.layout.register_activity);
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        codeText = (EditText) findViewById(R.id.codeText);
+        clinicText = (EditText) findViewById(R.id.clinicText);
         subjectText = (EditText) findViewById(R.id.subjectText);
 
         Button subjectButton = (Button) findViewById(R.id.subjectButton);
@@ -92,12 +108,21 @@ public class RegisterActivity extends Activity {
             public void onClick(View v) {
 
                 String sub = subjectText.getText().toString();
-                if (acceptCredentials(sub, codeText.getText().toString())) {
+                String clinicEmail = clinicText.getText().toString();
 
-                    saveSubjectAndClose(sub);
+                String data = createRegisterRequest(clinicEmail,sub);
+
+                if (data == null) {
+                    Log.e(TAG, "data is null - Error creating register request");
+
                 } else {
-                    Toast.makeText(RegisterActivity.this, "Clinician Code / Subject Not Valid", Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(RegisterActivity.this, MobileUploadService.class);
+                    i.putExtra("url", Constants.REGISTER_API);
+                    i.putExtra("data", data);
+                    startService(i);
                 }
+
+
             }
         });
 
@@ -112,12 +137,12 @@ public class RegisterActivity extends Activity {
             }
         });
 
-        codeText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        clinicText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(codeText.getWindowToken(), 0);
+                    imm.hideSoftInputFromWindow(clinicText.getWindowToken(), 0);
                 }
             }
         });

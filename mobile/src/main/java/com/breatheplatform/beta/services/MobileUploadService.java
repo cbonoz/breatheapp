@@ -18,9 +18,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.zip.GZIPInputStream;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 
 import me.denley.courier.Courier;
 
@@ -44,8 +46,12 @@ public class MobileUploadService extends IntentService {
         }
     }
 
+
+
     private static URL multiUrl = createURL(Constants.BASE + Constants.MULTI_API);
     private static URL riskUrl = createURL(Constants.BASE + Constants.RISK_API);
+    private static URL registerUrl = createURL(Constants.BASE + Constants.REGISTER_API);
+
 
     private static String currentNetwork = "";
 
@@ -83,37 +89,33 @@ public class MobileUploadService extends IntentService {
         System.out.println("Output String length : " + outStr.length());
         return outStr;
     }
-
+;
+    private HttpsURLConnection conn;
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        // Gets data from the incoming Intent
-
-//        client = DeviceClient.getInstance(this);
+//      Gets data from the incoming Intent
+//      client = DeviceClient.getInstance(this);
 
         String data = intent.getStringExtra("data");
         String urlString = intent.getStringExtra("url");
-
-
         int statusCode = 0;
         InputStream is = null;
         OutputStream os;
-//        GZIPOutputStream os;
-        HttpURLConnection conn = null;
+
         String result = null;
 
         //determine connection endpoint
         try {
+            if (Constants.staticApp)
+                return;
+
             switch(urlString) {
                 case Constants.RISK_API:
-                    conn = (HttpURLConnection) riskUrl.openConnection();
-                    if (Constants.staticApp) //do not send out risk requests
-                        return;
+                    conn = (HttpsURLConnection) riskUrl.openConnection();
                     break;
                 case Constants.MULTI_API:
-                    conn = (HttpURLConnection) multiUrl.openConnection();
-                    if (!sending) //if not sending data return
-                        return;
+                    conn = (HttpsURLConnection) multiUrl.openConnection();
 //                    try {
 //                        data = decompress(data);
 //                    } catch (Exception e) {
@@ -122,35 +124,32 @@ public class MobileUploadService extends IntentService {
 //                        return;
 //                    }
                     break;
-                case Constants.SUBJECT_API:
-                    URL url = createURL(Constants.BASE + Constants.SUBJECT_API);
-                    if (url!=null)
-                        conn = (HttpURLConnection) url.openConnection();
-                    else {
-                        Log.e(TAG, "Could not open Subject_API url");
-                        return;
-                    }
-                    break;
                 case Constants.REGISTER_API:
-
+                    conn = (HttpsURLConnection) registerUrl.openConnection();
                     break;
                 default:
                     Log.e(TAG, "Unexpected url case for mobile post message: " + urlString);
+                    conn = null;
                     return;
             }
         } catch (Exception e) {
             e.printStackTrace();
+            conn = null;
             return;
         }
-
 
         //start connection
         try {
             byte[] dataBytes = data.getBytes();//.getBytes("ISO-8859-1");
-
             Log.d(TAG, "Data: " + data);
             Log.d(TAG, "data bytes length: " + dataBytes.length);
             Log.d(TAG, "Connecting to: " + conn.getURL().toString());
+
+            // Create the SSL connection
+            SSLContext sc;
+            sc = SSLContext.getInstance("TLS");
+            sc.init(null, null, new java.security.SecureRandom());
+            conn.setSSLSocketFactory(sc.getSocketFactory());
 
 
 //            conn = (HttpURLConnection) url.openConnection();
@@ -160,9 +159,9 @@ public class MobileUploadService extends IntentService {
             conn.setDoInput(true);
             conn.setDoOutput(true);
             conn.setFixedLengthStreamingMode(dataBytes.length);
-//            conn.setRequestProperty("connection", "close"); // disables Keep Alive
 
-            //conn.setChunkedStreamingMode(0);
+//          conn.setRequestProperty("connection", "close"); // disables Keep Alive
+//          conn.setChunkedStreamingMode(0);
 
             //make some HTTP header nicety
             conn.setRequestProperty("Content-Type", "application/json");
@@ -208,21 +207,6 @@ public class MobileUploadService extends IntentService {
             Log.i(TAG, "From " + urlString);
 
             switch (urlString) {
-                case Constants.SUBJECT_API:
-                    try {
-                        String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
-                        final JSONObject resJson = new JSONObject(jsonString);
-                        int newID = Integer.parseInt(resJson.getString("subject_id"));
-                        Log.i(TAG, "Setting new SubjectID: " + newID);
-
-
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-
-                    }
-
-
                 case Constants.RISK_API:
                     try {
                         String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
@@ -239,34 +223,24 @@ public class MobileUploadService extends IntentService {
                     break;
 
                 case Constants.REGISTER_API:
-                    Integer res = Constants.NO_VALUE;
+                    Boolean success = false;
+                    String registered;
                     try {
                         String jsonString = result.substring(result.indexOf("{"), result.indexOf("}") + 1);
                         final JSONObject resJson = new JSONObject(jsonString);
-                        res = Integer.parseInt(resJson.getString("result"));
+                        success = resJson.getBoolean("valid_pair");
+//                        registered = resJson.getString()
+
                     } catch (Exception e) {
                         e.printStackTrace();
-                        res = Constants.NO_VALUE;
+                        success  = false;
 
                     } finally {
                         Intent i = new Intent(Constants.REGISTER_EVENT);
-                        intent.putExtra("subjectInt", res);
-                        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+                        i.putExtra("success", success );
+                        LocalBroadcastManager.getInstance(this).sendBroadcast(i);
                     }
                     break;
-//                case Constants.PUBLIC_KEY_API:
-//                    try {
-//                        String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
-//                        final JSONObject resJson = new JSONObject(jsonString);
-//                        String key = "";
-//                        Constants.writeDataToFile(key, Constants.publicKeyFile, false);
-//                        Constants.createEncrypter();
-//                        break;
-//                    } catch (Exception e) {
-//
-//                        Log.e(TAG, "[Handled] Error response from key api");
-//                        return statusCode + ": JSON Parse Error";
-//                    }
             }
 
 

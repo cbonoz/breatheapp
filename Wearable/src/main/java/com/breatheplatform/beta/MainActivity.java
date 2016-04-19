@@ -498,8 +498,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                     mRoundBackground = (RelativeLayout) findViewById(R.id.round_layout);
 
                     setupUI();
-                    scheduleNotification(buildSpiroReminder(), START_TIME, AlarmManager.INTERVAL_HOUR);
-                    Log.d(TAG, "schedule alarm");
+                    scheduleNotification(buildSpiroReminder(), START_TIME, AlarmManager.INTERVAL_HOUR*2);
+                    Log.d(TAG, "scheduled alarm");
                 } else {
                     Log.d(TAG, "Layout Inflated - ambient");
                 }
@@ -523,7 +523,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private void updateSubjectUI() {
 
         String sub = ClientPaths.subjectId;
-
 
         subjectView = (TextView) findViewById(R.id.subjectText);
         if (subjectView != null) {

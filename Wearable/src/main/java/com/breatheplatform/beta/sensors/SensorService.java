@@ -141,8 +141,6 @@ public class SensorService extends Service implements SensorEventListener {
 
         if (Constants.slowSensorRate) { //normal speed of sensor logging
             if (linearAccelerationSensor != null && gyroSensor != null) {
-//            mSensorManager.registerListener(sensorEventListener, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
-
                 //sum of these achieves sampling rate of 1hz
                 final int measurementDuration = 300;   // ms
                 final int measurementBreak = 700;    // Seconds
@@ -153,7 +151,6 @@ public class SensorService extends Service implements SensorEventListener {
 //                            Log.d(TAG, "register LA Sensor");
                                 mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
                                 mSensorManager.registerListener(SensorService.this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
-
 
                                 try {
                                     Thread.sleep(measurementDuration);
@@ -175,14 +172,14 @@ public class SensorService extends Service implements SensorEventListener {
 
 //            Integer oneHz = 1000000;
 //            if (linearAccelerationSensor != null) {
-//                mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, oneHz);// 1000000, 1000000);
+//                mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, oneHz,0);// 1000000, 1000000);
 //            }  else {
 //                Log.d(TAG, "No Linear Acceleration Sensor found");
 //            }
 //
 //
 //            if (gyroSensor != null) {
-//                mSensorManager.registerListener(SensorService.this, gyroSensor, oneHz);
+//                mSensorManager.registerListener(SensorService.this, gyroSensor, oneHz,0);
 //            } else {
 //                Log.w(TAG, "No Gyroscope Sensor found");
 //            }
@@ -273,9 +270,6 @@ public class SensorService extends Service implements SensorEventListener {
 
     //TODO: this intent will launch questionnaire activity on the phone
     private void requestQuestionnaire() {
-
         Courier.deliverMessage(this, Constants.QUESTION_API, "");
-//        Intent i = new Intent(this, EMAQuestionService.class);
-//        startService(i);
     }
 }

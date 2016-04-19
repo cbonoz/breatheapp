@@ -48,10 +48,10 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="numberPassword"
+            android:inputType="textEmailAddress"
 
-            android:id="@+id/codeText"
-            android:hint="@string/passcode"
+            android:id="@+id/clinicText"
+            android:hint="@string/clinicTextString"
             android:textColor="#15192a" />
         <Space
             android:layout_width="match_parent"
