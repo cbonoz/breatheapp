@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2014 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2014 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -53,6 +52,7 @@
     <string name="remove_activity_updates">Remove updates</string>
     <string name="activity_updates_added">Activity updates added</string>
     <string name="activity_updates_removed">Activity updates removed</string>
+    <string name="my_digital_name">My Breathe WatchFace</string>
 
     <!--<string name="not_connected">GoogleApiClient not yet connected. Try again.</string>-->
 

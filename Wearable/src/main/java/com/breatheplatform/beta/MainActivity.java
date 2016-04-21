@@ -90,6 +90,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -181,7 +182,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     }
 
     //get connectivity and save it
-    private void updateConnectivity() {
+    private void connectivityRequest() {
         final int LEVELS = 5;
         ConnectivityManager cm = ((ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE));
         if (cm == null)
@@ -201,6 +202,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         }
         Log.d(TAG, "Connectivity " + conn);
         ClientPaths.connectionInfo = conn;
+
     }
 
     private long mLastClickTime = 0;
@@ -327,8 +329,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         updateRiskUI(lastRiskValue);
         requestSubjectAndUpdateUI();
 
-        riskRequest();
-        dustAndConnectivityRequest();
+        dustRequest();
 
         Log.i(TAG, "start scheduled risk and dust tasks");
         scheduleRiskRequest();
@@ -440,16 +441,75 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     }
 
     private AlarmManager alarmManager;
-    private PendingIntent alarmIntent;
-    private static final long START_TIME = 60000;
+    private PendingIntent spiroIntent;
+    private PendingIntent questionIntent;
 
-    private void scheduleNotification(Notification notification, long start, long delay) {
+    private static final long ALARM_START_TIME = 60000;
+    private static final long ALARM_DELAY_TIME = 60000;
+
+    private void scheduleNotification(Notification notification, long start, long delay, int id) {
         Intent notificationIntent = new Intent(this, AlarmReceiver.class);
-        notificationIntent.putExtra(AlarmReceiver.NOTIFICATION_ID, 1);
+        notificationIntent.putExtra(AlarmReceiver.NOTIFICATION_ID, id);
         notificationIntent.putExtra(AlarmReceiver.NOTIFICATION, notification);
-        alarmIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        spiroIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, start, delay, alarmIntent);
+        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, start, delay, spiroIntent);
+        Log.d(TAG, "Scheduled Notification " + id);
+    }
+
+    private void scheduleQuestionAtTime(int hour, int minute) {
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        intent.putExtra(AlarmReceiver.NOTIFICATION_ID, Constants.QUESTION_ALARM_ID);
+        questionIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+
+        // Set the alarm to start at approximately the hour and minute given
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+
+        // setInexactRepeating() - AlarmManager.INTERVAL_DAY.
+        //uncomment when ready
+//        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, questionIntent);
+
+        Log.d(TAG, "Scheduled question at time: " + hour + ":" + minute);
+
+    }
+
+    private Notification buildQuestionReminder() {
+
+        // This is what you are going to set a pending intent which will start once
+        // notification is pressed. Hopes you know how to add notification bar.
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        notificationIntent.setAction("android.intent.action.MAIN");
+        notificationIntent.addCategory("android.intent.category.LAUNCHER");
+
+        PendingIntent viewPendingIntent = PendingIntent.getActivity(this, 0,
+                notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        BroadcastReceiver call_method = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action_name = intent.getAction();
+                if (action_name.equals("call_method")) {
+                    //launch question api on phone
+                    Courier.deliverMessage(MainActivity.this, Constants.QUESTION_API,"");
+                }
+            };
+        };
+
+        registerReceiver(call_method, new IntentFilter("call_method"));
+
+
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(this)
+//                        .setSmallIcon(R.drawable.ic_spiro)
+                        .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_spiro))
+                        .setContentTitle("Question Reminder!")
+                        .setContentText("Slide to Answer Questions on Phone->")
+                        .setWhen(System.currentTimeMillis())
+                        .setContentIntent(viewPendingIntent);
+        return builder.build();
     }
 
     private Notification buildSpiroReminder() {
@@ -463,6 +523,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                         .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_spiro))
                         .setContentTitle("Breathe Reminder!")
                         .setContentText("Time to use Spirometer ->")
+                        .setWhen(System.currentTimeMillis())
                         .setContentIntent(viewPendingIntent);
         return builder.build();
     }
@@ -498,8 +559,17 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                     mRoundBackground = (RelativeLayout) findViewById(R.id.round_layout);
 
                     setupUI();
-                    scheduleNotification(buildSpiroReminder(), START_TIME, AlarmManager.INTERVAL_HOUR*2);
-                    Log.d(TAG, "scheduled alarm");
+                    scheduleNotification(buildSpiroReminder(), ALARM_START_TIME, ALARM_DELAY_TIME, Constants.SPIRO_ALARM_ID);//AlarmManager.INTERVAL_HOUR*2);
+                    //Alarms for Questionnaire
+                    //    -7:30am (fixed time)
+                    //    -3:30pm (fixed time)
+                    //    -5-7pm (randomized to occur once between these hours)
+                    //    -7-8pm (randomized to occur once between this hour)
+                    scheduleQuestionAtTime(7,30);
+                    scheduleQuestionAtTime(15,30);
+                    scheduleQuestionAtTime(17,30);
+                    scheduleQuestionAtTime(19, 30);
+
                 } else {
                     Log.d(TAG, "Layout Inflated - ambient");
                 }
@@ -515,7 +585,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         updateBatteryLevel();
 
         //TODO: additional connectivity updates (this is just single request)
-        updateConnectivity();
+        connectivityRequest();
     }
 
     private Boolean healthDanger = false;
@@ -532,15 +602,10 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             Log.e(TAG, "Received subject before layout inflated");
         }
 
-
-
-
         Log.d(TAG, "updated subject UI - " + sub);
-
     }
 
     public void updateRiskUI(int value) {
-
         riskText = (TextView) findViewById(R.id.riskText);
         smileView = (ImageView) findViewById(R.id.smileView);
         String statusString;
@@ -595,6 +660,11 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Log.d(TAG, "updateRiskUI - " + statusString);
     }
 
+    private void updateConnectivityText() {
+        TextView connText = (TextView) findViewById(R.id.connText);
+        connText.setText(ClientPaths.connectionInfo);
+
+    }
 
     private Handler taskHandler = new Handler();
 
@@ -603,32 +673,47 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         public void run()
         {
             riskRequest();
-            updateConnText();
-//            Log.d(TAG, "Connection: " + ClientPaths.connectionInfo);
             updateBatteryLevel();
             taskHandler.postDelayed(this, RISK_TASK_PERIOD);
         }
     };
 
-    private void updateConnText() {
-        TextView connText = (TextView) findViewById(R.id.connText);
-        connText.setText(ClientPaths.connectionInfo);
+    private void riskRequest() {
 
+        Log.d(TAG, "Called riskRequest");
+        try {
+            JSONObject jsonBody = new JSONObject();
+
+            jsonBody.put("timestamp",System.currentTimeMillis());
+            jsonBody.put("subject_id", ClientPaths.subjectId);
+            jsonBody.put("key", Constants.API_KEY);
+            jsonBody.put("battery",ClientPaths.batteryLevel);
+            jsonBody.put("connection", ClientPaths.connectionInfo);
+
+            String data = jsonBody.toString();
+            Log.d(TAG, "risk post: " + data);
+
+            Courier.deliverMessage(this, Constants.RISK_API, data);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "[Handled] Error creating risk post request");
+        }
     }
 
     private Runnable dustTask = new Runnable()
     {
         public void run()
         {
-            dustAndConnectivityRequest();
+            dustRequest();
+            connectivityRequest();
+            updateConnectivityText();
             taskHandler.postDelayed(this, BT_TASK_PERIOD);
 
         }
     };
 
-    private void dustAndConnectivityRequest() {
-        updateConnectivity();
-
+    private void dustRequest() {
         if (!dustConnected) {
             Log.d(TAG, "Dust not connected - attempting to reconnect");
 //            registerDust();
@@ -650,8 +735,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Log.d(TAG, "scheduleDustRequest");
         taskHandler.postDelayed(dustTask, BT_TASK_PERIOD);
     }
-
-
 
     @BackgroundThread
     @ReceiveMessages(Constants.RISK_API)
@@ -688,56 +771,21 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     }
 
 
-    @BackgroundThread
-    @ReceiveMessages(Constants.LABEL_API)
-    void onLabelReceived(String data) { // The nodeId parameter is optional
-        Log.d(TAG, "ReceiveMessage label: " + data);
-        Toast.makeText(this,data, Toast.LENGTH_LONG).show();
-    }
+//    @BackgroundThread
+//    @ReceiveMessages(Constants.LABEL_API)
+//    void onLabelReceived(String data) { // The nodeId parameter is optional
+//        Log.d(TAG, "ReceiveMessage label: " + data);
+//        Toast.makeText(this,data, Toast.LENGTH_LONG).show();
+//    }
 
 //
 //    @BackgroundThread
 //    @ReceiveMessages(Constants.MULTI_API)
-//    void onMultiReceived(int val) { // The nodeId parameter is optional
-//        Log.d(TAG, "ReceiveMessage multi received " + val);
+//    void onMultiReceived(Boolean success) { // The nodeId parameter is optional
+//        Log.d(TAG, "ReceiveMessage multi success: " + success.toString());
 //        // ...
 //    }
 
-
-
-    private void riskRequest() {
-
-        Log.d(TAG, "Called riskRequest");
-        try {
-            JSONObject jsonBody = new JSONObject();
-
-            jsonBody.put("timestamp",System.currentTimeMillis());
-            jsonBody.put("subject_id", ClientPaths.subjectId);
-            jsonBody.put("key", Constants.API_KEY);
-            jsonBody.put("battery",ClientPaths.batteryLevel);
-            jsonBody.put("connection", ClientPaths.connectionInfo);
-
-            String data = jsonBody.toString();
-            Log.d(TAG, "risk post: " + data);
-
-            if (true) { //(ClientPaths.connectionInfo.equals("PROXY")) {
-
-                try {
-                    Courier.deliverMessage(this, Constants.RISK_API, data);
-                } catch (Exception e) {
-                    Log.d(TAG, "courier sent riskapi data (with error)");
-                }
-
-            }
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            Log.e(TAG, "[Handled] Error creating risk post request");
-        }
-
-
-    }
     /**
      * Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
      */
@@ -749,7 +797,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 .addOnConnectionFailedListener(this)
                 .build();
     }
-
 
     @Override
     public void onResult(Status status) {
@@ -763,13 +810,10 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                     + status.getStatusCode() + ", message: " + status
                     .getStatusMessage());
         }
-
-
     }
 
     private PendingIntent getActivityDetectionPendingIntent() {
         Intent intent = new Intent(this, ActivityDetectionService.class);
-
         return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
@@ -779,8 +823,13 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Log.d(TAG, "MainActivity onDestroy");
 
 //        unregisterReceiver(mBroadcastReceiver);
-        if (alarmManager!= null) {
-            alarmManager.cancel(alarmIntent);
+        try {
+            if (alarmManager != null) {
+                alarmManager.cancel(spiroIntent);
+                alarmManager.cancel(questionIntent);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mHeartReceiver);
@@ -822,14 +871,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                     .removeLocationUpdates(mGoogleApiClient, this);
         }
 
-//        if (mGoogleApiClient.isConnected()) {
-//            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
-//                    mGoogleApiClient,
-//                    getActivityDetectionPendingIntent()
-//            ).setResultCallback(this);
-//        }
 
-//        Wearable.DataApi.removeListener(mGoogleApiClient, this);
         mGoogleApiClient.disconnect();
 
         stopMeasurement();
@@ -866,7 +908,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     protected void onPause() {
         super.onPause();
         Log.d(TAG, "onPause");
-
 //        LocalBroadcastManager.getInstance(this).unregisterReceiver(activityReceiver);
 //        onResume();
     }
@@ -1064,9 +1105,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     }
 
-
-
-
 //    private GoogleApiClient activityClient;
     /**
      * Runs when a GoogleApiClient object successfully connects.
@@ -1077,10 +1115,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     @Override
     public void onConnected(Bundle bundle) {
         Log.d(TAG, "GoogleApiClient onConnected");
-
-
         try {
-
             final PendingResult<Status>
                     statusPendingResult =
                     ActivityRecognition.ActivityRecognitionApi
@@ -1185,7 +1220,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Log.d(TAG, "onExitAmbient - add task callbacks");
 
 //        riskRequest();
-        dustAndConnectivityRequest();
+        dustRequest();
         scheduleRiskRequest();
         scheduleDustRequest();
 
@@ -1509,76 +1544,76 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         }
     }
 
-
-    public void dustListen()
-    {
-        Log.d(TAG, "dustListen");
-        final Handler handler = new Handler();
-
-        dustPosition = 0;
-        dustBuffer = new byte[1024];
-
-        //listener worker thread
-        dustThread = new Thread(new Runnable()
-        {
-            public void run()
-            {
-                while(!Thread.currentThread().isInterrupted())
-                {
-                    try
-                    {
-                        int bytesAvailable = dustStream.available();
-                        if(bytesAvailable > 0)
-                        {
-                            byte[] packetBytes = new byte[bytesAvailable];
-                            dustStream.read(packetBytes);
-                            for(int i=0;i<bytesAvailable;i++)
-                            {
-                                byte b = packetBytes[i];
-                                if(b == 0x03)
-                                {
-                                    final byte[] encodedBytes = new byte[readBufferPosition];
-                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
-
-                                    readBufferPosition = 0;
-
-                                    handler.post(new Runnable()
-                                    {
-                                        public void run()
-                                        {
-
-                                            Log.d(TAG, "Received dust data: " + encodedBytes.toString());
-                                            try {
-
-//                                                addSensorData(ActivityConstants.SPIRO_SENSOR_ID, 3, System.currentTimeMillis(), encodedBytes);
-                                                //Toast.makeText(MainActivity.this, "PEF Received: " + data.pef + "!", Toast.LENGTH_SHORT).show();
-
-
-                                            } catch (Exception e) {
-                                                Log.e(TAG, "[handled] error with receiving dust data");
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    });
-                                    break;
-                                }
-                                else
-                                {
-                                    readBuffer[readBufferPosition++] = b;
-                                }
-                            }
-                        }
-                    }
-                    catch (IOException ex)
-                    {
-                        if (dustThread!=null)
-                            dustThread.stop();
-                    }
-                }
-            }
-        });
-        dustThread.start();
-    }
+//
+//    public void dustListen()
+//    {
+//        Log.d(TAG, "dustListen");
+//        final Handler handler = new Handler();
+//
+//        dustPosition = 0;
+//        dustBuffer = new byte[1024];
+//
+//        //listener worker thread
+//        dustThread = new Thread(new Runnable()
+//        {
+//            public void run()
+//            {
+//                while(!Thread.currentThread().isInterrupted())
+//                {
+//                    try
+//                    {
+//                        int bytesAvailable = dustStream.available();
+//                        if(bytesAvailable > 0)
+//                        {
+//                            byte[] packetBytes = new byte[bytesAvailable];
+//                            dustStream.read(packetBytes);
+//                            for(int i=0;i<bytesAvailable;i++)
+//                            {
+//                                byte b = packetBytes[i];
+//                                if(b == 0x03)
+//                                {
+//                                    final byte[] encodedBytes = new byte[readBufferPosition];
+//                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
+//
+//                                    readBufferPosition = 0;
+//
+//                                    handler.post(new Runnable()
+//                                    {
+//                                        public void run()
+//                                        {
+//
+//                                            Log.d(TAG, "Received dust data: " + encodedBytes.toString());
+//                                            try {
+//
+////                                                addSensorData(ActivityConstants.SPIRO_SENSOR_ID, 3, System.currentTimeMillis(), encodedBytes);
+//                                                //Toast.makeText(MainActivity.this, "PEF Received: " + data.pef + "!", Toast.LENGTH_SHORT).show();
+//
+//
+//                                            } catch (Exception e) {
+//                                                Log.e(TAG, "[handled] error with receiving dust data");
+//                                                e.printStackTrace();
+//                                            }
+//                                        }
+//                                    });
+//                                    break;
+//                                }
+//                                else
+//                                {
+//                                    readBuffer[readBufferPosition++] = b;
+//                                }
+//                            }
+//                        }
+//                    }
+//                    catch (IOException ex)
+//                    {
+//                        if (dustThread!=null)
+//                            dustThread.stop();
+//                    }
+//                }
+//            }
+//        });
+//        dustThread.start();
+//    }
 
 
     //append sensor data

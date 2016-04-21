@@ -13,13 +13,10 @@ import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -30,11 +27,8 @@ import me.denley.courier.Courier;
  * Created by cbono on 2/15/16.
  */
 public class MobileUploadService extends IntentService {
-
     private static final String TAG = MobileUploadService.class.getSimpleName();
-
     private static final String CHARSET_UTF8 = "UTF-8";
-
 
     private static URL createURL(String url) {
         try {
@@ -46,18 +40,11 @@ public class MobileUploadService extends IntentService {
         }
     }
 
-
-
     private static URL multiUrl = createURL(Constants.BASE + Constants.MULTI_API);
     private static URL riskUrl = createURL(Constants.BASE + Constants.RISK_API);
     private static URL registerUrl = createURL(Constants.BASE + Constants.REGISTER_API);
 
-
-    private static String currentNetwork = "";
-
     private static Integer newRisk;
-    private static String newResponse = "";
-
 
     //loading a json object could have a large amount of temporary data overhead if the app is not
     // connected to the internet and the sensors are running. Going to use a file approach, where the
@@ -70,27 +57,7 @@ public class MobileUploadService extends IntentService {
     private WifiManager wifiManager;
     private WifiManager.WifiLock lock;
 
-    private static final Boolean sending = false;
-
-//    private DeviceClient client;
-
-    public static String decompress(String str) throws IOException {
-        if (str == null || str.length() == 0) {
-            return str;
-        }
-        System.out.println("Input String length : " + str.length());
-        GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(str.getBytes("ISO-8859-1")));
-        BufferedReader bf = new BufferedReader(new InputStreamReader(gis, "ISO-8859-1"));
-        String outStr = "";
-        String line;
-        while ((line=bf.readLine())!=null) {
-            outStr += line;
-        }
-        System.out.println("Output String length : " + outStr.length());
-        return outStr;
-    }
-;
-    private HttpsURLConnection conn;
+    private HttpsURLConnection conn = null;
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -99,7 +66,7 @@ public class MobileUploadService extends IntentService {
 
         String data = intent.getStringExtra("data");
         String urlString = intent.getStringExtra("url");
-        int statusCode = 0;
+//        int statusCode = 0;
         InputStream is = null;
         OutputStream os;
 
@@ -115,14 +82,9 @@ public class MobileUploadService extends IntentService {
                     conn = (HttpsURLConnection) riskUrl.openConnection();
                     break;
                 case Constants.MULTI_API:
+                    if (!Constants.sendingData)
+                        return;
                     conn = (HttpsURLConnection) multiUrl.openConnection();
-//                    try {
-//                        data = decompress(data);
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                        Log.e(TAG, "Error decompressing data");
-//                        return;
-//                    }
                     break;
                 case Constants.REGISTER_API:
                     conn = (HttpsURLConnection) registerUrl.openConnection();
@@ -140,8 +102,12 @@ public class MobileUploadService extends IntentService {
 
         //start connection
         try {
+
+
+            Log.d(TAG, urlString + " Data: " + data);
+
             byte[] dataBytes = data.getBytes();//.getBytes("ISO-8859-1");
-            Log.d(TAG, "Data: " + data);
+
             Log.d(TAG, "data bytes length: " + dataBytes.length);
             Log.d(TAG, "Connecting to: " + conn.getURL().toString());
 
@@ -175,7 +141,7 @@ public class MobileUploadService extends IntentService {
             os.flush();
             os.close();
 
-            statusCode = conn.getResponseCode();
+//            statusCode = conn.getResponseCode();
 
             StringBuffer sb = new StringBuffer();
 
@@ -228,7 +194,7 @@ public class MobileUploadService extends IntentService {
                     try {
                         String jsonString = result.substring(result.indexOf("{"), result.indexOf("}") + 1);
                         final JSONObject resJson = new JSONObject(jsonString);
-                        success = resJson.getBoolean("valid_pair");
+                        success = resJson.getString("success").equals("True");
 //                        registered = resJson.getString()
 
                     } catch (Exception e) {
@@ -237,7 +203,8 @@ public class MobileUploadService extends IntentService {
 
                     } finally {
                         Intent i = new Intent(Constants.REGISTER_EVENT);
-                        i.putExtra("success", success );
+                        i.putExtra("success", success);
+                        i.putExtra("subject_id",intent.getStringExtra("subject_id"));
                         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
                     }
                     break;
@@ -268,8 +235,12 @@ public class MobileUploadService extends IntentService {
 //                    i.putExtra("risk", newRisk);
                     break;
                 case Constants.MULTI_API:
-                    Courier.deliverMessage(this, Constants.MULTI_API, 1);
-//                    i.putExtra("response", newResponse);
+                    Boolean success = false;
+                    if (result!=null)
+                        success = result.contains("done");
+
+                    Log.d(TAG, "Multi Api success: " + success.toString());
+//                    Courier.deliverMessage(this, Constants.MULTI_API, success);
                     break;
             }
 //            LocalBroadcastManager.getInstance(this).sendBroadcast(i);
@@ -320,5 +291,20 @@ public class MobileUploadService extends IntentService {
 //        }
 //        return everything.toString();
 //    }
-
+//
+//    public static String decompress(String str) throws IOException {
+//        if (str == null || str.length() == 0) {
+//            return str;
+//        }
+//        System.out.println("Input String length : " + str.length());
+//        GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(str.getBytes("ISO-8859-1")));
+//        BufferedReader bf = new BufferedReader(new InputStreamReader(gis, "ISO-8859-1"));
+//        String outStr = "";
+//        String line;
+//        while ((line=bf.readLine())!=null) {
+//            outStr += line;
+//        }
+//        System.out.println("Output String length : " + outStr.length());
+//        return outStr;
+//    }
 }

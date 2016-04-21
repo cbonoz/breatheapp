@@ -4,8 +4,9 @@
     package="com.breatheplatform.beta"
     android:launchMode="singleInstance">
 
-    <uses-sdk android:minSdkVersion="20"
-        android:targetSdkVersion="22" />
+    <!-- <uses-sdk android:minSdkVersion="21" -->
+    <!-- android:targetSdkVersion="22" /> -->
+
 
     <!-- permissions -->
 
@@ -17,59 +18,45 @@
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
-
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE"/>
-
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.BODY_SENSORS" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
-
-    <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
-
-    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION"/>
-
-
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
     <application
-
-
-        tools:replace="android:label"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
-
-
-        <uses-library android:name="com.google.android.wearable"
+        android:theme="@style/AppTheme"
+        tools:replace="android:label">
+        <uses-library
+            android:name="com.google.android.wearable"
             android:required="false" />
 
-
-        <receiver android:name=".data.ConnectionReceiver"
+        <receiver
+            android:name=".data.ConnectionReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".autostart.StartMyActivityAtBootReceiver"
             android:enabled="true"
-
-            android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
 
@@ -77,83 +64,81 @@
             </intent-filter>
         </receiver>
 
-
         <activity
-            android:windowSwipeToDismiss="false"
-            android:launchMode="singleInstance"
-
             android:name=".MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:launchMode="singleInstance"
+            android:windowSwipeToDismiss="false">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <action android:name="com.google.android.google.wearable.app"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>]
+                <action android:name="com.google.android.google.wearable.app" />
 
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            ]
         </activity>
-
-
-
-        <activity
-            android:name="android.support.wearable.activity.ConfirmationActivity">
-        </activity>
+        <activity android:name="android.support.wearable.activity.ConfirmationActivity"/>
 
         <service android:name=".bluetooth.RFduinoService">
             <intent-filter>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
 
-        <!--<service-->
-            <!--android:name="data.ActivityRecognitionService">-->
-        <!--</service>-->
+        <!-- <service -->
+        <!-- android:name="data.ActivityRecognitionService"> -->
+        <!-- </service> -->
 
-        <service
-            android:name=".data.SensorAddService"
-            android:exported="true"/>
-
+        <service android:name=".data.SensorAddService" />
         <service android:name=".sensors.SensorService" />
-
         <service
             android:name=".activity.ActivityDetectionService"
-            android:exported="false">
-        </service>
+            android:exported="false"/>
 
-        <!--<receiver android:name=".data.BatteryReceiver">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.BATTERY_CHANGED"/>-->
-            <!--</intent-filter>-->
-        <!--</receiver>-->
+
+        <!-- <receiver android:name=".data.BatteryReceiver"> -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="android.intent.action.BATTERY_CHANGED"/> -->
+        <!-- </intent-filter> -->
+        <!-- </receiver> -->
 
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
 
+        <receiver android:name=".messaging.AlarmReceiver"/>
 
-        <!--<meta-data-->
-        <!--android:name="com.google.android.gms.version"-->
-        <!--android:value="@integer/google_play_services_version" />-->
+        <uses-library
+            android:name="com.google.android.wearable"
+            android:required="false" />
 
-        <!--<service-->
-        <!--android:name=".data.DataLayerListenerService" >-->
-        <!--<intent-filter>-->
-        <!--<action android:name="com.google.android.gms.wearable.BIND_LISTENER" />-->
-        <!--</intent-filter>-->
-        <!--</service>-->
+        <service
+            android:name=".watchface.MyWatchFace"
+            android:label="@string/my_digital_name"
+            android:permission="android.permission.BIND_WALLPAPER">
+            <meta-data
+                android:name="android.service.wallpaper"
+                android:resource="@xml/watch_face" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.preview"
+                tools:ignore="ManifestResource"
+                android:resource="@drawable/preview_digital" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.preview_circular"
+                tools:ignore="ManifestResource"
+                android:resource="@drawable/preview_digital_circular" />
 
+            <intent-filter>
+                <action android:name="android.service.wallpaper.WallpaperService" />
 
-        <receiver android:name=".messaging.AlarmReceiver">
-
-        </receiver>
-        <uses-library android:name="com.google.android.wearable" android:required="false" />
-
+                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
+            </intent-filter>
+        </service>
     </application>
-
-
-
 
 </manifest>

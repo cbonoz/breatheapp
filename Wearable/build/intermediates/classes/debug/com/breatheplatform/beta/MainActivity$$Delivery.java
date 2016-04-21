@@ -79,10 +79,6 @@ public class MainActivity$$Delivery<T extends MainActivity> implements Courier.D
             final java.lang.String as_java_lang_String = Packager.unpack(context, data, java.lang.String.class);
 
             target.onSubjectReceived(as_java_lang_String);
-        } else if (path.equals("/label")) {
-            final java.lang.String as_java_lang_String = Packager.unpack(context, data, java.lang.String.class);
-
-            target.onLabelReceived(as_java_lang_String);
         }
     }
 

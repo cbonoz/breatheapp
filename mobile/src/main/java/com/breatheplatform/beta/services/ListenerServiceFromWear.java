@@ -71,8 +71,8 @@ public class ListenerServiceFromWear extends WearableListenerService {
     }
 
 
-    public static Boolean unregisterUser = false;
-    public static Boolean writing = true;
+    public static Boolean unregisterUser = true;
+    public static Boolean writeOnce = false;
 
 
 //    protected GoogleApiClient mGoogleApiClient;
@@ -102,7 +102,10 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
     private static final File ROOT = android.os.Environment.getExternalStorageDirectory();
     private static final String sensorDirectory = ROOT + "/SensorData.txt";
-    private static final File sensorFile = createFile(sensorDirectory);
+    private static File sensorFile = null;
+    private static final String rawSensorDirectory = ROOT + "/RawSensorData.txt";
+    private static File rawSensorFile = null;
+
 
     private void startRegisterActivity() {
         Intent i = new Intent();
@@ -118,12 +121,15 @@ public class ListenerServiceFromWear extends WearableListenerService {
         startActivity(i);
     }
 
-
-
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate called");
+
+        if (writeOnce) {
+            sensorFile = createFile(sensorDirectory);
+            rawSensorFile = createFile(rawSensorDirectory);
+        }
 
         if (prefs==null) {
             Log.d(TAG, "getting preferences");
@@ -307,7 +313,9 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
             String data;
 
+
             if (Constants.encrypting) {
+
                 Log.d(TAG, "Encrypting Data");
 
                 //parts[0] = {"timestamp":1460484850245,"subject_id":"3","key":"I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec","battery":99,"connection":"PROXY"
@@ -319,10 +327,12 @@ public class ListenerServiceFromWear extends WearableListenerService {
                 jsonBody.put("enc_key", encKeyString);
 
                 Log.d("encData", encData);
+
+
 //                Log.d("un_data", aes.decrypt(encData));
 
-                Log.d("raw_key", aesKeyString);
-                Log.d("enc_key", encKeyString);
+//                Log.d("raw_key", aesKeyString);
+//                Log.d("enc_key", encKeyString);
 //
 //                try {
 //                    jsonBody = new JSONObject(data);//pd.data);
@@ -338,26 +348,24 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
             data = jsonBody.toString();
 
-            if (writing) {
-                if (Constants.collecting) {
-                    if (labelFile != null) {
-                        writeDataToFile(sensorData, labelFile, true);
-                    } else {
-                        Log.e(TAG, "[Handled] Cancel write, still waiting to update labelfile");
-                    }
-                } else {
-                    //write the first instance of the multi-api post request body (for testing encryption)
 
-                    writeDataToFile(data, sensorFile, false);
-                    if (Constants.encrypting)
-                        Log.d(TAG, "Wrote to file " + sensorFile.toString());
-                    Log.d(TAG, "Writing = false");
-                    writing = false;
+            if (Constants.collecting) {
+                if (labelFile != null) {
+                    writeDataToFile(sensorData, labelFile, true);
+                } else {
+                    Log.e(TAG, "[Handled] Cancel write, still waiting to update labelfile");
                 }
+            }
+
+            //write the first instance of the multi-api post request body (for testing encryption)
+            if (writeOnce) {
+                writeDataToFile(data, sensorFile, false);
+                writeDataToFile(s, rawSensorFile,false);
+                Log.d(TAG, "writeOnce done -> now false");
+                writeOnce = false;
             }
             Intent i = new Intent(this, MobileUploadService.class);
             i.putExtra("data",data);
-            //perhaps add encrypted data bytes here as additional intent parameter
             i.putExtra("url", Constants.MULTI_API);
             startService(i);
         } catch (Exception e) {

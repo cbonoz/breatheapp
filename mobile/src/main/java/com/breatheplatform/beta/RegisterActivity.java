@@ -42,21 +42,28 @@ public class RegisterActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             // Extract data included in the Intent
 
-            String sub = intent.getStringExtra("response");
+            Boolean success = intent.getBooleanExtra("success",false);
+            String subjectId = intent.getStringExtra("subject_id");
+            Log.d("mRegisterReceiver", "success,subject " + success.toString()+","+subjectId);
 
-            Log.d("receiver", "Got register response, subject " + sub);
 
-            if (!sub.equals(""))
-                saveSubjectAndClose(sub);
-            else
+            if (success) {
+                saveSubjectAndClose(subjectId);
+            } else
                 Toast.makeText(RegisterActivity.this, "Clinician Code / Subject Not Valid", Toast.LENGTH_SHORT).show();
         }
     };
 
 
-    private void saveSubjectAndClose(String subject) {
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "RegisterActivity onDestroy");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegisterReceiver);
+    }
 
+
+    private void saveSubjectAndClose(String subject) {
         prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("subject", subject);
@@ -75,7 +82,7 @@ public class RegisterActivity extends Activity {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("timestamp",System.currentTimeMillis());
-            jsonObject.put("clinician_email", clinicEmail);
+            jsonObject.put("email", clinicEmail);
             jsonObject.put("subject_id", subject_id);
             jsonObject.put("api_key", Constants.API_KEY);
 
@@ -87,14 +94,22 @@ public class RegisterActivity extends Activity {
 
     }
 
+    private void createRegisterIntent(String data, String sub) {
+        Intent i = new Intent(this, MobileUploadService.class);
+        i.putExtra("url", Constants.REGISTER_API);
+        i.putExtra("data", data);
+        i.putExtra("subject_id",sub);
+        startService(i);
+        Log.d(TAG, "started register intent");
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.register_activity);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegisterReceiver,
                 new IntentFilter(Constants.REGISTER_EVENT));
-
-        setContentView(R.layout.register_activity);
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
@@ -106,23 +121,16 @@ public class RegisterActivity extends Activity {
 
             @Override
             public void onClick(View v) {
-
                 String sub = subjectText.getText().toString();
                 String clinicEmail = clinicText.getText().toString();
 
-                String data = createRegisterRequest(clinicEmail,sub);
+                String data = createRegisterRequest(clinicEmail, sub);
+                Log.d(TAG, "onClick data: " + data);
 
-                if (data == null) {
+                if (data != null) {
+                   createRegisterIntent(data, sub);
+                } else
                     Log.e(TAG, "data is null - Error creating register request");
-
-                } else {
-                    Intent i = new Intent(RegisterActivity.this, MobileUploadService.class);
-                    i.putExtra("url", Constants.REGISTER_API);
-                    i.putExtra("data", data);
-                    startService(i);
-                }
-
-
             }
         });
 

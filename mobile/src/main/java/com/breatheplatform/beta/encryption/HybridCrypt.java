@@ -107,6 +107,8 @@ public final class HybridCrypt {
 
         try {
             log("message", message);
+            if (message == null)
+                return "";
 
             byte[] cipherText = encrypt(aesKey, ivBytes, message.getBytes(CHARSET));
 

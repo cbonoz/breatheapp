@@ -9,6 +9,10 @@
         android:minSdkVersion="21"
         android:targetSdkVersion="22" />
 
+    <!-- <uses-sdk android:minSdkVersion="21" -->
+    <!-- android:targetSdkVersion="22" /> -->
+
+
     <!-- permissions -->
 
     <uses-feature android:name="android.hardware.type.watch" />
@@ -84,10 +88,9 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-]
+            ]
         </activity>
-        <activity android:name="android.support.wearable.activity.ConfirmationActivity" >
-        </activity>
+        <activity android:name="android.support.wearable.activity.ConfirmationActivity" />
 
         <service android:name="com.breatheplatform.beta.bluetooth.RFduinoService" >
             <intent-filter>
@@ -105,8 +108,32 @@
         <service android:name="com.breatheplatform.beta.sensors.SensorService" />
         <service
             android:name="com.breatheplatform.beta.activity.ActivityDetectionService"
-            android:exported="false" >
+            android:exported="false" />
+
+        <!-- Turn on to enable watch face - used for battery conservation when app in onPause state -->
+        <!--
+        <service
+            android:name=".watchface.BreatheWatchFaceService"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_WALLPAPER" >
+            <meta-data
+                android:name="android.service.wallpaper"
+                android:resource="@layout/watch_face" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.preview"
+                android:resource="@drawable/preview_digital" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.preview_circular"
+                android:resource="@drawable/preview_digital_circular" />
+            <intent-filter>
+                <action android:name="android.service.wallpaper.WallpaperService" />
+                <category
+                    android:name=
+                        "com.google.android.wearable.watchface.category.WATCH_FACE" />
+            </intent-filter>
         </service>
+        -->
+
 
         <!-- <receiver android:name=".data.BatteryReceiver"> -->
         <!-- <intent-filter> -->
@@ -130,66 +157,32 @@
         <!-- </intent-filter> -->
         <!-- </service> -->
 
-        <receiver android:name="com.breatheplatform.beta.messaging.AlarmReceiver" >
-        </receiver>
+        <receiver android:name="com.breatheplatform.beta.messaging.AlarmReceiver" />
 
         <uses-library
             android:name="com.google.android.wearable"
             android:required="false" />
 
-        <!-- Include the AdActivity and InAppPurchaseActivity configChanges and themes. -->
-        <activity
-            android:name="com.google.android.gms.ads.AdActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
-            android:theme="@android:style/Theme.Translucent" />
-        <activity
-            android:name="com.google.android.gms.ads.purchase.InAppPurchaseActivity"
-            android:theme="@style/Theme.IAPTheme" />
-        <activity
-            android:name="com.google.android.gms.appinvite.PreviewActivity"
-            android:exported="true"
-            android:theme="@style/Theme.AppInvite.Preview" >
-            <intent-filter>
-                <action android:name="com.google.android.gms.appinvite.ACTION_PREVIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name="com.google.android.gms.auth.api.signin.internal.SignInHubActivity"
-            android:excludeFromRecents="true"
-            android:exported="false"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <!--
-Service handling Google Sign-In user revocation. For apps that do not integrate with
-            Google Sign-In, this service will never be started.
-        -->
         <service
-            android:name="com.google.android.gms.auth.api.signin.RevocationBoundService"
-            android:exported="true"
-            android:permission="com.google.android.gms.auth.api.signin.permission.REVOCATION_NOTIFICATION" />
+            android:name="com.breatheplatform.beta.watchface.MyWatchFace"
+            android:label="@string/my_digital_name"
+            android:permission="android.permission.BIND_WALLPAPER" >
+            <meta-data
+                android:name="android.service.wallpaper"
+                android:resource="@xml/watch_face" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.preview"
+                android:resource="@drawable/preview_digital" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.preview_circular"
+                android:resource="@drawable/preview_digital_circular" />
 
-        <provider
-            android:name="com.google.android.gms.measurement.AppMeasurementContentProvider"
-            android:authorities="com.breatheplatform.beta.google_measurement_service"
-            android:exported="false" />
-
-        <receiver
-            android:name="com.google.android.gms.measurement.AppMeasurementReceiver"
-            android:enabled="true" >
             <intent-filter>
-                <action android:name="com.google.android.gms.measurement.UPLOAD" />
+                <action android:name="android.service.wallpaper.WallpaperService" />
+
+                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
             </intent-filter>
-        </receiver>
-
-        <service
-            android:name="com.google.android.gms.measurement.AppMeasurementService"
-            android:enabled="true"
-            android:exported="false" />
-
-        <activity
-            android:name="android.support.v7.widget.TestActivity"
-            android:label="RecyclerViewTestActivity" />
+        </service>
     </application>
 
 </manifest>

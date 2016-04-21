@@ -51,9 +51,17 @@ public class Constants {
 
     public static final Boolean collecting = false;
     public static final Boolean encrypting = true;
+    public static final Boolean sendingData = false;
 
     public static final Boolean slowSensorRate = true;
     public static final Boolean staticApp = false;
+
+    public static final int SPIRO_ALARM_ID = 1;
+    public static final int QUESTION_ALARM_ID = 2;
+    public static final int SENSOR_ALARM_ID = 3;
+
+
+    public static final Boolean sensorAlarm = false;
 
     public static final String START_MOBILE_SERVICE = "/start-mobile";
 

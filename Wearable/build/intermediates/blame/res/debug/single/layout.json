@@ -108,6 +108,10 @@
         "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/layout/abc_alert_dialog_button_bar_material.xml"
     },
     {
+        "merged": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/res/merged/debug/layout/watch_face.xml",
+        "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/layout/watch_face.xml"
+    },
+    {
         "merged": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/res/merged/debug/layout/notification_media_cancel_action.xml",
         "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/layout/notification_media_cancel_action.xml"
     },
@@ -210,6 +214,10 @@
     {
         "merged": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/res/merged/debug/layout/support_simple_spinner_dropdown_item.xml",
         "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/layout/support_simple_spinner_dropdown_item.xml"
+    },
+    {
+        "merged": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/res/merged/debug/layout/black_breathe_layout.xml",
+        "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/layout/black_breathe_layout.xml"
     },
     {
         "merged": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/res/merged/debug/layout/abc_screen_simple.xml",

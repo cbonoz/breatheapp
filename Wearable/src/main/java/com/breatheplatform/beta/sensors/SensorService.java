@@ -48,23 +48,29 @@ public class SensorService extends Service implements SensorEventListener {
 //        Log.d(TAG, "onSensorChanged");
         int sensorId = event.sensor.getType();
         long timestamp = event.timestamp;//System.currentTimeMillis();
-        if (sensorId == Constants.HEART_SENSOR_ID) {
-            Float heartRate = event.values[0];
-
-            if (event.accuracy > 1) {
-                checkForQuestionnaire(heartRate);
+        switch (sensorId) {
+            case Constants.HEART_SENSOR_ID:
+                Float heartRate = event.values[0];
+                if (event.accuracy > 1) {
+                    checkForQuestionnaire(heartRate);
+                    addSensorData(sensorId, event.accuracy, timestamp, event.values);
+                } else {
+                    event.values[0] = Constants.NO_VALUE;
+                }
+                //update the heart UI (just heart rate currently)
+                //http://stackoverflow.com/questions/8802157/how-to-use-localbroadcastmanager
+                Intent i = new Intent(Constants.HEART_EVENT);
+                i.putExtra("heartrate", event.values[0]);
+                LocalBroadcastManager.getInstance(SensorService.this).sendBroadcast(i);
+                break;
+            case SENS_GYRO:
+                mSensorManager.unregisterListener(SensorService.this, gyroSensor); //turn off sensor once one measurement received
                 addSensorData(sensorId, event.accuracy, timestamp, event.values);
-            } else {
-                event.values[0] = Constants.NO_VALUE;
-            }
-            //update the heart UI (just heart rate currently)
-            //http://stackoverflow.com/questions/8802157/how-to-use-localbroadcastmanager
-            Intent i = new Intent(Constants.HEART_EVENT);
-            i.putExtra("heartrate",event.values[0]);
-
-            LocalBroadcastManager.getInstance(SensorService.this).sendBroadcast(i);
-        } else {
-            addSensorData(sensorId, event.accuracy, timestamp, event.values);
+                break;
+            case SENS_LINEAR_ACCELERATION:
+                mSensorManager.unregisterListener(SensorService.this, linearAccelerationSensor); //turn off sensor once one measurement received
+                addSensorData(sensorId, event.accuracy, timestamp, event.values);
+                break;
         }
 //            updateLastView(sensorId);
     }
@@ -136,31 +142,44 @@ public class SensorService extends Service implements SensorEventListener {
 
 
 
-        mScheduler = Executors.newScheduledThreadPool(2);
+        //handling sensors via alarm
+        if (Constants.sensorAlarm) {
 
 
+
+
+            return START_STICKY;
+        }
+
+
+        // if handling sensors via background thread
         if (Constants.slowSensorRate) { //normal speed of sensor logging
+
             if (linearAccelerationSensor != null && gyroSensor != null) {
-                //sum of these achieves sampling rate of 1hz
+                //sum of these achieves sampling rate of .5hz// 1hz
+                mScheduler = Executors.newScheduledThreadPool(2);
                 final int measurementDuration = 300;   // ms
-                final int measurementBreak = 700;    // Seconds
+                final int measurementBreak = 1700;    // Seconds
                 mScheduler.scheduleAtFixedRate(
                         new Runnable() {
                             @Override
                             public void run() {
 //                            Log.d(TAG, "register LA Sensor");
-                                mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
-                                mSensorManager.registerListener(SensorService.this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
-
                                 try {
-                                    Thread.sleep(measurementDuration);
-                                } catch (InterruptedException e) {
-                                    Log.e(TAG, "Interrupted while waitting to unregister LA Sensor");
+                                    mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
+                                    mSensorManager.registerListener(SensorService.this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
+//                                try {
+//                                    Thread.sleep(measurementDuration);
+//                                } catch (InterruptedException e) {
+//                                    Log.e(TAG, "Interrupted while waitting to unregister LA Sensor");
+//                                }
 
 //                            Log.d(TAG, "unregister LA Sensor");
-                                mSensorManager.unregisterListener(SensorService.this, linearAccelerationSensor);
-                                mSensorManager.unregisterListener(SensorService.this, gyroSensor);
+//                                mSensorManager.unregisterListener(SensorService.this, linearAccelerationSensor);
+//                                mSensorManager.unregisterListener(SensorService.this, gyroSensor);
 
                             }
                         }, 1, measurementDuration + measurementBreak, TimeUnit.MILLISECONDS);
@@ -219,7 +238,7 @@ public class SensorService extends Service implements SensorEventListener {
                             try {
                                 Thread.sleep(measurementDuration * 1000);
                             } catch (InterruptedException e) {
-                                Log.e(TAG, "Interrupted while waitting to unregister Heartrate Sensor");
+                                Log.e(TAG, "Interrupted while waiting to unregister Heartrate Sensor");
                             }
 
 //                            Log.d(TAG, "unregister Heartrate Sensor");
@@ -245,7 +264,6 @@ public class SensorService extends Service implements SensorEventListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-//        Toast.makeText(sensorEventListener, "SensorService Destroyed", Toast.LENGTH_LONG).show();
         Log.d(TAG, "onDestroy");
 
         if (mSensorManager != null) {
@@ -258,13 +276,11 @@ public class SensorService extends Service implements SensorEventListener {
 
     //append sensor data
     private void addSensorData(final Integer sensorType, final Integer accuracy, final Long t, final float[] values) {
-
         Intent i = new Intent(this, SensorAddService.class);
         i.putExtra("sensorType", sensorType);
         i.putExtra("accuracy", accuracy);
         i.putExtra("time", t);
         i.putExtra("values", values);
-
         startService(i);
     }
 

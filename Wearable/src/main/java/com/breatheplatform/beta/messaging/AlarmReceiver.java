@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.breatheplatform.beta.shared.Constants;
+
 /**
  *
  * Created by cbono on 4/14/16.
@@ -15,7 +17,6 @@ import android.util.Log;
  *
  */
 public class AlarmReceiver extends BroadcastReceiver {
-
     private static final String TAG = "AlarmReceiver";
 
     public static String NOTIFICATION_ID = "notification-id";
@@ -24,15 +25,22 @@ public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         // TODO Auto-generated method stub
-        Log.d(TAG, "alarm called");
-
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification notification = intent.getParcelableExtra(NOTIFICATION);
         int id = intent.getIntExtra(NOTIFICATION_ID, 0);
-        notificationManager.notify(id, notification);
+        Log.d(TAG, "Alarm Called - notification_id: " + id);
+
+        switch (id) {
+            case Constants.SPIRO_ALARM_ID:
+                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                Notification notification = intent.getParcelableExtra(NOTIFICATION);
+                notificationManager.notify(id, notification);
+                break;
+            case Constants.QUESTION_ALARM_ID:
+                //TODO: create reminder and activity intent for questionnaire
+                break;
+            case Constants.SENSOR_ALARM_ID:
+
+                break;
+
+        }
     }
-
-
-
-
 }
