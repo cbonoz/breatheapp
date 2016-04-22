@@ -23,12 +23,10 @@ import me.denley.courier.Courier;
 /**
  * Created by cbono on 4/5/16.
  * http://www.tutorialspoint.com/android/android_services.htm
+ * lowest sampling rate from sensors is 5hz (sensor delay normal)
  */
 public class SensorService extends Service implements SensorEventListener {
-
     private static final String TAG = "SensorService";
-
-    private static float lastHeartRate = Constants.NO_VALUE;
 
     //Sensor related
     private ScheduledExecutorService mScheduler;
@@ -41,6 +39,8 @@ public class SensorService extends Service implements SensorEventListener {
     private static final int SENS_LINEAR_ACCELERATION = Sensor.TYPE_LINEAR_ACCELERATION;
     private static final int SENS_HEARTRATE = Sensor.TYPE_HEART_RATE;
     private static final int SENS_GYRO = Sensor.TYPE_GYROSCOPE;
+
+    private static final int MAX_DELAY = 1000000;
 //    private static final Context context;
 
 
@@ -50,6 +50,8 @@ public class SensorService extends Service implements SensorEventListener {
         long timestamp = event.timestamp;//System.currentTimeMillis();
         switch (sensorId) {
             case Constants.HEART_SENSOR_ID:
+                mSensorManager.unregisterListener(SensorService.this, heartRateSensor);
+
                 Float heartRate = event.values[0];
                 if (event.accuracy > 1) {
                     checkForQuestionnaire(heartRate);
@@ -64,10 +66,12 @@ public class SensorService extends Service implements SensorEventListener {
                 LocalBroadcastManager.getInstance(SensorService.this).sendBroadcast(i);
                 break;
             case SENS_GYRO:
+//                Log.d(TAG, "unregister gyro");
                 mSensorManager.unregisterListener(SensorService.this, gyroSensor); //turn off sensor once one measurement received
                 addSensorData(sensorId, event.accuracy, timestamp, event.values);
                 break;
             case SENS_LINEAR_ACCELERATION:
+//                Log.d(TAG, "unregister linacc");
                 mSensorManager.unregisterListener(SensorService.this, linearAccelerationSensor); //turn off sensor once one measurement received
                 addSensorData(sensorId, event.accuracy, timestamp, event.values);
                 break;
@@ -133,23 +137,18 @@ public class SensorService extends Service implements SensorEventListener {
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
+
         heartRateSensor = mSensorManager.getDefaultSensor(SENS_HEARTRATE);
         linearAccelerationSensor = mSensorManager.getDefaultSensor(SENS_LINEAR_ACCELERATION);
         gyroSensor = mSensorManager.getDefaultSensor(SENS_GYRO);
         //final Sensor heartrateSamsungSensor = mSensorManager.getDefaultSensor(ActivityConstants.REG_HEART_SENSOR_ID );//65562
+//        Log.d(TAG, "sensor delays (ms): heart, lin, gyro");
+//        Log.d("heart",heartRateSensor.getMaxDelay()/1000+"");
+//        Log.d("lin",linearAccelerationSensor.getMaxDelay()/1000+"");
+//        Log.d("gyro",gyroSensor.getMaxDelay()/1000+"");
+
 
         Log.i(TAG, "Start Measurement");
-
-
-
-        //handling sensors via alarm
-        if (Constants.sensorAlarm) {
-
-
-
-
-            return START_STICKY;
-        }
 
 
         // if handling sensors via background thread
@@ -166,18 +165,19 @@ public class SensorService extends Service implements SensorEventListener {
                             public void run() {
 //                            Log.d(TAG, "register LA Sensor");
                                 try {
-                                    mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);
-                                    mSensorManager.registerListener(SensorService.this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
+                                    mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
+                                    mSensorManager.registerListener(SensorService.this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
+
 //                                try {
 //                                    Thread.sleep(measurementDuration);
 //                                } catch (InterruptedException e) {
-//                                    Log.e(TAG, "Interrupted while waitting to unregister LA Sensor");
+//                                    Log.e(TAG, "Interrupted while waiting to unregister LA Sensor");
 //                                }
-
-//                            Log.d(TAG, "unregister LA Sensor");
+//
+//                                Log.d(TAG, "unregister LA Sensor");
 //                                mSensorManager.unregisterListener(SensorService.this, linearAccelerationSensor);
 //                                mSensorManager.unregisterListener(SensorService.this, gyroSensor);
 
@@ -189,67 +189,58 @@ public class SensorService extends Service implements SensorEventListener {
                 Log.d(TAG, "No Linear Acceleration or Gyro Sensor found");
             }
 
-//            Integer oneHz = 1000000;
-//            if (linearAccelerationSensor != null) {
-//                mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, oneHz,0);// 1000000, 1000000);
-//            }  else {
-//                Log.d(TAG, "No Linear Acceleration Sensor found");
-//            }
-//
-//
-//            if (gyroSensor != null) {
-//                mSensorManager.registerListener(SensorService.this, gyroSensor, oneHz,0);
-//            } else {
-//                Log.w(TAG, "No Gyroscope Sensor found");
-//            }
+            if (heartRateSensor != null) {
+                final int measurementDuration = 10;   // Seconds
+                final int measurementBreak = 5;    // Seconds
+
+
+                mScheduler.scheduleAtFixedRate(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+//                            Log.d(TAG, "register Heartrate Sensor");
+                                Log.d(TAG, "Reading Heartrate Sensor");
+                                mSensorManager.registerListener(SensorService.this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL,MAX_DELAY);
+
+                                try {
+                                    Thread.sleep(measurementDuration * 1000);
+                                } catch (InterruptedException e) {
+                                    Log.e(TAG, "Interrupted while waiting to unregister Heartrate Sensor");
+                                }
+
+//                            Log.d(TAG, "unregister Heartrate Sensor");
+                                mSensorManager.unregisterListener(SensorService.this, heartRateSensor);
+                            }
+                        }, 1, measurementDuration + measurementBreak, TimeUnit.SECONDS);
+
+
+            } else {
+                Log.d(TAG, "No Heartrate Sensor found");
+            }
 
             Log.d(TAG, "Registered sensors at slow rate");
         } else { //schedule at normal rate (about 5hz)
             //http://stackoverflow.com/questions/30153904/android-how-to-set-sensor-delay
             if (linearAccelerationSensor != null) {
-                mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL);// 1000000, 1000000);
+                mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);// 1000000, 1000000);
             }  else {
                 Log.d(TAG, "No Linear Acceleration Sensor found");
             }
 
 
             if (gyroSensor != null) {
-                mSensorManager.registerListener(SensorService.this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
+                mSensorManager.registerListener(SensorService.this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
             } else {
                 Log.w(TAG, "No Gyroscope Sensor found");
             }
             Log.d(TAG, "Registered sensors at fast rate");
-        }
 
 
-        if (heartRateSensor != null) {
-            final int measurementDuration = 10;   // Seconds
-            final int measurementBreak = 5;    // Seconds
-
-
-            mScheduler.scheduleAtFixedRate(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-//                            Log.d(TAG, "register Heartrate Sensor");
-                            Log.d(TAG, "Reading Heartrate Sensor");
-                            mSensorManager.registerListener(SensorService.this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
-
-                            try {
-                                Thread.sleep(measurementDuration * 1000);
-                            } catch (InterruptedException e) {
-                                Log.e(TAG, "Interrupted while waiting to unregister Heartrate Sensor");
-                            }
-
-//                            Log.d(TAG, "unregister Heartrate Sensor");
-                            mSensorManager.unregisterListener(SensorService.this, heartRateSensor);
-                        }
-                    }, 1, measurementDuration + measurementBreak, TimeUnit.SECONDS);
-
-
-        } else {
-            Log.d(TAG, "No Heartrate Sensor found");
-        }
+            if (heartRateSensor != null) {
+                mSensorManager.registerListener(SensorService.this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
+            } else {
+                Log.d(TAG, "Samsungs Heartrate Sensor not found");
+            }
 
 
 //        if (heartrateSamsungSensor != null) {
@@ -257,6 +248,8 @@ public class SensorService extends Service implements SensorEventListener {
 //        } else {
 //            Log.d(TAG, "Samsungs Heartrate Sensor not found");
 //        }
+            Log.d(TAG, "Registered sensors at normal rate");
+        }
 
         return START_STICKY;
     }

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
@@ -21,7 +22,9 @@ import com.breatheplatform.beta.shared.Constants;
 
 import org.json.JSONObject;
 
+import me.denley.courier.BackgroundThread;
 import me.denley.courier.Courier;
+import me.denley.courier.ReceiveMessages;
 
 /**
  * Created by cbono on 4/1/16.
@@ -35,6 +38,12 @@ public class RegisterActivity extends Activity {
 
     private EditText clinicText;
     private EditText subjectText;
+    private Handler timeOutHandler;
+    private Runnable timeOutTask = new Runnable() {
+        public void run() {
+            Toast.makeText(RegisterActivity.this, "Please connect Wearable and try again", Toast.LENGTH_SHORT).show();
+        }
+    };
 
     // handler for received Intents for the "my-event" event
     private BroadcastReceiver mRegisterReceiver = new BroadcastReceiver() {
@@ -48,9 +57,12 @@ public class RegisterActivity extends Activity {
 
 
             if (success) {
-                saveSubjectAndClose(subjectId);
+                Courier.startReceiving(RegisterActivity.this);
+                Courier.deliverMessage(RegisterActivity.this, Constants.SUBJECT_API, subjectId);
+                timeOutHandler = new Handler();
+                timeOutHandler.postDelayed(timeOutTask, 5000);
             } else
-                Toast.makeText(RegisterActivity.this, "Clinician Code / Subject Not Valid", Toast.LENGTH_SHORT).show();
+                Toast.makeText(RegisterActivity.this, "Clinician Email / Subject Pair Not Valid", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -62,6 +74,13 @@ public class RegisterActivity extends Activity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegisterReceiver);
     }
 
+    @BackgroundThread
+    @ReceiveMessages(Constants.REGISTERED_API)
+    void onSubjectAcknowledged(String subject) {
+        timeOutHandler.removeCallbacks(timeOutTask);
+        saveSubjectAndClose(subject);
+        Courier.stopReceiving(this);
+    }
 
     private void saveSubjectAndClose(String subject) {
         prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
@@ -69,12 +88,10 @@ public class RegisterActivity extends Activity {
         editor.putString("subject", subject);
         editor.commit();
 
-        RegisterActivity.this.finish();
-
-        Courier.deliverMessage(RegisterActivity.this, Constants.SUBJECT_API, subject);
         Toast.makeText(RegisterActivity.this, "Success - Registered Patient " + subject, Toast.LENGTH_LONG).show();
-        Log.d(TAG, "Starting Mobile Activity - subject now " + prefs.getString("subject", ""));
-//                    startActivity(new Intent(RegisterActivity.this, MobileActivity.class));
+        Log.d(TAG, "Registration successful, closing activity. Subject now " + prefs.getString("subject", ""));
+
+        RegisterActivity.this.finish();
     }
 
     private String createRegisterRequest(String clinicEmail, String subject_id) {
@@ -96,7 +113,7 @@ public class RegisterActivity extends Activity {
 
     private void createRegisterIntent(String data, String sub) {
         Intent i = new Intent(this, MobileUploadService.class);
-        i.putExtra("url", Constants.REGISTER_API);
+        i.putExtra("url", Constants.REG_CHECK_API);
         i.putExtra("data", data);
         i.putExtra("subject_id",sub);
         startService(i);

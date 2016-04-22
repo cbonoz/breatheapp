@@ -34,7 +34,6 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.ConnectivityManager;
@@ -113,8 +112,9 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     private GoogleApiClient mGoogleApiClient;
 
-    private static final int RISK_TASK_PERIOD=10000; //10 seconds
+    private static final int MIN_BATTERY = 5;
 
+    private static final int RISK_TASK_PERIOD=10000; //10 seconds
     private static final int BT_TASK_PERIOD=RISK_TASK_PERIOD*18; //180 seconds
 
     BluetoothAdapter bluetoothAdapter;
@@ -167,13 +167,31 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     private int state;
 
+
+    private static Boolean lowBatteryState = false;
+
     //get battery level and save it
     public void updateBatteryLevel(){
         try {
             IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
             Intent batteryStatus = this.registerReceiver(null, ifilter);
             int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            int previousLevel = ClientPaths.batteryLevel;
             ClientPaths.batteryLevel = level;
+
+
+            if (level <= MIN_BATTERY && !lowBatteryState) {
+
+                Log.d(TAG, "Battery Low - Stopping Activity");
+                lowBatteryState = true;
+                destroyRoutine();
+            } else if (previousLevel<=MIN_BATTERY && lowBatteryState && level > MIN_BATTERY) { //last battery level was low, but not current
+                lowBatteryState = false;
+                resumeAfterLowBattery();
+            }
+
+
+
 
         } catch (Exception e) {
             Log.e(TAG, "[Handled] Error getting battery level value");
@@ -320,7 +338,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             });
         } else {
             sensorSwitch.setVisibility(View.GONE);
-            if (!sensorToggled)
+            if (!sensorToggled && !Constants.sensorAlarm)
                 startMeasurement();
         }
 
@@ -436,31 +454,38 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
-
-        mGoogleApiClient.connect();
     }
 
     private AlarmManager alarmManager;
     private PendingIntent spiroIntent;
     private PendingIntent questionIntent;
+    private PendingIntent sensorIntent;
 
-    private static final long ALARM_START_TIME = 60000;
-    private static final long ALARM_DELAY_TIME = 60000;
+    //units: ms
+    private static final long SPIRO_REMINDER_INTERVAL = 60000;
+    private static final long SENSOR_INTERVAL = 2000;
 
-    private void scheduleNotification(Notification notification, long start, long delay, int id) {
+
+    private void scheduleSensors(long interval) {
+        Intent notificationIntent = new Intent(this, AlarmReceiver.class);
+        notificationIntent.putExtra(AlarmReceiver.NOTIFICATION_ID, Constants.SENSOR_ALARM_ID);
+//        notificationIntent.putExtra(AlarmReceiver.NOTIFICATION, notification);
+        sensorIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, sensorIntent);
+    }
+
+    private void scheduleNotification(Notification notification, long interval, int id) {
         Intent notificationIntent = new Intent(this, AlarmReceiver.class);
         notificationIntent.putExtra(AlarmReceiver.NOTIFICATION_ID, id);
         notificationIntent.putExtra(AlarmReceiver.NOTIFICATION, notification);
         spiroIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, start, delay, spiroIntent);
-        Log.d(TAG, "Scheduled Notification " + id);
+//        alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE); //alternative is ELAPSED_RTC
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+60000,interval, spiroIntent);
+        if (id==Constants.SPIRO_ALARM_ID)
+            Log.d(TAG, "Scheduled spiro at interval " + interval + " ms");
     }
 
     private void scheduleQuestionAtTime(int hour, int minute) {
-        Intent intent = new Intent(this, AlarmReceiver.class);
-        intent.putExtra(AlarmReceiver.NOTIFICATION_ID, Constants.QUESTION_ALARM_ID);
-        questionIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
 
         // Set the alarm to start at approximately the hour and minute given
         Calendar calendar = Calendar.getInstance();
@@ -468,15 +493,28 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
 
+        long reminderTime = calendar.getTimeInMillis();
+
+        Notification notification = buildQuestionReminder(reminderTime);
+
+
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        intent.putExtra(AlarmReceiver.NOTIFICATION_ID, Constants.QUESTION_ALARM_ID);
+        intent.putExtra(AlarmReceiver.NOTIFICATION, notification);
+        questionIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+
+
         // setInexactRepeating() - AlarmManager.INTERVAL_DAY.
         //uncomment when ready
-//        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, questionIntent);
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, reminderTime, AlarmManager.INTERVAL_DAY, questionIntent);
 
         Log.d(TAG, "Scheduled question at time: " + hour + ":" + minute);
 
     }
 
-    private Notification buildQuestionReminder() {
+
+
+    private Notification buildQuestionReminder(long reminderTime) {
 
         // This is what you are going to set a pending intent which will start once
         // notification is pressed. Hopes you know how to add notification bar.
@@ -503,24 +541,25 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this)
-//                        .setSmallIcon(R.drawable.ic_spiro)
-                        .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_spiro))
+                        .setSmallIcon(R.drawable.ic_spiro)
+//                        .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_spiro))
                         .setContentTitle("Question Reminder!")
                         .setContentText("Slide to Answer Questions on Phone->")
-                        .setWhen(System.currentTimeMillis())
+                        .setWhen(reminderTime)
+                        .setVibrate(new long[] { 1000, 1000})
                         .setContentIntent(viewPendingIntent);
         return builder.build();
     }
 
     private Notification buildSpiroReminder() {
         Intent viewIntent = new Intent(this, MainActivity.class);
-        viewIntent.putExtra("event-id",0);
+        viewIntent.putExtra("event-id", 0);
         PendingIntent viewPendingIntent =
                 PendingIntent.getActivity(this, 0, viewIntent, 0);
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this)
-//                        .setSmallIcon(R.drawable.ic_spiro)
-                        .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_spiro))
+                        .setSmallIcon(R.drawable.ic_spiro)
+//                        .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_spiro))
                         .setContentTitle("Breathe Reminder!")
                         .setContentText("Time to use Spirometer ->")
                         .setWhen(System.currentTimeMillis())
@@ -533,9 +572,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         super.onCreate(b);
 
         prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
-
-
-
         ClientPaths.mainContext = this;
 
         WindowManager.LayoutParams layout = getWindow().getAttributes();
@@ -559,16 +595,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                     mRoundBackground = (RelativeLayout) findViewById(R.id.round_layout);
 
                     setupUI();
-                    scheduleNotification(buildSpiroReminder(), ALARM_START_TIME, ALARM_DELAY_TIME, Constants.SPIRO_ALARM_ID);//AlarmManager.INTERVAL_HOUR*2);
-                    //Alarms for Questionnaire
-                    //    -7:30am (fixed time)
-                    //    -3:30pm (fixed time)
-                    //    -5-7pm (randomized to occur once between these hours)
-                    //    -7-8pm (randomized to occur once between this hour)
-                    scheduleQuestionAtTime(7,30);
-                    scheduleQuestionAtTime(15,30);
-                    scheduleQuestionAtTime(17,30);
-                    scheduleQuestionAtTime(19, 30);
+
 
                 } else {
                     Log.d(TAG, "Layout Inflated - ambient");
@@ -579,6 +606,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         //start google play registration service
         startRegistrationService();
         buildApiClient();
+        mGoogleApiClient.connect();
 
 //        retrieveDeviceNode(); //set up mobileNode
         setAmbientEnabled();
@@ -586,6 +614,46 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
         //TODO: additional connectivity updates (this is just single request)
         connectivityRequest();
+
+        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        scheduleAlarms();
+    }
+
+    private void resumeAfterLowBattery() {
+        Log.d(TAG, "Resume after low battery");
+        WindowManager.LayoutParams layout = getWindow().getAttributes();
+        layout.screenBrightness = .25F; //value between 0 and 1
+        getWindow().setAttributes(layout);
+
+        Courier.startReceiving(this);
+        updateBatteryLevel();
+        mGoogleApiClient.connect();
+
+        //TODO: additional connectivity updates (this is just single request)
+        connectivityRequest();
+
+        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        scheduleAlarms();
+
+        exitAmbientRoutine();
+    }
+
+    private void scheduleAlarms() {
+        Log.d(TAG, "Scheduling Alarms");
+        scheduleNotification(buildSpiroReminder(), SPIRO_REMINDER_INTERVAL, Constants.SPIRO_ALARM_ID);//AlarmManager.INTERVAL_HOUR*2);
+
+        if (Constants.sensorAlarm)
+            scheduleSensors(SENSOR_INTERVAL);
+
+        //Alarms for Questionnaire
+        //    -7:30am (fixed time)
+        //    -3:30pm (fixed time)
+        //    -5-7pm (randomized to occur once between these hours)
+        //    -7-8pm (randomized to occur once between this hour)
+        scheduleQuestionAtTime(7, 30);
+        scheduleQuestionAtTime(15, 30);
+        scheduleQuestionAtTime(17, 30);
+        scheduleQuestionAtTime(19, 30);
     }
 
     private Boolean healthDanger = false;
@@ -673,7 +741,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         public void run()
         {
             riskRequest();
-            updateBatteryLevel();
+
             taskHandler.postDelayed(this, RISK_TASK_PERIOD);
         }
     };
@@ -706,8 +774,9 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         public void run()
         {
             dustRequest();
-            connectivityRequest();
-            updateConnectivityText();
+            updateBatteryLevel();
+//            connectivityRequest();
+//            updateConnectivityText();
             taskHandler.postDelayed(this, BT_TASK_PERIOD);
 
         }
@@ -767,6 +836,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         ClientPaths.subjectId = sub;
         Log.d(TAG, "set subject, id now " + sub);
 
+        Courier.deliverMessage(this, Constants.REGISTERED_API, sub);
         updateSubjectUI();
     }
 
@@ -817,16 +887,16 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "MainActivity onDestroy");
+    private void destroyRoutine() {
+
+        setContentView(R.layout.black_layout);
 
 //        unregisterReceiver(mBroadcastReceiver);
         try {
             if (alarmManager != null) {
                 alarmManager.cancel(spiroIntent);
                 alarmManager.cancel(questionIntent);
+                alarmManager.cancel(sensorIntent);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -888,7 +958,13 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         } catch( Exception e) {
             Log.e(TAG, "connReceiver off");
         }
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "MainActivity onDestroy");
+        destroyRoutine();
     }
 
     @Override
@@ -1079,7 +1155,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     //Sensor Related
     private void startMeasurement() {
         Log.i(TAG, "Start Measurement");
-        startService(new Intent(getBaseContext(), SensorService.class));
+        if (!Constants.sensorAlarm)
+            startService(new Intent(getBaseContext(), SensorService.class));
         sensorToggled = true;
         try {
             ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 0, getActivityDetectionPendingIntent()).setResultCallback(MainActivity.this);
@@ -1213,12 +1290,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         setContentView(R.layout.black_layout);
     }
 
-
-    @Override
-    public void onExitAmbient() {
-        super.onExitAmbient();
-        Log.d(TAG, "onExitAmbient - add task callbacks");
-
+    private void exitAmbientRoutine() {
 //        riskRequest();
         dustRequest();
         scheduleRiskRequest();
@@ -1241,6 +1313,15 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 }
             }
         });
+    }
+
+
+    @Override
+    public void onExitAmbient() {
+        super.onExitAmbient();
+        Log.d(TAG, "onExitAmbient - add task callbacks");
+        exitAmbientRoutine();
+
     }
 
     @Override

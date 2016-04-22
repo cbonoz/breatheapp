@@ -43,6 +43,7 @@
     <color name="black_54p">#8A000000</color>
     <color name="black_86p">#DE000000</color>
     <color name="blue">#2979FF</color>
+    <color name="breathe_text">#dddddd</color>
     <color name="bright_foreground_disabled_material_dark">#80ffffff</color>
     <color name="bright_foreground_disabled_material_light">#80000000</color>
     <color name="bright_foreground_inverse_material_dark">@color/bright_foreground_material_light</color>
@@ -265,6 +266,8 @@
     <dimen name="abc_text_size_subtitle_material_toolbar">16dp</dimen>
     <dimen name="abc_text_size_title_material">20sp</dimen>
     <dimen name="abc_text_size_title_material_toolbar">20dp</dimen>
+    <dimen name="breathe_text_size">12dp</dimen>
+    <dimen name="breathe_text_size_round">14dp</dimen>
     <dimen name="card_content_padding_rect_top">4dp</dimen>
     <dimen name="circle_border_normal_width">10dp</dimen>
     <dimen name="circle_padding">5dp</dimen>
@@ -407,7 +410,7 @@
     <string name="mr_media_route_controller_stop">Stop casting</string>
     <string name="mr_system_route_name">System</string>
     <string name="mr_user_route_category_name">Devices</string>
-    <string name="my_digital_name">My Digital</string>
+    <string name="my_digital_name">My Breathe WatchFace</string>
     <string name="no_conn_desc">Please start Breathe App on Mobile Device</string>
     <string name="no_risk">Not Connected</string>
     <string name="notification_title"> Breathe App Notification </string>

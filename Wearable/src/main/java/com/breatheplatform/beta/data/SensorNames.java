@@ -63,7 +63,6 @@ public class SensorNames {
     }
 
     public Integer getServerID(int sensorId) {
-        Integer v = serverSensors.get(sensorId);
-        return v != null ? v : -1;
+        return serverSensors.get(sensorId);
     }
 }

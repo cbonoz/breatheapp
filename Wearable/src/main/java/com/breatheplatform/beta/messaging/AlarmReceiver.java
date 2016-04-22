@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.breatheplatform.beta.sensors.SensorService;
 import com.breatheplatform.beta.shared.Constants;
 
 /**
@@ -22,6 +23,8 @@ public class AlarmReceiver extends BroadcastReceiver {
     public static String NOTIFICATION_ID = "notification-id";
     public static String NOTIFICATION = "notification";
 
+
+
     @Override
     public void onReceive(Context context, Intent intent) {
         // TODO Auto-generated method stub
@@ -30,6 +33,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         switch (id) {
             case Constants.SPIRO_ALARM_ID:
+                Log.d(TAG, "SpiroAlarm");
                 NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 Notification notification = intent.getParcelableExtra(NOTIFICATION);
                 notificationManager.notify(id, notification);
@@ -38,6 +42,14 @@ public class AlarmReceiver extends BroadcastReceiver {
                 //TODO: create reminder and activity intent for questionnaire
                 break;
             case Constants.SENSOR_ALARM_ID:
+                Log.d(TAG, "SensorAlarm");
+                Intent i = new Intent(context, SensorService.class);
+                try {
+                    context.stopService(i);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                context.startService(i);
 
                 break;
 

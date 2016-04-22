@@ -38,11 +38,9 @@ public class SensorAddService extends IntentService {
         return temp;
     }
 
-//    private static JSONArray sensorData = new JSONArray();
     private static StringBuilder sensorData = new StringBuilder();
 
     private static Integer recordCount = 0;
-
     private static Integer RECORD_LIMIT = 50;
 
     private static String tz = initTimeZone();
@@ -62,10 +60,6 @@ public class SensorAddService extends IntentService {
     public SensorAddService() {
         super("SensorAddService");
     }
-
-//    public static void appendData(JSONObject jObj) {
-//        sensorData.put(jObj);
-//    }
 
     public static void clearData() {
         sensorData.setLength(0);
@@ -106,8 +100,8 @@ public class SensorAddService extends IntentService {
     // END WRITE AND SEND BLOCK
     private void processSensorData(final int sensorType, final int accuracy, final long currentTime, final float[] values) {
 
-        long lastTimeStamp = lastSensorData.get(sensorType);
-        long timeAgo = currentTime - lastTimeStamp;
+//        long lastTimeStamp = lastSensorData.get(sensorType);
+//        long timeAgo = currentTime - lastTimeStamp;
         String sensorName = sensorNames.getName(sensorType);
 
         //update UI with new Sensor Name value
@@ -125,12 +119,6 @@ public class SensorAddService extends IntentService {
         JSONObject jsonDataEntry = new JSONObject();
         JSONObject jsonValue = new JSONObject();
 
-
-        Boolean validEvent = true;
-
-
-        //Log.d(TAG, "Received " + sensorName + " (" + sensorType + ") = " + Arrays.toString(values));
-
         try {
 
             switch (sensorType) {
@@ -142,18 +130,13 @@ public class SensorAddService extends IntentService {
                     jsonValue.put("x", x);
                     jsonValue.put("y", y);
                     jsonValue.put("z", z);
+                    jsonValue.put("sensor_accuracy",accuracy);
                     break;
                 case (Sensor.TYPE_HEART_RATE):
-//                case (REG_HEART_SENSOR_ID):
-                    if (values[0]<=0) {
-                        Log.d(TAG, "Received heart data<=0 - skip");
-                        return;
-                    }
-                    jsonValue.put("v", values[0]);
-                    break;
+                    jsonValue.put("sensor_accuracy",accuracy);
                 case (Constants.DUST_SENSOR_ID):
                     if (values[0]<=0) {
-                        Log.d(TAG, "Received dust data<=0 - skip");
+                        Log.d(TAG, "Received " + sensorName + " data<=0 - skip");
                         return;
                     }
                     jsonValue.put("v", values[0]);
@@ -168,14 +151,15 @@ public class SensorAddService extends IntentService {
                     break;
                 case (Constants.ACTIVITY_SENSOR_ID):
                     jsonValue.put("type", values[0]);
+                    jsonValue.put("confidence",accuracy);
                     break;
-                case (Sensor.TYPE_AMBIENT_TEMPERATURE):
-                    //case (Sensor.TYPE_STEP_COUNTER):
-                    jsonValue.put("temp", values[0]);
-                    break;
+//                case (Sensor.TYPE_AMBIENT_TEMPERATURE):
+//                    //case (Sensor.TYPE_STEP_COUNTER):
+//                    jsonValue.put("temp", values[0]);
+//                    break;
                 default:
-                    validEvent = false;
-                    break;
+                    Log.e(TAG, "Unexpected Sensor " + sensorType);
+                    return;
             }
 
 //            if (lastTimeStamp != 0) {
@@ -185,7 +169,7 @@ public class SensorAddService extends IntentService {
 //                }
 //            }
 
-            jsonValue.put("sensor_accuracy",accuracy);
+
             jsonDataEntry.put("value", jsonValue);
 
 //            jsonDataEntry.put("last", lastTimeStamp);
@@ -211,17 +195,12 @@ public class SensorAddService extends IntentService {
             return;
         }
 
-        if (!validEvent) {
-            Log.d(TAG, "Encountered undesired sensor (" + sensorType + "): " + sensorName + ". skipping..");
-            return;
-        }
-
-//        appendData(jsonDataEntry);
         String dataEntry = jsonDataEntry.toString();
+        //sensorData is a stringBuilder
         sensorData.append(dataEntry);
 
         incrementCount();
-        lastSensorData.put(sensorType, currentTime);
+//        lastSensorData.put(sensorType, currentTime);
 
         Log.d(TAG, "Data Added #"+ recordCount + ": " + dataEntry);
 
@@ -268,20 +247,9 @@ public class SensorAddService extends IntentService {
             jsonBody.put("battery",ClientPaths.batteryLevel);
             jsonBody.put("connection", ClientPaths.connectionInfo);
 
-//            MultiData multiData = new MultiData();
-//            multiData.timestamp = System.currentTimeMillis();
-//            multiData.subject_id = ClientPaths.subjectId;
-//            multiData.key = ClientPaths.API_KEY;
-//            multiData.battery = ClientPaths.batteryLevel;
-//            multiData.connection = ClientPaths.connectionInfo;
-//            multiData.data = sensorDataString;
-
             jsonBody.put("data", sensorDataString);
 
-
             String pdString = jsonBody.toString();// + "^^" + sensorDataString;
-
-
 
             Courier.deliverData(ClientPaths.mainContext, Constants.MULTI_API, pdString);
             Log.d(TAG, "courier sent multiapi data");

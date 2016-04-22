@@ -31,6 +31,10 @@ import me.denley.courier.Packager;
 public class ListenerServiceFromWear extends WearableListenerService {
     private static final String TAG = "ListenerServiceFromWear";
 
+
+    private static Boolean unregisterUser = false;
+    private static Boolean writeOnce = false;
+
     /*
      * Receive the message from wear
      */
@@ -71,8 +75,6 @@ public class ListenerServiceFromWear extends WearableListenerService {
     }
 
 
-    public static Boolean unregisterUser = true;
-    public static Boolean writeOnce = false;
 
 
 //    protected GoogleApiClient mGoogleApiClient;

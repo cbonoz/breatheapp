@@ -13,7 +13,7 @@ public final class R {
 		public static final int imageAspectRatioAdjust = 0x7f01005d;
 	}
 	public static final class color {
-		public static final int common_action_bar_splitter = 0x7f0f001d;
+		public static final int common_action_bar_splitter = 0x7f0f001e;
 	}
 	public static final class drawable {
 		public static final int common_full_open_on_phone = 0x7f02004e;

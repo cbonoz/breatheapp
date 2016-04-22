@@ -42,7 +42,7 @@ public class MobileUploadService extends IntentService {
 
     private static URL multiUrl = createURL(Constants.BASE + Constants.MULTI_API);
     private static URL riskUrl = createURL(Constants.BASE + Constants.RISK_API);
-    private static URL registerUrl = createURL(Constants.BASE + Constants.REGISTER_API);
+    private static URL registerUrl = createURL(Constants.BASE + Constants.REG_CHECK_API);
 
     private static Integer newRisk;
 
@@ -86,7 +86,7 @@ public class MobileUploadService extends IntentService {
                         return;
                     conn = (HttpsURLConnection) multiUrl.openConnection();
                     break;
-                case Constants.REGISTER_API:
+                case Constants.REG_CHECK_API:
                     conn = (HttpsURLConnection) registerUrl.openConnection();
                     break;
                 default:
@@ -188,7 +188,7 @@ public class MobileUploadService extends IntentService {
                     }
                     break;
 
-                case Constants.REGISTER_API:
+                case Constants.REG_CHECK_API:
                     Boolean success = false;
                     String registered;
                     try {
