@@ -26,24 +26,17 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
@@ -63,13 +56,8 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.breatheplatform.beta.activity.ActivityDetectionService;
-import com.breatheplatform.beta.bluetooth.BluetoothConnection;
-import com.breatheplatform.beta.bluetooth.HexAsciiHelper;
-import com.breatheplatform.beta.bluetooth.RFduinoService;
-import com.breatheplatform.beta.data.ConnectionReceiver;
 import com.breatheplatform.beta.data.SensorAddService;
 import com.breatheplatform.beta.messaging.AlarmReceiver;
-import com.breatheplatform.beta.messaging.DeviceClient;
 import com.breatheplatform.beta.sensors.SensorService;
 import com.breatheplatform.beta.shared.Constants;
 import com.google.android.gms.common.ConnectionResult;
@@ -99,7 +87,7 @@ import me.denley.courier.Courier;
 import me.denley.courier.ReceiveMessages;
 
 
-public class MainActivity extends WearableActivity implements BluetoothAdapter.LeScanCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+public class MainActivity extends WearableActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         LocationListener,  ResultCallback<Status>
         //,DataApi.DataListener, MessageApi.MessageListener,NodeApi.NodeListener
 {
@@ -115,13 +103,12 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private static final int MIN_BATTERY = 5;
 
     private static final int RISK_TASK_PERIOD=10000; //10 seconds
-    private static final int BT_TASK_PERIOD=RISK_TASK_PERIOD*18; //180 seconds
+
 
     BluetoothAdapter bluetoothAdapter;
     BluetoothSocket mmSocket;
     BluetoothDevice mmDevice;
-    private RFduinoService rfduinoService;
-    private BluetoothDevice bluetoothDevice;
+
     InputStream mmInputStream;
     Thread workerThread;
     byte[] readBuffer;
@@ -140,7 +127,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
 
     private ToggleButton spiroToggleButton;
-    private ConnectionReceiver connReceiver;
+
     private Boolean dustConnected = false;
 
 
@@ -157,16 +144,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private RelativeLayout mRectBackground;
     private RelativeLayout mRoundBackground;
 
-    private DeviceClient client=null;
-
-    // Bluetooth (Dust) State machine
-    final private static int STATE_BLUETOOTH_OFF = 1;
-    final private static int STATE_DISCONNECTED = 2;
-    final private static int STATE_CONNECTING = 3;
-    final private static int STATE_CONNECTED = 4;
-
-    private int state;
-
+//    private DeviceClient client=null;
 
     private static Boolean lowBatteryState = false;
 
@@ -199,29 +177,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         }
     }
 
-    //get connectivity and save it
-    private void connectivityRequest() {
-        final int LEVELS = 5;
-        ConnectivityManager cm = ((ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE));
-        if (cm == null)
-            return;
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        String conn = "None";
-        if (activeNetwork != null) {
-            conn = activeNetwork.getTypeName();
-
-            if (conn.equals("WIFI") && ClientPaths.mainContext!=null) {
-                WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
-                WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-                int level = WifiManager.calculateSignalLevel(wifiInfo.getRssi(), LEVELS);
-                conn += " " + level;
-            }
-
-        }
-        Log.d(TAG, "Connectivity " + conn);
-        ClientPaths.connectionInfo = conn;
-
-    }
 
     private long mLastClickTime = 0;
 
@@ -347,11 +302,11 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         updateRiskUI(lastRiskValue);
         requestSubjectAndUpdateUI();
 
-        dustRequest();
+//        dustRequest();
+//        scheduleDustRequest();
 
-        Log.i(TAG, "start scheduled risk and dust tasks");
         scheduleRiskRequest();
-        scheduleDustRequest();
+
 
 //        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
 //        registerReceiver(connReceiver, filter);
@@ -613,8 +568,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         setAmbientEnabled();
         updateBatteryLevel();
 
-        //TODO: additional connectivity updates (this is just single request)
-        connectivityRequest();
 
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         scheduleAlarms();
@@ -630,8 +583,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         updateBatteryLevel();
         mGoogleApiClient.connect();
 
-        //TODO: additional connectivity updates (this is just single request)
-        connectivityRequest();
+
 
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         scheduleAlarms();
@@ -729,10 +681,9 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Log.d(TAG, "updateRiskUI - " + statusString);
     }
 
-    private void updateConnectivityText() {
+    private void updateConnectivityText(String conn) {
         TextView connText = (TextView) findViewById(R.id.connText);
-        connText.setText(ClientPaths.connectionInfo);
-
+        connText.setText(conn);
     }
 
     private Handler taskHandler = new Handler();
@@ -757,7 +708,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             jsonBody.put("subject_id", ClientPaths.subjectId);
             jsonBody.put("key", Constants.API_KEY);
             jsonBody.put("battery",ClientPaths.batteryLevel);
-            jsonBody.put("connection", ClientPaths.connectionInfo);
+//            jsonBody.put("connection", ClientPaths.connectionInfo);
 
             String data = jsonBody.toString();
             Log.d(TAG, "risk post: " + data);
@@ -770,40 +721,11 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         }
     }
 
-    private Runnable dustTask = new Runnable()
-    {
-        public void run()
-        {
-            dustRequest();
-            updateBatteryLevel();
-//            connectivityRequest();
-//            updateConnectivityText();
-            taskHandler.postDelayed(this, BT_TASK_PERIOD);
 
-        }
-    };
-
-    private void dustRequest() {
-        if (!dustConnected) {
-            Log.d(TAG, "Dust not connected - attempting to reconnect");
-//            registerDust();
-            findBT(Constants.DUST_SENSOR_ID);
-            if (dustDevice != null) {
-                if (openDust()) {
-                    Log.d(TAG, "Opened dust connection");
-                }
-            }
-        }
-    }
 
     private void scheduleRiskRequest() {
         Log.d(TAG, "scheduleRiskRequest");
         taskHandler.postDelayed(riskTask, RISK_TASK_PERIOD);
-    }
-
-    private void scheduleDustRequest() {
-        Log.d(TAG, "scheduleDustRequest");
-        taskHandler.postDelayed(dustTask, BT_TASK_PERIOD);
     }
 
     @BackgroundThread
@@ -923,19 +845,9 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             Log.e(TAG, "Risk Timer off");
         }
 
-        try {
-            taskHandler.removeCallbacks(dustTask);
-        } catch (Exception e) {
-            Log.e(TAG, "Dust scan off");
-        }
 
 
-        try {
-            unbindService(rfduinoServiceConnection);
-            Log.d(TAG, "unbound rfduinoService");
-        } catch (Exception e) {
-            Log.e(TAG, "unbind rfduinoService");
-        }
+
 
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi
@@ -947,12 +859,10 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
         stopMeasurement();
         closeSpiro();
-        closeDust();
-//        unregisterDust(); //old method of connecting to dust sensor
+
 
         try {
-            if (connReceiver != null)
-                unregisterReceiver(connReceiver);
+
 
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mLastReceiver);
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mHeartReceiver);
@@ -994,130 +904,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             lastSensorView.setText("Last: " + sensorName + "\nDust Sensor: " + (dustConnected ? "Yes" : "No"));
     }
 
-    private void unregisterDust() {
-        Log.d(TAG, "Unregister Dust");
-//        try {
-//            bluetoothAdapter.stopLeScan(this);
-//        } catch (Exception e) {
-//            Log.e(TAG, "stopLeScan");
-//        }
-        try {
-            if (scanModeReceiver != null)
-                unregisterReceiver(scanModeReceiver);
 
-            if (bluetoothStateReceiver != null)
-                unregisterReceiver(bluetoothStateReceiver);
-
-            if (rfduinoReceiver != null)
-                unregisterReceiver(rfduinoReceiver);
-            unbindService(rfduinoServiceConnection);
-        } catch (Exception e) {
-            Log.e(TAG, "[Handled] Error unregistering dust receiver");
-
-        }
-    }
-
-    private void addData(byte[] data) {
-        //Log.i(TAG, "in BT addData");
-        String ascii = HexAsciiHelper.bytesToAsciiMaybe(data);
-        if (ascii != null) {
-            processReceivedDustData(ascii);
-        }
-    }
-
-    public void processReceivedDustData(String receiveBuffer) {
-//        Log.d("processDust receiveBuffer", receiveBuffer);
-        //example: B:0353E
-        String dustData = receiveBuffer.substring(2,6);
-
-        float[] vals = new float[]{Constants.NO_VALUE};
-        try {
-            vals[0] = Integer.parseInt(dustData);
-        } catch (Exception e) {
-            e.printStackTrace();
-            vals[0] = Constants.NO_VALUE;
-            return;
-        }
-        Log.d(TAG, receiveBuffer + " Dust Reading: " + vals[0]);
-
-        addSensorData(Constants.DUST_SENSOR_ID, Constants.NO_VALUE, System.currentTimeMillis(), vals);
-
-
-    }
-
-    private void upgradeState(int newState) {
-        if (newState > state) {
-            updateState(newState);
-        }
-    }
-
-    private void downgradeState(int newState) {
-        if (newState < state) {
-            updateState(newState);
-        }
-    }
-
-    private void updateState(int newState) {
-        state = newState;
-    }
-
-
-    @Override
-    public void onLeScan(BluetoothDevice device, final int rssi, final byte[] scanRecord) {
-        bluetoothAdapter.stopLeScan(this);
-        bluetoothDevice = device;
-
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //scan for bluetooth device that contains RF
-                if (bluetoothDevice.getName().contains(Constants.DUST_BT_NAME)) {
-                    Log.i(TAG, "Found RF Device: " + bluetoothDevice.getName());
-                    Intent rfduinoIntent = new Intent(MainActivity.this, RFduinoService.class);
-                    bindService(rfduinoIntent, rfduinoServiceConnection, BIND_AUTO_CREATE);
-                }
-            }
-        });
-    }
-
-    private final BroadcastReceiver bluetoothStateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
-            if (state == BluetoothAdapter.STATE_ON) {
-                upgradeState(STATE_DISCONNECTED);
-            } else if (state == BluetoothAdapter.STATE_OFF) {
-                downgradeState(STATE_BLUETOOTH_OFF);
-            }
-        }
-    };
-
-
-    private final BroadcastReceiver scanModeReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // = (bluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_NONE);
-        }
-    };
-
-
-    private final BroadcastReceiver rfduinoReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (RFduinoService.ACTION_CONNECTED.equals(action)) {
-                upgradeState(STATE_CONNECTED);
-                dustConnected = true;
-                Log.d("rfduinoReceiver", "connected");
-            } else if (RFduinoService.ACTION_DISCONNECTED.equals(action)) {
-                downgradeState(STATE_DISCONNECTED);
-                dustConnected = false;
-                Log.d("rfduinoReceiver", "disconnected");
-            } else if (RFduinoService.ACTION_DATA_AVAILABLE.equals(action)) {
-                addData(intent.getByteArrayExtra(RFduinoService.EXTRA_DATA));
-            }
-        }
-    };
 
     public void onFinishActivity(View view) {
         setResult(RESULT_OK);
@@ -1279,7 +1066,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Log.d(TAG, "onEnterAmbient - remove task callbacks");
         try {
             taskHandler.removeCallbacks(riskTask);
-            taskHandler.removeCallbacks(dustTask);
+//            taskHandler.removeCallbacks(dustTask);
 
 
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mLastReceiver);
@@ -1294,9 +1081,10 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     private void exitAmbientRoutine() {
 //        riskRequest();
-        dustRequest();
+//        dustRequest();
+//        scheduleDustRequest();
         scheduleRiskRequest();
-        scheduleDustRequest();
+
 
         Log.d(TAG, "Set main layout");
         setContentView(R.layout.main_activity);
@@ -1376,24 +1164,25 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
                 }
             }
             Log.d(TAG, "findBT did not find paired spiro device");
-        } else if (type == Constants.DUST_SENSOR_ID){
-            dustDevice = null;
-            if (pairedDevices.size() > 0) {
-                String deviceName;
-                for (BluetoothDevice device : pairedDevices) {
-                    deviceName = device.getName();
-
-                    if (deviceName.contains(Constants.DUST_BT_NAME)) {
-                        dustDevice = device;
-                        Log.d("yjcode", "Detected RFduino device: " + deviceName + " " + dustDevice.getAddress());
-                        //add connection for RF duino here as well
-                        return true;
-                    }
-                }
-            }
-            Log.d(TAG, "findBT did not find paired dustdevice");
-
         }
+//        else if (type == Constants.DUST_SENSOR_ID){
+//            dustDevice = null;
+//            if (pairedDevices.size() > 0) {
+//                String deviceName;
+//                for (BluetoothDevice device : pairedDevices) {
+//                    deviceName = device.getName();
+//
+//                    if (deviceName.contains(Constants.DUST_BT_NAME)) {
+//                        dustDevice = device;
+//                        Log.d("yjcode", "Detected RFduino device: " + deviceName + " " + dustDevice.getAddress());
+//                        //add connection for RF duino here as well
+//                        return true;
+//                    }
+//                }
+//            }
+//            Log.d(TAG, "findBT did not find paired dustdevice");
+//
+//        }
 
 
 
@@ -1401,7 +1190,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
     }
 
-    private BluetoothConnection spiroConn = null;
 
     public Boolean openSpiro()
     {
@@ -1545,172 +1333,6 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     }
 
 
-
-    BluetoothSocket dustSocket;
-    BluetoothDevice dustDevice;
-    InputStream dustStream;
-    int dustPosition;
-    byte[] dustBuffer;
-    Thread dustThread;
-
-    private BluetoothConnection dustConn=null;
-
-    private ServiceConnection rfduinoServiceConnection=null;
-
-    public Boolean openDust() {
-        try {
-//            UUID uuid = UUID.fromString("00002221-0000-1000-8000-00805f9b34fb"); //rfduino listen service
-//            bluetoothAdapter.cancelDiscovery();
-//            dustSocket = dustDevice.createRfcommSocketToServiceRecord(uuid);
-//            Method m = dustDevice.getClass().getMethod("createRfcommSocket", new Class[]{int.class});
-//            dustSocket = (BluetoothSocket) m.invoke(dustDevice, 1);
-//
-////            dustSocket = dustDevice.createRfcommSocketToServiceRecord(uuid);
-//            dustSocket.connect();
-//            dustStream = dustSocket.getInputStream();
-//            dustListen();
-
-//            dustConn = new BluetoothConnection(dustDevice,this);
-//            dustConn.run();
-
-//            try {
-//                unbindService(rfduinoServiceConnection);
-//                Log.d(TAG, "unbound rfduinoService");
-//            } catch (Exception e) {
-//                Log.e(TAG, "unbind rfduinoService");
-//            }
-            if (rfduinoServiceConnection!=null) {
-                try {
-                    unregisterDust();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "unregisterDust");
-                }
-            }
-
-            rfduinoServiceConnection = new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder service) {
-                    rfduinoService = ((RFduinoService.LocalBinder) service).getService();
-                    if (rfduinoService.initialize()) {
-                        boolean result = rfduinoService.connect(dustDevice);
-
-                        if (result) {
-                            upgradeState(STATE_CONNECTING);
-                        }
-                    }
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-                    rfduinoService = null;
-                    downgradeState(STATE_DISCONNECTED);
-                }
-            };
-
-            Intent rfduinoIntent = new Intent(MainActivity.this, RFduinoService.class);
-            bindService(rfduinoIntent, rfduinoServiceConnection, BIND_AUTO_CREATE);
-
-            try {
-                registerReceiver(scanModeReceiver, new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED));
-                registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
-                registerReceiver(rfduinoReceiver, RFduinoService.getIntentFilter());
-            } catch ( Exception e) {
-                e.printStackTrace();
-                Log.d(TAG, "[Handled] Receivers registered already");
-
-            }
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, "[Handled] openDust unsuccessful");
-            return false;
-        }
-        Log.d(TAG, "Dust Bluetooth Opened");
-        return true;
-    }
-
-    public void closeDust() {
-        try {
-            unregisterDust();
-            Log.d(TAG, "dust bluetooth closed");
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, "[Handled] closeDust");
-        }
-    }
-
-//
-//    public void dustListen()
-//    {
-//        Log.d(TAG, "dustListen");
-//        final Handler handler = new Handler();
-//
-//        dustPosition = 0;
-//        dustBuffer = new byte[1024];
-//
-//        //listener worker thread
-//        dustThread = new Thread(new Runnable()
-//        {
-//            public void run()
-//            {
-//                while(!Thread.currentThread().isInterrupted())
-//                {
-//                    try
-//                    {
-//                        int bytesAvailable = dustStream.available();
-//                        if(bytesAvailable > 0)
-//                        {
-//                            byte[] packetBytes = new byte[bytesAvailable];
-//                            dustStream.read(packetBytes);
-//                            for(int i=0;i<bytesAvailable;i++)
-//                            {
-//                                byte b = packetBytes[i];
-//                                if(b == 0x03)
-//                                {
-//                                    final byte[] encodedBytes = new byte[readBufferPosition];
-//                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
-//
-//                                    readBufferPosition = 0;
-//
-//                                    handler.post(new Runnable()
-//                                    {
-//                                        public void run()
-//                                        {
-//
-//                                            Log.d(TAG, "Received dust data: " + encodedBytes.toString());
-//                                            try {
-//
-////                                                addSensorData(ActivityConstants.SPIRO_SENSOR_ID, 3, System.currentTimeMillis(), encodedBytes);
-//                                                //Toast.makeText(MainActivity.this, "PEF Received: " + data.pef + "!", Toast.LENGTH_SHORT).show();
-//
-//
-//                                            } catch (Exception e) {
-//                                                Log.e(TAG, "[handled] error with receiving dust data");
-//                                                e.printStackTrace();
-//                                            }
-//                                        }
-//                                    });
-//                                    break;
-//                                }
-//                                else
-//                                {
-//                                    readBuffer[readBufferPosition++] = b;
-//                                }
-//                            }
-//                        }
-//                    }
-//                    catch (IOException ex)
-//                    {
-//                        if (dustThread!=null)
-//                            dustThread.stop();
-//                    }
-//                }
-//            }
-//        });
-//        dustThread.start();
-//    }
 
 
     //append sensor data

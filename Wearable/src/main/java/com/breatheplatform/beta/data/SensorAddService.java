@@ -236,7 +236,7 @@ public class SensorAddService extends IntentService {
             jsonBody.put("subject_id", ClientPaths.subjectId);
             jsonBody.put("key", Constants.API_KEY);
             jsonBody.put("battery",ClientPaths.batteryLevel);
-            jsonBody.put("connection", ClientPaths.connectionInfo);
+//            jsonBody.put("connection", ClientPaths.connectionInfo);
 
             jsonBody.put("data", sensorDataString);
 

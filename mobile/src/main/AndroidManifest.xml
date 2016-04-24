@@ -49,6 +49,13 @@
         <service android:name=".services.MobileUploadService" />
         <service android:name=".services.CalendarService" />
 
+        <service android:name=".bluetooth.RFduinoService">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
+
 
         <!-- android:windowSwipeToDismiss="false" -->
         <!-- android:theme="@android:style/Theme.NoDisplay" -->

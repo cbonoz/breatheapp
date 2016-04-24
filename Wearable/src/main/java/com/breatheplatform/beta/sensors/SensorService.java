@@ -64,19 +64,21 @@ public class SensorService extends Service implements SensorEventListener {
             case ClientPaths.HEART_SENSOR_ID:
             case ClientPaths.SS_HEART_SENSOR_ID:
                 float heartRate = event.values[0];
-
-                if (event.accuracy > 2) { //or 1 if want more data
-                    checkForQuestionnaire(heartRate);
-                    addSensorData(sensorId, event.accuracy, timestamp, event.values);
-                    //update the heart UI (just heart rate currently)
-                    //http://stackoverflow.com/questions/8802157/how-to-use-localbroadcastmanager
+                if (event.accuracy > 1) {
                     Intent i = new Intent(Constants.HEART_EVENT);
                     i.putExtra("heartrate", heartRate);
                     LocalBroadcastManager.getInstance(SensorService.this).sendBroadcast(i);
-                } else {
-                    Log.d(TAG, "heart rate " + heartRate + " accuracy too low: " + event.accuracy);
-                }
 
+                    if (event.accuracy > 2) { //or 1 if want more data
+                        checkForQuestionnaire(heartRate);
+                        addSensorData(sensorId, event.accuracy, timestamp, event.values);
+                        //update the heart UI (just heart rate currently)
+                        //http://stackoverflow.com/questions/8802157/how-to-use-localbroadcastmanager
+
+                    } else {
+                        Log.d(TAG, "heart rate " + heartRate + " accuracy too low: " + event.accuracy);
+                    }
+                }
                 break;
             case SENS_GYRO:
                 gyroCount++;
@@ -224,7 +226,7 @@ public class SensorService extends Service implements SensorEventListener {
 
             if (heartRateSensor != null) {
                 final int measurementDuration = 5;   // Seconds
-                final int measurementBreak = 5;    // Seconds
+                final int measurementBreak = 10;    // Seconds
 
 
                 mScheduler.scheduleAtFixedRate(
@@ -269,17 +271,50 @@ public class SensorService extends Service implements SensorEventListener {
             Log.d(TAG, "Registered sensors at fast rate");
 
 
-            if (heartRateSensor != null) {
-                mSensorManager.registerListener(SensorService.this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
-            } else {
-                Log.d(TAG, "Regular Heartrate Sensor not found");
+            mScheduler = Executors.newScheduledThreadPool(1);
 
-                if (heartRateSamsungSensor != null) {
-                    mSensorManager.registerListener(SensorService.this, heartRateSamsungSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
-                } else {
-                    Log.d(TAG, "Samsung Heartrate Sensor not found - No heart rate possible");
-                }
+            if (heartRateSensor == null) {
+                heartRateSensor = heartRateSamsungSensor;
             }
+
+            if (heartRateSensor != null) {
+                final int measurementDuration = 5;   // Seconds
+                final int measurementBreak = 10;    // Seconds
+
+                mScheduler.scheduleAtFixedRate(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+//                            Log.d(TAG, "register Heartrate Sensor");
+                                Log.d(TAG, "Reading Heartrate Sensor");
+                                mSensorManager.registerListener(SensorService.this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL,MAX_DELAY);
+
+                                try {
+                                    Thread.sleep(measurementDuration * 1000);
+                                } catch (InterruptedException e) {
+                                    Log.e(TAG, "Interrupted while waiting to unregister Heartrate Sensor");
+                                }
+
+//                            Log.d(TAG, "unregister Heartrate Sensor");
+                                mSensorManager.unregisterListener(SensorService.this, heartRateSensor);
+                            }
+                        }, 1, measurementDuration + measurementBreak, TimeUnit.SECONDS);
+
+            } else {
+                Log.d(TAG, "No Heartrate Sensor found");
+            }
+//
+//            if (heartRateSensor != null) {
+//                mSensorManager.registerListener(SensorService.this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
+//            } else {
+//                Log.d(TAG, "Regular Heartrate Sensor not found");
+//
+//                if (heartRateSamsungSensor != null) {
+//                    mSensorManager.registerListener(SensorService.this, heartRateSamsungSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
+//                } else {
+//                    Log.d(TAG, "Samsung Heartrate Sensor not found - No heart rate possible");
+//                }
+//            }
 
 
             Log.d(TAG, "Registered sensors at normal rate");

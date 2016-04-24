@@ -1,15 +1,31 @@
 package com.breatheplatform.beta.services;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.StatFs;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.breatheplatform.beta.QuestionActivity;
 import com.breatheplatform.beta.RegisterActivity;
+import com.breatheplatform.beta.bluetooth.BluetoothConnection;
+import com.breatheplatform.beta.bluetooth.HexAsciiHelper;
+import com.breatheplatform.beta.bluetooth.RFduinoService;
 import com.breatheplatform.beta.encryption.HybridCrypt;
+import com.breatheplatform.beta.receivers.ConnectionReceiver;
 import com.breatheplatform.beta.shared.Constants;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
@@ -32,8 +48,12 @@ public class ListenerServiceFromWear extends WearableListenerService {
     private static final String TAG = "ListenerServiceFromWear";
 
 
-    private static Boolean unregisterUser = true;
+    private static Boolean unregisterUser = false;
     private static Boolean writeOnce = false;
+
+    private static String connectionInfo = "Waiting";
+
+
 
     /*
      * Receive the message from wear
@@ -74,6 +94,7 @@ public class ListenerServiceFromWear extends WearableListenerService {
             }
         }
     }
+
 
 
 
@@ -376,5 +397,302 @@ public class ListenerServiceFromWear extends WearableListenerService {
             Log.e(TAG, "Error receiving/processing multi api data");
         }
     }
+
+     /* BLUETOOTH LOGIC BELOW */
+//    -----private static final int BT_TASK_PERIOD=180000; //180 seconds
+    private ConnectionReceiver connReceiver;
+    private RFduinoService rfduinoService;
+    private BluetoothDevice bluetoothDevice;
+    ;
+    BluetoothDevice dustDevice;
+
+    private BluetoothConnection dustConn=null;
+
+    private ServiceConnection rfduinoServiceConnection=null;
+
+    // Bluetooth (Dust) State machine
+    final private static int STATE_BLUETOOTH_OFF = 1;
+    final private static int STATE_DISCONNECTED = 2;
+    final private static int STATE_CONNECTING = 3;
+    final private static int STATE_CONNECTED = 4;
+
+    private int state;
+
+
+    private void upgradeState(int newState) {
+        if (newState > state) {
+            updateState(newState);
+        }
+    }
+
+    private void downgradeState(int newState) {
+        if (newState < state) {
+            updateState(newState);
+        }
+    }
+
+    private void updateState(int newState) {
+        state = newState;
+    }
+
+
+    public Boolean openDust() {
+        try {
+            if (rfduinoServiceConnection!=null) {
+                try {
+                    unregisterDust();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "unregisterDust");
+                }
+            }
+
+            rfduinoServiceConnection = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder service) {
+                    rfduinoService = ((RFduinoService.LocalBinder) service).getService();
+                    if (rfduinoService.initialize()) {
+                        boolean result = rfduinoService.connect(dustDevice);
+
+                        if (result) {
+                            upgradeState(STATE_CONNECTING);
+                        }
+                    }
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                    rfduinoService = null;
+                    downgradeState(STATE_DISCONNECTED);
+                }
+            };
+
+            Intent rfduinoIntent = new Intent(this, RFduinoService.class);
+            bindService(rfduinoIntent, rfduinoServiceConnection, BIND_AUTO_CREATE);
+
+            try {
+                registerReceiver(scanModeReceiver, new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED));
+                registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+                //TODO: ADD BACK
+//                registerReceiver(rfduinoReceiver, RFduinoService.getIntentFilter());
+
+            } catch ( Exception e) {
+                e.printStackTrace();
+                Log.d(TAG, "[Handled] Receivers registered already");
+
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "[Handled] openDust unsuccessful");
+            return false;
+        }
+        Log.d(TAG, "Dust Bluetooth Opened");
+        return true;
+    }
+
+    public void closeDust() {
+        try {
+            unregisterDust();
+            Log.d(TAG, "dust bluetooth closed");
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "[Handled] closeDust");
+        }
+    }
+
+    private void unregisterDust() {
+        Log.d(TAG, "Unregister Dust");
+//        try {
+//            bluetoothAdapter.stopLeScan(this);
+//        } catch (Exception e) {
+//            Log.e(TAG, "stopLeScan");
+//        }
+        try {
+            if (scanModeReceiver != null)
+                unregisterReceiver(scanModeReceiver);
+
+            if (bluetoothStateReceiver != null)
+                unregisterReceiver(bluetoothStateReceiver);
+
+            //TODO: ADD BACK
+//            if (rfduinoReceiver != null)
+//                unregisterReceiver(rfduinoReceiver);
+
+            unbindService(rfduinoServiceConnection);
+        } catch (Exception e) {
+            Log.e(TAG, "[Handled] Error unregistering dust receiver");
+
+        }
+    }
+
+    private void addData(byte[] data) {
+        //Log.i(TAG, "in BT addData");
+        String ascii = HexAsciiHelper.bytesToAsciiMaybe(data);
+        if (ascii != null) {
+            //TODO: ADD BACK
+//            processReceivedDustData(ascii);
+        }
+    }
+//
+//    public void processReceivedDustData(String receiveBuffer) {
+////        Log.d("processDust receiveBuffer", receiveBuffer);
+//        //example: B:0353E
+//        String dustData = receiveBuffer.substring(2,6);
+//
+//        float[] vals = new float[]{Constants.NO_VALUE};
+//        try {
+//            vals[0] = Integer.parseInt(dustData);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            vals[0] = Constants.NO_VALUE;
+//            return;
+//        }
+//        Log.d(TAG, receiveBuffer + " Dust Reading: " + vals[0]);
+//
+//        addSensorData(Constants.DUST_SENSOR_ID, Constants.NO_VALUE, System.currentTimeMillis(), vals);
+//
+//
+//    }
+//
+//
+//    @Override
+//    public void onLeScan(BluetoothDevice device, final int rssi, final byte[] scanRecord) {
+//        bluetoothAdapter.stopLeScan(this);
+//        bluetoothDevice = device;
+//
+//        this.runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                //scan for bluetooth device that contains RF
+//                if (bluetoothDevice.getName().contains(Constants.DUST_BT_NAME)) {
+//                    Log.i(TAG, "Found RF Device: " + bluetoothDevice.getName());
+//                    Intent rfduinoIntent = new Intent(MainActivity.this, RFduinoService.class);
+//                    bindService(rfduinoIntent, rfduinoServiceConnection, BIND_AUTO_CREATE);
+//                }
+//            }
+//        });
+//    }
+//
+//
+//
+//
+//    private final BroadcastReceiver rfduinoReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            final String action = intent.getAction();
+//            if (RFduinoService.ACTION_CONNECTED.equals(action)) {
+//                upgradeState(STATE_CONNECTED);
+//                dustConnected = true;
+//                Log.d("rfduinoReceiver", "connected");
+//            } else if (RFduinoService.ACTION_DISCONNECTED.equals(action)) {
+//                downgradeState(STATE_DISCONNECTED);
+//                dustConnected = false;
+//                Log.d("rfduinoReceiver", "disconnected");
+//            } else if (RFduinoService.ACTION_DATA_AVAILABLE.equals(action)) {
+//                addData(intent.getByteArrayExtra(RFduinoService.EXTRA_DATA));
+//            }
+//        }
+//    };
+//
+//
+//
+//    private Runnable dustTask = new Runnable()
+//    {
+//        public void run()
+//        {
+//            dustRequest();
+//            updateBatteryLevel();
+////            connectivityRequest();
+////            updateConnectivityText();
+//            taskHandler.postDelayed(this, BT_TASK_PERIOD);
+//
+//        }
+//    };
+//
+//    private void dustRequest() {
+//        if (!dustConnected) {
+//            Log.d(TAG, "Dust not connected - attempting to reconnect");
+////            registerDust();
+//            findBT(Constants.DUST_SENSOR_ID);
+//            if (dustDevice != null) {
+//                if (openDust()) {
+//                    Log.d(TAG, "Opened dust connection");
+//                }
+//            }
+//        }
+//    }
+//
+//    private void scheduleDustRequest() {
+//        Log.d(TAG, "scheduleDustRequest");
+//        taskHandler.postDelayed(dustTask, BT_TASK_PERIOD);
+//    }
+
+    private final BroadcastReceiver bluetoothStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
+            if (state == BluetoothAdapter.STATE_ON) {
+                upgradeState(STATE_DISCONNECTED);
+            } else if (state == BluetoothAdapter.STATE_OFF) {
+                downgradeState(STATE_BLUETOOTH_OFF);
+            }
+        }
+    };
+
+
+    private final BroadcastReceiver scanModeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // = (bluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_NONE);
+        }
+    };
+    //get connectivity and save it
+    private void connectivityRequest() {
+        final int LEVELS = 5;
+        ConnectivityManager cm = ((ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE));
+        if (cm == null)
+            return;
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        String connectionInfo = "None";
+        if (activeNetwork != null) {
+            connectionInfo = activeNetwork.getTypeName();
+
+            if (connectionInfo.equals("WIFI")) {
+                WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+                WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+                int level = WifiManager.calculateSignalLevel(wifiInfo.getRssi(), LEVELS);
+                connectionInfo += " " + level;
+            }
+
+        }
+        Log.d(TAG, "Connectivity " + connectionInfo);
+    }
+
+
+    //this gets called way too often, need to figure out a way to establish a consistent
+    // connection with the dust sensor in the background
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+//        try {
+//            unbindService(rfduinoServiceConnection);
+//            Log.d(TAG, "remove rfduinoService");
+//        } catch (Exception e) {
+//            Log.e(TAG, "[Handled] unbinding rfduinoService");
+//        }
+
+//        if (connReceiver != null)
+//            unregisterReceiver(connReceiver);
+
+//        try {
+//            taskHandler.removeCallbacks(dustTask);
+//        } catch (Exception e) {
+//            Log.e(TAG, "Dust scan off");
+//        }
+
+    }
+
 
 }

@@ -18,7 +18,7 @@ public class ClientPaths {
 
     public static int batteryLevel = Constants.NO_VALUE;
     public static Integer userAge = Constants.NO_VALUE;
-    public static String connectionInfo = "Waiting";
+
     public static String activityDetail = "None:"+Constants.NO_VALUE;
     public static Location currentLocation = null;
     public static Context mainContext = null;
