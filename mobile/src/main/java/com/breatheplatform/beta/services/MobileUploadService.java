@@ -74,11 +74,12 @@ public class MobileUploadService extends IntentService {
 
         //determine connection endpoint
         try {
-            if (Constants.staticApp)
-                return;
+
 
             switch(urlString) {
                 case Constants.RISK_API:
+                    if (Constants.staticApp)
+                        return;
                     conn = (HttpsURLConnection) riskUrl.openConnection();
                     break;
                 case Constants.MULTI_API:

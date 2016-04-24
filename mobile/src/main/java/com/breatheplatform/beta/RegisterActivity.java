@@ -101,14 +101,13 @@ public class RegisterActivity extends Activity {
             jsonObject.put("timestamp",System.currentTimeMillis());
             jsonObject.put("email", clinicEmail);
             jsonObject.put("subject_id", subject_id);
-            jsonObject.put("api_key", Constants.API_KEY);
+            jsonObject.put("key", Constants.API_KEY);
 
             return jsonObject.toString();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
-
     }
 
     private void createRegisterIntent(String data, String sub) {
@@ -132,6 +131,9 @@ public class RegisterActivity extends Activity {
 
         clinicText = (EditText) findViewById(R.id.clinicText);
         subjectText = (EditText) findViewById(R.id.subjectText);
+
+//        Courier.deliverMessage(RegisterActivity.this, Constants.SUBJECT_API, "2");
+//        saveSubjectAndClose("2");
 
         Button subjectButton = (Button) findViewById(R.id.subjectButton);
         subjectButton.setOnClickListener(new View.OnClickListener() {

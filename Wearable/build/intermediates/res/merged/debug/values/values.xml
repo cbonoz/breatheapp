@@ -354,6 +354,7 @@
     <string name="app_name">Breathe Wearable App</string>
     <string name="auth_google_play_services_client_facebook_display_name">Facebook</string>
     <string name="auth_google_play_services_client_google_display_name">Google</string>
+    <string name="bad_reading">Bad Reading! Try again</string>
     <string name="cast_notification_connected_message">Connected to <ns1:g id="name">%1$s</ns1:g></string>
     <string name="cast_notification_connecting_message">Connecting to <ns1:g id="name">%1$s</ns1:g></string>
     <string name="cast_notification_disconnect">Disconnect</string>
@@ -421,6 +422,7 @@
     <string name="remove_activity_updates">Remove updates</string>
     <string name="request_activity_updates">Request updates</string>
     <string name="running">Running</string>
+    <string name="second_reading">Please take 2nd Reading</string>
     <string name="sensor_toggle"> Toggle Sensors </string>
     <string name="shared_name">shared</string>
     <string name="show_notification"> Show Notification </string>

@@ -1,20 +1,18 @@
 package com.breatheplatform.beta.shared;
 
-import android.hardware.Sensor;
-
 /**
  * Created by cbono on 4/1/16.
  */
 public class Constants {
     private static final String TAG = "Constants";
 
-    //secure http
+    //secure https
     public static final String BASE = "https://www.breatheplatform.com";
     public static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";
 
 //    public static final String ACTIVITY_API = "/activity";
     public static final String REGISTERED_API = "/registered";
-    public static final String REG_CHECK_API = "/reg/check";
+    public static final String REG_CHECK_API = "/api/reg/check";
     public static final String QUESTION_API = "/question";
     public static final String SUBJECT_API = "/api/subject/add";
     public static final String MULTI_API = "/api/multisensor/add";
@@ -30,13 +28,6 @@ public class Constants {
     public static final int ACTIVITY_SENSOR_ID = 996;
     public static final int TERMINATE_SENSOR_ID = 555;
 
-    public static final int REG_HEART_SENSOR_ID = 65562;
-    //    public static final int SS_HEART_SENSOR_ID = 21;
-    public static final int HEART_SENSOR_ID = Sensor.TYPE_HEART_RATE;
-    public static final int LA_SENSOR_ID = Sensor.TYPE_LINEAR_ACCELERATION;
-
-
-    public static final int SENSOR_DELAY_CUSTOM = 1000; //ms
     public static final int ONE_SEC_IN_MICRO = 1000000;
     public static final String DUST_BT_NAME = "HaikRF";
 
@@ -52,24 +43,16 @@ public class Constants {
 
     public static final Boolean collecting = false;
     public static final Boolean encrypting = true;
-    public static final Boolean sendingData = true;
+    public static final Boolean sendingData = false;
 
-    public static final Boolean slowSensorRate = true;
-    public static final Boolean sensorAlarm = false;
+    public static final Boolean slowSensorRate = false;
     public static final Boolean staticApp = false;
 
     public static final int SPIRO_ALARM_ID = 1;
     public static final int QUESTION_ALARM_ID = 2;
     public static final int SENSOR_ALARM_ID = 3;
 
-
-
-
     public static final String START_MOBILE_SERVICE = "/start-mobile";
 
     public static final String MY_PREFS_NAME = "MyPrefs";
-
-    public static final String BROADCAST_ACTION = ".BROADCAST_ACTION";
-
-
 }

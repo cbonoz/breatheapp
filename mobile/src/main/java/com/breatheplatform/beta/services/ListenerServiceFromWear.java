@@ -32,7 +32,7 @@ public class ListenerServiceFromWear extends WearableListenerService {
     private static final String TAG = "ListenerServiceFromWear";
 
 
-    private static Boolean unregisterUser = false;
+    private static Boolean unregisterUser = true;
     private static Boolean writeOnce = false;
 
     /*
@@ -63,10 +63,11 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
     @Override public void onDataChanged(DataEventBuffer dataEvents) {
         for (DataEvent event : dataEvents) {
+
             String path = event.getDataItem().getUri().getPath();
             switch (path) {
                 case Constants.MULTI_API:
-                    String pdString = Packager.unpack(this, event.getDataItem(), String.class);
+                    String pdString = Packager.unpack(this, event.getDataItem().getData(), String.class);
                     Log.d(TAG, "onData " + path + ", " + pdString);
                     onMultiReceived(pdString);
                     break;
@@ -126,7 +127,7 @@ public class ListenerServiceFromWear extends WearableListenerService {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "onCreate called");
+        Log.d(TAG, "ListenerService onCreate called");
 
         if (writeOnce) {
             sensorFile = createFile(sensorDirectory);

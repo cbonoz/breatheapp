@@ -888,9 +888,9 @@ public final class R {
 		public static final int app_name = 0x7f090044;
 		public static final int auth_google_play_services_client_facebook_display_name = 0x7f090045;
 		public static final int auth_google_play_services_client_google_display_name = 0x7f090046;
-		public static final int cast_notification_connected_message = 0x7f090047;
-		public static final int cast_notification_connecting_message = 0x7f090048;
-		public static final int cast_notification_disconnect = 0x7f090049;
+		public static final int cast_notification_connected_message = 0x7f090048;
+		public static final int cast_notification_connecting_message = 0x7f090049;
+		public static final int cast_notification_disconnect = 0x7f09004a;
 		public static final int common_google_play_services_api_unavailable_text = 0x7f090013;
 		public static final int common_google_play_services_enable_button = 0x7f090014;
 		public static final int common_google_play_services_enable_text = 0x7f090015;
@@ -920,9 +920,9 @@ public final class R {
 		public static final int common_open_on_phone = 0x7f09002d;
 		public static final int common_signin_button_text = 0x7f09002e;
 		public static final int common_signin_button_text_long = 0x7f09002f;
-		public static final int create_calendar_message = 0x7f09004a;
-		public static final int create_calendar_title = 0x7f09004b;
-		public static final int decline = 0x7f09004e;
+		public static final int create_calendar_message = 0x7f09004b;
+		public static final int create_calendar_title = 0x7f09004c;
+		public static final int decline = 0x7f09004f;
 		public static final int mr_media_route_button_content_description = 0x7f090030;
 		public static final int mr_media_route_chooser_searching = 0x7f090031;
 		public static final int mr_media_route_chooser_title = 0x7f090032;
@@ -936,10 +936,10 @@ public final class R {
 		public static final int mr_user_route_category_name = 0x7f09003a;
 		public static final int place_autocomplete_clear_button = 0x7f09003b;
 		public static final int place_autocomplete_search_hint = 0x7f09003c;
-		public static final int shared_name = 0x7f090060;
+		public static final int shared_name = 0x7f090062;
 		public static final int status_bar_notification_info_overflow = 0x7f09003d;
-		public static final int store_picture_message = 0x7f090066;
-		public static final int store_picture_title = 0x7f090067;
+		public static final int store_picture_message = 0x7f090068;
+		public static final int store_picture_title = 0x7f090069;
 		public static final int wallet_buy_button_place_holder = 0x7f09003e;
 	}
 	public static final class style {

@@ -1,9 +1,11 @@
 package com.breatheplatform.beta.data;
 
 import android.hardware.Sensor;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 
+import com.breatheplatform.beta.ClientPaths;
 import com.breatheplatform.beta.shared.Constants;
 
 
@@ -35,9 +37,9 @@ public class SensorNames {
         names.append(Sensor.TYPE_SIGNIFICANT_MOTION, "Significant Motion");
         names.append(Sensor.TYPE_STEP_COUNTER, "Step Counter");
         names.append(Sensor.TYPE_STEP_DETECTOR, "Step Detector");
-//        names.append(ActivityConstants.SS_HEART_SENSOR_ID, "Ss Heart Rate");
+        names.append(ClientPaths.SS_HEART_SENSOR_ID, "Ss Heart Rate");
         names.append(Constants.DUST_SENSOR_ID, "Dust Sensor");
-        names.append(Constants.HEART_SENSOR_ID, "Heart Rate");
+        names.append(ClientPaths.HEART_SENSOR_ID, "Heart Rate");
         names.append(Constants.SPIRO_SENSOR_ID, "Spirometer Sensor");
         names.append(Constants.ENERGY_SENSOR_ID, "Energy Calculation");
 
@@ -56,8 +58,10 @@ public class SensorNames {
     public String getName(int sensorId) {
         String name = names.get(sensorId);
 
-        if (name == null)
+        if (name == null) {
+            Log.d("sensornames", "getName for unknown id " + sensorId);
             return "Unknown";
+        }
 
         return name;
     }

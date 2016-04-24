@@ -9,6 +9,7 @@ import android.util.SparseLongArray;
 
 import com.breatheplatform.beta.ClientPaths;
 import com.breatheplatform.beta.shared.Constants;
+import com.google.android.gms.wearable.Asset;
 
 import org.json.JSONObject;
 
@@ -23,13 +24,7 @@ public class SensorAddService extends IntentService {
     private static final String TAG = "SensorAddService";
 
     private static final SensorNames sensorNames = new SensorNames();
-    private static SparseLongArray lastSensorData = initLastData();
-
-    private static final int ENERGY_LIMIT = 10;
-
-    //for energy measurements
-    private static float sumX =0, sumY = 0, sumZ = 0;
-    private static float energy = 0;
+//    private static SparseLongArray lastSensorData = initLastData();
 
     private static SparseLongArray initLastData() {
         SparseLongArray temp = new SparseLongArray();
@@ -94,8 +89,7 @@ public class SensorAddService extends IntentService {
         processSensorData(sType, acc, t, values);
     }
 
-    private static float x,y,z;
-    private static int energyCount = 0;
+
 
     // END WRITE AND SEND BLOCK
     private void processSensorData(final int sensorType, final int accuracy, final long currentTime, final float[] values) {
@@ -124,12 +118,10 @@ public class SensorAddService extends IntentService {
             switch (sensorType) {
                 case (Sensor.TYPE_LINEAR_ACCELERATION): //units m/s^2
                 case (Sensor.TYPE_GYROSCOPE): //units rad/s
-                    x=values[0];
-                    y=values[1];
-                    z=values[2];
-                    jsonValue.put("x", x);
-                    jsonValue.put("y", y);
-                    jsonValue.put("z", z);
+
+                    jsonValue.put("x", values[0]);
+                    jsonValue.put("y", values[1]);
+                    jsonValue.put("z", values[2]);
                     jsonValue.put("sensor_accuracy",accuracy);
                     break;
                 case (Sensor.TYPE_HEART_RATE):
@@ -211,22 +203,21 @@ public class SensorAddService extends IntentService {
             createDataPostRequest();
             clearData();
         }
-        else if (sensorType==Constants.LA_SENSOR_ID) {
-            energyCount++;
-            sumX += x;
-            sumY += y;
-            sumZ += z;
-            if (energyCount==ENERGY_LIMIT) {
-                energy+=Math.pow(sumX,2) + Math.pow(sumY,2) + Math.pow(sumZ,2);
-                processSensorData(Constants.ENERGY_SENSOR_ID, Constants.NO_VALUE, currentTime, new float[]{energy});
-                sumX = 0;
-                sumY = 0;
-                sumZ = 0;
-                energy = 0;
-                energyCount=0;
-            }
-        }
+
     }
+
+    private static Asset createAssetFromString(String data) {
+//        final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
+        return Asset.createFromBytes(data.getBytes()); //byteStream.toByteArray());
+    }
+
+
+//    private static Asset createAssetFromBitmap(Bitmap bitmap) {
+//        final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
+//        return Asset.createFromBytes(byteStream.toByteArray());
+//    }
 
     private void createDataPostRequest() {
         Log.d(TAG, "createDataPostRequest");
@@ -249,9 +240,10 @@ public class SensorAddService extends IntentService {
 
             jsonBody.put("data", sensorDataString);
 
-            String pdString = jsonBody.toString();// + "^^" + sensorDataString;
+            String data = jsonBody.toString();// + "^^" + sensorDataString;
 
-            Courier.deliverData(ClientPaths.mainContext, Constants.MULTI_API, pdString);
+
+            Courier.deliverData(ClientPaths.mainContext, Constants.MULTI_API, data);
             Log.d(TAG, "courier sent multiapi data");
 
         } catch (Exception e) {

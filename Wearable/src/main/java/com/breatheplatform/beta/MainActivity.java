@@ -338,7 +338,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             });
         } else {
             sensorSwitch.setVisibility(View.GONE);
-            if (!sensorToggled && !Constants.sensorAlarm)
+            if (!sensorToggled)// && !Constants.sensorAlarm)
                 startMeasurement();
         }
 
@@ -462,7 +462,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     private PendingIntent sensorIntent;
 
     //units: ms
-    private static final long SPIRO_REMINDER_INTERVAL = 60000;
+    private static final long ONE_MIN_MS = 60000;
+    private static final long SPIRO_REMINDER_INTERVAL = ONE_MIN_MS;
     private static final long SENSOR_INTERVAL = 2000;
 
 
@@ -480,7 +481,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         notificationIntent.putExtra(AlarmReceiver.NOTIFICATION, notification);
         spiroIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 //        alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE); //alternative is ELAPSED_RTC
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+60000,interval, spiroIntent);
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+ONE_MIN_MS,interval, spiroIntent);
         if (id==Constants.SPIRO_ALARM_ID)
             Log.d(TAG, "Scheduled spiro at interval " + interval + " ms");
     }
@@ -642,8 +643,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Log.d(TAG, "Scheduling Alarms");
         scheduleNotification(buildSpiroReminder(), SPIRO_REMINDER_INTERVAL, Constants.SPIRO_ALARM_ID);//AlarmManager.INTERVAL_HOUR*2);
 
-        if (Constants.sensorAlarm)
-            scheduleSensors(SENSOR_INTERVAL);
+//        if (Constants.sensorAlarm)
+//            scheduleSensors(SENSOR_INTERVAL);
 
         //Alarms for Questionnaire
         //    -7:30am (fixed time)
@@ -896,7 +897,7 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
             if (alarmManager != null) {
                 alarmManager.cancel(spiroIntent);
                 alarmManager.cancel(questionIntent);
-                alarmManager.cancel(sensorIntent);
+//                alarmManager.cancel(sensorIntent);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1155,8 +1156,9 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
     //Sensor Related
     private void startMeasurement() {
         Log.i(TAG, "Start Measurement");
-        if (!Constants.sensorAlarm)
-            startService(new Intent(getBaseContext(), SensorService.class));
+//        if (!Constants.sensorAlarm)
+//            startService(new Intent(getBaseContext(), SensorService.class));
+        startService(new Intent(getBaseContext(), SensorService.class));
         sensorToggled = true;
         try {
             ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 0, getActivityDetectionPendingIntent()).setResultCallback(MainActivity.this);
@@ -1443,6 +1445,9 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
         Log.d(TAG, "spiro bluetooth closed");
     }
 
+    private static Long lastSpiroTime = null;
+//    private static Boolean lastSpiroGood = false;
+
 
     public int pefToRisk(float p) {
         if (p<150)
@@ -1493,7 +1498,8 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 
                                             Log.d(TAG, "Received spiro data: " + data.toString());
                                             try {
-                                                addSensorData(Constants.SPIRO_SENSOR_ID, 3, System.currentTimeMillis(), data.toArray());
+                                                Long timestamp = System.currentTimeMillis();
+                                                addSensorData(Constants.SPIRO_SENSOR_ID, 3, timestamp, data.toArray());
 
 //                                                Toast.makeText(MainActivity.this, "PEF Received: " + data.pef + "!", Toast.LENGTH_SHORT).show();
                                                 Toast.makeText(MainActivity.this, "Data Received!", Toast.LENGTH_SHORT).show();
@@ -1501,11 +1507,21 @@ public class MainActivity extends WearableActivity implements BluetoothAdapter.L
 //                                                //FOR STATIC DEMO: UPDATE IMAGE BASED ON PEF
                                                 if (Constants.staticApp) {
                                                     lastRiskValue = pefToRisk(data.getPef());
-                                                    updateRiskUI(lastRiskValue);
+                                                    if (data.good_test || (lastSpiroTime!=null && (timestamp - lastSpiroTime < ONE_MIN_MS))) {
+                                                        updateRiskUI(lastRiskValue);
+                                                    } else {
+                                                        Toast.makeText(MainActivity.this, R.string.second_reading, Toast.LENGTH_LONG).show();
+                                                    }
+                                                }  else {
+                                                    if (data.good_test || (lastSpiroTime!=null && (timestamp - lastSpiroTime < ONE_MIN_MS))) {
+                                                        Toast.makeText(MainActivity.this, R.string.second_reading, Toast.LENGTH_LONG).show();
+                                                    }
                                                 }
+                                                lastSpiroTime = timestamp;
+//                                                lastSpiroGood = data.good_test;
                                                 //END STATIC DEMO SECTION
                                             } catch (Exception e) {
-                                                Toast.makeText(MainActivity.this, "Bad Reading: Please try again!", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(MainActivity.this, R.string.bad_reading, Toast.LENGTH_SHORT).show();
                                             }
                                         }
                                     });
