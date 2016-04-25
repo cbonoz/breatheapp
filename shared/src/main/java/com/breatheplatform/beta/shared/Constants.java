@@ -44,9 +44,9 @@ public class Constants {
 
     public static final Boolean collecting = false;
     public static final Boolean encrypting = true;
-    public static final Boolean sendingData = false;
+    public static final Boolean sendingData = true;
 
-    public static final Boolean slowSensorRate = false;
+//    public static final Boolean slowSensorRate = false;
     public static final Boolean staticApp = false;
 
     public static final int SPIRO_ALARM_ID = 1;

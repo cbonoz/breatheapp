@@ -388,11 +388,11 @@ public class SensorService extends Service implements SensorEventListener, Bluet
                 upgradeState(STATE_CONNECTED);
                 ClientPaths.dustConnected = true;
                 try {
-                    unbindService(rfduinoServiceConnection);
-                    Log.d(TAG, "remove rfduinoService");
+                    taskHandler.removeCallbacks(dustTask);
                 } catch (Exception e) {
-                    Log.e(TAG, "[Handled] unbinding rfduinoService");
+                    Log.e(TAG, "Risk Timer off");
                 }
+
                 Log.d("rfduinoReceiver", "connected");
             } else if (RFduinoService.ACTION_DISCONNECTED.equals(action)) {
                 downgradeState(STATE_DISCONNECTED);

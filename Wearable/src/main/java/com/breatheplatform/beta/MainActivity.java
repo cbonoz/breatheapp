@@ -166,6 +166,7 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
 //
 //
 //
+//
 //        } catch (Exception e) {
 //            Log.e(TAG, "[Handled] Error getting battery level value");
 //
@@ -175,8 +176,14 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
 
     private long mLastClickTime = 0;
 
+    //units: ms
+    private static final Integer ONE_MIN_MS = 60000;
+    private static final long SPIRO_REMINDER_INTERVAL = ONE_MIN_MS;
+    private static final long SENSOR_INTERVAL = 2000;
+
+
     //Intervals in MS
-    private static final Integer ACTIVITY_INTERVAL = 0;//15000;//20000;//ms (0 fastest)
+    private static final Integer ACTIVITY_INTERVAL = ONE_MIN_MS;//0//15000;//20000;//ms (0 fastest)
     private static final Integer LOCATION_INTERVAL = 1000 * 60 * 2; //request ever 2 min
     private final int MIN_CLICK_INTERVAL =5000;
 
@@ -415,10 +422,6 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
 
 //    AlarmReceiver alarmReceiver = new AlarmReceiver();
 
-    //units: ms
-    private static final long ONE_MIN_MS = 60000;
-    private static final long SPIRO_REMINDER_INTERVAL = ONE_MIN_MS;
-    private static final long SENSOR_INTERVAL = 2000;
 
 
 //    private IntentFilter alarmFilter = new IntentFilter(Constants.ALARM_ACTION);
