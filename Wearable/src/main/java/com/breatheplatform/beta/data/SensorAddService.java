@@ -9,7 +9,6 @@ import android.util.SparseLongArray;
 
 import com.breatheplatform.beta.ClientPaths;
 import com.breatheplatform.beta.shared.Constants;
-import com.google.android.gms.wearable.Asset;
 
 import org.json.JSONObject;
 
@@ -35,6 +34,11 @@ public class SensorAddService extends IntentService {
 
     private static StringBuilder sensorData = new StringBuilder();
 
+    public static void clearData() {
+        sensorData.setLength(0);
+        recordCount = 0;
+    }
+
     private static Integer recordCount = 0;
     private static Integer RECORD_LIMIT = 50;
 
@@ -56,10 +60,6 @@ public class SensorAddService extends IntentService {
         super("SensorAddService");
     }
 
-    public static void clearData() {
-        sensorData.setLength(0);
-        recordCount = 0;
-    }
 
     //is synchronized necessary here?
     public void incrementCount() {
@@ -89,6 +89,8 @@ public class SensorAddService extends IntentService {
         processSensorData(sType, acc, t, values);
     }
 
+    private static JSONObject jsonDataEntry = new JSONObject();
+//    private static JSONObject jsonValue = new JSONObject();
 
 
     // END WRITE AND SEND BLOCK
@@ -103,17 +105,10 @@ public class SensorAddService extends IntentService {
         i.putExtra("sensorName", sensorName);
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
 
-        //if accuracy rating too low, reject
-//        if (accuracy < 2 && (sensorName.contains("Heart"))) {
-//            Log.d(TAG, "Blocked " + sensorName + "(" + sensorType + ")" + Arrays.toString(values) + " reading, accuracy " + accuracy + " < 2");
-//            return;
-//        }
-
-        //ActivityConstants.createDataEntry(sensorType, accuracy, timestamp, values);
-        JSONObject jsonDataEntry = new JSONObject();
         JSONObject jsonValue = new JSONObject();
 
         try {
+
 
             switch (sensorType) {
                 case (Sensor.TYPE_LINEAR_ACCELERATION): //units m/s^2
@@ -128,7 +123,7 @@ public class SensorAddService extends IntentService {
                     jsonValue.put("sensor_accuracy",accuracy);
                 case (Constants.DUST_SENSOR_ID):
                     if (values[0]<=0) {
-                        Log.d(TAG, "Received " + sensorName + " data<=0 - skip");
+                        Log.d(TAG, "Received " + sensorName + " data <= 0 -> skip");
                         return;
                     }
                     jsonValue.put("v", values[0]);
@@ -154,20 +149,10 @@ public class SensorAddService extends IntentService {
                     return;
             }
 
-//            if (lastTimeStamp != 0) {
-//                if (timeAgo < ClientPaths.SENSOR_DELAY_CUSTOM) {
-//                    Log.d(TAG, "Blocked " + sensorName + " " + Arrays.toString(values) + " too soon ");
-//                    return; //wait until SENSOR_DELAY_CUSTOM until next reading
-//                }
-//            }
-
-
             jsonDataEntry.put("value", jsonValue);
-
 //            jsonDataEntry.put("last", lastTimeStamp);
             jsonDataEntry.put("timestamp", currentTime);//System.currentTimeMillis());
             jsonDataEntry.put("timezone", tz);
-
             jsonDataEntry.put("sensor_id", sensorNames.getServerID(sensorType));//will be changed to actual sensor (sensorType)
 
             //check if the location is currently available
@@ -205,13 +190,6 @@ public class SensorAddService extends IntentService {
         }
 
     }
-
-    private static Asset createAssetFromString(String data) {
-//        final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
-        return Asset.createFromBytes(data.getBytes()); //byteStream.toByteArray());
-    }
-
 
 //    private static Asset createAssetFromBitmap(Bitmap bitmap) {
 //        final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();

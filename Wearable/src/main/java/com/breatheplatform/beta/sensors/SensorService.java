@@ -1,19 +1,34 @@
 package com.breatheplatform.beta.sensors;
 
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.breatheplatform.beta.ClientPaths;
+import com.breatheplatform.beta.bluetooth.HexAsciiHelper;
+import com.breatheplatform.beta.bluetooth.RFduinoService;
 import com.breatheplatform.beta.data.SensorAddService;
 import com.breatheplatform.beta.shared.Constants;
 
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +40,7 @@ import me.denley.courier.Courier;
  * http://www.tutorialspoint.com/android/android_services.htm
  * lowest sampling rate from sensors is 5hz (sensor delay normal)
  */
-public class SensorService extends Service implements SensorEventListener {
+public class SensorService extends Service implements SensorEventListener, BluetoothAdapter.LeScanCallback {
     private static final String TAG = "SensorService";
 
     //Sensor related
@@ -64,21 +79,21 @@ public class SensorService extends Service implements SensorEventListener {
             case ClientPaths.HEART_SENSOR_ID:
             case ClientPaths.SS_HEART_SENSOR_ID:
                 float heartRate = event.values[0];
-                if (event.accuracy > 1) {
+
+                if (event.accuracy > 1) {//or 2 for higher accuracy requirement
+                    checkForQuestionnaire(heartRate);
+                    addSensorData(sensorId, event.accuracy, timestamp, event.values);
+
+                    //update the heart UI (just heart rate currently)
+                    //http://stackoverflow.com/questions/8802157/how-to-use-localbroadcastmanager
                     Intent i = new Intent(Constants.HEART_EVENT);
                     i.putExtra("heartrate", heartRate);
                     LocalBroadcastManager.getInstance(SensorService.this).sendBroadcast(i);
 
-                    if (event.accuracy > 2) { //or 1 if want more data
-                        checkForQuestionnaire(heartRate);
-                        addSensorData(sensorId, event.accuracy, timestamp, event.values);
-                        //update the heart UI (just heart rate currently)
-                        //http://stackoverflow.com/questions/8802157/how-to-use-localbroadcastmanager
-
-                    } else {
-                        Log.d(TAG, "heart rate " + heartRate + " accuracy too low: " + event.accuracy);
-                    }
+                } else {
+                    Log.d(TAG, "heart rate " + heartRate + " accuracy too low: " + event.accuracy);
                 }
+
                 break;
             case SENS_GYRO:
                 gyroCount++;
@@ -185,140 +200,50 @@ public class SensorService extends Service implements SensorEventListener {
         Log.i(TAG, "Start Measurement");
 
 
-        // if handling sensors via background thread
-        if (Constants.slowSensorRate) { //normal speed of sensor logging
-                //sum of these achieves sampling rate of .5hz// 1hz
-                mScheduler = Executors.newScheduledThreadPool(1);
-//                final int measurementDuration = 300;   // ms
-//                final int measurementBreak = 1700;    // Seconds
-                mScheduler.scheduleAtFixedRate(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-//                            Log.d(TAG, "register LA Sensor");
-                                try {
-                                    if (linearAccelerationSensor!=null)
-                                        mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_NORMAL);
-                                    if (gyroSensor!=null)
-                                        mSensorManager.registerListener(SensorService.this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_NORMAL);
-//                                    if (heartRateSensor!=null)
-//                                        mSensorManager.registerListener(SensorService.this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL,MAX_DELAY);
-
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-
-//                                try {
-//                                    Thread.sleep(measurementDuration);
-//                                } catch (InterruptedException e) {
-//                                    Log.e(TAG, "Interrupted while waiting to unregister LA Sensor");
-//                                }
-//
-//                                Log.d(TAG, "unregister LA Sensor");
-//                                mSensorManager.unregisterListener(SensorService.this, linearAccelerationSensor);
-//                                mSensorManager.unregisterListener(SensorService.this, gyroSensor);
-
-                            }
-                        }, 1, 2000, TimeUnit.MILLISECONDS);
+        //http://stackoverflow.com/questions/30153904/android-how-to-set-sensor-delay
+        if (linearAccelerationSensor != null) {
+            mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);// 1000000, 1000000);
+        }  else {
+            Log.d(TAG, "No Linear Acceleration Sensor found");
+        }
 
 
+        if (gyroSensor != null) {
+            mSensorManager.registerListener(SensorService.this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
+        } else {
+            Log.w(TAG, "No Gyroscope Sensor found");
+        }
 
 
-            if (heartRateSensor != null) {
-                final int measurementDuration = 5;   // Seconds
-                final int measurementBreak = 10;    // Seconds
-
-
-                mScheduler.scheduleAtFixedRate(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-//                            Log.d(TAG, "register Heartrate Sensor");
-                                Log.d(TAG, "Reading Heartrate Sensor");
-                                mSensorManager.registerListener(SensorService.this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL,MAX_DELAY);
-
-                                try {
-                                    Thread.sleep(measurementDuration * 1000);
-                                } catch (InterruptedException e) {
-                                    Log.e(TAG, "Interrupted while waiting to unregister Heartrate Sensor");
-                                }
-
-//                            Log.d(TAG, "unregister Heartrate Sensor");
-                                mSensorManager.unregisterListener(SensorService.this, heartRateSensor);
-                            }
-                        }, 1, measurementDuration + measurementBreak, TimeUnit.SECONDS);
-
-
-            } else {
-                Log.d(TAG, "No Heartrate Sensor found");
-            }
-
-            Log.d(TAG, "Registered sensors at slow rate");
-        } else { //schedule at normal rate (about 5hz)
-            //http://stackoverflow.com/questions/30153904/android-how-to-set-sensor-delay
-            if (linearAccelerationSensor != null) {
-                mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);// 1000000, 1000000);
-            }  else {
-                Log.d(TAG, "No Linear Acceleration Sensor found");
-            }
-
-
-            if (gyroSensor != null) {
-                mSensorManager.registerListener(SensorService.this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
-            } else {
-                Log.w(TAG, "No Gyroscope Sensor found");
-            }
-            Log.d(TAG, "Registered sensors at fast rate");
-
+        if (heartRateSensor != null) {
+            final int measurementDuration   = 10;   // Seconds
+            final int measurementBreak      = 5;    // Seconds
 
             mScheduler = Executors.newScheduledThreadPool(1);
+            mScheduler.scheduleAtFixedRate(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d(TAG, "register Heartrate Sensor");
+                            mSensorManager.registerListener(SensorService.this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
 
-            if (heartRateSensor == null) {
-                heartRateSensor = heartRateSamsungSensor;
-            }
-
-            if (heartRateSensor != null) {
-                final int measurementDuration = 5;   // Seconds
-                final int measurementBreak = 10;    // Seconds
-
-                mScheduler.scheduleAtFixedRate(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-//                            Log.d(TAG, "register Heartrate Sensor");
-                                Log.d(TAG, "Reading Heartrate Sensor");
-                                mSensorManager.registerListener(SensorService.this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL,MAX_DELAY);
-
-                                try {
-                                    Thread.sleep(measurementDuration * 1000);
-                                } catch (InterruptedException e) {
-                                    Log.e(TAG, "Interrupted while waiting to unregister Heartrate Sensor");
-                                }
-
-//                            Log.d(TAG, "unregister Heartrate Sensor");
-                                mSensorManager.unregisterListener(SensorService.this, heartRateSensor);
+                            try {
+                                Thread.sleep(measurementDuration * 1000);
+                            } catch (InterruptedException e) {
+                                Log.e(TAG, "Interrupted while waitting to unregister Heartrate Sensor");
                             }
-                        }, 1, measurementDuration + measurementBreak, TimeUnit.SECONDS);
 
-            } else {
-                Log.d(TAG, "No Heartrate Sensor found");
-            }
-//
-//            if (heartRateSensor != null) {
-//                mSensorManager.registerListener(SensorService.this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
-//            } else {
-//                Log.d(TAG, "Regular Heartrate Sensor not found");
-//
-//                if (heartRateSamsungSensor != null) {
-//                    mSensorManager.registerListener(SensorService.this, heartRateSamsungSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
-//                } else {
-//                    Log.d(TAG, "Samsung Heartrate Sensor not found - No heart rate possible");
-//                }
-//            }
+                            Log.d(TAG, "unregister Heartrate Sensor");
+                            mSensorManager.unregisterListener(SensorService.this, heartRateSensor);
+                        }
+                    }, 3, measurementDuration + measurementBreak, TimeUnit.SECONDS);
 
-
-            Log.d(TAG, "Registered sensors at normal rate");
+        } else {
+            Log.d(TAG, "No Heartrate Sensor found");
         }
+
+        dustRequest();
+        scheduleDustRequest();
 
         return START_STICKY;
     }
@@ -334,10 +259,27 @@ public class SensorService extends Service implements SensorEventListener {
         if (mScheduler != null && !mScheduler.isTerminated()) {
             mScheduler.shutdown();
         }
+
+        try {
+            unbindService(rfduinoServiceConnection);
+            Log.d(TAG, "remove rfduinoService");
+        } catch (Exception e) {
+            Log.e(TAG, "[Handled] unbinding rfduinoService");
+        }
+
+        unregisterDust();
+//        if (connReceiver != null)
+//            unregisterReceiver(connReceiver);
+
+        try {
+            taskHandler.removeCallbacks(dustTask);
+        } catch (Exception e) {
+            Log.e(TAG, "Dust scan off");
+        }
     }
 
     //append sensor data
-    private void addSensorData(final Integer sensorType, final Integer accuracy, final Long t, final float[] values) {
+    public void addSensorData(final Integer sensorType, final Integer accuracy, final Long t, final float[] values) {
         Intent i = new Intent(this, SensorAddService.class);
         i.putExtra("sensorType", sensorType);
         i.putExtra("accuracy", accuracy);
@@ -350,4 +292,339 @@ public class SensorService extends Service implements SensorEventListener {
     private void requestQuestionnaire() {
         Courier.deliverMessage(this, Constants.QUESTION_API, "");
     }
+
+         /* BLUETOOTH LOGIC BELOW */
+
+    private static final int BT_TASK_PERIOD = 150000; //ms
+    private static final int REQUEST_ENABLE_BT = 1;
+
+
+    //    private ConnectionReceiver connReceiver;
+    BluetoothAdapter bluetoothAdapter;
+    private RFduinoService rfduinoService;
+    private BluetoothDevice bluetoothDevice;
+    ;
+    BluetoothDevice dustDevice;
+
+    private ServiceConnection rfduinoServiceConnection = null;
+
+    // Bluetooth (Dust) State machine
+    final private static int STATE_BLUETOOTH_OFF = 1;
+    final private static int STATE_DISCONNECTED = 2;
+    final private static int STATE_CONNECTING = 3;
+    final private static int STATE_CONNECTED = 4;
+
+    private int state;
+
+    private Handler taskHandler = new Handler();
+
+//    private static StringBuilder dustData = new StringBuilder();
+//    public static String getDustData() {
+//        String data = dustData.toString();
+//        dustData.setLength(0);
+//        recordCount = 0;
+//        return data;
+//    }
+
+
+    private void upgradeState(int newState) {
+        if (newState > state) {
+            updateState(newState);
+        }
+    }
+
+    private void downgradeState(int newState) {
+        if (newState < state) {
+            updateState(newState);
+        }
+    }
+
+    private void updateState(int newState) {
+        state = newState;
+    }
+
+
+    @Override
+    public void onLeScan(BluetoothDevice device, final int rssi, final byte[] scanRecord) {
+        bluetoothAdapter.stopLeScan(this);
+        bluetoothDevice = device;
+
+        //scan for bluetooth device that contains RF
+        if (bluetoothDevice.getName().contains(Constants.DUST_BT_NAME)) {
+            Log.i(TAG, "Found RF Device: " + bluetoothDevice.getName());
+            Intent rfduinoIntent = new Intent(this, RFduinoService.class);
+            bindService(rfduinoIntent, rfduinoServiceConnection, BIND_AUTO_CREATE);
+        }
+    }
+
+
+
+    private final BroadcastReceiver bluetoothStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
+            if (state == BluetoothAdapter.STATE_ON) {
+                upgradeState(STATE_DISCONNECTED);
+            } else if (state == BluetoothAdapter.STATE_OFF) {
+                downgradeState(STATE_BLUETOOTH_OFF);
+            }
+        }
+    };
+
+
+    private final BroadcastReceiver scanModeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // = (bluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_NONE);
+        }
+    };
+
+
+    private final BroadcastReceiver rfduinoReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (RFduinoService.ACTION_CONNECTED.equals(action)) {
+                upgradeState(STATE_CONNECTED);
+                ClientPaths.dustConnected = true;
+                try {
+                    unbindService(rfduinoServiceConnection);
+                    Log.d(TAG, "remove rfduinoService");
+                } catch (Exception e) {
+                    Log.e(TAG, "[Handled] unbinding rfduinoService");
+                }
+                Log.d("rfduinoReceiver", "connected");
+            } else if (RFduinoService.ACTION_DISCONNECTED.equals(action)) {
+                downgradeState(STATE_DISCONNECTED);
+                ClientPaths.dustConnected = false;
+                scheduleDustRequest();
+                Log.d("rfduinoReceiver", "disconnected");
+            } else if (RFduinoService.ACTION_DATA_AVAILABLE.equals(action)) {
+                addData(intent.getByteArrayExtra(RFduinoService.EXTRA_DATA));
+            }
+        }
+    };
+
+    public Boolean openDust() {
+        try {
+//            if (rfduinoServiceConnection != null) {
+//                try {
+//                    unregisterDust();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    Log.e(TAG, "unregisterDust");
+//                }
+//            }
+
+            rfduinoServiceConnection = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder service) {
+                    rfduinoService = ((RFduinoService.LocalBinder) service).getService();
+                    if (rfduinoService.initialize()) {
+                        boolean result = rfduinoService.connect(dustDevice);
+
+                        if (result) {
+                            upgradeState(STATE_CONNECTING);
+                        }
+                    }
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                    rfduinoService = null;
+                    downgradeState(STATE_DISCONNECTED);
+                }
+            };
+
+            Intent rfduinoIntent = new Intent(SensorService.this, RFduinoService.class);
+            bindService(rfduinoIntent, rfduinoServiceConnection, BIND_AUTO_CREATE);
+
+            try {
+                registerReceiver(scanModeReceiver, new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED));
+                registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+                registerReceiver(rfduinoReceiver, RFduinoService.getIntentFilter());
+                Log.d(TAG, "Dust Receivers Registered");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.d(TAG, "[Handled] Receivers registered already");
+
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "[Handled] openDust unsuccessful");
+            return false;
+        }
+        Log.d(TAG, "Dust Bluetooth Opened");
+        return true;
+    }
+
+//    public void closeDust() {
+//        try {
+//            unregisterDust();
+//            Log.d(TAG, "dust bluetooth closed");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            Log.e(TAG, "[Handled] closeDust");
+//        }
+//    }
+
+    private void unregisterDust() {
+        Log.d(TAG, "Unregister Dust");
+//        try {
+//            bluetoothAdapter.stopLeScan(this);
+//        } catch (Exception e) {
+//            Log.e(TAG, "stopLeScan");
+//        }
+        try {
+            if (scanModeReceiver != null)
+                unregisterReceiver(scanModeReceiver);
+
+            if (bluetoothStateReceiver != null)
+                unregisterReceiver(bluetoothStateReceiver);
+
+
+            if (rfduinoReceiver != null)
+                unregisterReceiver(rfduinoReceiver);
+
+            unbindService(rfduinoServiceConnection);
+        } catch (Exception e) {
+            Log.e(TAG, "[Handled] Error unregistering dust receiver");
+
+        }
+    }
+
+
+    private void addData(byte[] data) {
+        //Log.i(TAG, "in BT addData");
+        String ascii = HexAsciiHelper.bytesToAsciiMaybe(data);
+        if (ascii != null) {
+            processReceivedDustData(ascii);
+        }
+    }
+
+    public void processReceivedDustData(String receiveBuffer) {
+//        Log.d("processDust receiveBuffer", receiveBuffer);
+        //example: B:0353E
+        String dustData = receiveBuffer.substring(2, 6);
+
+        float[] vals = new float[]{Constants.NO_VALUE};
+        try {
+            vals[0] = Integer.parseInt(dustData);
+        } catch (Exception e) {
+            e.printStackTrace();
+            vals[0] = Constants.NO_VALUE;
+            return;
+        }
+
+        Log.d(TAG, receiveBuffer + " Dust Reading: " + vals[0]);
+        addSensorData(Constants.DUST_SENSOR_ID, Constants.NO_VALUE, System.currentTimeMillis(), vals);
+    }
+
+
+    private Runnable dustTask = new Runnable()
+    {
+        public void run()
+        {
+            dustRequest();
+//            updateBatteryLevel();
+//            connectivityRequest();
+//            updateConnectivityText();
+            taskHandler.postDelayed(this, BT_TASK_PERIOD);
+
+        }
+    };
+
+    private void dustRequest() {
+        Log.d(TAG, "dustRequest");
+
+        if (!ClientPaths.dustConnected) {
+            Log.d(TAG, "Dust not connected - attempting to reconnect");
+//            registerDust();
+            findBT();
+            if (dustDevice != null) {
+                if (openDust()) {
+                    Log.d(TAG, "Opened dust connection");
+                }
+            }
+        }
+    }
+
+    private void scheduleDustRequest() {
+        Log.d(TAG, "scheduleDustRequest");
+        taskHandler.postDelayed(dustTask, BT_TASK_PERIOD);
+    }
+
+
+
+    //Spirometer connection:
+    public Boolean findBT()
+    {
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        if(bluetoothAdapter == null)
+        {
+            Log.d(TAG, "No bluetooth adapter available");
+
+        }
+
+//        if(!bluetoothAdapter.isEnabled())
+//        {
+//            Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//            startActivityForResult(enableBluetooth, REQUEST_ENABLE_BT);
+//        }
+
+        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+
+
+        dustDevice = null;
+        if (pairedDevices.size() > 0) {
+            String deviceName;
+            for (BluetoothDevice device : pairedDevices) {
+                deviceName = device.getName();
+
+                if (deviceName.contains(Constants.DUST_BT_NAME)) {
+                    dustDevice = device;
+                    Log.d("yjcode", "Detected RFduino device: " + deviceName + " " + dustDevice.getAddress());
+                    //add connection for RF duino here as well
+                    return true;
+                }
+            }
+        }
+        Log.d(TAG, "findBT did not find paired dustdevice");
+
+        return false;
+
+    }
+
+
+
+    //OTHER
+    //get connectivity and save it
+    private void connectivityRequest() {
+        final int LEVELS = 5;
+        ConnectivityManager cm = ((ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE));
+        if (cm == null)
+            return;
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        String connectionInfo = "None";
+        if (activeNetwork != null) {
+            connectionInfo = activeNetwork.getTypeName();
+
+            if (connectionInfo.equals("WIFI")) {
+                WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+                WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+                int level = WifiManager.calculateSignalLevel(wifiInfo.getRssi(), LEVELS);
+                connectionInfo += " " + level;
+            }
+
+        }
+//        ClientPaths.connectionInfo = connectionInfo;
+        Log.d(TAG, "Connectivity " + connectionInfo);
+    }
+
+
+
 }

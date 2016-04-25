@@ -50,14 +50,16 @@ public class MobileUploadService extends IntentService {
     // connected to the internet and the sensors are running. Going to use a file approach, where the
     // server will process the files
 
-    public MobileUploadService() {
-        super("MobileUploadService");
-    }
-
     private WifiManager wifiManager;
     private WifiManager.WifiLock lock;
 
     private HttpsURLConnection conn = null;
+
+    public MobileUploadService() {
+        super("MobileUploadService");
+    }
+
+
 
     @Override
     protected void onHandleIntent(Intent intent) {

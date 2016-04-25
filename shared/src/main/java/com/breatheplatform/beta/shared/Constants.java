@@ -29,6 +29,7 @@ public class Constants {
     public static final int TERMINATE_SENSOR_ID = 555;
 
     public static final int ONE_SEC_IN_MICRO = 1000000;
+
     public static final String DUST_BT_NAME = "HaikRF";
 
     //for broadcast receivers
@@ -53,6 +54,7 @@ public class Constants {
     public static final int SENSOR_ALARM_ID = 3;
 
     public static final String START_MOBILE_SERVICE = "/start-mobile";
+    public static final String ALARM_ACTION = "/alarm-action";
 
     public static final String MY_PREFS_NAME = "MyPrefs";
 }
