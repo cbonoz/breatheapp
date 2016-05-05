@@ -25,10 +25,14 @@ public class Constants {
     public static final int DUST_SENSOR_ID = 999;
     public static final int SPIRO_SENSOR_ID = 998;
     public static final int ENERGY_SENSOR_ID = 997;
+    public static final int AIRBEAM_SENSOR_ID = 995;
     public static final int ACTIVITY_SENSOR_ID = 996;
     public static final int TERMINATE_SENSOR_ID = 555;
 
     public static final int ONE_SEC_IN_MICRO = 1000000;
+    public static final Integer ONE_MIN_MS = 60000;
+
+    public static final int REQUEST_GOOGLE_PLAY_SERVICES = 1972;
 
     public static final String DUST_BT_NAME = "HaikRF";
 
@@ -44,7 +48,8 @@ public class Constants {
 
     public static final Boolean collecting = false;
     public static final Boolean encrypting = true;
-    public static final Boolean sendingData = true;
+
+    public static final Integer TESTING = 1;
 
 //    public static final Boolean slowSensorRate = false;
     public static final Boolean staticApp = false;
@@ -52,6 +57,10 @@ public class Constants {
     public static final int SPIRO_ALARM_ID = 1;
     public static final int QUESTION_ALARM_ID = 2;
     public static final int SENSOR_ALARM_ID = 3;
+    public static final int CLOSE_SPIRO_ALARM_ID = 4;
+    public static final int STOP_ALARM_ID = 5;
+
+    public static final Integer SENSOR_ON_TIME = Constants.ONE_MIN_MS / 8; //7.5s
 
     public static final String START_MOBILE_SERVICE = "/start-mobile";
     public static final String ALARM_ACTION = "/alarm-action";

@@ -18,8 +18,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 
 import me.denley.courier.Courier;
 
@@ -53,7 +55,26 @@ public class MobileUploadService extends IntentService {
     private WifiManager wifiManager;
     private WifiManager.WifiLock lock;
 
-    private HttpsURLConnection conn = null;
+    private HttpsURLConnection conn = initConnection();
+
+    class NullHostNameVerifier implements HostnameVerifier {
+
+        @Override
+        public boolean verify(String hostname, SSLSession session) {
+            Log.i("RestUtilImpl", "Approving certificate for " + hostname);
+            return true;
+        }
+
+    }
+
+    private HttpsURLConnection initConnection() {
+        Log.d(TAG, "init secure url connection");
+//        HttpsURLConnection.setDefaultHostnameVerifier(new NullHostNameVerifier());
+//        SSLContext context = SSLContext.getInstance("TLS");
+//        context.init(null, new X509TrustManager[]{new X509TrustManager()}, new SecureRandom());
+//        HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+        return null;
+    }
 
     public MobileUploadService() {
         super("MobileUploadService");
@@ -85,8 +106,6 @@ public class MobileUploadService extends IntentService {
                     conn = (HttpsURLConnection) riskUrl.openConnection();
                     break;
                 case Constants.MULTI_API:
-                    if (!Constants.sendingData)
-                        return;
                     conn = (HttpsURLConnection) multiUrl.openConnection();
                     break;
                 case Constants.REG_CHECK_API:
@@ -180,7 +199,8 @@ public class MobileUploadService extends IntentService {
                     try {
                         String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
                         final JSONObject resJson = new JSONObject(jsonString);
-                        newRisk = Integer.parseInt(resJson.getString("risk"));
+                        int val = Integer.parseInt(resJson.getString("risk"));
+                        newRisk = val;
                         Log.i(TAG, "Setting new riskLevel: " + newRisk);
 //                        Constants.setRiskLevel(newRisk);
 

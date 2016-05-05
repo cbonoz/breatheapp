@@ -47,6 +47,7 @@ public class SensorNames {
         names.append(Constants.SPIRO_SENSOR_ID, "Spirometer Sensor");
         names.append(Constants.ENERGY_SENSOR_ID, "Energy");
         names.append(Constants.ACTIVITY_SENSOR_ID, "Activity");
+//        names.append(65545, "PPG");
 
 
 //                serverSensors.append(ActivityConstants.HEART_SENSOR_ID, 3);
@@ -57,6 +58,7 @@ public class SensorNames {
         serverSensors.append(Constants.ENERGY_SENSOR_ID, 5);
         serverSensors.append(Sensor.TYPE_GYROSCOPE, 6);
         serverSensors.append(Constants.ACTIVITY_SENSOR_ID, 7);
+        serverSensors.append(Constants.AIRBEAM_SENSOR_ID, 8);
 
     }
 

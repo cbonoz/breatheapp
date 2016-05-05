@@ -63,9 +63,7 @@ public final class HybridCrypt {
         byte[] bytes = password.getBytes("UTF-8");
         digest.update(bytes, 0, bytes.length);
         byte[] key = digest.digest();
-
         log("SHA-256 aesKey ", key);
-
         SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
         return secretKeySpec;
     }

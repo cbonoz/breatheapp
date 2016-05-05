@@ -17,8 +17,10 @@ public class BatteryReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context arg0, Intent intent) {
 
+        Log.d(TAG, "receive battery");
         try{
             ClientPaths.batteryLevel = intent.getIntExtra("level", 0);
+
 //            int temp = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1);
 //            int voltage = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1);
 //            int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);

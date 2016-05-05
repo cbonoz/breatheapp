@@ -41,7 +41,7 @@ public class RegisterActivity extends Activity {
     private Handler timeOutHandler;
     private Runnable timeOutTask = new Runnable() {
         public void run() {
-            Toast.makeText(RegisterActivity.this, "Please connect Wearable and try again", Toast.LENGTH_SHORT).show();
+            Toast.makeText(RegisterActivity.this, "Check connection to Wearable and try again", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -52,13 +52,15 @@ public class RegisterActivity extends Activity {
             // Extract data included in the Intent
 
             Boolean success = intent.getBooleanExtra("success",false);
-            String subjectId = intent.getStringExtra("subject_id");
-            Log.d("mRegisterReceiver", "success,subject " + success.toString()+","+subjectId);
+            String subject = intent.getStringExtra("subject_id");
+            if (subject==null)
+                subject="";
+            Log.d("mRegisterReceiver", "success,subject " + success.toString()+","+subject);
 
 
             if (success) {
                 Courier.startReceiving(RegisterActivity.this);
-                Courier.deliverMessage(RegisterActivity.this, Constants.SUBJECT_API, subjectId);
+                Courier.deliverMessage(RegisterActivity.this, Constants.SUBJECT_API, subject);
                 timeOutHandler = new Handler();
                 timeOutHandler.postDelayed(timeOutTask, 5000);
             } else
@@ -78,8 +80,9 @@ public class RegisterActivity extends Activity {
     @ReceiveMessages(Constants.REGISTERED_API)
     void onSubjectAcknowledged(String subject) {
         timeOutHandler.removeCallbacks(timeOutTask);
+        Courier.stopReceiving(RegisterActivity.this);
         saveSubjectAndClose(subject);
-        Courier.stopReceiving(this);
+
     }
 
     private void saveSubjectAndClose(String subject) {

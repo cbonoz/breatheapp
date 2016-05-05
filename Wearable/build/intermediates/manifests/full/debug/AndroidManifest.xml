@@ -37,12 +37,15 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
 
     <uses-feature
         android:glEsVersion="0x00020000"
         android:required="true" /> <!-- Permissions required for GCM -->
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" /> <!-- Optional permission for App measurement to run. -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- <uses-permission android:name="android.permission.WAKE_LOCK" /> -->
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -94,21 +97,21 @@
         </activity>
         <activity android:name="android.support.wearable.activity.ConfirmationActivity" />
 
-        <!-- <service -->
-        <!-- android:name="data.ActivityRecognitionService"> -->
-        <!-- </service> -->
-
         <service android:name="com.breatheplatform.beta.data.SensorAddService" />
         <service android:name="com.breatheplatform.beta.sensors.SensorService" />
         <service
             android:name="com.breatheplatform.beta.activity.ActivityDetectionService"
             android:exported="false" />
 
-        <receiver android:name="com.breatheplatform.beta.data.BatteryReceiver" >
-            <intent-filter>
-                <action android:name="android.intent.action.BATTERY_CHANGED" />
-            </intent-filter>
-        </receiver>
+        <!-- <receiver android:name=".data.BatteryReceiver"> -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="android.intent.action.BATTERY_CHANGED"/> -->
+        <!-- <action android:name="android.intent.action.ACTION_BATTERY_LOW"/> -->
+        <!-- <action android:name="android.intent.action.ACTION_BATTERY_OKAY"/> -->
+        <!-- </intent-filter> -->
+        <!-- </receiver> -->
+
+        <receiver android:name="com.breatheplatform.beta.sensors.AlarmReceiver" />
 
         <service android:name="com.breatheplatform.beta.bluetooth.RFduinoService" >
             <intent-filter>
@@ -121,7 +124,6 @@
             android:value="@integer/google_play_services_version" />
 
         <!-- <receiver android:name=".messaging.AlarmReceiver" android:enabled="true"/> -->
-        <receiver android:name="com.breatheplatform.beta.messaging.NotificationPublisher" />
 
         <uses-library
             android:name="com.google.android.wearable"

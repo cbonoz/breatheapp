@@ -54,9 +54,8 @@
         android:layout_height="90dp"
         android:id="@+id/smileView"
         android:layout_gravity="center_horizontal|bottom"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp" />
+        android:layout_below="@+id/spiroToggleButton"
+        android:layout_centerHorizontal="true" />
 
     <ToggleButton
         android:layout_width="185dp"
@@ -66,28 +65,29 @@
         android:textOn="SpiroMeter ON"
         android:textOff="Use Spirometer"
         android:layout_gravity="center_horizontal|top"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
         android:id="@+id/riskText"
-        android:layout_gravity="center_horizontal|top"
+        android:text="risk"
         android:gravity="center_vertical|center"
-        android:layout_below="@+id/spiroToggleButton"
+
+        android:layout_below="@+id/lastSensorText"
         android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="lastSensor"
-        android:id="@+id/lastSensorView"
+        android:id="@+id/lastSensorText"
         android:layout_gravity="left|center_vertical"
         android:layout_marginLeft="15dp"
-        android:layout_below="@+id/riskText"
-        android:layout_alignParentStart="true" />
+        android:layout_below="@+id/smileView"
+        android:layout_toStartOf="@+id/riskText"
+        android:layout_marginTop="19dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -96,8 +96,8 @@
         android:id="@+id/subjectText"
         android:layout_gravity="right|center_vertical"
         android:gravity="right"
-        android:layout_below="@+id/riskText"
-        android:layout_alignEnd="@+id/spiroToggleButton" />
+        android:layout_below="@+id/heartText"
+        android:layout_toStartOf="@+id/smileView" />
 
 
 
@@ -113,8 +113,8 @@
         android:src="@drawable/heart"
         android:maxHeight="32dp"
         android:maxWidth="32dp"
-        android:layout_below="@+id/subjectText"
-        android:layout_alignStart="@+id/subjectText" />
+        android:layout_centerVertical="true"
+        android:layout_alignStart="@+id/helpText1" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -122,32 +122,9 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="--"
         android:id="@+id/heartText"
-        android:layout_below="@+id/subjectText"
-        android:layout_toEndOf="@+id/heartImage"
-        android:paddingLeft="2dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text=""
-        android:id="@+id/connText"
-        android:textSize="12sp"
-        android:layout_below="@+id/heartImage"
-        android:layout_alignParentStart="true" />
-
-    <RelativeLayout
-        android:id="@+id/loadingPanel"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center" >
-
-        <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
-            android:visibility="gone" />
-    </RelativeLayout>
+        android:paddingLeft="2dp"
+        android:layout_alignTop="@+id/heartImage"
+        android:layout_toEndOf="@+id/heartImage" />
 
 
     <Switch
@@ -155,8 +132,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/sensorSwitch"
         android:checked="false"
-        android:layout_alignTop="@+id/smileView"
-        android:layout_alignParentEnd="true" />
+        android:layout_below="@+id/spiroToggleButton"
+        android:layout_alignStart="@+id/spiroToggleButton" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -165,10 +142,45 @@
         android:text="Sensors"
         android:id="@+id/helpText1"
         android:textSize="10dp"
-        android:layout_below="@+id/sensorSwitch"
-        android:layout_alignParentRight="true"
-        android:layout_toEndOf="@+id/heartText"
-        android:layout_alignStart="@+id/sensorSwitch" />
+        android:layout_alignBottom="@+id/subjectText"
+        android:layout_alignEnd="@+id/spiroToggleButton" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Breathe"
+        android:id="@+id/breatheView"
+        android:layout_alignBaseline="@+id/spiroToggleButton"
+        android:layout_alignBottom="@+id/spiroToggleButton"
+        android:layout_centerHorizontal="true"
+        android:textColor="#dddddd" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Active"
+        android:id="@+id/activeView"
+        android:layout_above="@+id/smileView"
+        android:layout_centerHorizontal="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/dateText"
+
+        android:layout_below="@+id/spiroToggleButton"
+        android:layout_centerHorizontal="true" />
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:id="@+id/spinnerBar"
+        android:visibility="gone"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
 

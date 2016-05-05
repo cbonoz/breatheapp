@@ -19,7 +19,6 @@ package com.breatheplatform.beta;
 
 import android.app.Activity;
 import android.app.AlarmManager;
-import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
@@ -27,17 +26,18 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.location.Location;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
+import android.hardware.TriggerEvent;
+import android.hardware.TriggerEventListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.wearable.activity.WearableActivity;
@@ -47,28 +47,19 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.breatheplatform.beta.activity.ActivityDetectionService;
 import com.breatheplatform.beta.data.SensorAddService;
-import com.breatheplatform.beta.messaging.NotificationPublisher;
+import com.breatheplatform.beta.sensors.AlarmReceiver;
 import com.breatheplatform.beta.sensors.SensorService;
 import com.breatheplatform.beta.shared.Constants;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.ActivityRecognition;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.wearable.Wearable;
 
 import org.json.JSONObject;
 
@@ -76,6 +67,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -85,23 +77,16 @@ import me.denley.courier.Courier;
 import me.denley.courier.ReceiveMessages;
 
 
-public class MainActivity extends WearableActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        LocationListener,  ResultCallback<Status>
+public class MainActivity extends WearableActivity
         //,DataApi.DataListener, MessageApi.MessageListener,NodeApi.NodeListener
 {
     private static final SimpleDateFormat AMBIENT_DATE_FORMAT =
-            new SimpleDateFormat("HH:mm", Locale.US);
+            new SimpleDateFormat("hh:mm aa", Locale.US);
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_ENABLE_BT = 1;
 
-
-    private GoogleApiClient mGoogleApiClient;
-
-    private static final int MIN_BATTERY = 5;
-
-    private static final int RISK_TASK_PERIOD=10000; //10 seconds
-
+    private static final int RISK_TASK_PERIOD=20000; //20 seconds
 
     BluetoothAdapter bluetoothAdapter;
     BluetoothSocket mmSocket;
@@ -114,7 +99,7 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
 
     volatile boolean stopWorker;
 
-
+    private final TriggerListener mListener = new TriggerListener();
 
     private static final int NAME_REQUEST_CODE = 1;
     private static final int ID_REQUEST_CODE = 2;
@@ -122,82 +107,36 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
     private static final int MED_RISK = 1;
     private static final int HIGH_RISK = 0;
 
-
-
     private ToggleButton spiroToggleButton;
 
-
-    private TextView lastSensorView=null;
-    private TextView mClockView;
+    private TextView lastSensorText =null;
+    private TextView dateText;
     private TextView riskText;
-
-    private TextView subjectView;
+    private TextView heartText;
+    private TextView subjectText;
+    private TextView activeView;
+    private ProgressBar spinnerBar;
     private ImageView smileView;
+    private ImageView heartImage;
 
     private static int lastRiskValue = LOW_RISK;//ActivityConstants.NO_VALUE;
 
     private RelativeLayout mRectBackground;
     private RelativeLayout mRoundBackground;
 
-//    private DeviceClient client=null;
-
-    private static Boolean lowBatteryState = false;
-
-//    //get battery level and save it
-//    public void updateBatteryLevel(){
-//        try {
-//            IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-//            Intent batteryStatus = this.registerReceiver(null, ifilter);
-//            int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-//            int previousLevel = ClientPaths.batteryLevel;
-//            ClientPaths.batteryLevel = level;
-//
-//
-//            if (level <= MIN_BATTERY && !lowBatteryState) {
-//
-//                Log.d(TAG, "Battery Low - Stopping Activity");
-//                lowBatteryState = true;
-//                destroyRoutine();
-//            } else if (previousLevel<=MIN_BATTERY && lowBatteryState && level > MIN_BATTERY) { //last battery level was low, but not current
-//                lowBatteryState = false;
-//                resumeAfterLowBattery();
-//            }
-//
-//
-//
-//
-//
-//        } catch (Exception e) {
-//            Log.e(TAG, "[Handled] Error getting battery level value");
-//
-//        }
-//    }
-
-
     private long mLastClickTime = 0;
 
     //units: ms
-    private static final Integer ONE_MIN_MS = 60000;
-    private static final long SPIRO_REMINDER_INTERVAL = ONE_MIN_MS;
-    private static final long SENSOR_INTERVAL = 2000;
-
+    private static final long SPIRO_REMINDER_INTERVAL = Constants.ONE_MIN_MS*10;
+//    private static final long SENSOR_INTERVAL = 2000;
 
     //Intervals in MS
-    private static final Integer ACTIVITY_INTERVAL = ONE_MIN_MS;//0//15000;//20000;//ms (0 fastest)
-    private static final Integer LOCATION_INTERVAL = 1000 * 60 * 2; //request ever 2 min
-    private final int MIN_CLICK_INTERVAL =5000;
+    private final int MIN_CLICK_INTERVAL = 5000;
 
-
-    private RelativeLayout progressBar;
     //this function is called during onCreate (if the user has not registered an ID yet, will be called after
 //    a valid ID has been registered during the boot up registration process)
-
-
     private void setupUI() {
         Log.d(TAG, "MainActivity setupUI");
-
-
-
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         //http://stackoverflow.com/questions/5442183/using-the-animated-circle-in-an-imageview-while-loading-stuff
@@ -205,7 +144,7 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
 //        progressBar.setVisibility(View.GONE);
 
         //set to 2 minute timeout (for ambient)
-        Settings.System.putString(getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, "120000");
+//        Settings.System.putString(getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, "120000");
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mLastReceiver,
                 new IntentFilter(Constants.LAST_SENSOR_EVENT));
@@ -213,8 +152,15 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
         LocalBroadcastManager.getInstance(this).registerReceiver(mHeartReceiver,
                 new IntentFilter(Constants.HEART_EVENT));
 
-
-        lastSensorView = (TextView) findViewById(R.id.lastSensorView);
+        spinnerBar = (ProgressBar) findViewById(R.id.spinnerBar);
+        dateText = (TextView) findViewById(R.id.dateText);
+        subjectText = (TextView) findViewById(R.id.subjectText);
+        activeView = (TextView) findViewById(R.id.activeView);
+        heartImage = (ImageView) findViewById(R.id.heartImage);
+        smileView = (ImageView) findViewById(R.id.smileView);
+        riskText = (TextView) findViewById(R.id.riskText);
+        heartText = (TextView) findViewById(R.id.heartText);
+        lastSensorText = (TextView) findViewById(R.id.lastSensorText);
         spiroToggleButton = (ToggleButton) findViewById(R.id.spiroToggleButton);
 
         spiroToggleButton.setChecked(false);
@@ -232,14 +178,16 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
                     if (isChecked) {
                         spiroToggleButton.setChecked(false);
                         Log.d(TAG, "Spiro Button blocked - currently connecting");
+                        Toast.makeText(MainActivity.this, "Wait 5 seconds", Toast.LENGTH_SHORT).show();
+
                     }
                     return;
                 }
 
-                mLastClickTime = SystemClock.elapsedRealtime();
+                spinnerBar.setVisibility(View.VISIBLE);
+                spinnerBar.bringToFront();
 
-//                progressBar.setVisibility(View.VISIBLE);
-//                progressBar.bringToFront();
+                mLastClickTime = SystemClock.elapsedRealtime();
 
                 if (isChecked) {
                     Log.d(TAG, "startSpiro");
@@ -247,11 +195,11 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
 
                     if (findBT(Constants.SPIRO_SENSOR_ID)) {
                         if (!openSpiro()) {
-                            Toast.makeText(MainActivity.this, "Spirometer Paired: Could not connect", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "Spirometer not on", Toast.LENGTH_SHORT).show();
                             spiroToggleButton.setChecked(false);
                         }
                     } else {
-                        Toast.makeText(MainActivity.this, "Spirometer not Paired", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Spirometer not paired", Toast.LENGTH_SHORT).show();
                         spiroToggleButton.setChecked(false);
                     }
                 } else {
@@ -260,7 +208,8 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
                     spiroToggleButton.setChecked(false);
                 }
 
-//                progressBar.setVisibility(View.GONE);
+                spinnerBar.setVisibility(View.GONE);
+
             }
         });
 
@@ -276,12 +225,12 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (isChecked) {
                         Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.START_WRITE);
-                        startMeasurement();
+                        startMeasurement(MainActivity.this);
 
 
                         Log.d(TAG, "sensorToggle Checked");
                     } else {
-                        stopMeasurement();
+                        stopMeasurement(MainActivity.this);
 
                         //trigger a data send event to the mobile device
                         addSensorData(Constants.TERMINATE_SENSOR_ID, null, null, null);
@@ -295,61 +244,18 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
             });
         } else {
             sensorSwitch.setVisibility(View.GONE);
-            if (!sensorToggled)// && !Constants.sensorAlarm)
-                startMeasurement();
+            startMeasurement(MainActivity.this);
         }
 
-
-//        updateRiskUI(Constants.NO_VALUE);
         updateRiskUI(lastRiskValue);
         requestSubjectAndUpdateUI();
 
-//        dustRequest();
-//        scheduleDustRequest();
+//        scheduleRiskRequest();
 
-        scheduleRiskRequest();
-
-
-//        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-//        registerReceiver(connReceiver, filter);
-
-        //prevent app screen from dimming - lock app on screen (confirmed)
-//        getWindowonDestory().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        //end setupUI
-        //TODO: uncomment if testing no services (want to test if no wakelock achievable
-//        destroyRoutine();
     }
 
     private Boolean sensorToggled = false;
 
-    private void createSpiroNotification() {
-
-        final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-        alertDialog.setTitle(R.string.spiro_title);
-        alertDialog.setMessage("Please take Spirometer Reading");
-        alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                alertDialog.dismiss();
-            }
-        });
-
-        alertDialog.show();
-    }
-
-
-
-    private void createDangerNotification() {
-        final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-        alertDialog.setTitle(R.string.danger_title);
-        alertDialog.setMessage("Please Contact your Doctor!");
-        alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                alertDialog.dismiss();
-            }
-        });
-        alertDialog.show();
-    }
 
     private SharedPreferences prefs;
 
@@ -368,15 +274,15 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
 
     WatchViewStub stub;
 
-    public static final int REQUEST_GOOGLE_PLAY_SERVICES = 1972;
+
 
     private void startRegistrationService() {
         GoogleApiAvailability api = GoogleApiAvailability.getInstance();
         int code = api.isGooglePlayServicesAvailable(this);
         if (code == ConnectionResult.SUCCESS) {
-            onActivityResult(REQUEST_GOOGLE_PLAY_SERVICES, Activity.RESULT_OK, null);
+            onActivityResult(Constants.REQUEST_GOOGLE_PLAY_SERVICES, Activity.RESULT_OK, null);
         } else if (api.isUserResolvableError(code) &&
-                api.showErrorDialogFragment(this, code, REQUEST_GOOGLE_PLAY_SERVICES)) {
+                api.showErrorDialogFragment(this, code, Constants.REQUEST_GOOGLE_PLAY_SERVICES)) {
             // wait for onActivityResult call (see below)
         } else {
             String str = GoogleApiAvailability.getInstance().getErrorString(code);
@@ -387,7 +293,7 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode) {
-            case REQUEST_GOOGLE_PLAY_SERVICES:
+            case Constants.REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode == Activity.RESULT_OK) {
 //                    Intent i = new Intent(this, RegistrationService.class);
 //                    startService(i); // OK, init GCM
@@ -405,38 +311,29 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
 
     }
 
-    private void buildApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(MainActivity.this)
-                .addApi(LocationServices.API)
-                .addApi(ActivityRecognition.API)
-//                .addApi(Wearable.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-    }
+    private static Integer requestCode = 0;
 
-    private AlarmManager alarmManager;
+    private AlarmManager alarmMgr;
+    private PendingIntent alarmIntent;
     private PendingIntent spiroIntent;
     private PendingIntent questionIntent;
     private PendingIntent sensorIntent;
 
 //    AlarmReceiver alarmReceiver = new AlarmReceiver();
 
-
-
 //    private IntentFilter alarmFilter = new IntentFilter(Constants.ALARM_ACTION);
 
-    private void scheduleNotification(Notification notification, int delay) {
-
-        Intent notificationIntent = new Intent(this, NotificationPublisher.class);
-        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, 1);
-        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION, notification);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        long futureInMillis = SystemClock.elapsedRealtime() + delay;
-        AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
-    }
+//    private void scheduleNotification(Notification notification, int delay) {
+//
+//        Intent notificationIntent = new Intent(this, AlarmReceiver.class);
+//        notificationIntent.putExtra(AlarmReceiver.ALARM_ID, 1);
+//        notificationIntent.putExtra(AlarmReceiver.NOTIFICATION, notification);
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+//
+//        long futureInMillis = SystemClock.elapsedRealtime() + delay;
+//
+//        alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
+//    }
 
     private Notification getNotification(String title, String content) {
         Notification.Builder builder = new Notification.Builder(this);
@@ -449,67 +346,59 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
     private Notification buildSpiroReminder() {
         Intent viewIntent = new Intent(this, MainActivity.class);
         viewIntent.putExtra("event-id", 0);
-        PendingIntent viewPendingIntent =
-                PendingIntent.getActivity(this, 0, viewIntent, 0);
+        PendingIntent viewPendingIntent = PendingIntent.getActivity(this, 0, viewIntent, 0);
 
         Notification.Builder builder = new Notification.Builder(this)
-                        .setSmallIcon(R.drawable.ic_spiro)
-//                        .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_spiro))
+//                        .setSmallIcon(R.drawable.ic_spiro)
+                        .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_spiro))
                         .setContentTitle("Breathe Reminder!")
+                        .setVibrate(new long[]{500})
                         .setContentText("Time to use Spirometer ->")
                         .setWhen(System.currentTimeMillis())
+                        .setShowWhen(true)
                         .setContentIntent(viewPendingIntent);
         return builder.build();
     }
 
+//    private void scheduleSensors(long interval) {
+//        Intent notificationIntent = new Intent(Constants.ALARM_ACTION);
+//        notificationIntent.putExtra(AlarmReceiver.ALARM_ID, Constants.SENSOR_ALARM_ID);
+//        sensorIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, sensorIntent);
+//    }
 
+    private void scheduleSpiroNotification(Notification notification, long interval, int id) {
+        Intent notificationIntent = new Intent(this, AlarmReceiver.class);
+        notificationIntent.putExtra(AlarmReceiver.ALARM_ID, id);
+        notificationIntent.putExtra(AlarmReceiver.NOTIFICATION, notification);
+        spiroIntent = PendingIntent.getBroadcast(this, requestCode++, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-    private void scheduleSensors(long interval) {
-        Intent notificationIntent = new Intent(Constants.ALARM_ACTION);
-        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, Constants.SENSOR_ALARM_ID);
-//        notificationIntent.putExtra(AlarmReceiver.NOTIFICATION, notification);
-        sensorIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, sensorIntent);
-    }
-
-    private void scheduleNotification(Notification notification, long interval, int id) {
-        Intent notificationIntent = new Intent(this, NotificationPublisher.class);
-        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, 1);
-        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION, notification);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        long futureInMillis = SystemClock.elapsedRealtime() + ONE_MIN_MS;
+        long futureInMillis = SystemClock.elapsedRealtime() + Constants.ONE_MIN_MS;
         AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-//        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, futureInMillis, interval, spiroIntent);
         if (id==Constants.SPIRO_ALARM_ID)
-            Log.d(TAG, "Scheduled spiro at interval " + interval + " ms");
+            Log.d(TAG, "Scheduled spiro alarm at interval " + interval + " ms");
     }
 
     private void scheduleQuestionAtTime(int hour, int minute) {
 
-        // Set the alarm to start at approximately the hour and minute given
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.HOUR, hour);
         calendar.set(Calendar.MINUTE, minute);
 
         long reminderTime = calendar.getTimeInMillis();
-
         Notification notification = buildQuestionReminder(reminderTime);
 
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        intent.putExtra(AlarmReceiver.ALARM_ID, Constants.QUESTION_ALARM_ID);
+        intent.putExtra(AlarmReceiver.NOTIFICATION, notification);
+        questionIntent = PendingIntent.getBroadcast(this, requestCode++, intent, 0);
 
-        Intent intent = new Intent(Constants.ALARM_ACTION);
-        intent.putExtra(NotificationPublisher.NOTIFICATION_ID, Constants.QUESTION_ALARM_ID);
-        intent.putExtra(NotificationPublisher.NOTIFICATION, notification);
-        questionIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY, questionIntent);
 
 
-        // setInexactRepeating() - AlarmManager.INTERVAL_DAY.
-        //uncomment when ready
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, reminderTime, AlarmManager.INTERVAL_DAY, questionIntent);
-
-        Log.d(TAG, "Scheduled question at time: " + hour + ":" + minute);
+        Log.d(TAG, "Scheduled question alarm at time: " + hour + ":" + minute);
 
     }
 
@@ -521,20 +410,16 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
                 //launch question api on phone
                 Courier.deliverMessage(MainActivity.this, Constants.QUESTION_API,"");
             }
-        };
+        }
     };
 
-
-
     private Notification buildQuestionReminder(long reminderTime) {
-
         // This is what you are going to set a pending intent which will start once
         // notification is pressed. Hopes you know how to add notification bar.
         Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.setAction("android.intent.action.MAIN");
         notificationIntent.addCategory("android.intent.category.LAUNCHER");
-
-        PendingIntent viewPendingIntent = PendingIntent.getActivity(this, 0,
+        PendingIntent viewPendingIntent = PendingIntent.getActivity(this, requestCode,
                 notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
@@ -553,23 +438,53 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
         return builder.build();
     }
 
+    private SensorManager mSensorManager = null;
+    private Sensor mSigMotionSensor;
+    private Sensor mStepSensor;
 
+    private BroadcastReceiver myBatteryReceiver = new BroadcastReceiver(){
+
+        @Override
+        public void onReceive(Context arg0, Intent arg1) {
+            int bLevel = arg1.getIntExtra("level", 0); // gets the battery level
+            ClientPaths.batteryLevel = bLevel;
+            Log.i(" Battery Level", ""+bLevel);
+            // Here you do something useful with the battery level...
+        }
+    };
+
+
+    private void printAvailableSensors() {
+        if (mSensorManager != null) {
+            Log.d(TAG, "print sensors:");
+            List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+            for(int i=0; i<deviceSensors.size(); i++) {
+                Log.d(TAG, "Sensor found:" + deviceSensors.get(i).toString() + ", isWakeUp: " + deviceSensors.get(i).isWakeUpSensor());
+            }
+
+         } else {
+            Log.e("printAvailableSensors", "[Handled] no print, mSensorManager null");
+        }
+    }
 
     public void onCreate(Bundle b) {
         super.onCreate(b);
+        alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
         prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
         ClientPaths.mainContext = this;
 
+
+
+//
+//        this.registerReceiver(this.myBatteryReceiver,
+//                new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+
         WindowManager.LayoutParams layout = getWindow().getAttributes();
-        layout.screenBrightness = .25F; //value between 0 and 1
+        layout.screenBrightness = .5F; //value between 0 and 1
         getWindow().setAttributes(layout);
 
         Courier.startReceiving(this);
-
-//        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-        //register sensor listener service
-
         setContentView(R.layout.main_activity);
 
         stub = (WatchViewStub) findViewById(R.id.stub);
@@ -581,6 +496,8 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
                     mRectBackground = (RelativeLayout) findViewById(R.id.rect_layout);
                     mRoundBackground = (RelativeLayout) findViewById(R.id.round_layout);
 
+
+                    mSensorManager.requestTriggerSensor(mListener, mSigMotionSensor);
                     setupUI();
 
 
@@ -592,64 +509,46 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
 
         //start google play registration service
         startRegistrationService();
-        buildApiClient();
-        mGoogleApiClient.connect();
-
-//        retrieveDeviceNode(); //set up mobileNode
         setAmbientEnabled();
 //        updateBatteryLevel();
 
+        //set up the significant motion listener for regulating the sensor service
+        mSensorManager = (SensorManager) this.getSystemService(Context.SENSOR_SERVICE);
+        mSigMotionSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
 
-        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+//        printAvailableSensors();
+
         scheduleAlarms();
     }
 
-    private void resumeAfterLowBattery() {
-        Log.d(TAG, "Resume after low battery");
-        WindowManager.LayoutParams layout = getWindow().getAttributes();
-        layout.screenBrightness = .25F; //value between 0 and 1
-        getWindow().setAttributes(layout);
-
-        Courier.startReceiving(this);
-//        updateBatteryLevel();
-        mGoogleApiClient.connect();
-
-
-
-        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        scheduleAlarms();
-
-        exitAmbientRoutine();
-    }
-
+    //Alarms for Questionnaire and Spiro
+    //    -7:30am (fixed time)
+    //    -3:30pm (fixed time)
+    //    -5-7pm (randomized to occur once between these hours)
+    //    -7-8pm (randomized to occur once between this hour)
     private void scheduleAlarms() {
         Log.d(TAG, "Scheduling Alarms");
-        scheduleNotification(buildSpiroReminder(), SPIRO_REMINDER_INTERVAL, Constants.SPIRO_ALARM_ID);//AlarmManager.INTERVAL_HOUR*2);
+        alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-//        if (Constants.sensorAlarm)
-//            scheduleSensors(SENSOR_INTERVAL);
 
-        //Alarms for Questionnaire
-        //    -7:30am (fixed time)
-        //    -3:30pm (fixed time)
-        //    -5-7pm (randomized to occur once between these hours)
-        //    -7-8pm (randomized to occur once between this hour)
+        scheduleSpiroNotification(buildSpiroReminder(), SPIRO_REMINDER_INTERVAL, Constants.SPIRO_ALARM_ID);//AlarmManager.INTERVAL_HOUR*2);
+
+
         scheduleQuestionAtTime(7, 30);
         scheduleQuestionAtTime(15, 30);
         scheduleQuestionAtTime(17, 30);
         scheduleQuestionAtTime(19, 30);
     }
 
-    private Boolean healthDanger = false;
-
     private void updateSubjectUI() {
 
         String sub = ClientPaths.subjectId;
 
-        subjectView = (TextView) findViewById(R.id.subjectText);
-        if (subjectView != null) {
+
+        if (subjectText != null) {
             String st = "Subject: " + sub;
-            subjectView.setText(st);
+            subjectText.setText(st);
         } else {
             Log.e(TAG, "Received subject before layout inflated");
         }
@@ -658,11 +557,12 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
     }
 
     public void updateRiskUI(int value) {
-        riskText = (TextView) findViewById(R.id.riskText);
-        smileView = (ImageView) findViewById(R.id.smileView);
+//        riskText = (TextView) findViewById(R.id.riskText);
+//        smileView = (ImageView) findViewById(R.id.smileView);
         String statusString;
 
         if (riskText == null || smileView == null) {
+            Log.e(TAG, "riskText or smileView is null");
             return;
         }
 
@@ -708,30 +608,42 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
         }
 
         lastRiskValue = value;
+        if (isAmbient())
+            riskText.setTextColor(Color.WHITE);
+
         riskText.setText(statusString);
         Log.d(TAG, "updateRiskUI - " + statusString);
     }
 
-    private void updateConnectivityText(String conn) {
-        TextView connText = (TextView) findViewById(R.id.connText);
-        connText.setText(conn);
-    }
 
     private Handler taskHandler = new Handler();
+//
+//    private Runnable riskTask = new Runnable()
+//    {
+//        public void run()
+//        {
+//            riskRequest();
+//
+//            taskHandler.postDelayed(this, RISK_TASK_PERIOD);
+//        }
+//    };
 
-    private Runnable riskTask = new Runnable()
+//    private void scheduleRiskRequest() {
+//        Log.d(TAG, "scheduleRiskRequest");
+//        taskHandler.postDelayed(riskTask, RISK_TASK_PERIOD);
+//    }
+
+    private Runnable stopSensorTask = new Runnable()
     {
         public void run()
         {
-            riskRequest();
-
-            taskHandler.postDelayed(this, RISK_TASK_PERIOD);
+            stopMeasurement(MainActivity.this);
         }
     };
 
     private void riskRequest() {
 
-        Log.d(TAG, "Called riskRequest");
+        Log.d(TAG, "riskRequest");
         try {
             JSONObject jsonBody = new JSONObject();
 
@@ -752,17 +664,13 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
         }
     }
 
-    private void scheduleRiskRequest() {
-        Log.d(TAG, "scheduleRiskRequest");
-        taskHandler.postDelayed(riskTask, RISK_TASK_PERIOD);
-    }
+
 
     @BackgroundThread
     @ReceiveMessages(Constants.RISK_API)
     void onRiskReceived(int value) { // The nodeId parameter is optional
         Log.d(TAG, "ReceiveMessage risk: " + value);
         updateRiskUI(value);
-
     }
 
     @BackgroundThread
@@ -777,9 +685,9 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
         try{
             int num = Integer.parseInt(sub);
             // is an integer!
-        } catch (NumberFormatException e) {
-            Log.e(TAG, "bad onSubjectReceived - received " + sub);
-            return;
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d(TAG, "[Handled] Error parsing: " + sub + " to number");
         }
 
         SharedPreferences.Editor editor = prefs.edit();
@@ -791,7 +699,6 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
         Courier.deliverMessage(this, Constants.REGISTERED_API, sub);
         updateSubjectUI();
     }
-
 
 //    @BackgroundThread
 //    @ReceiveMessages(Constants.LABEL_API)
@@ -808,48 +715,17 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
 //        // ...
 //    }
 
-    /**
-     * Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
-     */
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addApi(Wearable.API)  // used for data layer API
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-    }
 
     @Override
-    public void onResult(Status status) {
-        if (status.isSuccess()) {
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "MainActivity onDestroy");
 
-            Log.d(TAG, "Successfully requested activity updates");
-
-        } else {
-            Log.e(TAG, "Failed in requesting activity updates, "
-                    + "status code: "
-                    + status.getStatusCode() + ", message: " + status
-                    .getStatusMessage());
-        }
-    }
-
-    private PendingIntent getActivityDetectionPendingIntent() {
-        Intent intent = new Intent(this, ActivityDetectionService.class);
-        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-    private void destroyRoutine() {
-
-        setContentView(R.layout.black_layout);
-
-//        unregisterReceiver(mBroadcastReceiver);
-//        unregisterReceiver(alarmReceiver);
 
         try {
-            if (alarmManager != null) {
-                alarmManager.cancel(spiroIntent);
-                alarmManager.cancel(questionIntent);
+            if (alarmMgr != null) {
+                alarmMgr.cancel(spiroIntent);
+                alarmMgr.cancel(questionIntent);
 //                alarmManager.cancel(sensorIntent);
             }
         } catch (Exception e) {
@@ -858,35 +734,18 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
 
         Courier.stopReceiving(this);
 
-        //LocalBroadcastManager.getInstance(this).unregisterReceiver(mHeartReceiver);
-//
-        if (mGoogleApiClient.isConnected()) {
-            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
-                    mGoogleApiClient,
-                    getActivityDetectionPendingIntent()
-            ).setResultCallback(this);
-            Log.d(TAG, "Removed activity updates");
-        }
-
+//        try {
+//            taskHandler.removeCallbacks(riskTask);
+//        } catch (Exception e) {
+//            Log.e(TAG, "Risk Timer off");
+//        }
 
         try {
-            taskHandler.removeCallbacks(riskTask);
+            stopMeasurement(this);
+            closeSpiro();
         } catch (Exception e) {
-            Log.e(TAG, "Risk Timer off");
+            e.printStackTrace();
         }
-
-
-
-        if (mGoogleApiClient.isConnected()) {
-            LocationServices.FusedLocationApi
-                    .removeLocationUpdates(mGoogleApiClient, this);
-        }
-
-
-        mGoogleApiClient.disconnect();
-
-        stopMeasurement();
-        closeSpiro();
 
 
         try {
@@ -895,204 +754,121 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
         } catch( Exception e) {
             Log.e(TAG, "connReceiver off");
         }
-    }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "MainActivity onDestroy");
-        destroyRoutine();
         try {
 //            unregisterReceiver(alarmReceiver);
             unregisterReceiver(call_method);
+            this.unregisterReceiver(this.myBatteryReceiver);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        return true;
-//    }
-    //
     @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
         requestSubjectAndUpdateUI();
+        riskRequest();
     }
-
 
     @Override
     protected void onPause() {
         super.onPause();
         Log.d(TAG, "onPause");
-//        LocalBroadcastManager.getInstance(this).unregisterReceiver(activityReceiver);
-//        onResume();
+
+
     }
 
     private void updateLastView(String sensorName) {
-        if (lastSensorView!=null)
-            lastSensorView.setText("Last: " + sensorName + "\nDust Sensor: " + (ClientPaths.dustConnected ? "Yes" : "No"));
+        if (lastSensorText !=null)
+            lastSensorText.setText("Last: " + sensorName + "\nDust Sensor: " + (ClientPaths.dustConnected ? "Yes" : "No"));
     }
-
-
 
     public void onFinishActivity(View view) {
         setResult(RESULT_OK);
         finish();
     }
 
+//    private Integer lastHeartRate = Constants.NO_VALUE;
+
     //sensor BroadCast Listener
     private BroadcastReceiver mHeartReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             // Get extra data included in the Intent
-            Float lastHeartRate = intent.getFloatExtra("heartrate", Constants.NO_VALUE);
-//            String message = intent.getStringExtra("message");
-//            Log.d("sensor receiver", "Got heart rate: " + lastHeartRate.intValue());
-            updateHeartUI(lastHeartRate.intValue());
+            Integer lastHeartRate = intent.getIntExtra("heartrate", Constants.NO_VALUE);
+            updateHeartUI(lastHeartRate);
         }
     };
 
 
 
-    private void updateHeartUI(int lastHeartRate) {
-        TextView heartText = (TextView) findViewById(R.id.heartText);
+    private void updateHeartUI(int heartRate) {
 
-        Log.d(TAG, "Updating heart UI " + lastHeartRate);
+
+        Log.d(TAG, "Updating heart UI " + heartRate);
         try {
-            if (lastHeartRate == Constants.NO_VALUE)
+            if (heartRate == Constants.NO_VALUE)
                 heartText.setText("--");
             else
-                heartText.setText(lastHeartRate + "");
+                heartText.setText(heartRate + "");
         } catch (Exception e) {
             e.printStackTrace();
 //            Log.d(TAG, "Error updating heart UI");
         }
     }
 
-    //Sensor Related
-    private void startMeasurement() {
-        Log.i(TAG, "Start Measurement");
-//        if (!Constants.sensorAlarm)
-//            startService(new Intent(getBaseContext(), SensorService.class));
-        startService(new Intent(getBaseContext(), SensorService.class));
-        sensorToggled = true;
-        try {
-            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 0, getActivityDetectionPendingIntent()).setResultCallback(MainActivity.this);
-            Log.d(TAG, "requested activity updates");
-        } catch (Exception e) {
-//            e.printStackTrace();
-            Log.e(TAG, "connect - activity client not yet connected");
-        }
+    private void scheduleStopSensor(Integer futureTime) {
+//        Intent intent = new Intent(this, AlarmReceiver.class);
+//        intent.putExtra(AlarmReceiver.ALARM_ID, Constants.STOP_ALARM_ID);
+//        alarmIntent = PendingIntent.getBroadcast(this, Constants.STOP_ALARM_ID, intent, 0);
+//
+//
+//
+//        alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+//                SystemClock.elapsedRealtime() + futureTime, alarmIntent);
+        taskHandler.postDelayed(stopSensorTask, futureTime);
+        Log.d(TAG, "scheduled stop sensor alarm for " + futureTime + "ms");
+    }
 
+    class TriggerListener extends TriggerEventListener {
+        public void onTrigger(TriggerEvent event) {
+            Log.i("TriggerListener", "Name:" + event.sensor.getName());
+            Log.i("TriggerListener", "Type:" + event.sensor.getType());
+            startMeasurement(MainActivity.this);
+
+            // As it is a one shot sensor, it will be canceled automatically.
+            // SensorManager.requestTriggerSensor(this, mSigMotion); needs to
+            // be called again, if needed.
+        }
     }
 
 
-    private void stopMeasurement() {
+    //Sensor Related
+    public void startMeasurement(Context c) {
+        if (!sensorToggled) {
+            Log.i(TAG, "Start Measurement");
+            startService(new Intent(c, SensorService.class));
+            sensorToggled = true;
+            scheduleStopSensor(Constants.SENSOR_ON_TIME);
+            registerReceiver(myBatteryReceiver,
+                    new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        }
+    }
+
+    public void stopMeasurement(Context c) {
         Log.i(TAG, "Stop Measurement");
-        stopService(new Intent(getBaseContext(), SensorService.class));
+        stopService(new Intent(c, SensorService.class));
         sensorToggled = false;
 
         try {
-            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, getActivityDetectionPendingIntent()).setResultCallback(MainActivity.this);
+            mSensorManager.requestTriggerSensor(mListener, mSigMotionSensor);
         } catch (Exception e) {
-            Log.e(TAG, "disconnect - activity client not yet connected");
+            Log.d(TAG, "No sig motion sensor");
         }
 
-    }
-
-//    private GoogleApiClient activityClient;
-    /**
-     * Runs when a GoogleApiClient object successfully connects.
-     * http://stackoverflow.com/questions/27779974/getting-googleapiclient-to-work-with-activity-recognition
-     * http://www.sitepoint.com/google-play-services-location-activity-recognition/
-     */
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        Log.d(TAG, "GoogleApiClient onConnected");
-        try {
-            final PendingResult<Status>
-                    statusPendingResult =
-                    ActivityRecognition.ActivityRecognitionApi
-                            .requestActivityUpdates(mGoogleApiClient, ACTIVITY_INTERVAL, getActivityDetectionPendingIntent());
-            statusPendingResult.setResultCallback(this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-        //Request Location Updates from Google API Client
-        LocationRequest locationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
-                .setNumUpdates(1)
-                .setSmallestDisplacement(10) //10m
-                .setInterval(LOCATION_INTERVAL)
-                .setFastestInterval(LOCATION_INTERVAL);
-        try {
-            LocationServices.FusedLocationApi
-                    .requestLocationUpdates(mGoogleApiClient, locationRequest, this)
-                    .setResultCallback(new ResultCallback<Status>() {
-
-                        @Override
-                        public void onResult(Status status) {
-                            if (status.getStatus().isSuccess()) {
-
-                                Log.d(TAG, "Successfully requested location updates");
-
-                            } else {
-                                Log.e(TAG, "Failed in requesting location updates, "
-                                        + "status code: "
-                                        + status.getStatusCode() + ", message: " + status
-                                        .getStatusMessage());
-                            }
-                        }
-                    });
-        } catch(SecurityException e) {
-            e.printStackTrace();
-            Log.e(TAG, "[Handled] Error Requesting location service (lack of permission)");
-        }
-
-    }
-
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.d(TAG, "onConnectionSuspended called");
-        try {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, getActivityDetectionPendingIntent());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        Log.e(TAG, "onConnectionFailed called");
-        if (!result.hasResolution()) {
-            GoogleApiAvailability.getInstance().getErrorDialog(this, result.getErrorCode(), 0).show();
-            return;
-        }
-        try {
-            result.startResolutionForResult(this, REQUEST_GOOGLE_PLAY_SERVICES);
-        } catch (IntentSender.SendIntentException e) {
-            Log.e(TAG, "Exception while starting resolution activity", e);
-        }
-    }
-
-    @Override
-    public void onLocationChanged (Location location)
-    {
-        Log.d(TAG, "onLocationChanged: " + location.getLatitude() + "," + location.getLongitude());
-        ClientPaths.currentLocation = location;
-        //send updated watch location to mobile device
-//        Courier.deliverMessage(this, Constants.LOCATION_API, location);
+        unregisterReceiver(myBatteryReceiver);
     }
 
     @Override
@@ -1100,44 +876,54 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
         super.onEnterAmbient(ambientDetails);
         Log.d(TAG, "onEnterAmbient - remove task callbacks");
         try {
-            taskHandler.removeCallbacks(riskTask);
-//            taskHandler.removeCallbacks(dustTask);
-
-
+//            taskHandler.removeCallbacks(riskTask);
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mLastReceiver);
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mHeartReceiver);
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        setContentView(R.layout.black_layout);
 
-        setContentView(R.layout.black_layout);
+//        activeView.setVisibility(View.VISIBLE);
+        dateText.setVisibility(View.VISIBLE);
+        riskText.setTextColor(Color.WHITE);
+
+        heartImage.setVisibility(View.GONE);
+        lastSensorText.setVisibility(View.GONE);
+        spiroToggleButton.setVisibility(View.GONE);
+        smileView.setVisibility(View.GONE);
+        heartText.setVisibility(View.GONE);
+        subjectText.setVisibility(View.GONE);
+
+        updateN = 1;
+
+
+//        setContentView(R.layout.black_layout); //null background
     }
+    private int updateN = 1;
+    private static final int N = 2;
 
-    private void exitAmbientRoutine() {
-//        riskRequest();
-//        dustRequest();
-//        scheduleDustRequest();
-        scheduleRiskRequest();
+    @Override
+    public void onUpdateAmbient() {
+        super.onUpdateAmbient();
+        Log.d(TAG, "onUpdateAmbient");
+        Log.d(TAG, "updateN: " + updateN);
+        riskRequest();
 
 
-        Log.d(TAG, "Set main layout");
-        setContentView(R.layout.main_activity);
+        if (updateN == N) {
+            startMeasurement(this);
+            updateN = 1;
+        } else {
 
-        stub = (WatchViewStub) findViewById(R.id.stub);
-        stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
-            @Override
-            public void onLayoutInflated(WatchViewStub stub) {
-                if (!isAmbient()) {
-                    Log.d(TAG, "Layout Inflated - not ambient");
-                    mRectBackground = (RelativeLayout) findViewById(R.id.rect_layout);
-                    mRoundBackground = (RelativeLayout) findViewById(R.id.round_layout);
-                    setupUI();
-                } else {
-                    Log.d(TAG, "Layout Inflated - ambient");
-                }
-            }
-        });
+            updateN++;
+
+        }
+
+
+        Calendar c = Calendar.getInstance();
+        String strDate = AMBIENT_DATE_FORMAT.format(c.getTime());
+        dateText.setText(strDate);
+
     }
 
 
@@ -1145,7 +931,33 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
     public void onExitAmbient() {
         super.onExitAmbient();
         Log.d(TAG, "onExitAmbient - add task callbacks");
-        exitAmbientRoutine();
+//        scheduleRiskRequest();
+
+
+        riskText.setTextColor(Color.GREEN);
+        activeView.setVisibility(View.GONE);
+        dateText.setVisibility((View.GONE));
+
+
+        subjectText.setVisibility(View.VISIBLE);
+        smileView.setVisibility(View.VISIBLE);
+        heartImage.setVisibility(View.VISIBLE);
+        heartText.setVisibility(View.VISIBLE);
+        lastSensorText.setVisibility(View.VISIBLE);
+        spiroToggleButton.setVisibility(View.VISIBLE);
+
+        //register receivers
+        LocalBroadcastManager.getInstance(this).registerReceiver(mLastReceiver,
+                new IntentFilter(Constants.LAST_SENSOR_EVENT));
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mHeartReceiver,
+                new IntentFilter(Constants.HEART_EVENT));
+
+
+        Log.d(TAG, "Set main layout");
+
+        riskRequest();
+        startMeasurement(this);
 
     }
 
@@ -1190,7 +1002,7 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
                     }
                 }
             }
-            Log.d(TAG, "findBT did not find paired spiro device");
+            Log.d(TAG, "findDust did not find paired spiro device");
         }
 //        else if (type == Constants.DUST_SENSOR_ID){
 //            dustDevice = null;
@@ -1207,7 +1019,7 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
 //                    }
 //                }
 //            }
-//            Log.d(TAG, "findBT did not find paired dustdevice");
+//            Log.d(TAG, "findDust did not find paired dustdevice");
 //
 //        }
 
@@ -1296,6 +1108,8 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
                         {
                             byte[] packetBytes = new byte[bytesAvailable];
                             mmInputStream.read(packetBytes);
+                            String spiroData = packetBytes.toString();
+                            Log.d(TAG, "string spiroData: " + spiroData);
                             for(int i=0;i<bytesAvailable;i++)
                             {
                                 byte b = packetBytes[i];
@@ -1311,7 +1125,7 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
                                         public void run()
                                         {
 
-                                            Log.d(TAG, "Received spiro data: " + data.toString());
+                                            Log.d(TAG, "Parsed spiro data: " + data.toString());
                                             try {
                                                 Long timestamp = System.currentTimeMillis();
                                                 addSensorData(Constants.SPIRO_SENSOR_ID, 3, timestamp, data.toArray());
@@ -1320,17 +1134,21 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
                                                 Toast.makeText(MainActivity.this, "Data Received!", Toast.LENGTH_SHORT).show();
 
 //                                                //FOR STATIC DEMO: UPDATE IMAGE BASED ON PEF
+//                                                if (Constants.staticApp) {
+//                                                    lastRiskValue = pefToRisk(data.getPef());
+//                                                    if (data.good_test || (lastSpiroTime!=null && (timestamp - lastSpiroTime < ONE_MIN_MS))) {
+//                                                        updateRiskUI(lastRiskValue);
+//                                                    } else {
+//                                                        Toast.makeText(MainActivity.this, R.string.second_reading, Toast.LENGTH_LONG).show();
+//                                                    }
+//                                                }  else {
+//                                                    if (data.good_test || (lastSpiroTime!=null && (timestamp - lastSpiroTime < ONE_MIN_MS))) {
+//                                                        Toast.makeText(MainActivity.this, R.string.second_reading, Toast.LENGTH_LONG).show();
+//                                                    }
+//                                                }
                                                 if (Constants.staticApp) {
                                                     lastRiskValue = pefToRisk(data.getPef());
-                                                    if (data.good_test || (lastSpiroTime!=null && (timestamp - lastSpiroTime < ONE_MIN_MS))) {
-                                                        updateRiskUI(lastRiskValue);
-                                                    } else {
-                                                        Toast.makeText(MainActivity.this, R.string.second_reading, Toast.LENGTH_LONG).show();
-                                                    }
-                                                }  else {
-                                                    if (data.good_test || (lastSpiroTime!=null && (timestamp - lastSpiroTime < ONE_MIN_MS))) {
-                                                        Toast.makeText(MainActivity.this, R.string.second_reading, Toast.LENGTH_LONG).show();
-                                                    }
+                                                    updateRiskUI(lastRiskValue);
                                                 }
                                                 lastSpiroTime = timestamp;
 //                                                lastSpiroGood = data.good_test;
@@ -1359,9 +1177,6 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
         workerThread.start();
     }
 
-
-
-
     //append sensor data
     private void addSensorData(final Integer sensorType, final Integer accuracy, final Long t, final float[] values) {
 
@@ -1377,12 +1192,12 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
     private BroadcastReceiver mLastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // Get extra data included in the Intent
 //            Log.d("receiver", "Got message: " + sensorId);
             updateLastView(intent.getStringExtra("sensorName"));
 
         }
     };
+
 
 
 }

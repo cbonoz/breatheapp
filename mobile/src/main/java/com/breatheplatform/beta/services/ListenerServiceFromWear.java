@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.breatheplatform.beta.QuestionActivity;
 import com.breatheplatform.beta.RegisterActivity;
 import com.breatheplatform.beta.encryption.HybridCrypt;
+import com.breatheplatform.beta.encryption.RandomString;
 import com.breatheplatform.beta.shared.Constants;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
@@ -46,8 +47,15 @@ public class ListenerServiceFromWear extends WearableListenerService {
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
         String path = messageEvent.getPath();
-        String s = Packager.unpack(this, messageEvent.getData(), String.class);
-        Log.d(TAG, "onMessage " + path + ", " + s);
+        String s = "";
+        try {
+            s = Packager.unpack(this, messageEvent.getData(), String.class);
+            Log.d(TAG, "onMessage " + path + ", " + s);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "Error unpacking received data on mobile: " + s);
+            return;
+        }
         switch (path) {
             case Constants.QUESTION_API:
                 onQuestionReceived(s);
@@ -69,10 +77,11 @@ public class ListenerServiceFromWear extends WearableListenerService {
         for (DataEvent event : dataEvents) {
 
             String path = event.getDataItem().getUri().getPath();
+            String pdString = Packager.unpack(this, event.getDataItem().getData(), String.class);
+            Log.d(TAG, "onData " + path + ", " + pdString);
+
             switch (path) {
                 case Constants.MULTI_API:
-                    String pdString = Packager.unpack(this, event.getDataItem().getData(), String.class);
-                    Log.d(TAG, "onData " + path + ", " + pdString);
                     onMultiReceived(pdString);
                     break;
             }
@@ -161,7 +170,11 @@ public class ListenerServiceFromWear extends WearableListenerService {
             }
 
             try {
-                aes = new HybridCrypt(this, subject);
+
+                RandomString randomString = new RandomString(10);
+
+                //use random string to init the new hybridencrypter
+                aes = new HybridCrypt(this, randomString.nextString());//subject)
                 aesKeyString = aes.getKeyString();
 //                encKeyString = aes.encryptRSA(aesKeyString);
                 encKeyString = aes.encryptRSA(aesKeyString);//aes.getEncryptedKey();
@@ -218,7 +231,12 @@ public class ListenerServiceFromWear extends WearableListenerService {
     void onSubjectReceived(String data) { // The nodeId parameter is optional
         //send subject back to watch
         Log.d(TAG, "Received subject_id request from wear");
-        Courier.deliverMessage(this, Constants.SUBJECT_API, subject);
+        if (!subject.equals("")) {
+            Courier.deliverMessage(this, Constants.SUBJECT_API, subject);
+        } else {
+            Toast.makeText(this, "Enter your Clinician credentials", Toast.LENGTH_SHORT).show();
+            startRegisterActivity();
+        }
     }
 
     void onQuestionReceived(String data) { // The nodeId parameter is optional
@@ -337,27 +355,12 @@ public class ListenerServiceFromWear extends WearableListenerService {
                 jsonBody.put("enc_key", encKeyString);
 
                 Log.d("encData", encData);
-
-
-//                Log.d("un_data", aes.decrypt(encData));
-
-//                Log.d("raw_key", aesKeyString);
-//                Log.d("enc_key", encKeyString);
-//
-//                try {
-//                    jsonBody = new JSONObject(data);//pd.data);
-//                } catch(Exception e) {
-//                    e.printStackTrace();
-//                    Log.e(TAG, "Error creating json Object in multi api");
-//                    return;
-//                }
-//
-//                Log.d("reconstructed raw_key", jsonBody.getString("raw_key"));
 //
             }
 
             data = jsonBody.toString();
 
+//            Log.d(TAG, "Received multi request - " + data.length() + " bytes");
 
             if (Constants.collecting) {
                 if (labelFile != null) {

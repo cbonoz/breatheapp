@@ -1,4 +1,4 @@
-package com.breatheplatform.beta.messaging;
+package com.breatheplatform.beta.sensors;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -7,30 +7,31 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.breatheplatform.beta.sensors.SensorService;
+import com.breatheplatform.beta.MainActivity;
 import com.breatheplatform.beta.shared.Constants;
 
 /**
- * Created by cbono on 4/24/16.
+ * Created by cbono on 4/27/16.
  */
-public class NotificationPublisher extends BroadcastReceiver {
-    private static String TAG = "NotificationPublisher";
+public class AlarmReceiver extends BroadcastReceiver {
+    private static String TAG = "AlarmReceiver";
 
-    public static String NOTIFICATION_ID = "notification-id";
+    public static String ALARM_ID = "alarm-id";
     public static String NOTIFICATION = "notification";
 
     public void onReceive(Context context, Intent intent) {
-        int id = intent.getIntExtra(NOTIFICATION_ID, 0);
-        Log.d(TAG, "Alarm Called - notification_id: " + id);
+        int id = intent.getIntExtra(ALARM_ID, Constants.NO_VALUE);
+        Log.d(TAG, "Alarm Called - alarm_id: " + id);
 
         switch (id) {
             case Constants.SPIRO_ALARM_ID:
-                Log.d(TAG, "SpiroAlarm");
+                Log.d(TAG, "Spiro alarm called");
                 NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
                 Notification notification = intent.getParcelableExtra(NOTIFICATION);
                 notificationManager.notify(id, notification);
                 break;
             case Constants.QUESTION_ALARM_ID:
+                Log.d(TAG, "Question alarm called");
                 //TODO: create reminder and activity intent for questionnaire
                 break;
             case Constants.SENSOR_ALARM_ID:
@@ -44,9 +45,27 @@ public class NotificationPublisher extends BroadcastReceiver {
                 context.startService(i);
 
                 break;
+            case Constants.CLOSE_SPIRO_ALARM_ID:
+                Log.d(TAG, "Close spiro alarm called");
+                break;
+            case Constants.STOP_ALARM_ID:
+                Log.d(TAG, "Stop sensor alarm called");
+                try {
+                    ((MainActivity) context).stopMeasurement(context);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            case Constants.NO_VALUE:
+                Log.d(TAG, "No value alarm called");
+                break;
+            default:
+                Log.d(TAG, "Unknown Alarm");
+
 
         }
 
-
     }
+
+
 }

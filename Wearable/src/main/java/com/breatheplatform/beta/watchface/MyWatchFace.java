@@ -153,19 +153,19 @@ public class MyWatchFace extends CanvasWatchFaceService {
 //            Log.d(TAG, "onTap: start main activity");
             startMainActivity();
 
-            switch (tapType) {
-                case TAP_TYPE_TOUCH:
-                    // The user has started touching the screen.
-                    break;
-                case TAP_TYPE_TOUCH_CANCEL:
-                    // The user has started a different gesture or otherwise cancelled the tap.
-                    break;
-                case TAP_TYPE_TAP:
-                    // The user has completed the tap gesture.
-//                    mTapCount++;
-//                    mBackgroundPaint.setColor(resources.getColor(mTapCount % 2 == 0 ? R.color.background : R.color.background2));
-                    break;
-            }
+//            switch (tapType) {
+//                case TAP_TYPE_TOUCH:
+//                    // The user has started touching the screen.
+//                    break;
+//                case TAP_TYPE_TOUCH_CANCEL:
+//                    // The user has started a different gesture or otherwise cancelled the tap.
+//                    break;
+//                case TAP_TYPE_TAP:
+//                    // The user has completed the tap gesture.
+////                    mTapCount++;
+////                    mBackgroundPaint.setColor(resources.getColor(mTapCount % 2 == 0 ? R.color.background : R.color.background2));
+//                    break;
+//            }
             invalidate();
         }
 

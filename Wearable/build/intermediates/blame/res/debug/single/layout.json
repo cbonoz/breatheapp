@@ -120,10 +120,6 @@
         "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.google.android.gms/play-services-location/8.4.0/res/layout/place_autocomplete_item_powered_by_google.xml"
     },
     {
-        "merged": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/res/merged/debug/layout/rect_layout_deploy.xml",
-        "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/res/layout/rect_layout_deploy.xml"
-    },
-    {
         "merged": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/res/merged/debug/layout/abc_popup_menu_item_layout.xml",
         "source": "/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/layout/abc_popup_menu_item_layout.xml"
     },

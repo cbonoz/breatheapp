@@ -78,8 +78,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="lastSensor"
-        android:id="@+id/lastSensorView"
+        android:id="@+id/lastSensorText"
         android:layout_gravity="left|bottom"
         android:textSize="10dp"
         android:layout_alignBottom="@+id/heartImage"
@@ -157,17 +156,57 @@
         android:id="@+id/sensorSwitch"
         android:checked="false"
         android:layout_below="@+id/helpText1"
-        android:layout_alignEnd="@+id/lastSensorView" />
+        android:layout_alignEnd="@+id/lastSensorText" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Sensors"
-        android:id="@+id/helpText1"
-        android:textSize="10dp"
-        android:layout_below="@+id/spiroToggleButton"
-        android:layout_toStartOf="@+id/smileView" />
+        android:text="Breathe"
+        android:id="@+id/breatheView"
+        android:textColor="#dddddd"
+        android:layout_margin="5dp"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Active"
+        android:id="@+id/activeView"
+
+
+
+        android:layout_alignTop="@+id/breatheView"
+        android:layout_toEndOf="@+id/breatheView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/dateText"
+        android:gravity="end"
+        android:layout_below="@+id/heartImage"
+        android:layout_alignParentEnd="true" />
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"
+        android:id="@+id/spinnerBar" />
+
+    <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
+        <!--android:text="Sensors"-->
+        <!--android:id="@+id/helpText1"-->
+        <!--android:textSize="10dp"-->
+        <!--android:layout_below="@+id/spiroToggleButton"-->
+        <!--android:layout_toStartOf="@+id/smileView" />-->
 
 
 </RelativeLayout>

@@ -40,7 +40,7 @@ public class SensorAddService extends IntentService {
     }
 
     private static Integer recordCount = 0;
-    private static Integer RECORD_LIMIT = 50;
+    private static Integer RECORD_LIMIT = 50;//200;
 
     private static String tz = initTimeZone();
     private static String initTimeZone() {
@@ -122,6 +122,7 @@ public class SensorAddService extends IntentService {
                 case (Sensor.TYPE_HEART_RATE):
                     jsonValue.put("sensor_accuracy",accuracy);
                 case (Constants.DUST_SENSOR_ID):
+                case Constants.AIRBEAM_SENSOR_ID:
                     if (values[0]<=0) {
                         Log.d(TAG, "Received " + sensorName + " data <= 0 -> skip");
                         return;
@@ -144,8 +145,12 @@ public class SensorAddService extends IntentService {
 //                    //case (Sensor.TYPE_STEP_COUNTER):
 //                    jsonValue.put("temp", values[0]);
 //                    break;
+//                case 65545:
+//                    jsonValue.put("v", Arrays.toString(values));
+//                    jsonValue.put("sensor_accuracy",accuracy);
+//                    break;
                 default:
-                    Log.e(TAG, "Unexpected Sensor " + sensorType);
+                    Log.e(TAG, "Unexpected Sensor " + sensorName + " " + sensorType);
                     return;
             }
 
@@ -172,6 +177,8 @@ public class SensorAddService extends IntentService {
             return;
         }
 
+
+
         String dataEntry = jsonDataEntry.toString();
         //sensorData is a stringBuilder
         sensorData.append(dataEntry);
@@ -180,6 +187,7 @@ public class SensorAddService extends IntentService {
 //        lastSensorData.put(sensorType, currentTime);
 
         Log.d(TAG, "Data Added #"+ recordCount + ": " + dataEntry);
+
 
         //if spirometer send immediately
         if(sensorType==Constants.SPIRO_SENSOR_ID) {
@@ -206,7 +214,7 @@ public class SensorAddService extends IntentService {
 //            String sensorDataString = sensorData.join("\n");
             String sensorDataString = sensorData.toString();
 
-            if (ClientPaths.subjectId == null) {
+            if (ClientPaths.subjectId == null || ClientPaths.subjectId.equals("")) {
                 Log.d(TAG, "No Subject detected - blocking multi post");
             }
 
@@ -214,6 +222,7 @@ public class SensorAddService extends IntentService {
             jsonBody.put("subject_id", ClientPaths.subjectId);
             jsonBody.put("key", Constants.API_KEY);
             jsonBody.put("battery",ClientPaths.batteryLevel);
+            jsonBody.put("testing",Constants.TESTING);
 //            jsonBody.put("connection", ClientPaths.connectionInfo);
 
             jsonBody.put("data", sensorDataString);
@@ -221,8 +230,9 @@ public class SensorAddService extends IntentService {
             String data = jsonBody.toString();// + "^^" + sensorDataString;
 
 
-            Courier.deliverData(ClientPaths.mainContext, Constants.MULTI_API, data);
-            Log.d(TAG, "courier sent multiapi data");
+            Courier.deliverData(this, Constants.MULTI_API, data);
+            Log.d(TAG, "Courier sent multiapi data " + data.length());
+
 
         } catch (Exception e) {
             Log.e(TAG, "[Handled] Error requesting multi post request");

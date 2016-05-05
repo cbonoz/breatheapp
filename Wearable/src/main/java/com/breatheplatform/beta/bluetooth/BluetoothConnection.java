@@ -42,7 +42,7 @@ public class BluetoothConnection extends Thread {
         try {
             bluetoothAdapter.cancelDiscovery();
             mmSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
-            Method m = device.getClass().getMethod("createRfcommSocket", new Class[] {int.class});
+            Method m = device.getClass().getMethod("createRfcommSocket", int.class);
             mmSocket = (BluetoothSocket) m.invoke(device, 1);
 //            mmSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
             mmSocket.connect();

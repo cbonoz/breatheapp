@@ -1,5 +1,6 @@
 package com.breatheplatform.beta.sensors;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -8,39 +9,54 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.breatheplatform.beta.ClientPaths;
+import com.breatheplatform.beta.MainActivity;
+import com.breatheplatform.beta.activity.ActivityDetectionService;
 import com.breatheplatform.beta.bluetooth.HexAsciiHelper;
 import com.breatheplatform.beta.bluetooth.RFduinoService;
 import com.breatheplatform.beta.data.SensorAddService;
 import com.breatheplatform.beta.shared.Constants;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.ActivityRecognition;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
 import java.util.Set;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import me.denley.courier.Courier;
 
 /**
  * Created by cbono on 4/5/16.
+ * Master Sensor class for controlling all sensors (Except spirometer which is attached to main activity UI) for the wearable while in the wake state
+ * Accelerometer, Gyroscope, Heartrate, Dust Sensor, Location, Activity Recognition, Connectivity, Battery, Energy
  * http://www.tutorialspoint.com/android/android_services.htm
  * lowest sampling rate from sensors is 5hz (sensor delay normal)
  */
-public class SensorService extends Service implements SensorEventListener, BluetoothAdapter.LeScanCallback {
+public class SensorService extends Service implements SensorEventListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        LocationListener//, ResultCallback<Status>
+{
     private static final String TAG = "SensorService";
 
     //Sensor related
@@ -50,53 +66,55 @@ public class SensorService extends Service implements SensorEventListener, Bluet
     private Sensor heartRateSamsungSensor;
     private Sensor linearAccelerationSensor;
     private Sensor gyroSensor;
+//    private Sensor ppgSensor;
 
+    private GoogleApiClient mGoogleApiClient;
 
     private static final int SENS_LINEAR_ACCELERATION = Sensor.TYPE_LINEAR_ACCELERATION;
     private static final int SENS_HEARTRATE = Sensor.TYPE_HEART_RATE;
     private static final int SENS_GYRO = Sensor.TYPE_GYROSCOPE;
 
     private static final int MAX_DELAY = 1000000*2; //2*10^6 us
+//    private static final int SAMPLE_RATE = 200000; //5 hz in us
+
+    private static final Integer ACTIVITY_INTERVAL = Constants.ONE_MIN_MS / 2; //request every 30s (0 runs at fastest interval)
+    private static final Integer LOCATION_INTERVAL = Constants.ONE_MIN_MS * 2; //request every 2 min
+
 //    private static final Context context;
     private static final int PTS_PER_DATA = 5;
-    private static final int ENERGY_LIMIT =  PTS_PER_DATA *2;
-    private static int accelerationCount = 0;
+    private static final int ENERGY_LIMIT =  PTS_PER_DATA * 10;
 
-    //for energy measurements
+    //for counting sensor events
+    private static int accelerationCount = 1;
+    private static int gyroCount = 1;
+
+    //for averaging sensor events
     private static float sumX = 0, sumY = 0, sumZ = 0;
-    private static float sumX2, sumY2, sumZ2;
-    private static float energy = 0;
-
-
-    private static int gyroCount = 0;
+    private static float sumEnergyX=0, sumEnergyY=0, sumEnergyZ=0;
     private static float sumGyroX = 0, sumGyroY = 0, sumGyroZ = 0;
 
     private void eventCallBack(SensorEvent event) {
 //        Log.d(TAG, "onSensorChanged");
         int sensorId = event.sensor.getType();
-        long timestamp = event.timestamp;//System.currentTimeMillis();
+        long timestamp = System.currentTimeMillis(); //event.timestamp
         switch (sensorId) {
             case ClientPaths.HEART_SENSOR_ID:
             case ClientPaths.SS_HEART_SENSOR_ID:
-                float heartRate = event.values[0];
-
+                Float heartRate = event.values[0];
+                Log.d(TAG, "heart rate: " + heartRate + ", acc " + event.accuracy);
                 if (event.accuracy > 1) {//or 2 for higher accuracy requirement
                     checkForQuestionnaire(heartRate);
                     addSensorData(sensorId, event.accuracy, timestamp, event.values);
 
-                    //update the heart UI (just heart rate currently)
+                    //update the heart UI
                     //http://stackoverflow.com/questions/8802157/how-to-use-localbroadcastmanager
                     Intent i = new Intent(Constants.HEART_EVENT);
-                    i.putExtra("heartrate", heartRate);
+                    i.putExtra("heartrate", heartRate.intValue());
                     LocalBroadcastManager.getInstance(SensorService.this).sendBroadcast(i);
-
-                } else {
-                    Log.d(TAG, "heart rate " + heartRate + " accuracy too low: " + event.accuracy);
                 }
-
                 break;
             case SENS_GYRO:
-                gyroCount++;
+
                 sumGyroX += event.values[0];
                 sumGyroY += event.values[1];
                 sumGyroZ += event.values[2];
@@ -109,31 +127,41 @@ public class SensorService extends Service implements SensorEventListener, Bluet
                     sumGyroZ = 0;
                     gyroCount = 0;
                 }
+                gyroCount++;
                 break;
             case SENS_LINEAR_ACCELERATION:
-                accelerationCount++;
+
                 sumX += event.values[0];
                 sumY += event.values[1];
                 sumZ += event.values[2];
-                if (accelerationCount == PTS_PER_DATA) {
-                    //add averaged sensor measurement
-                    sumX2=sumX;
-                    sumY2=sumY;
-                    sumZ2=sumZ;
+                if (accelerationCount % PTS_PER_DATA == 0) {
 //                    Log.d(TAG, accelerationCount + " acc points");
+                    sumEnergyX += sumX;
+                    sumEnergyY += sumY;
+                    sumEnergyZ += sumZ;
                     addSensorData(sensorId, event.accuracy, timestamp, new float[]{sumX / PTS_PER_DATA, sumY / PTS_PER_DATA, sumZ / PTS_PER_DATA});
-                }
-                else if (accelerationCount == ENERGY_LIMIT) {
-                    addSensorData(sensorId, event.accuracy, timestamp, new float[]{(sumX-sumX2)/ PTS_PER_DATA,(sumY-sumY2)/ PTS_PER_DATA, (sumZ-sumZ2)/ PTS_PER_DATA});
-                    float energy = (float) (Math.pow(sumX,2) + Math.pow(sumY,2) + Math.pow(sumZ,2));
-                    addSensorData(Constants.ENERGY_SENSOR_ID, Constants.NO_VALUE, timestamp, new float[]{energy});
                     sumX = 0;
                     sumY = 0;
                     sumZ = 0;
+                }
+
+                if (accelerationCount == ENERGY_LIMIT) {
+//                    addSensorData(sensorId, event.accuracy, timestamp, new float[]{(sumX)/ PTS_PER_DATA,(sumY)/ PTS_PER_DATA, (sumZ)/ PTS_PER_DATA});
+                    float energy = (float) (Math.pow(sumEnergyX,2) + Math.pow(sumEnergyY,2) + Math.pow(sumEnergyZ,2));
+                    Log.d(TAG, "energy calculated - " + accelerationCount + " measurements");
+                    addSensorData(Constants.ENERGY_SENSOR_ID, Constants.NO_VALUE, timestamp, new float[]{energy});
+                    sumEnergyX = 0;
+                    sumEnergyY = 0;
+                    sumEnergyZ = 0;
 //                    Log.d(TAG, accelerationCount + " acc points -> add energy data point");
                     accelerationCount = 0;
                 }
+                accelerationCount++;
                 break;
+//            case 65545:
+//                addSensorData(sensorId, event.accuracy, timestamp, event.values);
+//                break;
+
         }
 //            updateLastView(sensorId);
     }
@@ -151,10 +179,12 @@ public class SensorService extends Service implements SensorEventListener, Bluet
         if (ClientPaths.activityDetail.contains("RUN")) {
             if (ClientPaths.userAge <= 12) {
                 if (heartRate >= 130) {
+                    addSensorData(Constants.TERMINATE_SENSOR_ID, null, null, null);
                     requestQuestionnaire();
                 }
             } else { //older than 12
                 if (heartRate >= 115) {
+                    addSensorData(Constants.TERMINATE_SENSOR_ID, null, null, null);
                     requestQuestionnaire();
                 }
             }
@@ -172,6 +202,7 @@ public class SensorService extends Service implements SensorEventListener, Bluet
 
     }
 
+    private PowerManager.WakeLock wakeLock;
 
     @Override
     public IBinder onBind(Intent arg0) {
@@ -182,7 +213,19 @@ public class SensorService extends Service implements SensorEventListener, Bluet
     public int onStartCommand(Intent intent, int flags, int startId) {
         // Let it continue running until it is stopped.
 //        Toast.makeText(sensorEventListener, "SensorService Started", Toast.LENGTH_LONG).show();
-        Log.d(TAG, "onStartCommand");
+        Log.d(TAG, "sensor onStartCommand");
+
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                "SensorWakeLock");
+
+        if (!wakeLock.isHeld()) {
+            wakeLock.acquire();
+            Log.d(TAG, "acquire lock");
+        }
+
+        buildApiClient();
+        mGoogleApiClient.connect();
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
@@ -191,59 +234,84 @@ public class SensorService extends Service implements SensorEventListener, Bluet
         linearAccelerationSensor = mSensorManager.getDefaultSensor(SENS_LINEAR_ACCELERATION);
         gyroSensor = mSensorManager.getDefaultSensor(SENS_GYRO);
         heartRateSamsungSensor = mSensorManager.getDefaultSensor(ClientPaths.SS_HEART_SENSOR_ID);//65562
+//        ppgSensor = mSensorManager.getDefaultSensor(65545);
 //        Log.d(TAG, "sensor delays (ms): heart, lin, gyro");
-//        Log.d("heart",heartRateSensor.getMaxDelay()/1000+"");
+//        Log.d("heart", heartRateSensor.getMaxDelay()/1000+"");
 //        Log.d("lin",linearAccelerationSensor.getMaxDelay()/1000+"");
 //        Log.d("gyro",gyroSensor.getMaxDelay()/1000+"");
 
 
-        Log.i(TAG, "Start Measurement");
-
-
         //http://stackoverflow.com/questions/30153904/android-how-to-set-sensor-delay
         if (linearAccelerationSensor != null) {
-            mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);// 1000000, 1000000);
+            mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, linearAccelerationSensor.getMaxDelay(), MAX_DELAY);// 1000000, 1000000);
         }  else {
             Log.d(TAG, "No Linear Acceleration Sensor found");
         }
 
 
         if (gyroSensor != null) {
-            mSensorManager.registerListener(SensorService.this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
+            mSensorManager.registerListener(SensorService.this, gyroSensor, gyroSensor.getMaxDelay(), MAX_DELAY);
         } else {
             Log.w(TAG, "No Gyroscope Sensor found");
         }
 
-
         if (heartRateSensor != null) {
-            final int measurementDuration   = 10;   // Seconds
-            final int measurementBreak      = 5;    // Seconds
-
-            mScheduler = Executors.newScheduledThreadPool(1);
-            mScheduler.scheduleAtFixedRate(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.d(TAG, "register Heartrate Sensor");
-                            mSensorManager.registerListener(SensorService.this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
-
-                            try {
-                                Thread.sleep(measurementDuration * 1000);
-                            } catch (InterruptedException e) {
-                                Log.e(TAG, "Interrupted while waitting to unregister Heartrate Sensor");
-                            }
-
-                            Log.d(TAG, "unregister Heartrate Sensor");
-                            mSensorManager.unregisterListener(SensorService.this, heartRateSensor);
-                        }
-                    }, 3, measurementDuration + measurementBreak, TimeUnit.SECONDS);
-
+            mSensorManager.registerListener(SensorService.this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
+            Log.d(TAG, "register regular heartrate sensor");
         } else {
-            Log.d(TAG, "No Heartrate Sensor found");
+            Log.w(TAG, "No Heart Rate Sensor found");
         }
 
-        dustRequest();
-        scheduleDustRequest();
+//        if (ppgSensor != null) {
+//            mSensorManager.registerListener(SensorService.this, ppgSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
+//            Log.d(TAG, "register regular heartrate sensor");
+//        } else {
+//            Log.w(TAG, "No Heart Rate Sensor found");
+//        }
+
+
+//        if (heartRateSamsungSensor != null) {
+//            mSensorManager.registerListener(SensorService.this, heartRateSamsungSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
+//            Log.d(TAG, "register samsung heartrate sensor");
+//        } else {
+//
+//            Log.w(TAG, "No Heart Rate Sensor found");
+//
+//        }
+
+
+
+
+
+
+//        if (heartRateSensor != null) {
+//            final int measurementDuration   = 10;   // Seconds
+//            final int measurementBreak      = 5;    // Seconds
+//
+//            mScheduler = Executors.newScheduledThreadPool(1);
+//            mScheduler.scheduleAtFixedRate(
+//                    new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            Log.d(TAG, "register Heartrate Sensor");
+//                            mSensorManager.registerListener(SensorService.this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
+//
+//                            try {
+//                                Thread.sleep(measurementDuration * 1000);
+//                            } catch (InterruptedException e) {
+//                                Log.e(TAG, "Interrupted while waitting to unregister Heartrate Sensor");
+//                            }
+//
+//                            Log.d(TAG, "unregister Heartrate Sensor");
+//                            mSensorManager.unregisterListener(SensorService.this, heartRateSensor);
+//                        }
+//                    }, 3, measurementDuration + measurementBreak, TimeUnit.SECONDS);
+//
+//        } else {
+//            Log.d(TAG, "No Heartrate Sensor found");
+//        }
+
+        registerDust();
 
         return START_STICKY;
     }
@@ -251,7 +319,21 @@ public class SensorService extends Service implements SensorEventListener, Bluet
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy");
+        Log.d(TAG, "sensor onDestroy");
+
+        if (ClientPaths.dustConnected) {
+            unregisterDust();
+            ClientPaths.dustConnected = false;
+        }
+
+
+//        try {
+//            taskHandler.removeCallbacks(dustTask);
+//        } catch (Exception e) {
+//            Log.e(TAG, "Dust scan off");
+//        }
+
+
 
         if (mSensorManager != null) {
             mSensorManager.unregisterListener(this);
@@ -260,22 +342,24 @@ public class SensorService extends Service implements SensorEventListener, Bluet
             mScheduler.shutdown();
         }
 
-        try {
-            unbindService(rfduinoServiceConnection);
-            Log.d(TAG, "remove rfduinoService");
-        } catch (Exception e) {
-            Log.e(TAG, "[Handled] unbinding rfduinoService");
+//        if (mGoogleApiClient.isConnected()) {
+//            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
+//                    mGoogleApiClient,
+//                    getActivityDetectionPendingIntent()
+//            ).setResultCallback(this);
+//            Log.d(TAG, "Removed activity updates");
+//        }
+
+
+        if (mGoogleApiClient.isConnected()) {
+            if (locationActive)
+                LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
 
-        unregisterDust();
-//        if (connReceiver != null)
-//            unregisterReceiver(connReceiver);
+        mGoogleApiClient.disconnect();
 
-        try {
-            taskHandler.removeCallbacks(dustTask);
-        } catch (Exception e) {
-            Log.e(TAG, "Dust scan off");
-        }
+        Log.d(TAG, "release lock");
+        wakeLock.release();
     }
 
     //append sensor data
@@ -293,20 +377,171 @@ public class SensorService extends Service implements SensorEventListener, Bluet
         Courier.deliverMessage(this, Constants.QUESTION_API, "");
     }
 
+
+
+    /* Google API Logic Below */
+
+
+
+    /**
+     * Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
+     */
+    private synchronized void buildApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addApi(ActivityRecognition.API)
+//                .addApi(Wearable.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+    }
+
+//    @Override
+//    public void onResult(Status status) {
+//        if (status.isSuccess()) {
+//
+//            Log.d(TAG, "Successfully requested activity updates");
+//
+//        } else {
+//            Log.e(TAG, "Failed in requesting activity updates, "
+//                    + "status code: "
+//                    + status.getStatusCode() + ", message: " + status
+//                    .getStatusMessage());
+//        }
+//    }
+
+    private PendingIntent getActivityDetectionPendingIntent() {
+        Intent intent = new Intent(this, ActivityDetectionService.class);
+        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+
+    /**
+     * Runs when a GoogleApiClient object successfully connects.
+     * http://stackoverflow.com/questions/27779974/getting-googleapiclient-to-work-with-activity-recognition
+     * http://www.sitepoint.com/google-play-services-location-activity-recognition/
+     */
+
+    private Boolean locationActive = false;
+    @Override
+    public void onConnected(Bundle bundle) {
+        Log.d(TAG, "GoogleApiClient onConnected");
+
+
+        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (location == null) {
+            LocationRequest locationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+                .setNumUpdates(1)
+                .setSmallestDisplacement(10) //10m
+                .setInterval(LOCATION_INTERVAL)
+                .setFastestInterval(LOCATION_INTERVAL);
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
+            locationActive = true;
+        } else {
+            ClientPaths.currentLocation = location;
+        }
+
+//
+//        try {
+//            final PendingResult<Status>
+//                    statusPendingResult =
+//                    ActivityRecognition.ActivityRecognitionApi
+//                            .requestActivityUpdates(mGoogleApiClient, ACTIVITY_INTERVAL, getActivityDetectionPendingIntent());
+//            statusPendingResult.setResultCallback(this);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//        //Request Location Updates from Google API Client
+//        LocationRequest locationRequest = LocationRequest.create()
+//                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+//                .setNumUpdates(1)
+//                .setSmallestDisplacement(10) //10m
+//                .setInterval(LOCATION_INTERVAL)
+//                .setFastestInterval(LOCATION_INTERVAL);
+//        try {
+//            LocationServices.FusedLocationApi
+//                    .requestLocationUpdates(mGoogleApiClient, locationRequest, this)
+//                    .setResultCallback(new ResultCallback<Status>() {
+//
+//                        @Override
+//                        public void onResult(Status status) {
+//                            if (status.getStatus().isSuccess()) {
+//
+//                                Log.d(TAG, "Successfully requested location updates");
+//
+//                            } else {
+//                                Log.e(TAG, "Failed in requesting location updates, "
+//                                        + "status code: "
+//                                        + status.getStatusCode() + ", message: " + status
+//                                        .getStatusMessage());
+//                            }
+//                        }
+//                    });
+//        } catch(SecurityException e) {
+//            e.printStackTrace();
+//            Log.e(TAG, "[Handled] Error Requesting location service (lack of permission)");
+//        }
+
+    }
+
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.d(TAG, "onConnectionSuspended called");
+        try {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, getActivityDetectionPendingIntent());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        Log.e(TAG, "onConnectionFailed called");
+        try {
+            if (!result.hasResolution()) {
+                GoogleApiAvailability.getInstance().getErrorDialog((MainActivity) ClientPaths.mainContext, result.getErrorCode(), 0).show();
+                return;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            result.startResolutionForResult((MainActivity) ClientPaths.mainContext, Constants.REQUEST_GOOGLE_PLAY_SERVICES);
+        } catch (IntentSender.SendIntentException e) {
+            Log.e(TAG, "Exception while starting resolution activity", e);
+        }
+    }
+
+    @Override
+    public void onLocationChanged (Location location)
+    {
+        Log.d(TAG, "onLocationChanged: " + location.getLatitude() + "," + location.getLongitude());
+        if (location!=null)
+            ClientPaths.currentLocation = location;
+        //send updated watch location to mobile device
+//        Courier.deliverMessage(this, Constants.LOCATION_API, location);
+    }
+
+
          /* BLUETOOTH LOGIC BELOW */
 
-    private static final int BT_TASK_PERIOD = 150000; //ms
+//    private static final int BT_TASK_PERIOD = 150000; //ms
     private static final int REQUEST_ENABLE_BT = 1;
+    private static Boolean initOnce = true;
 
 
     //    private ConnectionReceiver connReceiver;
-    BluetoothAdapter bluetoothAdapter;
-    private RFduinoService rfduinoService;
-    private BluetoothDevice bluetoothDevice;
-    ;
-    BluetoothDevice dustDevice;
-
-    private ServiceConnection rfduinoServiceConnection = null;
+    private static BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    private static RFduinoService rfduinoService;
+    private static BluetoothDevice dustDevice = null;
+    private static ServiceConnection rfduinoServiceConnection = null;
 
     // Bluetooth (Dust) State machine
     final private static int STATE_BLUETOOTH_OFF = 1;
@@ -344,18 +579,18 @@ public class SensorService extends Service implements SensorEventListener, Bluet
     }
 
 
-    @Override
-    public void onLeScan(BluetoothDevice device, final int rssi, final byte[] scanRecord) {
-        bluetoothAdapter.stopLeScan(this);
-        bluetoothDevice = device;
-
-        //scan for bluetooth device that contains RF
-        if (bluetoothDevice.getName().contains(Constants.DUST_BT_NAME)) {
-            Log.i(TAG, "Found RF Device: " + bluetoothDevice.getName());
-            Intent rfduinoIntent = new Intent(this, RFduinoService.class);
-            bindService(rfduinoIntent, rfduinoServiceConnection, BIND_AUTO_CREATE);
-        }
-    }
+//    @Override
+//    public void onLeScan(BluetoothDevice device, final int rssi, final byte[] scanRecord) {
+//        bluetoothAdapter.stopLeScan(this);
+//        bluetoothDevice = device;
+//
+//        //scan for bluetooth device that contains RF
+//        if (bluetoothDevice.getName().contains(Constants.DUST_BT_NAME)) {
+//            Log.i(TAG, "Found RF Device: " + bluetoothDevice.getName());
+//            Intent rfduinoIntent = new Intent(this, RFduinoService.class);
+//            bindService(rfduinoIntent, rfduinoServiceConnection, BIND_AUTO_CREATE);
+//        }
+//    }
 
 
 
@@ -370,6 +605,8 @@ public class SensorService extends Service implements SensorEventListener, Bluet
             }
         }
     };
+
+
 
 
     private final BroadcastReceiver scanModeReceiver = new BroadcastReceiver() {
@@ -387,17 +624,16 @@ public class SensorService extends Service implements SensorEventListener, Bluet
             if (RFduinoService.ACTION_CONNECTED.equals(action)) {
                 upgradeState(STATE_CONNECTED);
                 ClientPaths.dustConnected = true;
-                try {
-                    taskHandler.removeCallbacks(dustTask);
-                } catch (Exception e) {
-                    Log.e(TAG, "Risk Timer off");
-                }
+//                try {
+//                    taskHandler.removeCallbacks(dustTask);
+//                } catch (Exception e) {
+//                    Log.e(TAG, "Risk Timer off");
+//                }
 
                 Log.d("rfduinoReceiver", "connected");
             } else if (RFduinoService.ACTION_DISCONNECTED.equals(action)) {
                 downgradeState(STATE_DISCONNECTED);
                 ClientPaths.dustConnected = false;
-                scheduleDustRequest();
                 Log.d("rfduinoReceiver", "disconnected");
             } else if (RFduinoService.ACTION_DATA_AVAILABLE.equals(action)) {
                 addData(intent.getByteArrayExtra(RFduinoService.EXTRA_DATA));
@@ -406,38 +642,32 @@ public class SensorService extends Service implements SensorEventListener, Bluet
     };
 
     public Boolean openDust() {
+        Log.d(TAG, "openDust");
         try {
-//            if (rfduinoServiceConnection != null) {
-//                try {
-//                    unregisterDust();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                    Log.e(TAG, "unregisterDust");
-//                }
-//            }
 
-            rfduinoServiceConnection = new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder service) {
-                    rfduinoService = ((RFduinoService.LocalBinder) service).getService();
-                    if (rfduinoService.initialize()) {
-                        boolean result = rfduinoService.connect(dustDevice);
+            if (rfduinoServiceConnection == null) {
 
-                        if (result) {
-                            upgradeState(STATE_CONNECTING);
+                rfduinoServiceConnection = new ServiceConnection() {
+                    @Override
+                    public void onServiceConnected(ComponentName name, IBinder service) {
+                        rfduinoService = ((RFduinoService.LocalBinder) service).getService();
+                        if (rfduinoService.initialize()) {
+                            boolean result = rfduinoService.connect(dustDevice);
+
+                            if (result) {
+                                upgradeState(STATE_CONNECTING);
+                            }
+
+
                         }
                     }
-                }
 
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-                    rfduinoService = null;
-                    downgradeState(STATE_DISCONNECTED);
-                }
-            };
-
-            Intent rfduinoIntent = new Intent(SensorService.this, RFduinoService.class);
-            bindService(rfduinoIntent, rfduinoServiceConnection, BIND_AUTO_CREATE);
+                    @Override
+                    public void onServiceDisconnected(ComponentName name) {
+                        downgradeState(STATE_DISCONNECTED);
+                    }
+                };
+            }
 
             try {
                 registerReceiver(scanModeReceiver, new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED));
@@ -448,8 +678,18 @@ public class SensorService extends Service implements SensorEventListener, Bluet
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.d(TAG, "[Handled] Receivers registered already");
-
             }
+
+
+            try {
+                Intent rfduinoIntent = new Intent(SensorService.this, RFduinoService.class);
+                bindService(rfduinoIntent, rfduinoServiceConnection, BIND_AUTO_CREATE);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            Log.d(TAG, "Dust Bluetooth Opened");
+            return true;
 
 
         } catch (Exception e) {
@@ -457,43 +697,39 @@ public class SensorService extends Service implements SensorEventListener, Bluet
             Log.e(TAG, "[Handled] openDust unsuccessful");
             return false;
         }
-        Log.d(TAG, "Dust Bluetooth Opened");
-        return true;
+
     }
 
-//    public void closeDust() {
-//        try {
-//            unregisterDust();
-//            Log.d(TAG, "dust bluetooth closed");
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            Log.e(TAG, "[Handled] closeDust");
-//        }
-//    }
+
 
     private void unregisterDust() {
         Log.d(TAG, "Unregister Dust");
-//        try {
-//            bluetoothAdapter.stopLeScan(this);
-//        } catch (Exception e) {
-//            Log.e(TAG, "stopLeScan");
-//        }
+
         try {
-            if (scanModeReceiver != null)
-                unregisterReceiver(scanModeReceiver);
+            unregisterReceiver(scanModeReceiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-            if (bluetoothStateReceiver != null)
-                unregisterReceiver(bluetoothStateReceiver);
+        try {
+            unregisterReceiver(bluetoothStateReceiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+        try {
+            unregisterReceiver(rfduinoReceiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-            if (rfduinoReceiver != null)
-                unregisterReceiver(rfduinoReceiver);
-
+        try {
             unbindService(rfduinoServiceConnection);
         } catch (Exception e) {
-            Log.e(TAG, "[Handled] Error unregistering dust receiver");
-
+            e.printStackTrace();
         }
+
+
     }
 
 
@@ -506,6 +742,7 @@ public class SensorService extends Service implements SensorEventListener, Bluet
     }
 
     public void processReceivedDustData(String receiveBuffer) {
+//        ClientPaths.dustConnected = true;
 //        Log.d("processDust receiveBuffer", receiveBuffer);
         //example: B:0353E
         String dustData = receiveBuffer.substring(2, 6);
@@ -523,63 +760,68 @@ public class SensorService extends Service implements SensorEventListener, Bluet
         addSensorData(Constants.DUST_SENSOR_ID, Constants.NO_VALUE, System.currentTimeMillis(), vals);
     }
 
+//
+//    private Runnable dustTask = new Runnable()
+//    {
+//        public void run()
+//        {
+//            dustRequest();
+//            taskHandler.postDelayed(this, BT_TASK_PERIOD);
+//
+//        }
+//    };
 
-    private Runnable dustTask = new Runnable()
-    {
-        public void run()
-        {
-            dustRequest();
-//            updateBatteryLevel();
-//            connectivityRequest();
-//            updateConnectivityText();
-            taskHandler.postDelayed(this, BT_TASK_PERIOD);
+//
+//    private void scheduleDustRequest() {
+//        Log.d(TAG, "scheduleDustRequest");
+//        taskHandler.postDelayed(dustTask, BT_TASK_PERIOD);
+//    }
 
-        }
-    };
 
-    private void dustRequest() {
-        Log.d(TAG, "dustRequest");
+//    private void dustRequest() {
+//        Log.d(TAG, "dustRequest");
+//        registerDust();
+//    }
 
+
+    private void registerDust() {
         if (!ClientPaths.dustConnected) {
             Log.d(TAG, "Dust not connected - attempting to reconnect");
-//            registerDust();
-            findBT();
-            if (dustDevice != null) {
+            if (findDust()) {
                 if (openDust()) {
+                    ClientPaths.dustConnected = true;
                     Log.d(TAG, "Opened dust connection");
+                } else {
+                    ClientPaths.dustConnected = false;
                 }
             }
         }
     }
 
-    private void scheduleDustRequest() {
-        Log.d(TAG, "scheduleDustRequest");
-        taskHandler.postDelayed(dustTask, BT_TASK_PERIOD);
-    }
-
-
 
     //Spirometer connection:
-    public Boolean findBT()
+    public Boolean findDust()
     {
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (dustDevice != null)
+            return true;
 
         if(bluetoothAdapter == null)
         {
-            Log.d(TAG, "No bluetooth adapter available");
+            Log.e(TAG, "No bluetooth adapter available");
 
         }
 
-//        if(!bluetoothAdapter.isEnabled())
-//        {
-//            Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//            startActivityForResult(enableBluetooth, REQUEST_ENABLE_BT);
-//        }
+        if(!bluetoothAdapter.isEnabled())
+        {
+            Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            try {
+                ((MainActivity) ClientPaths.mainContext).startActivityForResult(enableBluetooth, REQUEST_ENABLE_BT);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
-
-
-        dustDevice = null;
         if (pairedDevices.size() > 0) {
             String deviceName;
             for (BluetoothDevice device : pairedDevices) {
@@ -593,7 +835,7 @@ public class SensorService extends Service implements SensorEventListener, Bluet
                 }
             }
         }
-        Log.d(TAG, "findBT did not find paired dustdevice");
+        Log.d(TAG, "findDust did not find paired dustdevice");
 
         return false;
 
@@ -612,14 +854,12 @@ public class SensorService extends Service implements SensorEventListener, Bluet
         String connectionInfo = "None";
         if (activeNetwork != null) {
             connectionInfo = activeNetwork.getTypeName();
-
             if (connectionInfo.equals("WIFI")) {
                 WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
                 WifiInfo wifiInfo = wifiManager.getConnectionInfo();
                 int level = WifiManager.calculateSignalLevel(wifiInfo.getRssi(), LEVELS);
                 connectionInfo += " " + level;
             }
-
         }
 //        ClientPaths.connectionInfo = connectionInfo;
         Log.d(TAG, "Connectivity " + connectionInfo);
