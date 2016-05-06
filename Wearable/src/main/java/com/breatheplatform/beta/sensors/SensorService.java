@@ -224,6 +224,8 @@ public class SensorService extends Service implements SensorEventListener, Googl
             Log.d(TAG, "acquire lock");
         }
 
+        registerDust();
+
         buildApiClient();
         mGoogleApiClient.connect();
 
@@ -311,7 +313,6 @@ public class SensorService extends Service implements SensorEventListener, Googl
 //            Log.d(TAG, "No Heartrate Sensor found");
 //        }
 
-        registerDust();
 
         return START_STICKY;
     }
@@ -753,11 +754,12 @@ public class SensorService extends Service implements SensorEventListener, Googl
         } catch (Exception e) {
             e.printStackTrace();
             vals[0] = Constants.NO_VALUE;
-            return;
+
         }
 
         Log.d(TAG, receiveBuffer + " Dust Reading: " + vals[0]);
-        addSensorData(Constants.DUST_SENSOR_ID, Constants.NO_VALUE, System.currentTimeMillis(), vals);
+        if (vals[0]!=Constants.NO_VALUE)
+            addSensorData(Constants.DUST_SENSOR_ID, Constants.NO_VALUE, System.currentTimeMillis(), vals);
     }
 
 //
@@ -805,10 +807,9 @@ public class SensorService extends Service implements SensorEventListener, Googl
         if (dustDevice != null)
             return true;
 
-        if(bluetoothAdapter == null)
-        {
+        if(bluetoothAdapter == null) {
             Log.e(TAG, "No bluetooth adapter available");
-
+            return false;
         }
 
         if(!bluetoothAdapter.isEnabled())
@@ -827,16 +828,15 @@ public class SensorService extends Service implements SensorEventListener, Googl
             for (BluetoothDevice device : pairedDevices) {
                 deviceName = device.getName();
 
-                if (deviceName.contains(Constants.DUST_BT_NAME)) {
+                if (deviceName.contains(Constants.DUST_BT_NAME)) {//AIRBEAM_BT_NAME)) {
                     dustDevice = device;
-                    Log.d("yjcode", "Detected RFduino device: " + deviceName + " " + dustDevice.getAddress());
+                    Log.d("yjcode", "Detected dust RFdevice: " + deviceName + " " + dustDevice.getAddress());
                     //add connection for RF duino here as well
                     return true;
                 }
             }
         }
         Log.d(TAG, "findDust did not find paired dustdevice");
-
         return false;
 
     }

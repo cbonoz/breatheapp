@@ -435,10 +435,6 @@ ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main
 		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:101:13-37
 	android:name
 		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:100:13-62
-receiver#com.breatheplatform.beta.sensors.AlarmReceiver
-ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:112:9-58
-	android:name
-		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:112:19-56
 service#com.breatheplatform.beta.bluetooth.RFduinoService
 ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:114:9-118:19
 	android:name

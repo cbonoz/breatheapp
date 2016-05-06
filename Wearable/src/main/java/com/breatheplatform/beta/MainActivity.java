@@ -21,9 +21,6 @@ import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.PendingIntent;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -35,9 +32,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.hardware.TriggerEvent;
 import android.hardware.TriggerEventListener;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.wearable.activity.WearableActivity;
@@ -47,15 +44,13 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.breatheplatform.beta.data.SensorAddService;
-import com.breatheplatform.beta.sensors.AlarmReceiver;
+import com.breatheplatform.beta.bluetooth.BTSocket;
 import com.breatheplatform.beta.sensors.SensorService;
 import com.breatheplatform.beta.shared.Constants;
 import com.google.android.gms.common.ConnectionResult;
@@ -63,13 +58,10 @@ import com.google.android.gms.common.GoogleApiAvailability;
 
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.UUID;
 
 import me.denley.courier.BackgroundThread;
@@ -80,190 +72,49 @@ import me.denley.courier.ReceiveMessages;
 public class MainActivity extends WearableActivity
         //,DataApi.DataListener, MessageApi.MessageListener,NodeApi.NodeListener
 {
+    private static final String TAG = "MainActivity";
+
     private static final SimpleDateFormat AMBIENT_DATE_FORMAT =
             new SimpleDateFormat("hh:mm aa", Locale.US);
 
-    private static final String TAG = "MainActivity";
-    private static final int REQUEST_ENABLE_BT = 1;
-
+    //Risk value constants
     private static final int RISK_TASK_PERIOD=20000; //20 seconds
 
-    BluetoothAdapter bluetoothAdapter;
-    BluetoothSocket mmSocket;
-    BluetoothDevice mmDevice;
-
-    InputStream mmInputStream;
-    Thread workerThread;
-    byte[] readBuffer;
-    int readBufferPosition;
-
-    volatile boolean stopWorker;
-
-    private final TriggerListener mListener = new TriggerListener();
-
-    private static final int NAME_REQUEST_CODE = 1;
-    private static final int ID_REQUEST_CODE = 2;
     private static final int LOW_RISK = 2;
     private static final int MED_RISK = 1;
     private static final int HIGH_RISK = 0;
 
-    private ToggleButton spiroToggleButton;
+    private static int lastRiskValue = LOW_RISK;//ActivityConstants.NO_VALUE;
 
-    private TextView lastSensorText =null;
+    //UI elements
+    private ToggleButton spiroToggleButton;
+    private RelativeLayout loadingPanel;
+    private TextView lastSensorText;
     private TextView dateText;
     private TextView riskText;
     private TextView heartText;
     private TextView subjectText;
     private TextView activeView;
-    private ProgressBar spinnerBar;
     private ImageView smileView;
     private ImageView heartImage;
-
-    private static int lastRiskValue = LOW_RISK;//ActivityConstants.NO_VALUE;
 
     private RelativeLayout mRectBackground;
     private RelativeLayout mRoundBackground;
 
-    private long mLastClickTime = 0;
 
-    //units: ms
-    private static final long SPIRO_REMINDER_INTERVAL = Constants.ONE_MIN_MS*10;
-//    private static final long SENSOR_INTERVAL = 2000;
-
-    //Intervals in MS
-    private final int MIN_CLICK_INTERVAL = 5000;
-
-    //this function is called during onCreate (if the user has not registered an ID yet, will be called after
-//    a valid ID has been registered during the boot up registration process)
-    private void setupUI() {
-        Log.d(TAG, "MainActivity setupUI");
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-
-        //http://stackoverflow.com/questions/5442183/using-the-animated-circle-in-an-imageview-while-loading-stuff
-//        progressBar = (RelativeLayout) findViewById(R.id.loadingPanel);
-//        progressBar.setVisibility(View.GONE);
-
-        //set to 2 minute timeout (for ambient)
-//        Settings.System.putString(getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, "120000");
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(mLastReceiver,
-                new IntentFilter(Constants.LAST_SENSOR_EVENT));
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(mHeartReceiver,
-                new IntentFilter(Constants.HEART_EVENT));
-
-        spinnerBar = (ProgressBar) findViewById(R.id.spinnerBar);
-        dateText = (TextView) findViewById(R.id.dateText);
-        subjectText = (TextView) findViewById(R.id.subjectText);
-        activeView = (TextView) findViewById(R.id.activeView);
-        heartImage = (ImageView) findViewById(R.id.heartImage);
-        smileView = (ImageView) findViewById(R.id.smileView);
-        riskText = (TextView) findViewById(R.id.riskText);
-        heartText = (TextView) findViewById(R.id.heartText);
-        lastSensorText = (TextView) findViewById(R.id.lastSensorText);
-        spiroToggleButton = (ToggleButton) findViewById(R.id.spiroToggleButton);
-
-        spiroToggleButton.setChecked(false);
-
-        if (mmSocket!=null) {
-            if (mmSocket.isConnected())
-                spiroToggleButton.setChecked(true);
-
-        }
-
-        spiroToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d(TAG, "onCheckChanged");
-                if (SystemClock.elapsedRealtime() - mLastClickTime < MIN_CLICK_INTERVAL) {
-                    if (isChecked) {
-                        spiroToggleButton.setChecked(false);
-                        Log.d(TAG, "Spiro Button blocked - currently connecting");
-                        Toast.makeText(MainActivity.this, "Wait 5 seconds", Toast.LENGTH_SHORT).show();
-
-                    }
-                    return;
-                }
-
-                spinnerBar.setVisibility(View.VISIBLE);
-                spinnerBar.bringToFront();
-
-                mLastClickTime = SystemClock.elapsedRealtime();
-
-                if (isChecked) {
-                    Log.d(TAG, "startSpiro");
-                    Toast.makeText(MainActivity.this, "Connecting...", Toast.LENGTH_SHORT).show();
-
-                    if (findBT(Constants.SPIRO_SENSOR_ID)) {
-                        if (!openSpiro()) {
-                            Toast.makeText(MainActivity.this, "Spirometer not on", Toast.LENGTH_SHORT).show();
-                            spiroToggleButton.setChecked(false);
-                        }
-                    } else {
-                        Toast.makeText(MainActivity.this, "Spirometer not paired", Toast.LENGTH_SHORT).show();
-                        spiroToggleButton.setChecked(false);
-                    }
-                } else {
-                    Log.i(TAG, "stopSpiro");
-                    closeSpiro();
-                    spiroToggleButton.setChecked(false);
-                }
-
-                spinnerBar.setVisibility(View.GONE);
-
-            }
-        });
-
-
-        Switch sensorSwitch = (Switch) findViewById(R.id.sensorSwitch);
-        if (Constants.collecting) {
-
-            sensorSwitch.setChecked(sensorToggled);
-
-
-            sensorSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) {
-                        Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.START_WRITE);
-                        startMeasurement(MainActivity.this);
-
-
-                        Log.d(TAG, "sensorToggle Checked");
-                    } else {
-                        stopMeasurement(MainActivity.this);
-
-                        //trigger a data send event to the mobile device
-                        addSensorData(Constants.TERMINATE_SENSOR_ID, null, null, null);
-
-                        Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.END_WRITE);
-
-
-                        Log.d(TAG, "sensorToggle Not Checked");
-                    }
-                }
-            });
-        } else {
-            sensorSwitch.setVisibility(View.GONE);
-            startMeasurement(MainActivity.this);
-        }
-
-        updateRiskUI(lastRiskValue);
-        requestSubjectAndUpdateUI();
-
-//        scheduleRiskRequest();
-
-    }
-
-    private Boolean sensorToggled = false;
-
+    private WatchViewStub stub;
 
     private SharedPreferences prefs;
 
+    //Used for Spirometer Bluetooth Connection state
+    private BTSocket spiroConn;
+    private Boolean sensorToggled = false;
+
 
     private void requestSubjectAndUpdateUI() {
-        //check if SUBJECT ID is "" (null), using "" for serialization purposes via data api
         ClientPaths.subjectId = prefs.getString("subject", "");
 
+        //check if SUBJECT ID is "" or null
         if (ClientPaths.subjectId.equals("")) {
             Courier.deliverMessage(this, Constants.SUBJECT_API, "");
         } else {
@@ -271,10 +122,6 @@ public class MainActivity extends WearableActivity
             updateSubjectUI();
         }
     }
-
-    WatchViewStub stub;
-
-
 
     private void startRegistrationService() {
         GoogleApiAvailability api = GoogleApiAvailability.getInstance();
@@ -289,6 +136,8 @@ public class MainActivity extends WearableActivity
             Toast.makeText(this, str, Toast.LENGTH_LONG).show();
         }
     }
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -310,14 +159,6 @@ public class MainActivity extends WearableActivity
         Log.d(TAG, "on api client availability result");
 
     }
-
-    private static Integer requestCode = 0;
-
-    private AlarmManager alarmMgr;
-    private PendingIntent alarmIntent;
-    private PendingIntent spiroIntent;
-    private PendingIntent questionIntent;
-    private PendingIntent sensorIntent;
 
 //    AlarmReceiver alarmReceiver = new AlarmReceiver();
 
@@ -367,51 +208,18 @@ public class MainActivity extends WearableActivity
 //        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, sensorIntent);
 //    }
 
-    private void scheduleSpiroNotification(Notification notification, long interval, int id) {
-        Intent notificationIntent = new Intent(this, AlarmReceiver.class);
-        notificationIntent.putExtra(AlarmReceiver.ALARM_ID, id);
-        notificationIntent.putExtra(AlarmReceiver.NOTIFICATION, notification);
-        spiroIntent = PendingIntent.getBroadcast(this, requestCode++, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        long futureInMillis = SystemClock.elapsedRealtime() + Constants.ONE_MIN_MS;
-        AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, futureInMillis, interval, spiroIntent);
-        if (id==Constants.SPIRO_ALARM_ID)
-            Log.d(TAG, "Scheduled spiro alarm at interval " + interval + " ms");
-    }
-
-    private void scheduleQuestionAtTime(int hour, int minute) {
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR, hour);
-        calendar.set(Calendar.MINUTE, minute);
-
-        long reminderTime = calendar.getTimeInMillis();
-        Notification notification = buildQuestionReminder(reminderTime);
-
-        Intent intent = new Intent(this, AlarmReceiver.class);
-        intent.putExtra(AlarmReceiver.ALARM_ID, Constants.QUESTION_ALARM_ID);
-        intent.putExtra(AlarmReceiver.NOTIFICATION, notification);
-        questionIntent = PendingIntent.getBroadcast(this, requestCode++, intent, 0);
-
-        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY, questionIntent);
 
 
-        Log.d(TAG, "Scheduled question alarm at time: " + hour + ":" + minute);
-
-    }
-
-    BroadcastReceiver call_method = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action_name = intent.getAction();
-            if (action_name.equals("call_method")) {
-                //launch question api on phone
-                Courier.deliverMessage(MainActivity.this, Constants.QUESTION_API,"");
-            }
-        }
-    };
+//    BroadcastReceiver call_method = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            String action_name = intent.getAction();
+//            if (action_name.equals("call_method")) {
+//                //launch question api on phone
+//                Courier.deliverMessage(MainActivity.this, Constants.QUESTION_API,"");
+//            }
+//        }
+//    };
 
     private Notification buildQuestionReminder(long reminderTime) {
         // This is what you are going to set a pending intent which will start once
@@ -419,11 +227,10 @@ public class MainActivity extends WearableActivity
         Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.setAction("android.intent.action.MAIN");
         notificationIntent.addCategory("android.intent.category.LAUNCHER");
-        PendingIntent viewPendingIntent = PendingIntent.getActivity(this, requestCode,
-                notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent viewPendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-        registerReceiver(call_method, new IntentFilter("call_method"));
+//        registerReceiver(call_method, new IntentFilter("call_method"));
 
 
         NotificationCompat.Builder builder =
@@ -438,47 +245,19 @@ public class MainActivity extends WearableActivity
         return builder.build();
     }
 
-    private SensorManager mSensorManager = null;
-    private Sensor mSigMotionSensor;
-    private Sensor mStepSensor;
 
-    private BroadcastReceiver myBatteryReceiver = new BroadcastReceiver(){
-
-        @Override
-        public void onReceive(Context arg0, Intent arg1) {
-            int bLevel = arg1.getIntExtra("level", 0); // gets the battery level
-            ClientPaths.batteryLevel = bLevel;
-            Log.i(" Battery Level", ""+bLevel);
-            // Here you do something useful with the battery level...
-        }
-    };
+    private AlarmManager alarmManager;
 
 
-    private void printAvailableSensors() {
-        if (mSensorManager != null) {
-            Log.d(TAG, "print sensors:");
-            List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
-            for(int i=0; i<deviceSensors.size(); i++) {
-                Log.d(TAG, "Sensor found:" + deviceSensors.get(i).toString() + ", isWakeUp: " + deviceSensors.get(i).isWakeUpSensor());
-            }
-
-         } else {
-            Log.e("printAvailableSensors", "[Handled] no print, mSensorManager null");
-        }
-    }
 
     public void onCreate(Bundle b) {
         super.onCreate(b);
-        alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mSigMotionSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
 
         prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
+        spiroConn = new BTSocket(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"), this);
         ClientPaths.mainContext = this;
-
-
-
-//
-//        this.registerReceiver(this.myBatteryReceiver,
-//                new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 
         WindowManager.LayoutParams layout = getWindow().getAttributes();
         layout.screenBrightness = .5F; //value between 0 and 1
@@ -486,6 +265,10 @@ public class MainActivity extends WearableActivity
 
         Courier.startReceiving(this);
         setContentView(R.layout.main_activity);
+
+        //start google play registration service
+        startRegistrationService();
+        setAmbientEnabled();
 
         stub = (WatchViewStub) findViewById(R.id.stub);
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
@@ -497,8 +280,8 @@ public class MainActivity extends WearableActivity
                     mRoundBackground = (RelativeLayout) findViewById(R.id.round_layout);
 
 
-                    mSensorManager.requestTriggerSensor(mListener, mSigMotionSensor);
-                    setupUI();
+                    setupOnLayoutInflated();
+//                    printAvailableSensors();
 
 
                 } else {
@@ -507,39 +290,82 @@ public class MainActivity extends WearableActivity
             }
         });
 
-        //start google play registration service
-        startRegistrationService();
-        setAmbientEnabled();
-//        updateBatteryLevel();
-
-        //set up the significant motion listener for regulating the sensor service
-        mSensorManager = (SensorManager) this.getSystemService(Context.SENSOR_SERVICE);
-        mSigMotionSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
 
 
-//        printAvailableSensors();
-
-        scheduleAlarms();
     }
 
-    //Alarms for Questionnaire and Spiro
-    //    -7:30am (fixed time)
-    //    -3:30pm (fixed time)
-    //    -5-7pm (randomized to occur once between these hours)
-    //    -7-8pm (randomized to occur once between this hour)
-    private void scheduleAlarms() {
-        Log.d(TAG, "Scheduling Alarms");
-        alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+    // called after layout has been inflated
+    private void setupOnLayoutInflated() {
+        Log.d(TAG, "MainActivity setupOnLayoutInflated");
+//        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mLastReceiver,
+                new IntentFilter(Constants.LAST_SENSOR_EVENT));
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mHeartReceiver,
+                new IntentFilter(Constants.HEART_EVENT));
 
 
-        scheduleSpiroNotification(buildSpiroReminder(), SPIRO_REMINDER_INTERVAL, Constants.SPIRO_ALARM_ID);//AlarmManager.INTERVAL_HOUR*2);
+        dateText = (TextView) findViewById(R.id.dateText);
+        subjectText = (TextView) findViewById(R.id.subjectText);
+        activeView = (TextView) findViewById(R.id.activeView);
+        heartImage = (ImageView) findViewById(R.id.heartImage);
+        smileView = (ImageView) findViewById(R.id.smileView);
+        riskText = (TextView) findViewById(R.id.riskText);
+        heartText = (TextView) findViewById(R.id.heartText);
+        lastSensorText = (TextView) findViewById(R.id.lastSensorText);
+
+        //http://stackoverflow.com/questions/5442183/using-the-animated-circle-in-an-imageview-while-loading-stuff
+        loadingPanel = (RelativeLayout) findViewById(R.id.loadingPanel);
+        spiroToggleButton = (ToggleButton) findViewById(R.id.spiroToggleButton);
+
+        spiroToggleButton.setChecked(false);
+
+        loadingPanel.setVisibility(View.GONE);
+
+        spiroToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (isChecked) {
+                Log.d(TAG, "startSpiro - show loading");
+                loadingPanel.setVisibility(View.VISIBLE);
+                spiroToggleButton.setVisibility(View.GONE);
+                new BluetoothTask().execute(Constants.SPIRO_SENSOR_ID);
+            } else {
+                Log.i(TAG, "stopSpiro");
+                spiroConn.closeConn();
+            }
+            }
+        });
 
 
-        scheduleQuestionAtTime(7, 30);
-        scheduleQuestionAtTime(15, 30);
-        scheduleQuestionAtTime(17, 30);
-        scheduleQuestionAtTime(19, 30);
+        Switch sensorSwitch = (Switch) findViewById(R.id.sensorSwitch);
+        if (Constants.collecting) {
+            sensorSwitch.setChecked(sensorToggled);
+            sensorSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.START_WRITE);
+                        startMeasurement(MainActivity.this);
+                        Log.d(TAG, "sensorToggle Checked");
+                    } else {
+                        stopMeasurement(MainActivity.this);
+//                        addSensorData(Constants.TERMINATE_SENSOR_ID, null, null, null);
+                        Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.END_WRITE);
+                        Log.d(TAG, "sensorToggle Not Checked");
+                    }
+                }
+            });
+        } else {
+            sensorSwitch.setVisibility(View.GONE);
+            startMeasurement(this);
+        }
+//        sensorSwitch.setVisibility(View.GONE);
+//        startMeasurement(this);
+        requestSubjectAndUpdateUI();
+        updateRiskUI(lastRiskValue);
     }
+
 
     private void updateSubjectUI() {
 
@@ -557,43 +383,34 @@ public class MainActivity extends WearableActivity
     }
 
     public void updateRiskUI(int value) {
-//        riskText = (TextView) findViewById(R.id.riskText);
-//        smileView = (ImageView) findViewById(R.id.smileView);
-        String statusString;
 
+        String statusString;
         if (riskText == null || smileView == null) {
             Log.e(TAG, "riskText or smileView is null");
             return;
         }
-
 
         switch(value) {
             case LOW_RISK:
                 smileView.setImageResource(R.drawable.happy_face);
                 statusString = "Risk: Low";
                 riskText.setTextColor(Color.GREEN);
-
                 if (lastRiskValue!=LOW_RISK)//handle risk transition message
                     Toast.makeText(MainActivity.this, "Normal Reading", Toast.LENGTH_SHORT).show();
-
                 break;
             case MED_RISK:
                 smileView.setImageResource(R.drawable.neutral_face);
                 statusString = "Risk: Medium";
                 riskText.setTextColor(Color.parseColor("#ffa500"));
-
-                if (lastRiskValue!=MED_RISK)//handle risk transition message
-                    Toast.makeText(MainActivity.this, "Risk Warning - Please use Spirometer", Toast.LENGTH_SHORT).show();
-
+//                if (lastRiskValue!=MED_RISK)//handle risk transition message
+//                    Toast.makeText(MainActivity.this, "Risk Warning - Please use Spirometer", Toast.LENGTH_SHORT).show();
                 break;
             case HIGH_RISK:
                 smileView.setImageResource(R.drawable.frowny_face);
                 statusString = "Risk: High";
                 riskText.setTextColor(Color.RED);
-
                 if (lastRiskValue!=HIGH_RISK)//handle risk transition message
                     Toast.makeText(MainActivity.this, "Risk Warning - Please use Spirometer", Toast.LENGTH_SHORT).show();
-
                 break;
             case Constants.NO_VALUE:
                 statusString = "Risk: Low";
@@ -615,7 +432,7 @@ public class MainActivity extends WearableActivity
         Log.d(TAG, "updateRiskUI - " + statusString);
     }
 
-
+    //Used for managing tasks while awake
     private Handler taskHandler = new Handler();
 //
 //    private Runnable riskTask = new Runnable()
@@ -638,6 +455,8 @@ public class MainActivity extends WearableActivity
         public void run()
         {
             stopMeasurement(MainActivity.this);
+
+
         }
     };
 
@@ -664,6 +483,11 @@ public class MainActivity extends WearableActivity
         }
     }
 
+    @BackgroundThread
+    @ReceiveMessages(Constants.REMINDER_API)
+    void onReminderReceived(String message) {
+
+    }
 
 
     @BackgroundThread
@@ -716,53 +540,6 @@ public class MainActivity extends WearableActivity
 //    }
 
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "MainActivity onDestroy");
-
-
-        try {
-            if (alarmMgr != null) {
-                alarmMgr.cancel(spiroIntent);
-                alarmMgr.cancel(questionIntent);
-//                alarmManager.cancel(sensorIntent);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        Courier.stopReceiving(this);
-
-//        try {
-//            taskHandler.removeCallbacks(riskTask);
-//        } catch (Exception e) {
-//            Log.e(TAG, "Risk Timer off");
-//        }
-
-        try {
-            stopMeasurement(this);
-            closeSpiro();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-        try {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(mLastReceiver);
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(mHeartReceiver);
-        } catch( Exception e) {
-            Log.e(TAG, "connReceiver off");
-        }
-
-        try {
-//            unregisterReceiver(alarmReceiver);
-            unregisterReceiver(call_method);
-            this.unregisterReceiver(this.myBatteryReceiver);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     protected void onResume() {
@@ -776,13 +553,40 @@ public class MainActivity extends WearableActivity
     protected void onPause() {
         super.onPause();
         Log.d(TAG, "onPause");
+    }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "MainActivity onDestroy");
+        Courier.stopReceiving(this);
+
+//        try {
+//            taskHandler.removeCallbacks(riskTask);
+//        } catch (Exception e) {
+//            Log.e(TAG, "Risk Timer off");
+//        }
+
+        try {
+            stopMeasurement(this);
+            spiroConn.closeConn();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mLastReceiver);
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mHeartReceiver);
+        } catch( Exception e) {
+            Log.e(TAG, "connReceiver off");
+        }
 
     }
 
+    //precondition that lastSensorText != null
     private void updateLastView(String sensorName) {
-        if (lastSensorText !=null)
-            lastSensorText.setText("Last: " + sensorName + "\nDust Sensor: " + (ClientPaths.dustConnected ? "Yes" : "No"));
+        lastSensorText.setText("Last: " + sensorName + "\nDust Sensor: " + (ClientPaths.dustConnected ? "Yes" : "No"));
     }
 
     public void onFinishActivity(View view) {
@@ -819,58 +623,6 @@ public class MainActivity extends WearableActivity
         }
     }
 
-    private void scheduleStopSensor(Integer futureTime) {
-//        Intent intent = new Intent(this, AlarmReceiver.class);
-//        intent.putExtra(AlarmReceiver.ALARM_ID, Constants.STOP_ALARM_ID);
-//        alarmIntent = PendingIntent.getBroadcast(this, Constants.STOP_ALARM_ID, intent, 0);
-//
-//
-//
-//        alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-//                SystemClock.elapsedRealtime() + futureTime, alarmIntent);
-        taskHandler.postDelayed(stopSensorTask, futureTime);
-        Log.d(TAG, "scheduled stop sensor alarm for " + futureTime + "ms");
-    }
-
-    class TriggerListener extends TriggerEventListener {
-        public void onTrigger(TriggerEvent event) {
-            Log.i("TriggerListener", "Name:" + event.sensor.getName());
-            Log.i("TriggerListener", "Type:" + event.sensor.getType());
-            startMeasurement(MainActivity.this);
-
-            // As it is a one shot sensor, it will be canceled automatically.
-            // SensorManager.requestTriggerSensor(this, mSigMotion); needs to
-            // be called again, if needed.
-        }
-    }
-
-
-    //Sensor Related
-    public void startMeasurement(Context c) {
-        if (!sensorToggled) {
-            Log.i(TAG, "Start Measurement");
-            startService(new Intent(c, SensorService.class));
-            sensorToggled = true;
-            scheduleStopSensor(Constants.SENSOR_ON_TIME);
-            registerReceiver(myBatteryReceiver,
-                    new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        }
-    }
-
-    public void stopMeasurement(Context c) {
-        Log.i(TAG, "Stop Measurement");
-        stopService(new Intent(c, SensorService.class));
-        sensorToggled = false;
-
-        try {
-            mSensorManager.requestTriggerSensor(mListener, mSigMotionSensor);
-        } catch (Exception e) {
-            Log.d(TAG, "No sig motion sensor");
-        }
-
-        unregisterReceiver(myBatteryReceiver);
-    }
-
     @Override
     public void onEnterAmbient(Bundle ambientDetails) {
         super.onEnterAmbient(ambientDetails);
@@ -899,7 +651,7 @@ public class MainActivity extends WearableActivity
 
 //        setContentView(R.layout.black_layout); //null background
     }
-    private int updateN = 1;
+    private static int updateN = 1;
     private static final int N = 2;
 
     @Override
@@ -933,6 +685,8 @@ public class MainActivity extends WearableActivity
         Log.d(TAG, "onExitAmbient - add task callbacks");
 //        scheduleRiskRequest();
 
+        loadingPanel = (RelativeLayout) findViewById(R.id.loadingPanel);
+        spiroToggleButton = (ToggleButton) findViewById(R.id.spiroToggleButton);
 
         riskText.setTextColor(Color.GREEN);
         activeView.setVisibility(View.GONE);
@@ -961,242 +715,180 @@ public class MainActivity extends WearableActivity
 
     }
 
-    //Spirometer connection:
-    public Boolean findBT(int type)
-    {
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+//    public int pefToRisk(float p) {
+//        if (p<150)
+//            return HIGH_RISK;
+//        else if (p<250)
+//            return MED_RISK;
+//        else
+//            return LOW_RISK;
+//    }
 
-        if(bluetoothAdapter == null)
-        {
-            Log.d(TAG, "No bluetooth adapter available");
 
+    //Sensor Controllers Below
+    private SensorManager mSensorManager = null;
+    private Sensor mSigMotionSensor;
+
+    private final TriggerListener mListener =  new TriggerListener();
+
+    class TriggerListener extends TriggerEventListener {
+        public void onTrigger(TriggerEvent event) {
+            Log.i("TriggerListener", "Name:" + event.sensor.getName());
+            Log.i("TriggerListener", "Type:" + event.sensor.getType());
+            startMeasurement(MainActivity.this);
+
+            // As it is a one shot sensor, it will be canceled automatically.
+            // SensorManager.requestTriggerSensor(this, mSigMotion); needs to
+            // be called again, if needed.
         }
-
-        if(!bluetoothAdapter.isEnabled())
-        {
-            Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBluetooth, REQUEST_ENABLE_BT);
-        }
-
-        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
-
-
-        //spirometer must be pre-paired for connection
-        if (type == Constants.SPIRO_SENSOR_ID) {
-            mmDevice = null;
-            if (pairedDevices.size() > 0) {
-                String deviceName;
-                for (BluetoothDevice device : pairedDevices) {
-                    deviceName = device.getName();
-
-                    try {
-                        if (deviceName.matches("ASMA_\\d\\d\\d\\d"))   // Find a device with name ASMA_####
-                        {
-                            mmDevice = device;
-                            Log.d("yjcode", "Detected spiro device: " + deviceName);
-                            return true;
-                        }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Handled exception in device name");
-
-                    }
-                }
-            }
-            Log.d(TAG, "findDust did not find paired spiro device");
-        }
-//        else if (type == Constants.DUST_SENSOR_ID){
-//            dustDevice = null;
-//            if (pairedDevices.size() > 0) {
-//                String deviceName;
-//                for (BluetoothDevice device : pairedDevices) {
-//                    deviceName = device.getName();
-//
-//                    if (deviceName.contains(Constants.DUST_BT_NAME)) {
-//                        dustDevice = device;
-//                        Log.d("yjcode", "Detected RFduino device: " + deviceName + " " + dustDevice.getAddress());
-//                        //add connection for RF duino here as well
-//                        return true;
-//                    }
-//                }
-//            }
-//            Log.d(TAG, "findDust did not find paired dustdevice");
-//
-//        }
-
-
-
-        return false;
-
     }
 
 
-    public Boolean openSpiro()
-    {
+    private BroadcastReceiver myBatteryReceiver = new BroadcastReceiver(){
+
+        @Override
+        public void onReceive(Context arg0, Intent arg1) {
+            int bLevel = arg1.getIntExtra("level", 0); // gets the battery level
+            ClientPaths.batteryLevel = bLevel;
+            Log.i(" Battery Level", ""+bLevel);
+            // Here you do something useful with the battery level...
+        }
+    };
+
+
+
+
+    //Sensor Related
+    public void startMeasurement(Context c) {
+        if (!sensorToggled) {
+            Log.i(TAG, "Start Measurement");
+            c.startService(new Intent(c, SensorService.class));
+            sensorToggled = true;
+            scheduleStopSensor(Constants.SENSOR_ON_TIME, Constants.STOP_ALARM_ID);
+
+            c.registerReceiver(myBatteryReceiver,
+                    new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        }
+    }
+
+    public void stopMeasurement(Context c) {
+        Log.i(TAG, "Stop Measurement");
+        c.stopService(new Intent(c, SensorService.class));
+        sensorToggled = false;
+
         try {
-            UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
-
-            mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
-            mmSocket.connect();
-            mmInputStream = mmSocket.getInputStream();
-            beginSpiroListen();
-
-//            spiroConn = new BluetoothConnection(mmDevice, this);
-//            spiroConn.run();
-
+            c.unregisterReceiver(myBatteryReceiver);
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(TAG, "[Handled] openSpiro unsuccessful");
-            return false;
+            Log.e(TAG, "myBatteryReceiver turned off");
         }
-        Log.d(TAG, "Spiro Bluetooth Opened");
-        Toast.makeText(MainActivity.this, "Connected!",Toast.LENGTH_SHORT).show();
-        return true;
-    }
 
-    public void closeSpiro() {
         try {
-            stopWorker = true;
-            if (mmInputStream!=null)
-                mmInputStream.close();
-            if (mmSocket!=null)
-                mmSocket.close();
-
-//            spiroConn.cancel();
-
+            mSensorManager.requestTriggerSensor(mListener, mSigMotionSensor);
         } catch (Exception e) {
-            //e.printStackTrace();
-            Log.e(TAG, "[Handled] closeSpiro");
-            return;
-
+            Log.d(TAG, "No sig motion sensor");
         }
-        Log.d(TAG, "spiro bluetooth closed");
     }
 
-    private static Long lastSpiroTime = null;
-//    private static Boolean lastSpiroGood = false;
-
-
-    public int pefToRisk(float p) {
-        if (p<150)
-            return HIGH_RISK;
-        else if (p<250)
-            return MED_RISK;
-        else
-            return LOW_RISK;
+    private void scheduleStopSensor(Integer futureTime, Integer alarmId) {
+//        Intent intent = new Intent(this, SensorAlarm.class);
+//        intent.putExtra("alarm_id", alarmId);
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, alarmId, intent, 0);
+//
+//        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+//                SystemClock.elapsedRealtime() + futureTime, pendingIntent);
+        taskHandler.postDelayed(stopSensorTask, futureTime);
+        Log.d(TAG, "scheduled stop sensor alarm for " + futureTime + "ms");
     }
 
-    public void beginSpiroListen()
-    {
-        Log.d(TAG, "beginSpiroListen");
-        final Handler handler = new Handler();
 
-        readBufferPosition = 0;
-        readBuffer = new byte[1024];
-        stopWorker = false;
 
-        //listener worker thread
-        workerThread = new Thread(new Runnable()
-        {
-            public void run()
-            {
-                while(!Thread.currentThread().isInterrupted() && !stopWorker)
-                {
-                    try
-                    {
-                        int bytesAvailable = mmInputStream.available();
-                        if(bytesAvailable > 0)
-                        {
-                            byte[] packetBytes = new byte[bytesAvailable];
-                            mmInputStream.read(packetBytes);
-                            String spiroData = packetBytes.toString();
-                            Log.d(TAG, "string spiroData: " + spiroData);
-                            for(int i=0;i<bytesAvailable;i++)
-                            {
-                                byte b = packetBytes[i];
-                                if(b == 0x03)
-                                {
-                                    byte[] encodedBytes = new byte[readBufferPosition];
-                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
-                                    final TestData data = new TestData(encodedBytes);
-                                    readBufferPosition = 0;
 
-                                    handler.post(new Runnable()
-                                    {
-                                        public void run()
-                                        {
-
-                                            Log.d(TAG, "Parsed spiro data: " + data.toString());
-                                            try {
-                                                Long timestamp = System.currentTimeMillis();
-                                                addSensorData(Constants.SPIRO_SENSOR_ID, 3, timestamp, data.toArray());
-
-//                                                Toast.makeText(MainActivity.this, "PEF Received: " + data.pef + "!", Toast.LENGTH_SHORT).show();
-                                                Toast.makeText(MainActivity.this, "Data Received!", Toast.LENGTH_SHORT).show();
-
-//                                                //FOR STATIC DEMO: UPDATE IMAGE BASED ON PEF
-//                                                if (Constants.staticApp) {
-//                                                    lastRiskValue = pefToRisk(data.getPef());
-//                                                    if (data.good_test || (lastSpiroTime!=null && (timestamp - lastSpiroTime < ONE_MIN_MS))) {
-//                                                        updateRiskUI(lastRiskValue);
-//                                                    } else {
-//                                                        Toast.makeText(MainActivity.this, R.string.second_reading, Toast.LENGTH_LONG).show();
-//                                                    }
-//                                                }  else {
-//                                                    if (data.good_test || (lastSpiroTime!=null && (timestamp - lastSpiroTime < ONE_MIN_MS))) {
-//                                                        Toast.makeText(MainActivity.this, R.string.second_reading, Toast.LENGTH_LONG).show();
-//                                                    }
-//                                                }
-                                                if (Constants.staticApp) {
-                                                    lastRiskValue = pefToRisk(data.getPef());
-                                                    updateRiskUI(lastRiskValue);
-                                                }
-                                                lastSpiroTime = timestamp;
-//                                                lastSpiroGood = data.good_test;
-                                                //END STATIC DEMO SECTION
-                                            } catch (Exception e) {
-                                                Toast.makeText(MainActivity.this, R.string.bad_reading, Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    });
-                                    break;
-                                }
-                                else
-                                {
-                                    readBuffer[readBufferPosition++] = b;
-                                }
-                            }
-                        }
-                    }
-                    catch (IOException ex)
-                    {
-                        stopWorker = true;
-                    }
-                }
+    private void printAvailableSensors() {
+        if (mSensorManager != null) {
+            Log.d(TAG, "print sensors:");
+            List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+            for(int i=0; i<deviceSensors.size(); i++) {
+                Log.d(TAG, "Sensor found:" + deviceSensors.get(i).toString() + ", isWakeUp: " + deviceSensors.get(i).isWakeUpSensor());
             }
-        });
-        workerThread.start();
+
+        } else {
+            Log.e("printAvailableSensors", "[Handled] no print, mSensorManager null");
+        }
     }
 
-    //append sensor data
-    private void addSensorData(final Integer sensorType, final Integer accuracy, final Long t, final float[] values) {
-
-        Intent i = new Intent(this, SensorAddService.class);
-        i.putExtra("sensorType", sensorType);
-        i.putExtra("accuracy", accuracy);
-        i.putExtra("time",t);
-        i.putExtra("values",values);
-
-        startService(i);
-    }
-
+//    used to update the last sensor received text
     private BroadcastReceiver mLastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-//            Log.d("receiver", "Got message: " + sensorId);
             updateLastView(intent.getStringExtra("sensorName"));
-
         }
     };
+
+    //Manual Bluetooth Connection Request (used for spirometer currently)
+    private class BluetoothTask extends AsyncTask<Integer, Integer, String> {
+
+        private int deviceType;
+
+        @Override
+        protected String doInBackground(Integer... params) {
+            deviceType = params[0];
+            Log.d("bluetoothtask", "deviceType: " + deviceType);
+            switch (deviceType) {
+                case Constants.SPIRO_SENSOR_ID:
+                    if (spiroConn.findConn(Constants.SPIRO_SENSOR_ID)) {
+                        if (spiroConn.openConn()) {
+                            return "CONNECTED";
+                        } else {
+                            return "NOT_ON";
+                        }
+                    } else {
+                        return "NOT_PAIRED";
+                    }
+
+                case Constants.AIRBEAM_SENSOR_ID:
+                default:
+                    Log.e(TAG, "Unexpected Type: "  + deviceType);
+                    return "TRY_AGAIN";
+
+            }
+        }
+
+
+        @Override
+        protected void onPostExecute(String result) {
+            Log.d(TAG, "bluetooth result: " + result);
+            switch(result) {
+                case "NOT_ON":
+                    Toast.makeText(MainActivity.this, "Device not on", Toast.LENGTH_SHORT).show();
+                    spiroToggleButton.setChecked(false);
+                    break;
+                case "NOT_PAIRED":
+                    Toast.makeText(MainActivity.this, "Device not paired", Toast.LENGTH_SHORT).show();
+                    spiroToggleButton.setChecked(false);
+                    break;
+                case "CONNECTED":
+                    spiroConn.beginListen(deviceType);
+                    Log.d(TAG, "Spirometer connected");
+                    Toast.makeText(MainActivity.this, "Connected!", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    Toast.makeText(MainActivity.this, "Try Connecting Again", Toast.LENGTH_SHORT).show();
+                    spiroToggleButton.setChecked(false);
+                    break;
+
+
+            }
+            spiroToggleButton.setVisibility(View.VISIBLE);
+            loadingPanel.setVisibility(View.GONE);
+
+        }
+
+//        @Override
+//        protected void onPreExecute() {}
+
+
+    }
 
 
 

@@ -1,16 +1,21 @@
 package com.breatheplatform.beta.services;
 
+import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.StatFs;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.breatheplatform.beta.QuestionActivity;
 import com.breatheplatform.beta.RegisterActivity;
 import com.breatheplatform.beta.encryption.HybridCrypt;
 import com.breatheplatform.beta.encryption.RandomString;
+import com.breatheplatform.beta.receivers.AlarmReceiver;
 import com.breatheplatform.beta.shared.Constants;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
@@ -22,6 +27,7 @@ import org.json.JSONObject;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.Calendar;
 
 import me.denley.courier.Courier;
 import me.denley.courier.Packager;
@@ -35,10 +41,14 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
     private static Boolean unregisterUser = false;
     private static Boolean writeOnce = false;
+    private static Integer requestCode = 0;
 
-    private static String connectionInfo = "Waiting";
 
-
+    private AlarmManager alarmMgr;
+    private PendingIntent alarmIntent;
+    private PendingIntent spiroIntent;
+    private PendingIntent questionIntent;
+    private PendingIntent sensorIntent;
 
     /*
      * Receive the message from wear
@@ -123,7 +133,6 @@ public class ListenerServiceFromWear extends WearableListenerService {
     private static final String rawSensorDirectory = ROOT + "/RawSensorData.txt";
     private static File rawSensorFile = null;
 
-
     private void startRegisterActivity() {
         Intent i = new Intent();
         i.setClass(this, RegisterActivity.class);
@@ -131,12 +140,7 @@ public class ListenerServiceFromWear extends WearableListenerService {
         startActivity(i);
     }
 
-    private void startQuestionActivity() {
-        Intent i = new Intent();
-        i.setClass(this, QuestionActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(i);
-    }
+
 
     @Override
     public void onCreate() {
@@ -190,6 +194,8 @@ public class ListenerServiceFromWear extends WearableListenerService {
             Log.d("raw_key", aesKeyString);
             Log.d("enc_key", encKeyString);
 
+            alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+//            scheduleAlarms();
 
         }
     }
@@ -318,7 +324,8 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
 
     void onMultiReceived(String s) {
-        if (s.length()==0) {
+
+        if (s == null || s.length()==0) {
             Log.e(TAG, "Received null multi string");
             return;
         }
@@ -384,6 +391,86 @@ public class ListenerServiceFromWear extends WearableListenerService {
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, "Error receiving/processing multi api data");
+        }
+    }
+
+
+    /*
+    Alarm Services
+     */
+
+    //this method will vibrate and notify the watch only (to use the spirometer)
+    private void scheduleSpiroNotification(Notification notification, long interval, int id) {
+        Intent notificationIntent = new Intent(this, AlarmReceiver.class);
+        notificationIntent.putExtra(AlarmReceiver.ALARM_ID, id);
+        notificationIntent.putExtra(AlarmReceiver.NOTIFICATION, notification);
+        spiroIntent = PendingIntent.getBroadcast(this, requestCode++, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        long futureInMillis = SystemClock.elapsedRealtime() + Constants.ONE_MIN_MS;
+        AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, futureInMillis, interval, spiroIntent);
+        if (id==Constants.SPIRO_ALARM_ID)
+            Log.d(TAG, "Scheduled spiro alarm at interval " + interval + " ms");
+    }
+
+    //this method will launch the question activity on the phone and also vibrate and notify the watch
+    private void scheduleQuestionReminder(int hour, int minute) {
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR, hour);
+        calendar.set(Calendar.MINUTE, minute);
+
+        long reminderTime = calendar.getTimeInMillis();
+
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        questionIntent = PendingIntent.getBroadcast(this, requestCode++, intent, 0);
+
+        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY, questionIntent);
+
+
+        Log.d(TAG, "Scheduled question alarm at time: " + hour + ":" + minute);
+
+    }
+
+    private void scheduleSpiroReminder() {
+
+    }
+
+    //units: ms
+    private static final Long SPIRO_REMINDER_INTERVAL = AlarmManager.INTERVAL_HOUR*2;
+
+    //Alarms for Questionnaire and Spiro
+    //    -7:30am (fixed time)
+    //    -3:30pm (fixed time)
+    //    -5-7pm (randomized to occur once between these hours)
+    //    -7-8pm (randomized to occur once between this hour)
+    private void scheduleAlarms() {
+        Log.d(TAG, "Scheduling Alarms");
+        alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+//        scheduleSpiroNotification(buildSpiroReminder(), SPIRO_REMINDER_INTERVAL, Constants.SPIRO_ALARM_ID);//AlarmManager.INTERVAL_HOUR*2);
+        scheduleSpiroReminder();
+
+        scheduleQuestionReminder(7, 30);
+        scheduleQuestionReminder(15, 30);
+        scheduleQuestionReminder(17, 30);
+        scheduleQuestionReminder(19, 30);
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        try {
+            if (alarmMgr != null) {
+                alarmMgr.cancel(spiroIntent);
+                alarmMgr.cancel(questionIntent);
+//                alarmManager.cancel(sensorIntent);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

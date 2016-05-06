@@ -111,7 +111,8 @@
         <!-- </intent-filter> -->
         <!-- </receiver> -->
 
-        <receiver android:name="com.breatheplatform.beta.sensors.AlarmReceiver" />
+
+        <!-- <receiver android:name=".receivers.AlarmReceiver"/> -->
 
         <service android:name="com.breatheplatform.beta.bluetooth.RFduinoService" >
             <intent-filter>
@@ -123,7 +124,7 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <!-- <receiver android:name=".messaging.AlarmReceiver" android:enabled="true"/> -->
+        <!-- <receiver android:name=".messaging.SensorAlarm" android:enabled="true"/> -->
 
         <uses-library
             android:name="com.google.android.wearable"
