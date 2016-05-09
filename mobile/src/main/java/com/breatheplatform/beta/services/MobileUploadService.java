@@ -55,7 +55,7 @@ public class MobileUploadService extends IntentService {
     private WifiManager wifiManager;
     private WifiManager.WifiLock lock;
 
-    private HttpsURLConnection conn = initConnection();
+    private static HttpsURLConnection conn = initConnection();
 
     class NullHostNameVerifier implements HostnameVerifier {
 
@@ -67,8 +67,8 @@ public class MobileUploadService extends IntentService {
 
     }
 
-    private HttpsURLConnection initConnection() {
-        Log.d(TAG, "init secure url connection");
+    private static HttpsURLConnection initConnection() {
+//        Log.d(TAG, "init secure url connection");
 //        HttpsURLConnection.setDefaultHostnameVerifier(new NullHostNameVerifier());
 //        SSLContext context = SSLContext.getInstance("TLS");
 //        context.init(null, new X509TrustManager[]{new X509TrustManager()}, new SecureRandom());
@@ -101,8 +101,6 @@ public class MobileUploadService extends IntentService {
 
             switch(urlString) {
                 case Constants.RISK_API:
-                    if (Constants.staticApp)
-                        return;
                     conn = (HttpsURLConnection) riskUrl.openConnection();
                     break;
                 case Constants.MULTI_API:
@@ -253,17 +251,14 @@ public class MobileUploadService extends IntentService {
                         newRisk = Constants.NO_VALUE;
                     Log.d(TAG, "returning from phone RISK_API - value " + newRisk);
                     Courier.deliverMessage(this, Constants.RISK_API, newRisk);
-
-//                    Courier.deliverData(this, Constants.ACTIVITY_API, newRisk, Constants.activityName);
-//                    i.putExtra("risk", newRisk);
                     break;
                 case Constants.MULTI_API:
                     Boolean success = false;
                     if (result!=null)
                         success = result.contains("done");
 
-                    Log.d(TAG, "Multi Api success: " + success.toString());
-//                    Courier.deliverMessage(this, Constants.MULTI_API, success);
+                    Log.d(TAG, "Multi Api Success: " + success.toString());
+                    Courier.deliverMessage(this, Constants.MULTI_API, success);
                     break;
             }
 //            LocalBroadcastManager.getInstance(this).sendBroadcast(i);

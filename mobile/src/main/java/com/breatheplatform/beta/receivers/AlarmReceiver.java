@@ -1,13 +1,14 @@
 package com.breatheplatform.beta.receivers;
 
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.breatheplatform.beta.QuestionActivity;
 import com.breatheplatform.beta.shared.Constants;
+
+import me.denley.courier.Courier;
 
 /**
  * Created by cbono on 4/27/16.
@@ -15,26 +16,27 @@ import com.breatheplatform.beta.shared.Constants;
 public class AlarmReceiver extends BroadcastReceiver {
     private static String TAG = "AlarmReceiver";
 
-    public static String ALARM_ID = "alarm-id";
+//    public static String ALARM_ID = "alarm-id";
     public static String NOTIFICATION = "notification";
 
     public void onReceive(Context context, Intent intent) {
-        int id = intent.getIntExtra(ALARM_ID, Constants.NO_VALUE);
+        int id = intent.getIntExtra("alarm-id", Constants.NO_VALUE);
         Log.d(TAG, "Alarm Called - alarm_id: " + id);
 
         switch (id) {
             case Constants.SPIRO_ALARM_ID:
                 Log.d(TAG, "Spiro alarm called");
-                NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-                Notification notification = intent.getParcelableExtra(NOTIFICATION);
-                notificationManager.notify(id, notification);
+                Courier.deliverMessage(context, Constants.REMINDER_API, "spiro");
+//                NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+//                Notification notification = intent.getParcelableExtra(NOTIFICATION);
+//                notificationManager.notify(id, notification);
                 break;
             case Constants.QUESTION_ALARM_ID:
                 Log.d(TAG, "Question alarm called");
-//                Intent i = new Intent();
-//                i.setClass(context, QuestionActivity.class);
-//                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                context.startActivity(i);
+                Intent i = new Intent();
+                i.setClass(context, QuestionActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(i);
 
                 //TODO: create reminder and activity intent for questionnaire
                 break;
@@ -72,10 +74,6 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     }
 
-
-    private void startQuestionActivity() {
-
-    }
 
 
 }

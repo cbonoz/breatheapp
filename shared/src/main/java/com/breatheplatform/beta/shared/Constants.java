@@ -54,20 +54,19 @@ public class Constants {
     //Alarm Codes
     public static final int SPIRO_ALARM_ID = 1;
     public static final int QUESTION_ALARM_ID = 2;
-    public static final int SENSOR_ALARM_ID = 3;
     public static final int CLOSE_SPIRO_ALARM_ID = 4;
     public static final int STOP_ALARM_ID = 5;
     public static final int START_ALARM_ID = 6;
 
     //Sensor Period on Watch
-    public static final Integer SENSOR_ON_TIME = Constants.ONE_MIN_MS/5;// / 8; //7.5s
+    public static final Integer SENSOR_ON_TIME = Constants.ONE_MIN_MS/6;// / 8; //7.5s
 
 
     //Constants used for debugging
     public static final Boolean collecting = false;
     public static final Boolean encrypting = true;
-    public static final Integer TESTING = 1;
-    public static final Boolean staticApp = false;
+    public static final Integer TESTING = 0;
+//    public static final Boolean staticApp = false;
     public static final String START_WRITE = "start";
     public static final String END_WRITE = "end";
 

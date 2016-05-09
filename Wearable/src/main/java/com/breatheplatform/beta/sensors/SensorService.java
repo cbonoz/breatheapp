@@ -16,10 +16,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -61,9 +57,10 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
     //Sensor related
     private ScheduledExecutorService mScheduler;
-    private SensorManager mSensorManager;
+    private SensorManager mSensorManager;// = (SensorManager) getSystemService(SENSOR_SERVICE);
+
     private Sensor heartRateSensor;
-    private Sensor heartRateSamsungSensor;
+    private Sensor samsungHeartRateSensor;
     private Sensor linearAccelerationSensor;
     private Sensor gyroSensor;
 //    private Sensor ppgSensor;
@@ -75,14 +72,16 @@ public class SensorService extends Service implements SensorEventListener, Googl
     private static final int SENS_GYRO = Sensor.TYPE_GYROSCOPE;
 
     private static final int MAX_DELAY = 1000000*2; //2*10^6 us
-//    private static final int SAMPLE_RATE = 200000; //5 hz in us
+    private static final int FIXED_SENSOR_RATE = 200000; //5 hz in us
+    private static final int DATA_PER_ENERGY = 10;
+
 
     private static final Integer ACTIVITY_INTERVAL = Constants.ONE_MIN_MS / 2; //request every 30s (0 runs at fastest interval)
     private static final Integer LOCATION_INTERVAL = Constants.ONE_MIN_MS * 2; //request every 2 min
 
 //    private static final Context context;
-    private static final int PTS_PER_DATA = 5;
-    private static final int ENERGY_LIMIT =  PTS_PER_DATA * 10;
+    private static final int PTS_PER_DATA = 1000000 / FIXED_SENSOR_RATE;
+    private static final int ENERGY_LIMIT =  PTS_PER_DATA * DATA_PER_ENERGY;
 
     //for counting sensor events
     private static int accelerationCount = 1;
@@ -145,7 +144,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
                     sumZ = 0;
                 }
 
-                if (accelerationCount == ENERGY_LIMIT) {
+                if (accelerationCount >= ENERGY_LIMIT) {
 //                    addSensorData(sensorId, event.accuracy, timestamp, new float[]{(sumX)/ PTS_PER_DATA,(sumY)/ PTS_PER_DATA, (sumZ)/ PTS_PER_DATA});
                     float energy = (float) (Math.pow(sumEnergyX,2) + Math.pow(sumEnergyY,2) + Math.pow(sumEnergyZ,2));
                     Log.d(TAG, "energy calculated - " + accelerationCount + " measurements");
@@ -228,14 +227,17 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
         buildApiClient();
         mGoogleApiClient.connect();
+        Log.d(TAG, "Sensor delay normal: " + SensorManager.SENSOR_DELAY_NORMAL);
+
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-
-        heartRateSensor = mSensorManager.getDefaultSensor(SENS_HEARTRATE);
+        heartRateSensor  = mSensorManager.getDefaultSensor(SENS_HEARTRATE);
+        samsungHeartRateSensor = mSensorManager.getDefaultSensor(ClientPaths.SS_HEART_SENSOR_ID);//65562
         linearAccelerationSensor = mSensorManager.getDefaultSensor(SENS_LINEAR_ACCELERATION);
         gyroSensor = mSensorManager.getDefaultSensor(SENS_GYRO);
-        heartRateSamsungSensor = mSensorManager.getDefaultSensor(ClientPaths.SS_HEART_SENSOR_ID);//65562
+
+
 //        ppgSensor = mSensorManager.getDefaultSensor(65545);
 //        Log.d(TAG, "sensor delays (ms): heart, lin, gyro");
 //        Log.d("heart", heartRateSensor.getMaxDelay()/1000+"");
@@ -245,20 +247,20 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
         //http://stackoverflow.com/questions/30153904/android-how-to-set-sensor-delay
         if (linearAccelerationSensor != null) {
-            mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, linearAccelerationSensor.getMaxDelay(), MAX_DELAY);// 1000000, 1000000);
+            mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, FIXED_SENSOR_RATE, MAX_DELAY);// 1000000, 1000000);
         }  else {
             Log.d(TAG, "No Linear Acceleration Sensor found");
         }
 
 
         if (gyroSensor != null) {
-            mSensorManager.registerListener(SensorService.this, gyroSensor, gyroSensor.getMaxDelay(), MAX_DELAY);
+            mSensorManager.registerListener(SensorService.this, gyroSensor, FIXED_SENSOR_RATE, MAX_DELAY);
         } else {
             Log.w(TAG, "No Gyroscope Sensor found");
         }
 
         if (heartRateSensor != null) {
-            mSensorManager.registerListener(SensorService.this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
+            mSensorManager.registerListener(SensorService.this, heartRateSensor, FIXED_SENSOR_RATE, MAX_DELAY);
             Log.d(TAG, "register regular heartrate sensor");
         } else {
             Log.w(TAG, "No Heart Rate Sensor found");
@@ -272,8 +274,8 @@ public class SensorService extends Service implements SensorEventListener, Googl
 //        }
 
 
-//        if (heartRateSamsungSensor != null) {
-//            mSensorManager.registerListener(SensorService.this, heartRateSamsungSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
+//        if (samsungHeartRateSensor != null) {
+//            mSensorManager.registerListener(SensorService.this, samsungHeartRateSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
 //            Log.d(TAG, "register samsung heartrate sensor");
 //        } else {
 //
@@ -630,12 +632,13 @@ public class SensorService extends Service implements SensorEventListener, Googl
 //                } catch (Exception e) {
 //                    Log.e(TAG, "Risk Timer off");
 //                }
-
-                Log.d("rfduinoReceiver", "connected");
+                Log.d(TAG, "rfduinoReceiver connected");
             } else if (RFduinoService.ACTION_DISCONNECTED.equals(action)) {
                 downgradeState(STATE_DISCONNECTED);
+                unregisterDust();
                 ClientPaths.dustConnected = false;
-                Log.d("rfduinoReceiver", "disconnected");
+                Log.d(TAG, "rfduinoReceiver disconnected");
+
             } else if (RFduinoService.ACTION_DATA_AVAILABLE.equals(action)) {
                 addData(intent.getByteArrayExtra(RFduinoService.EXTRA_DATA));
             }
@@ -658,8 +661,6 @@ public class SensorService extends Service implements SensorEventListener, Googl
                             if (result) {
                                 upgradeState(STATE_CONNECTING);
                             }
-
-
                         }
                     }
 
@@ -743,7 +744,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
     }
 
     public void processReceivedDustData(String receiveBuffer) {
-//        ClientPaths.dustConnected = true;
+        ClientPaths.dustConnected = true;
 //        Log.d("processDust receiveBuffer", receiveBuffer);
         //example: B:0353E
         String dustData = receiveBuffer.substring(2, 6);
@@ -843,27 +844,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
 
 
-    //OTHER
-    //get connectivity and save it
-    private void connectivityRequest() {
-        final int LEVELS = 5;
-        ConnectivityManager cm = ((ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE));
-        if (cm == null)
-            return;
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        String connectionInfo = "None";
-        if (activeNetwork != null) {
-            connectionInfo = activeNetwork.getTypeName();
-            if (connectionInfo.equals("WIFI")) {
-                WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
-                WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-                int level = WifiManager.calculateSignalLevel(wifiInfo.getRssi(), LEVELS);
-                connectionInfo += " " + level;
-            }
-        }
-//        ClientPaths.connectionInfo = connectionInfo;
-        Log.d(TAG, "Connectivity " + connectionInfo);
-    }
+
 
 
 

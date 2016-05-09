@@ -32,10 +32,15 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.hardware.TriggerEvent;
 import android.hardware.TriggerEventListener;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.WatchViewStub;
@@ -69,7 +74,7 @@ import me.denley.courier.Courier;
 import me.denley.courier.ReceiveMessages;
 
 
-public class MainActivity extends WearableActivity
+public class    MainActivity extends WearableActivity
         //,DataApi.DataListener, MessageApi.MessageListener,NodeApi.NodeListener
 {
     private static final String TAG = "MainActivity";
@@ -486,7 +491,14 @@ public class MainActivity extends WearableActivity
     @BackgroundThread
     @ReceiveMessages(Constants.REMINDER_API)
     void onReminderReceived(String message) {
+        Log.d(TAG, "Reminder message received: " + message);
 
+        Notification spiroNotification = buildSpiroReminder();
+        NotificationManagerCompat notificationManager =
+                NotificationManagerCompat.from(this);
+
+        notificationManager.notify(Constants.SPIRO_ALARM_ID, spiroNotification);
+        Log.d(TAG, "created spiro notification");
     }
 
 
@@ -532,12 +544,13 @@ public class MainActivity extends WearableActivity
 //    }
 
 //
-//    @BackgroundThread
-//    @ReceiveMessages(Constants.MULTI_API)
-//    void onMultiReceived(Boolean success) { // The nodeId parameter is optional
-//        Log.d(TAG, "ReceiveMessage multi success: " + success.toString());
-//        // ...
-//    }
+    @BackgroundThread
+    @ReceiveMessages(Constants.MULTI_API)
+    void onMultiReceived(Boolean success) { // The nodeId parameter is optional
+        Log.d(TAG, "ReceiveMessage multi success: " + success.toString());
+        if (!isAmbient())
+            riskRequest();
+    }
 
 
 
@@ -611,7 +624,7 @@ public class MainActivity extends WearableActivity
     private void updateHeartUI(int heartRate) {
 
 
-        Log.d(TAG, "Updating heart UI " + heartRate);
+        Log.d(TAG, "updateHeartUI: " + heartRate);
         try {
             if (heartRate == Constants.NO_VALUE)
                 heartText.setText("--");
@@ -648,6 +661,8 @@ public class MainActivity extends WearableActivity
 
         updateN = 1;
 
+        Courier.stopReceiving(this);
+
 
 //        setContentView(R.layout.black_layout); //null background
     }
@@ -663,6 +678,8 @@ public class MainActivity extends WearableActivity
 
 
         if (updateN == N) {
+            //reset heart value
+            updateHeartUI(Constants.NO_VALUE);
             startMeasurement(this);
             updateN = 1;
         } else {
@@ -712,6 +729,8 @@ public class MainActivity extends WearableActivity
 
         riskRequest();
         startMeasurement(this);
+
+        Courier.startReceiving(this);
 
     }
 
@@ -860,20 +879,20 @@ public class MainActivity extends WearableActivity
             Log.d(TAG, "bluetooth result: " + result);
             switch(result) {
                 case "NOT_ON":
-                    Toast.makeText(MainActivity.this, "Device not on", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Device not on", Toast.LENGTH_LONG).show();
                     spiroToggleButton.setChecked(false);
                     break;
                 case "NOT_PAIRED":
-                    Toast.makeText(MainActivity.this, "Device not paired", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Device not paired", Toast.LENGTH_LONG).show();
                     spiroToggleButton.setChecked(false);
                     break;
                 case "CONNECTED":
                     spiroConn.beginListen(deviceType);
                     Log.d(TAG, "Spirometer connected");
-                    Toast.makeText(MainActivity.this, "Connected!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Connected!", Toast.LENGTH_LONG).show();
                     break;
                 default:
-                    Toast.makeText(MainActivity.this, "Try Connecting Again", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Try Connecting Again", Toast.LENGTH_LONG).show();
                     spiroToggleButton.setChecked(false);
                     break;
 
@@ -889,6 +908,28 @@ public class MainActivity extends WearableActivity
 
 
     }
+
+    //get connectivity and save it
+    private void connectivityRequest() {
+        final int LEVELS = 5;
+        ConnectivityManager cm = ((ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE));
+        if (cm == null)
+            return;
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        String connectionInfo = "None";
+        if (activeNetwork != null) {
+            connectionInfo = activeNetwork.getTypeName();
+            if (connectionInfo.equals("WIFI")) {
+                WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+                WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+                int level = WifiManager.calculateSignalLevel(wifiInfo.getRssi(), LEVELS);
+                connectionInfo += " " + level;
+            }
+        }
+//        ClientPaths.connectionInfo = connectionInfo;
+        Log.d(TAG, "Connectivity " + connectionInfo);
+    }
+
 
 
 

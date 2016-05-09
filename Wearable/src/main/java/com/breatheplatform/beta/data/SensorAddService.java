@@ -40,7 +40,7 @@ public class SensorAddService extends IntentService {
     }
 
     private static Integer recordCount = 0;
-    private static Integer RECORD_LIMIT = 50;//200;
+    private static Integer RECORD_LIMIT = 100;//200;
 
     private static String tz = initTimeZone();
     private static String initTimeZone() {
@@ -215,7 +215,8 @@ public class SensorAddService extends IntentService {
             String sensorDataString = sensorData.toString();
 
             if (ClientPaths.subjectId == null || ClientPaths.subjectId.equals("")) {
-                Log.d(TAG, "No Subject detected - blocking multi post");
+                Log.e(TAG, "No Subject detected - blocking multi post");
+                return;
             }
 
             jsonBody.put("timestamp",System.currentTimeMillis());

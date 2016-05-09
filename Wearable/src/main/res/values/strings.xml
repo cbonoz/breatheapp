@@ -54,7 +54,7 @@
     <string name="activity_updates_removed">Activity updates removed</string>
     <string name="my_digital_name">My Breathe WatchFace</string>
 
-    <string name="bad_reading">Bad Reading! Try again</string>
+    <string name="bad_reading">Reconnect Device</string>
     <string name="second_reading">Please take 2nd Reading</string>
 
     <!--<string name="not_connected">GoogleApiClient not yet connected. Try again.</string>-->

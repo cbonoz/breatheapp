@@ -1,18 +1,17 @@
 package com.breatheplatform.beta.services;
 
 import android.app.AlarmManager;
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.StatFs;
-import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.breatheplatform.beta.RegisterActivity;
+import com.breatheplatform.beta.connection.Connectivity;
 import com.breatheplatform.beta.encryption.HybridCrypt;
 import com.breatheplatform.beta.encryption.RandomString;
 import com.breatheplatform.beta.receivers.AlarmReceiver;
@@ -40,7 +39,7 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
 
     private static Boolean unregisterUser = false;
-    private static Boolean writeOnce = false;
+    private static Boolean writeOnce = true;
     private static Integer requestCode = 0;
 
 
@@ -127,6 +126,8 @@ public class ListenerServiceFromWear extends WearableListenerService {
     private static String aesKeyString;
     private static String encKeyString;
 
+    private static Boolean runOnce = true;
+
     private static final File ROOT = android.os.Environment.getExternalStorageDirectory();
     private static final String sensorDirectory = ROOT + "/SensorData.txt";
     private static File sensorFile = null;
@@ -140,6 +141,22 @@ public class ListenerServiceFromWear extends WearableListenerService {
         startActivity(i);
     }
 
+    public static String lastConnection = "None";
+
+    private void updateConnection() {
+        lastConnection = Connectivity.isConnectedFast(this);
+        Log.d(TAG, "lastConnection: " + lastConnection);
+    }
+
+
+    private String processAndSerialize(JSONObject jsonObject) {
+        try {
+            jsonObject.put("connection", lastConnection);
+        } catch (Exception e) {
+            return null;
+        }
+        return jsonObject.toString();
+    }
 
 
     @Override
@@ -152,7 +169,10 @@ public class ListenerServiceFromWear extends WearableListenerService {
             rawSensorFile = createFile(rawSensorDirectory);
         }
 
-        if (prefs==null) {
+        if (runOnce) {
+            runOnce = false;
+
+
             Log.d(TAG, "getting preferences");
             prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
 
@@ -163,6 +183,9 @@ public class ListenerServiceFromWear extends WearableListenerService {
                 Log.d(TAG, "unregister, id now " + prefs.getString("subject", ""));
                 unregisterUser = false;
             }
+
+            alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            scheduleAlarms();
 
 
             subject = prefs.getString("subject", "");
@@ -194,8 +217,7 @@ public class ListenerServiceFromWear extends WearableListenerService {
             Log.d("raw_key", aesKeyString);
             Log.d("enc_key", encKeyString);
 
-            alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-//            scheduleAlarms();
+
 
         }
     }
@@ -325,6 +347,8 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
     void onMultiReceived(String s) {
 
+        updateConnection();
+
         if (s == null || s.length()==0) {
             Log.e(TAG, "Received null multi string");
             return;
@@ -365,8 +389,8 @@ public class ListenerServiceFromWear extends WearableListenerService {
 //
             }
 
-            data = jsonBody.toString();
-
+//            data = jsonBody.toString();
+            data = processAndSerialize(jsonBody);
 //            Log.d(TAG, "Received multi request - " + data.length() + " bytes");
 
             if (Constants.collecting) {
@@ -399,32 +423,35 @@ public class ListenerServiceFromWear extends WearableListenerService {
     Alarm Services
      */
 
-    //this method will vibrate and notify the watch only (to use the spirometer)
-    private void scheduleSpiroNotification(Notification notification, long interval, int id) {
-        Intent notificationIntent = new Intent(this, AlarmReceiver.class);
-        notificationIntent.putExtra(AlarmReceiver.ALARM_ID, id);
-        notificationIntent.putExtra(AlarmReceiver.NOTIFICATION, notification);
-        spiroIntent = PendingIntent.getBroadcast(this, requestCode++, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        long futureInMillis = SystemClock.elapsedRealtime() + Constants.ONE_MIN_MS;
-        AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, futureInMillis, interval, spiroIntent);
-        if (id==Constants.SPIRO_ALARM_ID)
-            Log.d(TAG, "Scheduled spiro alarm at interval " + interval + " ms");
-    }
+//    //this method will vibrate and notify the watch only (to use the spirometer)
+//    private void scheduleSpiroNotification(Notification notification, long interval, int id) {
+//        Intent notificationIntent = new Intent(this, AlarmReceiver.class);
+//        notificationIntent.putExtra(AlarmReceiver.ALARM_ID, id);
+//        notificationIntent.putExtra(AlarmReceiver.NOTIFICATION, notification);
+//        spiroIntent = PendingIntent.getBroadcast(this, requestCode++, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+//
+//        long futureInMillis = SystemClock.elapsedRealtime() + Constants.ONE_MIN_MS;
+//        AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+//        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, futureInMillis, interval, spiroIntent);
+//        if (id==Constants.SPIRO_ALARM_ID)
+//            Log.d(TAG, "Scheduled spiro alarm at interval " + interval + " ms");
+//    }
 
     //this method will launch the question activity on the phone and also vibrate and notify the watch
     private void scheduleQuestionReminder(int hour, int minute) {
 
+        // Set the alarm to start at approximately 2:00 p.m.
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR, hour);
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
 
-        long reminderTime = calendar.getTimeInMillis();
-
         Intent intent = new Intent(this, AlarmReceiver.class);
+        intent.putExtra("alarm-id", Constants.QUESTION_ALARM_ID);
         questionIntent = PendingIntent.getBroadcast(this, requestCode++, intent, 0);
 
+// With setInexactRepeating(), you have to use one of the AlarmManager interval
+// constants--in this case, AlarmManager.INTERVAL_DAY.
         alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY, questionIntent);
 
@@ -433,7 +460,26 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
     }
 
-    private void scheduleSpiroReminder() {
+    private static final Integer TWO_HOUR_MS = 1000 * 60 * 120;
+
+    private void scheduleSpiroReminder(int startHour, int startMinute) {
+        // Set the alarm to start at 8:30 a.m.
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, startHour);
+        calendar.set(Calendar.MINUTE, startMinute);
+
+// setRepeating() lets you specify a precise custom interval--in this case,
+// 20 minutes.
+
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        intent.putExtra("alarm-id", Constants.SPIRO_ALARM_ID);
+        spiroIntent = PendingIntent.getBroadcast(this, Constants.SPIRO_ALARM_ID, intent, 0);
+
+        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                TWO_HOUR_MS, spiroIntent);
+
+        Log.d(TAG, "Scheduled spiro alarm to repeat every " + TWO_HOUR_MS/60000 + " min");
 
     }
 
@@ -450,7 +496,9 @@ public class ListenerServiceFromWear extends WearableListenerService {
         alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
 //        scheduleSpiroNotification(buildSpiroReminder(), SPIRO_REMINDER_INTERVAL, Constants.SPIRO_ALARM_ID);//AlarmManager.INTERVAL_HOUR*2);
-        scheduleSpiroReminder();
+        scheduleSpiroReminder(1,0);
+
+//        scheduleQuestionReminder(12,20);
 
         scheduleQuestionReminder(7, 30);
         scheduleQuestionReminder(15, 30);
@@ -463,15 +511,15 @@ public class ListenerServiceFromWear extends WearableListenerService {
     public void onDestroy() {
         super.onDestroy();
 
-        try {
-            if (alarmMgr != null) {
-                alarmMgr.cancel(spiroIntent);
-                alarmMgr.cancel(questionIntent);
-//                alarmManager.cancel(sensorIntent);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            if (alarmMgr != null) {
+//                alarmMgr.cancel(spiroIntent);
+//                alarmMgr.cancel(questionIntent);
+////                alarmManager.cancel(sensorIntent);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
 
