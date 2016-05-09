@@ -879,20 +879,20 @@ public class    MainActivity extends WearableActivity
             Log.d(TAG, "bluetooth result: " + result);
             switch(result) {
                 case "NOT_ON":
-                    Toast.makeText(MainActivity.this, "Device not on", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Device not on", Toast.LENGTH_SHORT).show();
                     spiroToggleButton.setChecked(false);
                     break;
                 case "NOT_PAIRED":
-                    Toast.makeText(MainActivity.this, "Device not paired", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Device not paired", Toast.LENGTH_SHORT).show();
                     spiroToggleButton.setChecked(false);
                     break;
                 case "CONNECTED":
                     spiroConn.beginListen(deviceType);
                     Log.d(TAG, "Spirometer connected");
-                    Toast.makeText(MainActivity.this, "Connected!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Connected!", Toast.LENGTH_SHORT).show();
                     break;
                 default:
-                    Toast.makeText(MainActivity.this, "Try Connecting Again", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Try Connecting Again", Toast.LENGTH_SHORT).show();
                     spiroToggleButton.setChecked(false);
                     break;
 
