@@ -103,6 +103,7 @@ public class SensorAddService extends IntentService {
         //update UI with new Sensor Name value
         Intent i = new Intent(Constants.LAST_SENSOR_EVENT);
         i.putExtra("sensorName", sensorName);
+//        i.putExtra("value",values[0]);
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
 
         JSONObject jsonValue = new JSONObject();

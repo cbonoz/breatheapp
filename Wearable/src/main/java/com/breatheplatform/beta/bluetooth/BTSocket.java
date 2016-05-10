@@ -26,7 +26,7 @@ import java.util.UUID;
 public class BTSocket {
     private static final String TAG = "BTSocket";
     private static final Integer BUFFER_SIZE = 1024*2;
-    private static final char DELIMITER = '\n';
+
 
     BluetoothAdapter bluetoothAdapter;
     BluetoothSocket mmSocket;
@@ -92,7 +92,6 @@ public class BTSocket {
 
         try {
             mmSocket.close();
-
         } catch (Exception e) {
             Log.e(TAG, "Error closing mmSocket");
         }
@@ -113,9 +112,7 @@ public class BTSocket {
 
 
     private void beginBeamListen() {
-
         Log.d(TAG, "beginBeamListen");
-//        final Handler handler = new Handler();
 
         readBufferPosition = 0;
         stopWorker = false;
@@ -144,18 +141,14 @@ public class BTSocket {
 //                                byte b = packetBytes[i];
                                 char c = (char) packetBytes[i];
 
-                                if (c == ';')
+                                if (c == ';') //end of number
                                     readActive=false;
 
-                                if (readActive)
+                                if (readActive) //add digit to number
                                     beamData.append(c);
 
-                                if(c == DELIMITER) {
-                                    ///Here is the problem
-//                                    byte[] encodedBytes = new byte[readBufferPosition];
-//                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
-//                                    final String data = new String(encodedBytes, "US-ASCII");
-//                                    final String data = new String(readBuffer,0,readBufferPosition);
+                                if(c == '\n') { //end of data row
+
                                     final String data = beamData.toString();
 
                                     if (data.contains("BC")) {
@@ -165,15 +158,12 @@ public class BTSocket {
                                         continue;
                                     }
 
-//                                    Log.d(TAG, "data: " + data);
-
-//                                    readBufferPosition = 0;
                                     try {
                                         values[mIndex] = Float.parseFloat(data); //(float) (Math.round(Float.parseFloat(data)*100d)/100d);
 
                                         switch (mIndex) {
-                                            case 0: //PARTICLE MATTER (PM) - format: XX
-                                            case 1: //TEMP (F) - format: XX
+                                            case 0: //PARTICLE MATTER (PM)
+                                            case 1: //TEMP (F)
                                                 mIndex++;
                                                 break;
                                             case 2: //HUMIDITY (RH)
@@ -184,9 +174,9 @@ public class BTSocket {
                                         }
 
                                     } catch (Exception e) {
-                                        //erase record if parse error
+                                        //erase record and start over if parse error
                                         e.printStackTrace();
-                                        Log.e(TAG, "[Handled] Error processing " + data + ", with mIndex=" + mIndex);
+                                        Log.e(TAG, "[Handled] Error processing " + data + ", at mIndex=" + mIndex);
                                         mIndex=0;
 
                                     }
@@ -195,25 +185,11 @@ public class BTSocket {
                                     beamData.setLength(0);
 
                                 }
-//                                else {
-//                                    if (readBufferPosition>=BUFFER_SIZE-1) {
-//                                        Log.e(TAG, "Exceeded read buffer");
-//                                        Log.d(TAG, "Dumped: " + new String(readBuffer));
-//                                        mIndex=0;
-//                                        readBufferPosition=0;
-//                                    }
-//
-//                                    readBuffer[readBufferPosition++] = b;
-//
-//                                }
+
                             }
 
                         }
 
-//                        if (beamData.length() > 1000) {
-//                            Log.d(TAG, beamData.toString());
-//                            beamData.setLength(0);
-//                        }
                     }
                     catch (IOException ex)
                     {
@@ -262,7 +238,7 @@ public class BTSocket {
                                 {
                                     byte[] encodedBytes = new byte[readBufferPosition];
                                     System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
-//                                    Log.d(TAG, "string spiroData: " + encodedBytes.toString());
+                                    Log.d(TAG, "string spiroData: " + new String(encodedBytes));
                                     data = new TestData(encodedBytes);
                                     readBufferPosition = 0;
 
@@ -273,10 +249,7 @@ public class BTSocket {
                                                 try {
                                                     Long timestamp = System.currentTimeMillis();
                                                     addSensorData(Constants.SPIRO_SENSOR_ID, 3, timestamp, data.toArray());
-
-//                                                Toast.makeText(MainActivity.this, "PEF Received: " + data.pef + "!", Toast.LENGTH_SHORT).show();
                                                     Toast.makeText(context, "Data Received!", Toast.LENGTH_SHORT).show();
-
 //
                                                 } catch (Exception e) {
                                                     Toast.makeText(context, R.string.bad_reading, Toast.LENGTH_SHORT).show();

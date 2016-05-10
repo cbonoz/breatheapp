@@ -74,7 +74,7 @@ import me.denley.courier.Courier;
 import me.denley.courier.ReceiveMessages;
 
 
-public class    MainActivity extends WearableActivity
+public class MainActivity extends WearableActivity
         //,DataApi.DataListener, MessageApi.MessageListener,NodeApi.NodeListener
 {
     private static final String TAG = "MainActivity";
@@ -100,6 +100,7 @@ public class    MainActivity extends WearableActivity
     private TextView heartText;
     private TextView subjectText;
 //    private TextView activeView;
+    private TextView breatheView;
     private ImageView smileView;
     private ImageView heartImage;
 
@@ -114,6 +115,13 @@ public class    MainActivity extends WearableActivity
     //Used for Spirometer Bluetooth Connection state
     private BTSocket spiroConn;
     private Boolean sensorToggled = false;
+
+
+    //Sensor Controllers Below
+    private SensorManager mSensorManager = null;
+    private Sensor mSigMotionSensor;
+
+    private final TriggerListener mListener =  new TriggerListener();
 
 
     private void requestSubjectAndUpdateUI() {
@@ -319,6 +327,7 @@ public class    MainActivity extends WearableActivity
         riskText = (TextView) findViewById(R.id.riskText);
         heartText = (TextView) findViewById(R.id.heartText);
         lastSensorText = (TextView) findViewById(R.id.lastSensorText);
+        breatheView = (TextView) findViewById(R.id.breatheView);
 
         //http://stackoverflow.com/questions/5442183/using-the-animated-circle-in-an-imageview-while-loading-stuff
         loadingPanel = (RelativeLayout) findViewById(R.id.loadingPanel);
@@ -463,6 +472,20 @@ public class    MainActivity extends WearableActivity
         }
     };
 
+    private Runnable triggerTask = new Runnable()
+    {
+        public void run()
+        {
+            try {
+                mSensorManager.requestTriggerSensor(mListener, mSigMotionSensor);
+                Log.d(TAG, "Set sensor motion trigger");
+            } catch (Exception e) {
+                Log.d(TAG, "No sig motion sensor for trigger");
+            }
+
+        }
+    };
+
     private void riskRequest() {
 
         Log.d(TAG, "riskRequest");
@@ -549,8 +572,6 @@ public class    MainActivity extends WearableActivity
         if (!isAmbient())
             riskRequest();
     }
-
-
 
     @Override
     protected void onResume() {
@@ -649,7 +670,7 @@ public class    MainActivity extends WearableActivity
 //        activeView.setVisibility(View.VISIBLE);
         dateText.setVisibility(View.VISIBLE);
 
-
+//        breatheView.setVisibility(View.GONE);
         heartImage.setVisibility(View.GONE);
         lastSensorText.setVisibility(View.GONE);
         spiroToggleButton.setVisibility(View.GONE);
@@ -716,6 +737,7 @@ public class    MainActivity extends WearableActivity
         heartText.setVisibility(View.VISIBLE);
         lastSensorText.setVisibility(View.VISIBLE);
         spiroToggleButton.setVisibility(View.VISIBLE);
+//        breatheView.setVisibility(View.VISIBLE);
 
 
 
@@ -750,11 +772,6 @@ public class    MainActivity extends WearableActivity
 //    }
 
 
-    //Sensor Controllers Below
-    private SensorManager mSensorManager = null;
-    private Sensor mSigMotionSensor;
-
-    private final TriggerListener mListener =  new TriggerListener();
 
     class TriggerListener extends TriggerEventListener {
         public void onTrigger(TriggerEvent event) {
@@ -808,11 +825,10 @@ public class    MainActivity extends WearableActivity
             Log.e(TAG, "myBatteryReceiver turned off");
         }
 
-        try {
-            mSensorManager.requestTriggerSensor(mListener, mSigMotionSensor);
-        } catch (Exception e) {
-            Log.d(TAG, "No sig motion sensor");
-        }
+
+        taskHandler.postDelayed(triggerTask, Constants.SENSOR_OFF_TIME);
+
+
     }
 
     private void scheduleStopSensor(Integer futureTime, Integer alarmId) {

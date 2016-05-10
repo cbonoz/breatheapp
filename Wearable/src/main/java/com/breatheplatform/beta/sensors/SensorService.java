@@ -233,7 +233,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
         buildApiClient();
         mGoogleApiClient.connect();
-        Log.d(TAG, "Sensor delay normal: " + SensorManager.SENSOR_DELAY_NORMAL);
+//        Log.d(TAG, "Sensor delay normal: " + SensorManager.SENSOR_DELAY_NORMAL);
 
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -257,25 +257,25 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
         //http://stackoverflow.com/questions/30153904/android-how-to-set-sensor-delay
         //temporary disable sensors
-//        if (linearAccelerationSensor != null) {
-//            mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, FIXED_SENSOR_RATE, MAX_DELAY);// 1000000, 1000000);
-//        }  else {
-//            Log.d(TAG, "No Linear Acceleration Sensor found");
-//        }
-//
-//
-//        if (gyroSensor != null) {
-//            mSensorManager.registerListener(SensorService.this, gyroSensor, FIXED_SENSOR_RATE, MAX_DELAY);
-//        } else {
-//            Log.w(TAG, "No Gyroscope Sensor found");
-//        }
-//
-//        if (heartRateSensor != null) {
-//            mSensorManager.registerListener(SensorService.this, heartRateSensor, FIXED_SENSOR_RATE, MAX_DELAY);
-//            Log.d(TAG, "register regular heartrate sensor");
-//        } else {
-//            Log.w(TAG, "No Heart Rate Sensor found");
-//        }
+        if (linearAccelerationSensor != null) {
+            mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, FIXED_SENSOR_RATE, MAX_DELAY);// 1000000, 1000000);
+        }  else {
+            Log.d(TAG, "No Linear Acceleration Sensor found");
+        }
+
+
+        if (gyroSensor != null) {
+            mSensorManager.registerListener(SensorService.this, gyroSensor, FIXED_SENSOR_RATE, MAX_DELAY);
+        } else {
+            Log.w(TAG, "No Gyroscope Sensor found");
+        }
+
+        if (heartRateSensor != null) {
+            mSensorManager.registerListener(SensorService.this, heartRateSensor, FIXED_SENSOR_RATE, MAX_DELAY);
+            Log.d(TAG, "register regular heartrate sensor");
+        } else {
+            Log.w(TAG, "No Heart Rate Sensor found");
+        }
 
 //        if (ppgSensor != null) {
 //            mSensorManager.registerListener(SensorService.this, ppgSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
@@ -291,7 +291,6 @@ public class SensorService extends Service implements SensorEventListener, Googl
 //        } else {
 //
 //            Log.w(TAG, "No Heart Rate Sensor found");
-//
 //        }
 
 
@@ -335,10 +334,10 @@ public class SensorService extends Service implements SensorEventListener, Googl
         super.onDestroy();
         Log.d(TAG, "sensor onDestroy");
 
-        if (ClientPaths.dustConnected) {
-            unregisterDust();
-            ClientPaths.dustConnected = false;
-        }
+//        if (ClientPaths.dustConnected) {
+//            unregisterDust();
+//            ClientPaths.dustConnected = false;
+//        }
 
 
 //        try {
@@ -349,6 +348,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
 
         beamConn.closeConn();
+        ClientPaths.dustConnected=false;
 
         if (mSensorManager != null) {
             mSensorManager.unregisterListener(this);
@@ -780,7 +780,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
 //    {
 //        public void run()
 //        {
-//            dustRequest();
+//            registerDust();
 //            taskHandler.postDelayed(this, BT_TASK_PERIOD);
 //
 //        }
@@ -792,11 +792,6 @@ public class SensorService extends Service implements SensorEventListener, Googl
 //        taskHandler.postDelayed(dustTask, BT_TASK_PERIOD);
 //    }
 
-
-//    private void dustRequest() {
-//        Log.d(TAG, "dustRequest");
-//        registerDust();
-//    }
 
 
     private void registerDust() {
@@ -879,6 +874,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
             switch (result) {
                 case "CONNECTED":
                     beamConn.beginListen();
+                    ClientPaths.dustConnected = true;
                     break;
                 default:
                     Log.e(TAG, "Could not connect to AirBeam, result: " + result);
