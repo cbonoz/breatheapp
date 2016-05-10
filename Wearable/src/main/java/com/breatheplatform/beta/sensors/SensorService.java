@@ -16,6 +16,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -26,6 +27,7 @@ import android.util.Log;
 import com.breatheplatform.beta.ClientPaths;
 import com.breatheplatform.beta.MainActivity;
 import com.breatheplatform.beta.activity.ActivityDetectionService;
+import com.breatheplatform.beta.bluetooth.BTSocket;
 import com.breatheplatform.beta.bluetooth.HexAsciiHelper;
 import com.breatheplatform.beta.bluetooth.RFduinoService;
 import com.breatheplatform.beta.data.SensorAddService;
@@ -39,6 +41,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 
 import me.denley.courier.Courier;
@@ -203,6 +206,9 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
     private PowerManager.WakeLock wakeLock;
 
+    private BTSocket beamConn;
+    private static UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+
     @Override
     public IBinder onBind(Intent arg0) {
         return null;
@@ -223,7 +229,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
             Log.d(TAG, "acquire lock");
         }
 
-        registerDust();
+//        registerDust();
 
         buildApiClient();
         mGoogleApiClient.connect();
@@ -238,6 +244,10 @@ public class SensorService extends Service implements SensorEventListener, Googl
         gyroSensor = mSensorManager.getDefaultSensor(SENS_GYRO);
 
 
+        beamConn = new BTSocket(Constants.AIRBEAM_SENSOR_ID, uuid, this);
+        new BluetoothTask().execute(Constants.AIRBEAM_SENSOR_ID);
+
+
 //        ppgSensor = mSensorManager.getDefaultSensor(65545);
 //        Log.d(TAG, "sensor delays (ms): heart, lin, gyro");
 //        Log.d("heart", heartRateSensor.getMaxDelay()/1000+"");
@@ -246,25 +256,26 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
 
         //http://stackoverflow.com/questions/30153904/android-how-to-set-sensor-delay
-        if (linearAccelerationSensor != null) {
-            mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, FIXED_SENSOR_RATE, MAX_DELAY);// 1000000, 1000000);
-        }  else {
-            Log.d(TAG, "No Linear Acceleration Sensor found");
-        }
-
-
-        if (gyroSensor != null) {
-            mSensorManager.registerListener(SensorService.this, gyroSensor, FIXED_SENSOR_RATE, MAX_DELAY);
-        } else {
-            Log.w(TAG, "No Gyroscope Sensor found");
-        }
-
-        if (heartRateSensor != null) {
-            mSensorManager.registerListener(SensorService.this, heartRateSensor, FIXED_SENSOR_RATE, MAX_DELAY);
-            Log.d(TAG, "register regular heartrate sensor");
-        } else {
-            Log.w(TAG, "No Heart Rate Sensor found");
-        }
+        //temporary disable sensors
+//        if (linearAccelerationSensor != null) {
+//            mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, FIXED_SENSOR_RATE, MAX_DELAY);// 1000000, 1000000);
+//        }  else {
+//            Log.d(TAG, "No Linear Acceleration Sensor found");
+//        }
+//
+//
+//        if (gyroSensor != null) {
+//            mSensorManager.registerListener(SensorService.this, gyroSensor, FIXED_SENSOR_RATE, MAX_DELAY);
+//        } else {
+//            Log.w(TAG, "No Gyroscope Sensor found");
+//        }
+//
+//        if (heartRateSensor != null) {
+//            mSensorManager.registerListener(SensorService.this, heartRateSensor, FIXED_SENSOR_RATE, MAX_DELAY);
+//            Log.d(TAG, "register regular heartrate sensor");
+//        } else {
+//            Log.w(TAG, "No Heart Rate Sensor found");
+//        }
 
 //        if (ppgSensor != null) {
 //            mSensorManager.registerListener(SensorService.this, ppgSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
@@ -337,6 +348,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
 //        }
 
 
+        beamConn.closeConn();
 
         if (mSensorManager != null) {
             mSensorManager.unregisterListener(this);
@@ -840,6 +852,41 @@ public class SensorService extends Service implements SensorEventListener, Googl
         Log.d(TAG, "findDust did not find paired dustdevice");
         return false;
 
+    }
+
+    private class BluetoothTask extends AsyncTask<Integer, Void, String> {
+
+
+        @Override
+        protected String doInBackground(Integer... params) {
+
+            if (beamConn.findConn()) {
+                if (beamConn.openConn()) {
+                    return "CONNECTED";
+                } else {
+                    return "NOT_ON";
+                }
+            } else {
+                return "NOT_PAIRED";
+            }
+
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Log.d(TAG, "bluetooth result: " + result);
+            switch (result) {
+                case "CONNECTED":
+                    beamConn.beginListen();
+                    break;
+                default:
+                    Log.e(TAG, "Could not connect to AirBeam, result: " + result);
+                    break;
+            }
+
+
+        }
     }
 
 

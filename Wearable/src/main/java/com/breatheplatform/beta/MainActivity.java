@@ -99,7 +99,7 @@ public class    MainActivity extends WearableActivity
     private TextView riskText;
     private TextView heartText;
     private TextView subjectText;
-    private TextView activeView;
+//    private TextView activeView;
     private ImageView smileView;
     private ImageView heartImage;
 
@@ -261,7 +261,7 @@ public class    MainActivity extends WearableActivity
         mSigMotionSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
 
         prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
-        spiroConn = new BTSocket(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"), this);
+        spiroConn = new BTSocket(Constants.SPIRO_SENSOR_ID, UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"), this);
         ClientPaths.mainContext = this;
 
         WindowManager.LayoutParams layout = getWindow().getAttributes();
@@ -313,7 +313,7 @@ public class    MainActivity extends WearableActivity
 
         dateText = (TextView) findViewById(R.id.dateText);
         subjectText = (TextView) findViewById(R.id.subjectText);
-        activeView = (TextView) findViewById(R.id.activeView);
+//        activeView = (TextView) findViewById(R.id.activeView);
         heartImage = (ImageView) findViewById(R.id.heartImage);
         smileView = (ImageView) findViewById(R.id.smileView);
         riskText = (TextView) findViewById(R.id.riskText);
@@ -430,8 +430,6 @@ public class    MainActivity extends WearableActivity
         }
 
         lastRiskValue = value;
-        if (isAmbient())
-            riskText.setTextColor(Color.WHITE);
 
         riskText.setText(statusString);
         Log.d(TAG, "updateRiskUI - " + statusString);
@@ -650,7 +648,7 @@ public class    MainActivity extends WearableActivity
 
 //        activeView.setVisibility(View.VISIBLE);
         dateText.setVisibility(View.VISIBLE);
-        riskText.setTextColor(Color.WHITE);
+
 
         heartImage.setVisibility(View.GONE);
         lastSensorText.setVisibility(View.GONE);
@@ -658,6 +656,10 @@ public class    MainActivity extends WearableActivity
         smileView.setVisibility(View.GONE);
         heartText.setVisibility(View.GONE);
         subjectText.setVisibility(View.GONE);
+
+        Calendar c = Calendar.getInstance();
+        String strDate = AMBIENT_DATE_FORMAT.format(c.getTime());
+        dateText.setText(strDate);
 
         updateN = 1;
 
@@ -705,10 +707,8 @@ public class    MainActivity extends WearableActivity
         loadingPanel = (RelativeLayout) findViewById(R.id.loadingPanel);
         spiroToggleButton = (ToggleButton) findViewById(R.id.spiroToggleButton);
 
-        riskText.setTextColor(Color.GREEN);
-        activeView.setVisibility(View.GONE);
+//        activeView.setVisibility(View.GONE);
         dateText.setVisibility((View.GONE));
-
 
         subjectText.setVisibility(View.VISIBLE);
         smileView.setVisibility(View.VISIBLE);
@@ -716,6 +716,12 @@ public class    MainActivity extends WearableActivity
         heartText.setVisibility(View.VISIBLE);
         lastSensorText.setVisibility(View.VISIBLE);
         spiroToggleButton.setVisibility(View.VISIBLE);
+
+
+
+
+
+        riskRequest();
 
         //register receivers
         LocalBroadcastManager.getInstance(this).registerReceiver(mLastReceiver,
@@ -727,7 +733,7 @@ public class    MainActivity extends WearableActivity
 
         Log.d(TAG, "Set main layout");
 
-        riskRequest();
+
         startMeasurement(this);
 
         Courier.startReceiving(this);
@@ -855,7 +861,7 @@ public class    MainActivity extends WearableActivity
             Log.d("bluetoothtask", "deviceType: " + deviceType);
             switch (deviceType) {
                 case Constants.SPIRO_SENSOR_ID:
-                    if (spiroConn.findConn(Constants.SPIRO_SENSOR_ID)) {
+                    if (spiroConn.findConn()) {
                         if (spiroConn.openConn()) {
                             return "CONNECTED";
                         } else {
@@ -887,7 +893,7 @@ public class    MainActivity extends WearableActivity
                     spiroToggleButton.setChecked(false);
                     break;
                 case "CONNECTED":
-                    spiroConn.beginListen(deviceType);
+                    spiroConn.beginListen();
                     Log.d(TAG, "Spirometer connected");
                     Toast.makeText(MainActivity.this, "Connected!", Toast.LENGTH_SHORT).show();
                     break;

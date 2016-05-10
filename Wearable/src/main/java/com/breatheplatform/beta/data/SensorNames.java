@@ -44,9 +44,10 @@ public class SensorNames {
         names.append(ClientPaths.SS_HEART_SENSOR_ID, "Ss Heart Rate");
         names.append(Constants.DUST_SENSOR_ID, "Dust Sensor");
         names.append(ClientPaths.HEART_SENSOR_ID, "Heart Rate");
-        names.append(Constants.SPIRO_SENSOR_ID, "Spirometer Sensor");
+        names.append(Constants.SPIRO_SENSOR_ID, "Spirometer");
         names.append(Constants.ENERGY_SENSOR_ID, "Energy");
         names.append(Constants.ACTIVITY_SENSOR_ID, "Activity");
+        names.append(Constants.AIRBEAM_SENSOR_ID, "AirBeam Sensor");
 //        names.append(65545, "PPG");
 
 

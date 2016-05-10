@@ -122,7 +122,6 @@ public class SensorAddService extends IntentService {
                 case (Sensor.TYPE_HEART_RATE):
                     jsonValue.put("sensor_accuracy",accuracy);
                 case (Constants.DUST_SENSOR_ID):
-                case Constants.AIRBEAM_SENSOR_ID:
                     if (values[0]<=0) {
                         Log.d(TAG, "Received " + sensorName + " data <= 0 -> skip");
                         return;
@@ -140,6 +139,11 @@ public class SensorAddService extends IntentService {
                 case (Constants.ACTIVITY_SENSOR_ID):
                     jsonValue.put("type", values[0]);
                     jsonValue.put("confidence",accuracy);
+                    break;
+                case (Constants.AIRBEAM_SENSOR_ID):
+                    jsonValue.put("PM",values[0]);
+                    jsonValue.put("F",values[1]);
+                    jsonValue.put("RH",values[2]);
                     break;
 //                case (Sensor.TYPE_AMBIENT_TEMPERATURE):
 //                    //case (Sensor.TYPE_STEP_COUNTER):

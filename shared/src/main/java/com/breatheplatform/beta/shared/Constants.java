@@ -59,7 +59,7 @@ public class Constants {
     public static final int START_ALARM_ID = 6;
 
     //Sensor Period on Watch
-    public static final Integer SENSOR_ON_TIME = Constants.ONE_MIN_MS/6;// / 8; //7.5s
+    public static final Integer SENSOR_ON_TIME = Constants.ONE_MIN_MS;///6;// / 8; //7.5s
 
 
     //Constants used for debugging

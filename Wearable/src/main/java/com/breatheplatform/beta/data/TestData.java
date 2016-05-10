@@ -17,7 +17,7 @@ public class TestData {
         // Expecting a single test data from asma-1
         // Device Identifier = C, Message Identifier = TD
         if ((char)message[1] == 'C' && (char)message[2] == 'T' && (char)message[3] == 'D') {
-            this.device_id = new String(Arrays.copyOfRange(message,4,14));
+//            this.device_id = new String(Arrays.copyOfRange(message,4,14));
             this.fev1 = Integer.parseInt(new String(Arrays.copyOfRange(message,14,17)));
             this.pef = Integer.parseInt(new String(Arrays.copyOfRange(message,17,20)));
             this.good_test = (char)message[53] == '0';

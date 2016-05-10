@@ -2687,7 +2687,7 @@ containing a value of this type.
         public static final int action_mode_bar=0x7f100074;
         public static final int action_mode_bar_stub=0x7f100073;
         public static final int action_mode_close_button=0x7f100059;
-        public static final int activeView=0x7f1000c1;
+        public static final int activeView=0x7f1000c7;
         public static final int activity_chooser_view_content=0x7f10005a;
         public static final int adjust_height=0x7f100024;
         public static final int adjust_width=0x7f100025;
@@ -2725,11 +2725,11 @@ containing a value of this type.
         public static final int collapseActionView=0x7f10002a;
         public static final int connText=0x7f1000bd;
         public static final int contentPanel=0x7f100067;
-        public static final int copyRightView=0x7f1000c7;
+        public static final int copyRightView=0x7f1000c6;
         public static final int custom=0x7f10006d;
         public static final int customPanel=0x7f10006c;
         public static final int dark=0x7f100032;
-        public static final int dateText=0x7f1000c2;
+        public static final int dateText=0x7f1000c1;
         public static final int decor_content_parent=0x7f100075;
         public static final int default_activity_button=0x7f10005d;
         public static final int default_control_frame=0x7f100097;
@@ -2765,7 +2765,7 @@ containing a value of this type.
         public static final int hybrid=0x7f100026;
         public static final int icon=0x7f10005f;
         public static final int icon_only=0x7f10002e;
-        public static final int idButton=0x7f1000c6;
+        public static final int idButton=0x7f1000c5;
         public static final int ifRoom=0x7f10002b;
         public static final int image=0x7f10005c;
         public static final int imageView=0x7f10008d;
@@ -2777,7 +2777,7 @@ containing a value of this type.
         public static final int line3=0x7f1000a9;
         public static final int listMode=0x7f10000a;
         public static final int list_item=0x7f10005e;
-        public static final int loadingPanel=0x7f1000c3;
+        public static final int loadingPanel=0x7f1000c2;
         public static final int logo_only=0x7f100044;
         public static final int match_parent=0x7f10003d;
         public static final int media_actions=0x7f1000a3;
@@ -2810,7 +2810,7 @@ containing a value of this type.
         public static final int rel_layout=0x7f10008c;
         public static final int right=0x7f100017;
         public static final int riskText=0x7f1000b6;
-        public static final int round_layout=0x7f1000c5;
+        public static final int round_layout=0x7f1000c4;
         public static final int route_name=0x7f100094;
         public static final int sandbox=0x7f100038;
         public static final int satellite=0x7f100027;
@@ -2839,7 +2839,7 @@ containing a value of this type.
         public static final int slide=0x7f100020;
         public static final int smileView=0x7f1000b8;
         public static final int spacer=0x7f100062;
-        public static final int spinnerBar=0x7f1000c4;
+        public static final int spinnerBar=0x7f1000c3;
         public static final int spiroToggleButton=0x7f1000b7;
         public static final int split_action_bar=0x7f100008;
         public static final int src_atop=0x7f10001d;

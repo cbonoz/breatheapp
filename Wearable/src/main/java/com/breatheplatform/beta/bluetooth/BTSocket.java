@@ -25,6 +25,8 @@ import java.util.UUID;
  */
 public class BTSocket {
     private static final String TAG = "BTSocket";
+    private static final Integer BUFFER_SIZE = 1024*2;
+    private static final char DELIMITER = '\n';
 
     BluetoothAdapter bluetoothAdapter;
     BluetoothSocket mmSocket;
@@ -34,16 +36,21 @@ public class BTSocket {
     Context context;
     UUID uuid;
 
-    private static Integer readBufferPosition;
-    private static byte[] readBuffer;
+    private Integer mIndex=0;
+    private float[] values = new float[]{0,0,0};
+
+    private Integer readBufferPosition;
+    private byte[] readBuffer = new byte[BUFFER_SIZE];
     private Thread workerThread = null;
 
     private TestData data;
+    private Integer deviceType;
 
-    public BTSocket(UUID u, Context c) {
+    public BTSocket(Integer type, UUID u, Context c) {
         mmDevice = null;
         context = c;
         uuid = u;
+        deviceType = type;
         stopWorker = false;
     }
 
@@ -55,15 +62,9 @@ public class BTSocket {
             mmSocket.connect();
             mmInputStream = mmSocket.getInputStream();
 
-
-//            spiroConn = new BluetoothConnection(mmDevice, this);
-//            spiroConn.run();
-
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, "[Handled] openConn unsuccessful");
-//            mmSocket = null;
-//            mmInputStream = null;
             return false;
         }
         Log.d(TAG, "Bluetooth Opened");
@@ -101,86 +102,127 @@ public class BTSocket {
 
 
 
-    public void beginListen(int type) {
+    public void beginListen() {
 
-        if (type == Constants.SPIRO_SENSOR_ID)
+        if (deviceType == Constants.SPIRO_SENSOR_ID)
             beginSpiroListen();
-        else if (type == Constants.AIRBEAM_SENSOR_ID)
+        else if (deviceType == Constants.AIRBEAM_SENSOR_ID)
             beginBeamListen();
     }
+
+
 
     private void beginBeamListen() {
 
         Log.d(TAG, "beginBeamListen");
-        final Handler handler = new Handler();
+//        final Handler handler = new Handler();
 
         readBufferPosition = 0;
-        readBuffer = new byte[1024];
         stopWorker = false;
+
 
         //listener worker thread
         workerThread = new Thread(new Runnable()
         {
             public void run()
             {
+                Boolean readActive = true;
+                StringBuilder beamData = new StringBuilder();
+
                 while(!Thread.currentThread().isInterrupted() && !stopWorker)
                 {
+
                     try
                     {
                         int bytesAvailable = mmInputStream.available();
-
-                        if(bytesAvailable > 0)
-                        {
+                        if(bytesAvailable > 0) {
                             byte[] packetBytes = new byte[bytesAvailable];
                             mmInputStream.read(packetBytes);
+//                            Log.d(TAG, "AirBeam bytesAvailable: " + bytesAvailable + " " + packetBytes.toString());
 
+                            for(int i=0;i<bytesAvailable;i++) {
+//                                byte b = packetBytes[i];
+                                char c = (char) packetBytes[i];
 
-                            for(int i=0;i<bytesAvailable;i++)
-                            {
-                                byte b = packetBytes[i];
-                                if(b == 0x03)
-                                {
-                                    byte[] encodedBytes = new byte[readBufferPosition];
-                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
-                                    Log.d(TAG, "string spiroData: " + encodedBytes.toString());
-                                    data = new TestData(encodedBytes);
-                                    readBufferPosition = 0;
+                                if (c == ';')
+                                    readActive=false;
 
-                                    try {
-                                        handler.post(new Runnable() {
-                                            public void run() {
-                                                Log.d(TAG, "Parsed spiro data: " + data.toString());
-                                                try {
-                                                    Long timestamp = System.currentTimeMillis();
-                                                    addSensorData(Constants.SPIRO_SENSOR_ID, 3, timestamp, data.toArray());
+                                if (readActive)
+                                    beamData.append(c);
 
-//                                                Toast.makeText(MainActivity.this, "PEF Received: " + data.pef + "!", Toast.LENGTH_SHORT).show();
-                                                    Toast.makeText(context, "Data Received!", Toast.LENGTH_SHORT).show();
+                                if(c == DELIMITER) {
+                                    ///Here is the problem
+//                                    byte[] encodedBytes = new byte[readBufferPosition];
+//                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
+//                                    final String data = new String(encodedBytes, "US-ASCII");
+//                                    final String data = new String(readBuffer,0,readBufferPosition);
+                                    final String data = beamData.toString();
 
-//
-                                                } catch (Exception e) {
-                                                    Toast.makeText(context, R.string.bad_reading, Toast.LENGTH_SHORT).show();
-                                                }
-                                            }
-                                        });
-                                        break;
-                                    } catch (Exception e) {
-                                        stopWorker = true;
+                                    if (data.contains("BC")) {
+                                        mIndex=0;
+                                        readActive=true;
+                                        beamData.setLength(0);
+                                        continue;
                                     }
+
+//                                    Log.d(TAG, "data: " + data);
+
+//                                    readBufferPosition = 0;
+                                    try {
+                                        values[mIndex] = Float.parseFloat(data); //(float) (Math.round(Float.parseFloat(data)*100d)/100d);
+
+                                        switch (mIndex) {
+                                            case 0: //PARTICLE MATTER (PM) - format: XX
+                                            case 1: //TEMP (F) - format: XX
+                                                mIndex++;
+                                                break;
+                                            case 2: //HUMIDITY (RH)
+                                                addSensorData(Constants.AIRBEAM_SENSOR_ID, Constants.NO_VALUE, System.currentTimeMillis(), values);
+                                            default:
+                                                mIndex = 0;
+                                                break;
+                                        }
+
+                                    } catch (Exception e) {
+                                        //erase record if parse error
+                                        e.printStackTrace();
+                                        Log.e(TAG, "[Handled] Error processing " + data + ", with mIndex=" + mIndex);
+                                        mIndex=0;
+
+                                    }
+
+                                    readActive=true;
+                                    beamData.setLength(0);
+
                                 }
-                                else
-                                {
-                                    readBuffer[readBufferPosition++] = b;
-                                }
+//                                else {
+//                                    if (readBufferPosition>=BUFFER_SIZE-1) {
+//                                        Log.e(TAG, "Exceeded read buffer");
+//                                        Log.d(TAG, "Dumped: " + new String(readBuffer));
+//                                        mIndex=0;
+//                                        readBufferPosition=0;
+//                                    }
+//
+//                                    readBuffer[readBufferPosition++] = b;
+//
+//                                }
                             }
+
                         }
+
+//                        if (beamData.length() > 1000) {
+//                            Log.d(TAG, beamData.toString());
+//                            beamData.setLength(0);
+//                        }
                     }
                     catch (IOException ex)
                     {
+                        Log.e(TAG, "IO exception in BT run");
                         stopWorker = true;
-
                     }
                 }
+
+
             }
         });
         workerThread.start();
@@ -193,7 +235,7 @@ public class BTSocket {
         final Handler handler = new Handler();
 
         readBufferPosition = 0;
-        readBuffer = new byte[1024];
+//        readBuffer = new byte[BUFFER_SIZE];
         stopWorker = false;
 
         //listener worker thread
@@ -220,14 +262,14 @@ public class BTSocket {
                                 {
                                     byte[] encodedBytes = new byte[readBufferPosition];
                                     System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
-                                    Log.d(TAG, "string spiroData: " + encodedBytes.toString());
+//                                    Log.d(TAG, "string spiroData: " + encodedBytes.toString());
                                     data = new TestData(encodedBytes);
                                     readBufferPosition = 0;
 
                                     try {
                                         handler.post(new Runnable() {
                                             public void run() {
-                                                Log.d(TAG, "Parsed spiro data: " + data.toString());
+//                                                Log.d(TAG, "Parsed spiro data: " + data.toString());
                                                 try {
                                                     Long timestamp = System.currentTimeMillis();
                                                     addSensorData(Constants.SPIRO_SENSOR_ID, 3, timestamp, data.toArray());
@@ -264,7 +306,7 @@ public class BTSocket {
     }
 
     //Bluetooth socket connection - only check paired devices
-    public Boolean findConn(int type) {
+    public Boolean findConn() {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mmDevice = null;
         mmSocket = null;
@@ -278,7 +320,7 @@ public class BTSocket {
         }
 
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
-        switch (type) {
+        switch (deviceType) {
             case Constants.SPIRO_SENSOR_ID:
                 deviceString = "ASMA_";
                 break;
@@ -286,7 +328,7 @@ public class BTSocket {
                 deviceString = "AirBeam-";
                 break;
             default:
-                Log.e(TAG, "findConn with invalid type " + type);
+                Log.e(TAG, "findConn with invalid type " + deviceType);
                 return false;
         }
 

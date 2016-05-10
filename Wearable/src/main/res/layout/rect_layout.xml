@@ -168,17 +168,14 @@
         android:layout_margin="5dp"
         android:layout_alignParentStart="true" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Active"
-        android:id="@+id/activeView"
-
-
-
-        android:layout_alignTop="@+id/breatheView"
-        android:layout_toEndOf="@+id/breatheView" />
+    <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
+        <!--android:text="Active"-->
+        <!--android:id="@+id/activeView"-->
+        <!--android:layout_alignTop="@+id/breatheView"-->
+        <!--android:layout_toEndOf="@+id/breatheView" />-->
 
     <TextView
         android:layout_width="wrap_content"
