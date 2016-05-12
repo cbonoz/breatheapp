@@ -26,6 +26,7 @@ import org.json.JSONObject;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import me.denley.courier.Courier;
@@ -37,22 +38,17 @@ import me.denley.courier.Packager;
 public class ListenerServiceFromWear extends WearableListenerService {
     private static final String TAG = "ListenerServiceFromWear";
 
+    private ArrayList<Integer> activeAlarms = new ArrayList<Integer>();
 
     private static Boolean unregisterUser = false;
-    private static Boolean writeOnce = true;
+    private static Boolean writeOnce = false;
     private static Integer requestCode = 0;
 
-
-    private AlarmManager alarmMgr;
-    private PendingIntent alarmIntent;
-    private PendingIntent spiroIntent;
-    private PendingIntent questionIntent;
-    private PendingIntent sensorIntent;
+    private AlarmManager alarmManager;
 
     /*
      * Receive the message from wear
      */
-
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
         String path = messageEvent.getPath();
@@ -97,21 +93,12 @@ public class ListenerServiceFromWear extends WearableListenerService {
         }
     }
 
-
-
-
-
-//    protected GoogleApiClient mGoogleApiClient;
-//    protected ActivityDetectionBroadcastReceiver activityReceiver;
-
     /**
      * Request code for launching the Intent to resolve Google Play services errors.
      */
     private static final int REQUEST_RESOLVE_ERROR = 1000;
 
     private static String count = "0";
-    //    public GoogleApiClient mGoogleApiClient;
-
 
     public static String labelDirectory = null;
     public static File labelFile  = null;// = createFile(sensorDirectory);
@@ -148,7 +135,6 @@ public class ListenerServiceFromWear extends WearableListenerService {
         Log.d(TAG, "lastConnection: " + lastConnection);
     }
 
-
     private String processAndSerialize(JSONObject jsonObject) {
         try {
             jsonObject.put("connection", lastConnection);
@@ -158,7 +144,9 @@ public class ListenerServiceFromWear extends WearableListenerService {
         return jsonObject.toString();
     }
 
+    private void runOnceRegistered() {
 
+    }
     @Override
     public void onCreate() {
         super.onCreate();
@@ -184,8 +172,9 @@ public class ListenerServiceFromWear extends WearableListenerService {
                 unregisterUser = false;
             }
 
-            alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            scheduleAlarms();
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("subject", "1");
+            editor.commit();
 
 
             subject = prefs.getString("subject", "");
@@ -195,6 +184,10 @@ public class ListenerServiceFromWear extends WearableListenerService {
             if (subject.equals("")) {
                 startRegisterActivity();
             }
+
+            alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+//            scheduleAlarms();
+
 
             try {
 
@@ -213,11 +206,8 @@ public class ListenerServiceFromWear extends WearableListenerService {
                 aes = null;
             }
 
-
             Log.d("raw_key", aesKeyString);
             Log.d("enc_key", encKeyString);
-
-
 
         }
     }
@@ -438,25 +428,41 @@ public class ListenerServiceFromWear extends WearableListenerService {
 //    }
 
     //this method will launch the question activity on the phone and also vibrate and notify the watch
-    private void scheduleQuestionReminder(int hour, int minute) {
 
+    private PendingIntent createAlarmPI(Integer alarmId) {
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        intent.putExtra("alarm-id", alarmId);
+        intent.putExtra("subject", subject);
+        return PendingIntent.getBroadcast(this, getNextAlarmId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+
+    private void scheduleQuestionReminder(long ms) {
+
+        PendingIntent pi = createAlarmPI(Constants.QUESTION_ALARM_ID);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, ms,
+                AlarmManager.INTERVAL_DAY, pi);
+
+
+        Log.d(TAG, "Scheduled question alarm in the future: " + (ms - System.currentTimeMillis()) + "ms");
+
+
+    }
+    private void scheduleQuestionReminder(int hour, int minute) {
         // Set the alarm to start at approximately 2:00 p.m.
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
+
+        calendar.set(Calendar.HOUR_OF_DAY, hour); // For 1 PM or 2 PM
         calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, 0);
 
-        Intent intent = new Intent(this, AlarmReceiver.class);
-        intent.putExtra("alarm-id", Constants.QUESTION_ALARM_ID);
-        questionIntent = PendingIntent.getBroadcast(this, requestCode++, intent, 0);
-
-// With setInexactRepeating(), you have to use one of the AlarmManager interval
-// constants--in this case, AlarmManager.INTERVAL_DAY.
-        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY, questionIntent);
+        PendingIntent pi = createAlarmPI(Constants.QUESTION_ALARM_ID);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY, pi);
 
 
         Log.d(TAG, "Scheduled question alarm at time: " + hour + ":" + minute);
+
 
     }
 
@@ -465,21 +471,19 @@ public class ListenerServiceFromWear extends WearableListenerService {
     private void scheduleSpiroReminder(int startHour, int startMinute) {
         // Set the alarm to start at 8:30 a.m.
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
+
+//        calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, startHour);
         calendar.set(Calendar.MINUTE, startMinute);
+        calendar.set(Calendar.SECOND, 0);
 
-// setRepeating() lets you specify a precise custom interval--in this case,
-// 20 minutes.
 
-        Intent intent = new Intent(this, AlarmReceiver.class);
-        intent.putExtra("alarm-id", Constants.SPIRO_ALARM_ID);
-        spiroIntent = PendingIntent.getBroadcast(this, Constants.SPIRO_ALARM_ID, intent, 0);
+        PendingIntent pi = createAlarmPI(Constants.SPIRO_ALARM_ID);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                TWO_HOUR_MS, pi);
 
-        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                TWO_HOUR_MS, spiroIntent);
+        Log.d(TAG, "Scheduled spiro alarm to repeat every " + TWO_HOUR_MS / 60000 + " min");
 
-        Log.d(TAG, "Scheduled spiro alarm to repeat every " + TWO_HOUR_MS/60000 + " min");
 
     }
 
@@ -493,13 +497,13 @@ public class ListenerServiceFromWear extends WearableListenerService {
     //    -7-8pm (randomized to occur once between this hour)
     private void scheduleAlarms() {
         Log.d(TAG, "Scheduling Alarms");
-        alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
 //        scheduleSpiroNotification(buildSpiroReminder(), SPIRO_REMINDER_INTERVAL, Constants.SPIRO_ALARM_ID);//AlarmManager.INTERVAL_HOUR*2);
         scheduleSpiroReminder(1,0);
 
 //        scheduleQuestionReminder(12,20);
-
+        scheduleQuestionReminder(System.currentTimeMillis()+30000);
         scheduleQuestionReminder(7, 30);
         scheduleQuestionReminder(15, 30);
         scheduleQuestionReminder(17, 30);
@@ -507,22 +511,36 @@ public class ListenerServiceFromWear extends WearableListenerService {
     }
 
 
+    private Integer getNextAlarmId() {
+        requestCode++;
+
+        activeAlarms.add(requestCode);
+        Log.d(TAG, "Next requestCode: " + requestCode);
+        return requestCode;
+    }
+
+    private void cancelAlarms() {
+        Log.d(TAG, "Cancelling Alarms");
+        for (Integer i : activeAlarms) {
+            try {
+                Intent intent = new Intent(this, AlarmReceiver.class);
+                PendingIntent pi = PendingIntent.getBroadcast(this, i, intent, 0);
+                alarmManager.cancel(pi);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e(TAG, "[Handled] Error cancelling alarms");
+            }
+        }
+        activeAlarms.clear();
+    }
+
+
     @Override
     public void onDestroy() {
         super.onDestroy();
 
-//        try {
-//            if (alarmMgr != null) {
-//                alarmMgr.cancel(spiroIntent);
-//                alarmMgr.cancel(questionIntent);
-////                alarmManager.cancel(sensorIntent);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+//        cancelAlarms();
+
     }
-
-
-
 
 }

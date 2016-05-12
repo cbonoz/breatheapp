@@ -54,6 +54,11 @@
         <service android:name=".services.CalendarService" />
 
 
+        <receiver android:name=".receivers.AlarmReceiver">
+            <intent-filter>
+                <action android:name="mobile.alarm.receiver" />
+            </intent-filter>
+        </receiver>
 
 
         <!-- android:windowSwipeToDismiss="false" -->
@@ -85,6 +90,13 @@
             android:name=".RegisterActivity"
             android:label="Register User"
             android:theme="@style/AppTheme"/>
+
+        <activity
+            android:name=".QuestionActivity"
+            android:label="Questionnaire"
+            android:theme="@style/AppTheme"/>
+            />
+
     </application>
 
 </manifest>

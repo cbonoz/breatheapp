@@ -472,16 +472,22 @@ public class MainActivity extends WearableActivity
         }
     };
 
+    //either set sensors or start sensors again
     private Runnable triggerTask = new Runnable()
     {
         public void run()
         {
-            try {
-                mSensorManager.requestTriggerSensor(mListener, mSigMotionSensor);
-                Log.d(TAG, "Set sensor motion trigger");
-            } catch (Exception e) {
-                Log.d(TAG, "No sig motion sensor for trigger");
+            if (isAmbient()) {
+                try {
+                    mSensorManager.requestTriggerSensor(mListener, mSigMotionSensor);
+                    Log.d(TAG, "Set sensor motion trigger");
+                } catch (Exception e) {
+                    Log.d(TAG, "No sig motion sensor for trigger");
+                }
+            } else {
+                startMeasurement(MainActivity.this);
             }
+
 
         }
     };
@@ -618,7 +624,9 @@ public class MainActivity extends WearableActivity
 
     //precondition that lastSensorText != null
     private void updateLastView(String sensorName) {
-        lastSensorText.setText("Last: " + sensorName + "\nDust Sensor: " + (ClientPaths.dustConnected ? "Yes" : "No"));
+//        lastSensorText.setText("Last: " + sensorName + "\nDust Sensor: " + (ClientPaths.dustConnected ? "Yes" : "No"));
+        lastSensorText.setText("Last: " + sensorName);
+
     }
 
     public void onFinishActivity(View view) {
@@ -626,33 +634,40 @@ public class MainActivity extends WearableActivity
         finish();
     }
 
-//    private Integer lastHeartRate = Constants.NO_VALUE;
 
     //sensor BroadCast Listener
     private BroadcastReceiver mHeartReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             // Get extra data included in the Intent
-            Integer lastHeartRate = intent.getIntExtra("heartrate", Constants.NO_VALUE);
-            updateHeartUI(lastHeartRate);
+            updateHeartUI(intent.getIntExtra("heart", Constants.NO_VALUE));
         }
     };
 
-
+    private static Integer NO_HEART_COUNT = 0;
+    private static Integer lastHeartRate = Constants.NO_VALUE;
 
     private void updateHeartUI(int heartRate) {
 
-
         Log.d(TAG, "updateHeartUI: " + heartRate);
         try {
-            if (heartRate == Constants.NO_VALUE)
-                heartText.setText("--");
-            else
+            if (heartRate == Constants.NO_VALUE) {
+                NO_HEART_COUNT++;
+                if (NO_HEART_COUNT > 2) {
+                    NO_HEART_COUNT = 0;
+                    heartText.setText("");
+                } else if (lastHeartRate!=Constants.NO_VALUE) {
+                        heartText.setText(lastHeartRate + "");
+                }
+            } else {
                 heartText.setText(heartRate + "");
+            }
         } catch (Exception e) {
             e.printStackTrace();
-//            Log.d(TAG, "Error updating heart UI");
+            Log.e(TAG, "Error updating heart UI");
         }
+
+        lastHeartRate = heartRate;
     }
 
     @Override

@@ -111,7 +111,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
                     //update the heart UI
                     //http://stackoverflow.com/questions/8802157/how-to-use-localbroadcastmanager
                     Intent i = new Intent(Constants.HEART_EVENT);
-                    i.putExtra("heartrate", heartRate.intValue());
+                    i.putExtra("heart", heartRate.intValue());
                     LocalBroadcastManager.getInstance(SensorService.this).sendBroadcast(i);
                 }
                 break;
