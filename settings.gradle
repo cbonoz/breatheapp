@@ -1,1 +1,1 @@
-include ':Wearable', ':mobile', ':shared', ':encryption'
+include ':Wearable', ':mobile', ':shared'

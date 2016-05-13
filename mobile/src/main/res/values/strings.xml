@@ -31,6 +31,6 @@
     <string name="welcome_text">Enter your Clinician Email and provided Subject ID below to register your patient on the paired Wearable</string>
 
 
-    <string name="question_header">Question Activity</string>
-    <string name="question_text">Please answer the following questions</string>
+    <string name="question_header">Breathe Survey\nPlaceholder</string>
+    <string name="question_text">Please answer the following questions\n(insert questions below)</string>
 </resources>

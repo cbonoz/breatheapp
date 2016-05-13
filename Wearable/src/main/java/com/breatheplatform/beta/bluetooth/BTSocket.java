@@ -125,7 +125,7 @@ public class BTSocket {
             {
                 Boolean readActive = true;
                 StringBuilder beamData = new StringBuilder();
-                StringBuilder s = new StringBuilder();
+//                StringBuilder s = new StringBuilder();
 
                 while(!Thread.currentThread().isInterrupted() && !stopWorker)
                 {
@@ -141,7 +141,7 @@ public class BTSocket {
                             for(int i=0;i<bytesAvailable;i++) {
 //                                byte b = packetBytes[i];
                                 char c = (char) packetBytes[i];
-                                s.append(c);
+//                                s.append(c);
 
                                 if (c == ';') //end of number
                                     readActive=false;
@@ -188,10 +188,10 @@ public class BTSocket {
 
                                 }
 
-                                if (s.length()>10000) {
-                                    Log.d(TAG, "data: " + s.toString());
-                                    s.setLength(0);
-                                }
+//                                if (s.length()>5000) {
+//                                    Log.d(TAG, "data: " + s.toString());
+//                                    s.setLength(0);
+//                                }
 
                             }
 

@@ -11,7 +11,7 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical" android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#c7f1a4"
+        android:background="#ffffff"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:id="@+id/mobile_layout">
@@ -37,15 +37,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/question_text"
+            android:textColor="#000000"
             android:gravity="center"
             android:textSize="16dp" />
 
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="50dp" />
+            android:layout_height="350dp" />
         <!-- -->
-
 
         <Button
             android:layout_width="100dp"
@@ -55,7 +55,10 @@
             android:text="@string/submit" />
 
 
+
+
     </LinearLayout>
+
 
 </ScrollView>
 

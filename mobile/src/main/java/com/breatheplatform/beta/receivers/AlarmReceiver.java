@@ -1,12 +1,17 @@
 package com.breatheplatform.beta.receivers;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.breatheplatform.beta.QuestionActivity;
+import com.breatheplatform.beta.R;
 import com.breatheplatform.beta.shared.Constants;
 
 import me.denley.courier.Courier;
@@ -34,9 +39,10 @@ public class AlarmReceiver extends BroadcastReceiver {
             case Constants.SPIRO_ALARM_ID:
                 Log.d(TAG, "Spiro alarm called");
                 Courier.deliverMessage(context, Constants.REMINDER_API, "spiro");
-//                NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-//                Notification notification = intent.getParcelableExtra(NOTIFICATION);
-//                notificationManager.notify(id, notification);
+
+                int mNotificationId = 001;
+                NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                mNotifyMgr.notify(mNotificationId, buildSpiroReminder(context));
                 Toast.makeText(context, "Spirometer Time", Toast.LENGTH_LONG).show();
                 break;
             case Constants.QUESTION_ALARM_ID:
@@ -77,12 +83,27 @@ public class AlarmReceiver extends BroadcastReceiver {
                 break;
             default:
                 Log.d(TAG, "Unknown Alarm");
-
-
+                break;
         }
-
     }
 
+
+    private Notification buildSpiroReminder(Context c) {
+//        Intent viewIntent = new Intent(this, MainActivity.class);
+//        viewIntent.putExtra("event-id", 0);
+//        PendingIntent viewPendingIntent = PendingIntent.getActivity(this, 0, viewIntent, 0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(c)
+//                        .setSmallIcon(R.drawable.ic_spiro)
+                .setLargeIcon(BitmapFactory.decodeResource(c.getResources(), R.drawable.ic_spiro))
+                .setContentTitle("Breathe Reminder!")
+                .setVibrate(new long[]{500})
+                .setContentText("Time to use Spirometer on Watch")
+                .setWhen(System.currentTimeMillis())
+                .setShowWhen(true);
+//                .setContentIntent(viewPendingIntent);
+        return builder.build();
+    }
 
 
 }

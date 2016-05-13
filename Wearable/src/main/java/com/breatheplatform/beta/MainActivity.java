@@ -39,6 +39,7 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -189,14 +190,6 @@ public class MainActivity extends WearableActivity
 //        alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
 //    }
 
-    private Notification getNotification(String title, String content) {
-        Notification.Builder builder = new Notification.Builder(this);
-        builder.setContentTitle(title);
-        builder.setContentText(content);
-        builder.setSmallIcon(R.drawable.ic_launcher);
-        return builder.build();
-    }
-
     private Notification buildSpiroReminder() {
         Intent viewIntent = new Intent(this, MainActivity.class);
         viewIntent.putExtra("event-id", 0);
@@ -213,26 +206,6 @@ public class MainActivity extends WearableActivity
                         .setContentIntent(viewPendingIntent);
         return builder.build();
     }
-
-//    private void scheduleSensors(long interval) {
-//        Intent notificationIntent = new Intent(Constants.ALARM_ACTION);
-//        notificationIntent.putExtra(AlarmReceiver.ALARM_ID, Constants.SENSOR_ALARM_ID);
-//        sensorIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-//        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, sensorIntent);
-//    }
-
-
-
-//    BroadcastReceiver call_method = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            String action_name = intent.getAction();
-//            if (action_name.equals("call_method")) {
-//                //launch question api on phone
-//                Courier.deliverMessage(MainActivity.this, Constants.QUESTION_API,"");
-//            }
-//        }
-//    };
 
     private Notification buildQuestionReminder(long reminderTime) {
         // This is what you are going to set a pending intent which will start once
@@ -334,15 +307,14 @@ public class MainActivity extends WearableActivity
         spiroToggleButton = (ToggleButton) findViewById(R.id.spiroToggleButton);
 
         spiroToggleButton.setChecked(false);
-
-        loadingPanel.setVisibility(View.GONE);
+        loadingPanel.setVisibility(View.INVISIBLE);
 
         spiroToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (isChecked) {
                 Log.d(TAG, "startSpiro - show loading");
                 loadingPanel.setVisibility(View.VISIBLE);
-                spiroToggleButton.setVisibility(View.GONE);
+                spiroToggleButton.setVisibility(View.INVISIBLE);
                 new BluetoothTask().execute(Constants.SPIRO_SENSOR_ID);
             } else {
                 Log.i(TAG, "stopSpiro");
@@ -352,8 +324,9 @@ public class MainActivity extends WearableActivity
         });
 
 
-        Switch sensorSwitch = (Switch) findViewById(R.id.sensorSwitch);
+
         if (Constants.collecting) {
+            Switch sensorSwitch = (Switch) findViewById(R.id.sensorSwitch);
             sensorSwitch.setChecked(sensorToggled);
             sensorSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -371,7 +344,7 @@ public class MainActivity extends WearableActivity
                 }
             });
         } else {
-            sensorSwitch.setVisibility(View.GONE);
+//            sensorSwitch.setVisibility(View.GONE);
             startMeasurement(this);
         }
 //        sensorSwitch.setVisibility(View.GONE);
@@ -423,8 +396,12 @@ public class MainActivity extends WearableActivity
                 smileView.setImageResource(R.drawable.frowny_face);
                 statusString = "Risk: High";
                 riskText.setTextColor(Color.RED);
-                if (lastRiskValue!=HIGH_RISK)//handle risk transition message
-                    Toast.makeText(MainActivity.this, "Risk Warning - Please use Spirometer", Toast.LENGTH_SHORT).show();
+                if (lastRiskValue!=HIGH_RISK) {//handle risk transition message
+                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    // Vibrate for 500 milliseconds
+                    v.vibrate(500);
+                    Toast.makeText(MainActivity.this, "Risk Warning - Use Spirometer", Toast.LENGTH_SHORT).show();
+                }
                 break;
             case Constants.NO_VALUE:
                 statusString = "Risk: Low";
@@ -740,8 +717,7 @@ public class MainActivity extends WearableActivity
         Log.d(TAG, "onExitAmbient - add task callbacks");
 //        scheduleRiskRequest();
 
-        loadingPanel = (RelativeLayout) findViewById(R.id.loadingPanel);
-        spiroToggleButton = (ToggleButton) findViewById(R.id.spiroToggleButton);
+
 
 //        activeView.setVisibility(View.GONE);
         dateText.setVisibility((View.GONE));

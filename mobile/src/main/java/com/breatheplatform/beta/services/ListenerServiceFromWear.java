@@ -1,15 +1,19 @@
 package com.breatheplatform.beta.services;
 
 import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.StatFs;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.breatheplatform.beta.R;
 import com.breatheplatform.beta.RegisterActivity;
 import com.breatheplatform.beta.connection.Connectivity;
 import com.breatheplatform.beta.encryption.HybridCrypt;
@@ -172,9 +176,10 @@ public class ListenerServiceFromWear extends WearableListenerService {
                 unregisterUser = false;
             }
 
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("subject", "1");
-            editor.commit();
+//            For registration force:
+//            SharedPreferences.Editor editor = prefs.edit();
+//            editor.putString("subject", "1");
+//            editor.commit();
 
 
             subject = prefs.getString("subject", "");
@@ -438,18 +443,12 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
 
     private void scheduleQuestionReminder(long ms) {
-
         PendingIntent pi = createAlarmPI(Constants.QUESTION_ALARM_ID);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, ms,
                 AlarmManager.INTERVAL_DAY, pi);
-
-
         Log.d(TAG, "Scheduled question alarm in the future: " + (ms - System.currentTimeMillis()) + "ms");
-
-
     }
     private void scheduleQuestionReminder(int hour, int minute) {
-        // Set the alarm to start at approximately 2:00 p.m.
         Calendar calendar = Calendar.getInstance();
 
         calendar.set(Calendar.HOUR_OF_DAY, hour); // For 1 PM or 2 PM
@@ -460,35 +459,35 @@ public class ListenerServiceFromWear extends WearableListenerService {
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY, pi);
 
-
         Log.d(TAG, "Scheduled question alarm at time: " + hour + ":" + minute);
-
-
     }
 
     private static final Integer TWO_HOUR_MS = 1000 * 60 * 120;
 
     private void scheduleSpiroReminder(int startHour, int startMinute) {
-        // Set the alarm to start at 8:30 a.m.
         Calendar calendar = Calendar.getInstance();
 
-//        calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, startHour);
         calendar.set(Calendar.MINUTE, startMinute);
         calendar.set(Calendar.SECOND, 0);
-
 
         PendingIntent pi = createAlarmPI(Constants.SPIRO_ALARM_ID);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                 TWO_HOUR_MS, pi);
 
         Log.d(TAG, "Scheduled spiro alarm to repeat every " + TWO_HOUR_MS / 60000 + " min");
+    }
 
-
+    private void scheduleSpiroReminder(long ms) {
+        PendingIntent pi = createAlarmPI(Constants.SPIRO_ALARM_ID);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, ms,
+                TWO_HOUR_MS, pi);
+        Log.d(TAG, "Scheduled spiro alarm to repeat every " + TWO_HOUR_MS / 60000 + " min");
     }
 
     //units: ms
-    private static final Long SPIRO_REMINDER_INTERVAL = AlarmManager.INTERVAL_HOUR*2;
+
+
 
     //Alarms for Questionnaire and Spiro
     //    -7:30am (fixed time)
@@ -500,14 +499,14 @@ public class ListenerServiceFromWear extends WearableListenerService {
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
 //        scheduleSpiroNotification(buildSpiroReminder(), SPIRO_REMINDER_INTERVAL, Constants.SPIRO_ALARM_ID);//AlarmManager.INTERVAL_HOUR*2);
-        scheduleSpiroReminder(1,0);
-
+//        scheduleSpiroReminder(1,0);
+        scheduleSpiroReminder(System.currentTimeMillis()+TWO_HOUR_MS/4);
 //        scheduleQuestionReminder(12,20);
-        scheduleQuestionReminder(System.currentTimeMillis()+30000);
-        scheduleQuestionReminder(7, 30);
-        scheduleQuestionReminder(15, 30);
-        scheduleQuestionReminder(17, 30);
-        scheduleQuestionReminder(19, 30);
+//        scheduleQuestionReminder(System.currentTimeMillis()+30000);
+//        scheduleQuestionReminder(7, 30);
+//        scheduleQuestionReminder(15, 30);
+//        scheduleQuestionReminder(17, 30);
+//        scheduleQuestionReminder(19, 30);
     }
 
 

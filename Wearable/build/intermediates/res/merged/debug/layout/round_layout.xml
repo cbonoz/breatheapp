@@ -21,34 +21,6 @@
     android:id="@+id/round_layout">
 
 
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/idButton"
-                android:text="Set Subject ID"
-                android:visibility="gone" />
-
-
-
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="onFinishActivity"
-                android:text="Exit"
-                android:visibility="gone" />
-
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text=""
-                android:id="@+id/copyRightView"
-                android:layout_gravity="left"
-                android:layout_weight="0.72" />
-
-
     <ImageView
         android:layout_width="90dp"
         android:layout_height="90dp"
@@ -76,7 +48,8 @@
         android:gravity="center_vertical|center"
 
         android:layout_below="@+id/lastSensorText"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -85,9 +58,9 @@
         android:id="@+id/lastSensorText"
         android:layout_gravity="left|center_vertical"
         android:layout_marginLeft="15dp"
-        android:layout_below="@+id/smileView"
-        android:layout_toStartOf="@+id/riskText"
-        android:layout_marginTop="19dp" />
+        android:layout_below="@+id/subjectText"
+        android:layout_alignEnd="@+id/spiroToggleButton"
+        android:layout_alignStart="@+id/heartImage" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -96,15 +69,9 @@
         android:id="@+id/subjectText"
         android:layout_gravity="right|center_vertical"
         android:gravity="right"
-        android:layout_below="@+id/heartText"
-        android:layout_toStartOf="@+id/smileView" />
+        android:layout_below="@+id/smileView"
+        android:layout_centerHorizontal="true" />
 
-
-
-    <android.support.wearable.view.DismissOverlayView
-        android:id="@+id/dismiss_overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
     <ImageView
         android:layout_width="16dp"
@@ -113,8 +80,10 @@
         android:src="@drawable/heart"
         android:maxHeight="32dp"
         android:maxWidth="32dp"
-        android:layout_centerVertical="true"
-        android:layout_alignStart="@+id/helpText1" />
+        android:layout_below="@+id/spiroToggleButton"
+        android:layout_alignStart="@+id/spiroToggleButton"
+        android:layout_marginStart="9dp"
+        android:layout_marginTop="2dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -123,27 +92,9 @@
         android:text="--"
         android:id="@+id/heartText"
         android:paddingLeft="2dp"
-        android:layout_alignTop="@+id/heartImage"
+        android:layout_alignTop="@+id/dateText"
         android:layout_toEndOf="@+id/heartImage" />
 
-
-    <Switch
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/sensorSwitch"
-        android:checked="false"
-        android:layout_below="@+id/spiroToggleButton"
-        android:layout_alignStart="@+id/spiroToggleButton" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Sensors"
-        android:id="@+id/helpText1"
-        android:textSize="10dp"
-        android:layout_alignBottom="@+id/subjectText"
-        android:layout_alignEnd="@+id/spiroToggleButton" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -151,39 +102,37 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Breathe"
         android:id="@+id/breatheView"
-        android:layout_alignBaseline="@+id/spiroToggleButton"
-        android:layout_alignBottom="@+id/spiroToggleButton"
-        android:layout_centerHorizontal="true"
-        android:textColor="#dddddd" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Active"
-        android:id="@+id/activeView"
-        android:layout_above="@+id/smileView"
-        android:layout_centerHorizontal="true" />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:id="@+id/dateText"
-
-        android:layout_below="@+id/spiroToggleButton"
-        android:layout_centerHorizontal="true" />
+        android:textColor="#dddddd"
+        android:layout_alignTop="@+id/heartImage"
+        android:layout_alignEnd="@+id/spiroToggleButton" />
 
     <RelativeLayout
         android:id="@+id/loadingPanel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center" >
+        android:gravity="top"
+        android:layout_above="@+id/smileView"
+        android:layout_alignStart="@+id/smileView"
+        android:layout_alignEnd="@+id/smileView">
 
         <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:indeterminate="true" />
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:indeterminate="true"
+            android:id="@+id/spinnerBar"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
     </RelativeLayout>
+
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/dateText"
+        android:layout_alignBottom="@+id/heartImage"
+        android:layout_toEndOf="@+id/heartText" />
 
 </RelativeLayout>
 
