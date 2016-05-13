@@ -22,7 +22,7 @@ public class ClientPaths {
     public static String activityDetail = "None:"+Constants.NO_VALUE;
     public static Location currentLocation = null;
     public static Context mainContext = null;
-    public static String subjectId = "";
+    public static String subject = "";
 
 }
 

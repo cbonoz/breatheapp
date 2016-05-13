@@ -229,8 +229,6 @@ public class SensorService extends Service implements SensorEventListener, Googl
             Log.d(TAG, "acquire lock");
         }
 
-//        registerDust();
-
         buildApiClient();
         mGoogleApiClient.connect();
 //        Log.d(TAG, "Sensor delay normal: " + SensorManager.SENSOR_DELAY_NORMAL);
@@ -244,8 +242,10 @@ public class SensorService extends Service implements SensorEventListener, Googl
         gyroSensor = mSensorManager.getDefaultSensor(SENS_GYRO);
 
 
-        beamConn = new BTSocket(Constants.AIRBEAM_SENSOR_ID, uuid, this);
-        new BluetoothTask().execute(Constants.AIRBEAM_SENSOR_ID);
+//        beamConn = new BTSocket(Constants.AIRBEAM_SENSOR_ID, uuid, this);
+//        new BluetoothTask().execute(Constants.AIRBEAM_SENSOR_ID);
+
+        registerDust();
 
 
 //        ppgSensor = mSensorManager.getDefaultSensor(65545);
@@ -334,10 +334,10 @@ public class SensorService extends Service implements SensorEventListener, Googl
         super.onDestroy();
         Log.d(TAG, "sensor onDestroy");
 
-//        if (ClientPaths.dustConnected) {
-//            unregisterDust();
-//            ClientPaths.dustConnected = false;
-//        }
+        if (ClientPaths.dustConnected) {
+            unregisterDust();
+            ClientPaths.dustConnected = false;
+        }
 
 
 //        try {
@@ -347,7 +347,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
 //        }
 
 
-        beamConn.closeConn();
+//        beamConn.closeConn();
         ClientPaths.dustConnected=false;
 
         if (mSensorManager != null) {

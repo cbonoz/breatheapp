@@ -158,9 +158,8 @@ public class SensorAddService extends IntentService {
                     Log.e(TAG, "Unexpected Sensor " + sensorName + " " + sensorType);
                     return;
             }
-
-            jsonDataEntry.put("value", jsonValue);
 //            jsonDataEntry.put("last", lastTimeStamp);
+            jsonDataEntry.put("value", jsonValue);
             jsonDataEntry.put("timestamp", currentTime);//System.currentTimeMillis());
             jsonDataEntry.put("timezone", tz);
             jsonDataEntry.put("sensor_id", sensorNames.getServerID(sensorType));//will be changed to actual sensor (sensorType)
@@ -168,11 +167,11 @@ public class SensorAddService extends IntentService {
             //check if the location is currently available
             if (ClientPaths.currentLocation!=null) {
                 jsonDataEntry.put("lat", ClientPaths.currentLocation.getLatitude());
-                jsonDataEntry.put("long", ClientPaths.currentLocation.getLongitude());
+                jsonDataEntry.put("lon", ClientPaths.currentLocation.getLongitude());
                 jsonDataEntry.put("location_accuracy", ClientPaths.currentLocation.getAccuracy());
             } else {
                 jsonDataEntry.put("lat",Constants.NO_VALUE);
-                jsonDataEntry.put("long",Constants.NO_VALUE);
+                jsonDataEntry.put("lon",Constants.NO_VALUE);
                 jsonDataEntry.put("location_accuracy", Constants.NO_VALUE);
             }
 
@@ -182,9 +181,8 @@ public class SensorAddService extends IntentService {
             return;
         }
 
-
-
         String dataEntry = jsonDataEntry.toString();
+
         //sensorData is a stringBuilder
         sensorData.append(dataEntry);
 
@@ -192,7 +190,6 @@ public class SensorAddService extends IntentService {
 //        lastSensorData.put(sensorType, currentTime);
 
         Log.d(TAG, "Data Added #"+ recordCount + ": " + dataEntry);
-
 
         //if spirometer send immediately
         if(sensorType==Constants.SPIRO_SENSOR_ID) {
@@ -204,12 +201,6 @@ public class SensorAddService extends IntentService {
 
     }
 
-//    private static Asset createAssetFromBitmap(Bitmap bitmap) {
-//        final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
-//        return Asset.createFromBytes(byteStream.toByteArray());
-//    }
-
     private void createDataPostRequest() {
         Log.d(TAG, "createDataPostRequest");
         JSONObject jsonBody = new JSONObject();
@@ -219,13 +210,13 @@ public class SensorAddService extends IntentService {
 //            String sensorDataString = sensorData.join("\n");
             String sensorDataString = sensorData.toString();
 
-            if (ClientPaths.subjectId == null || ClientPaths.subjectId.equals("")) {
+            if (ClientPaths.subject == null || ClientPaths.subject.equals("")) {
                 Log.e(TAG, "No Subject detected - blocking multi post");
                 return;
             }
 
             jsonBody.put("timestamp",System.currentTimeMillis());
-            jsonBody.put("subject_id", ClientPaths.subjectId);
+            jsonBody.put("subject_id", ClientPaths.subject);
             jsonBody.put("key", Constants.API_KEY);
             jsonBody.put("battery",ClientPaths.batteryLevel);
             jsonBody.put("testing",Constants.TESTING);

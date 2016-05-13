@@ -86,7 +86,7 @@ public class RegisterActivity extends Activity {
     }
 
     private void saveSubjectAndClose(String subject) {
-        prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
+
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("subject", subject);
         editor.commit();
@@ -131,6 +131,15 @@ public class RegisterActivity extends Activity {
                 new IntentFilter(Constants.REGISTER_EVENT));
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+        prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
+
+//        String subject = prefs.getString("subject", "");
+//
+//        if (subject.equals("")) {
+//            Toast.makeText(this, "Already Registered", Toast.LENGTH_LONG).show();
+//            finish();
+//        }
 
         clinicText = (EditText) findViewById(R.id.clinicText);
         subjectText = (EditText) findViewById(R.id.subjectText);

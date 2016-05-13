@@ -126,10 +126,10 @@ public class MainActivity extends WearableActivity
 
 
     private void requestSubjectAndUpdateUI() {
-        ClientPaths.subjectId = prefs.getString("subject", "");
+        ClientPaths.subject = prefs.getString("subject", "");
 
         //check if SUBJECT ID is "" or null
-        if (ClientPaths.subjectId.equals("")) {
+        if (ClientPaths.subject.equals("")) {
             Courier.deliverMessage(this, Constants.SUBJECT_API, "");
         } else {
             Log.i(TAG, "Requested Subject, but already have it.");
@@ -356,7 +356,7 @@ public class MainActivity extends WearableActivity
 
     private void updateSubjectUI() {
 
-        String sub = ClientPaths.subjectId;
+        String sub = ClientPaths.subject;
 
 
         if (subjectText != null) {
@@ -476,7 +476,7 @@ public class MainActivity extends WearableActivity
             JSONObject jsonBody = new JSONObject();
 
             jsonBody.put("timestamp",System.currentTimeMillis());
-            jsonBody.put("subject_id", ClientPaths.subjectId);
+            jsonBody.put("subject_id", ClientPaths.subject);
             jsonBody.put("key", Constants.API_KEY);
             jsonBody.put("battery",ClientPaths.batteryLevel);
 //            jsonBody.put("connection", ClientPaths.connectionInfo);
@@ -533,7 +533,7 @@ public class MainActivity extends WearableActivity
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("subject", sub);
         editor.commit();
-        ClientPaths.subjectId = sub;
+        ClientPaths.subject = sub;
         Log.d(TAG, "set subject, id now " + sub);
 
         Courier.deliverMessage(this, Constants.REGISTERED_API, sub);
@@ -730,10 +730,6 @@ public class MainActivity extends WearableActivity
         spiroToggleButton.setVisibility(View.VISIBLE);
 //        breatheView.setVisibility(View.VISIBLE);
 
-
-
-
-
         riskRequest();
 
         //register receivers
@@ -815,11 +811,7 @@ public class MainActivity extends WearableActivity
             e.printStackTrace();
             Log.e(TAG, "myBatteryReceiver turned off");
         }
-
-
         taskHandler.postDelayed(triggerTask, Constants.SENSOR_OFF_TIME);
-
-
     }
 
     private void scheduleStopSensor(Integer futureTime, Integer alarmId) {
@@ -832,9 +824,6 @@ public class MainActivity extends WearableActivity
         taskHandler.postDelayed(stopSensorTask, futureTime);
         Log.d(TAG, "scheduled stop sensor alarm for " + futureTime + "ms");
     }
-
-
-
 
     private void printAvailableSensors() {
         if (mSensorManager != null) {
@@ -882,10 +871,8 @@ public class MainActivity extends WearableActivity
                 default:
                     Log.e(TAG, "Unexpected Type: "  + deviceType);
                     return "TRY_AGAIN";
-
             }
         }
-
 
         @Override
         protected void onPostExecute(String result) {

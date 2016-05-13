@@ -387,6 +387,24 @@ ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main
 		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:51:13-37
 	android:name
 		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:50:13-55
+receiver#com.breatheplatform.beta.autostart.StartMyActivityAtBootReceiver
+ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:63:9-72:20
+	android:enabled
+		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:65:13-35
+	android:permission
+		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:66:13-75
+	android:name
+		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:64:13-68
+intent-filter#android.intent.action.BOOT_COMPLETED+android.intent.category.DEFAULT
+ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:67:13-71:29
+action#android.intent.action.BOOT_COMPLETED
+ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:68:17-79
+	android:name
+		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:68:25-76
+category#android.intent.category.DEFAULT
+ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:70:17-76
+	android:name
+		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:70:27-73
 activity#com.breatheplatform.beta.MainActivity
 ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:74:9-90:20
 	android:label
@@ -413,10 +431,6 @@ action#com.google.android.google.wearable.app
 ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:85:17-81
 	android:name
 		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:85:25-78
-category#android.intent.category.DEFAULT
-ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:87:17-76
-	android:name
-		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:87:27-73
 activity#android.support.wearable.activity.ConfirmationActivity
 ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:91:9-90
 	android:name
