@@ -29,9 +29,9 @@ public class BTSocket {
 
 
     BluetoothAdapter bluetoothAdapter;
-    BluetoothSocket mmSocket;
+    BluetoothSocket mmSocket = null;
     Boolean stopWorker;
-    BluetoothDevice mmDevice;
+    BluetoothDevice mmDevice = null;
     InputStream mmInputStream = null;
     Context context;
     UUID uuid;
@@ -290,10 +290,12 @@ public class BTSocket {
 
     //Bluetooth socket connection - only check paired devices
     public Boolean findConn() {
+
+        if (mmDevice != null) {
+            return true;
+        }
+
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        mmDevice = null;
-        mmSocket = null;
-        mmInputStream=null;
 
         final String deviceString;
 

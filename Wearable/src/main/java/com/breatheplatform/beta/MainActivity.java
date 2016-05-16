@@ -39,7 +39,6 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -226,7 +225,7 @@ public class MainActivity extends WearableActivity
                         .setContentTitle("Question Reminder!")
                         .setContentText("Slide to Answer Questions on Phone->")
                         .setWhen(reminderTime)
-                        .setVibrate(new long[]{1000, 1000})
+                        .setVibrate(new long[]{500})
                         .setContentIntent(viewPendingIntent);
         return builder.build();
     }
@@ -397,9 +396,9 @@ public class MainActivity extends WearableActivity
                 statusString = "Risk: High";
                 riskText.setTextColor(Color.RED);
                 if (lastRiskValue!=HIGH_RISK) {//handle risk transition message
-                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                     // Vibrate for 500 milliseconds
-                    v.vibrate(500);
+//                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+//                    v.vibrate(500);
                     Toast.makeText(MainActivity.this, "Risk Warning - Use Spirometer", Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -596,7 +595,6 @@ public class MainActivity extends WearableActivity
         } catch( Exception e) {
             Log.e(TAG, "connReceiver off");
         }
-
     }
 
     //precondition that lastSensorText != null
@@ -610,7 +608,6 @@ public class MainActivity extends WearableActivity
         setResult(RESULT_OK);
         finish();
     }
-
 
     //sensor BroadCast Listener
     private BroadcastReceiver mHeartReceiver = new BroadcastReceiver() {
@@ -682,7 +679,11 @@ public class MainActivity extends WearableActivity
 //        setContentView(R.layout.black_layout); //null background
     }
     private static int updateN = 1;
-    private static final int N = 2;
+
+    //lowest sampling period is 10s every 3 min (this is in the case of ZERO activity
+    //any kind of signification motion (standing up, normal arm movement during walking, etc.
+    // will trigger a faster walking period
+    private static final int AMBIENT_SENSOR_PERIOD = 2;
 
     @Override
     public void onUpdateAmbient() {
@@ -692,7 +693,7 @@ public class MainActivity extends WearableActivity
         riskRequest();
 
 
-        if (updateN == N) {
+        if (updateN == AMBIENT_SENSOR_PERIOD) {
             //reset heart value
             updateHeartUI(Constants.NO_VALUE);
             startMeasurement(this);

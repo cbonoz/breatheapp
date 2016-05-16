@@ -5,7 +5,7 @@ package com.breatheplatform.beta.shared;
  * Constants file used to keep shared parameters used by Watch and mobile
  */
 public class Constants {
-    private static final String TAG = "Constants";
+//    public static final String TAG = "Constants";
     public static final String MY_PREFS_NAME = "MyPrefs";
 
     //secure https
@@ -47,7 +47,6 @@ public class Constants {
     public static final String HEART_EVENT = "heart-event";
     public static final String LAST_SENSOR_EVENT = "last-sensor-event";
     public static final String REGISTER_EVENT = "register-event";
-
     public static final int NO_VALUE = -1;
 
 
@@ -59,8 +58,8 @@ public class Constants {
     public static final int START_ALARM_ID = 6;
 
     //Sensor Period on Watch
-    public static final Integer SENSOR_ON_TIME = ONE_MIN_MS/6;// / 8; //7.5s
-    public static final Integer SENSOR_OFF_TIME = SENSOR_ON_TIME;
+    public static final Integer SENSOR_ON_TIME = ONE_MIN_MS/6; //10 seconds on time
+    public static final Integer SENSOR_OFF_TIME = ONE_MIN_MS/6; //minimum 10 seconds off time
 
 
     //Constants used for debugging
