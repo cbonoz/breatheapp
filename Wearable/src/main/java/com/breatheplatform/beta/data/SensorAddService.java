@@ -12,6 +12,7 @@ import com.breatheplatform.beta.shared.Constants;
 
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.util.TimeZone;
 
 import me.denley.courier.Courier;
@@ -93,6 +94,11 @@ public class SensorAddService extends IntentService {
     private static JSONObject jsonDataEntry = new JSONObject();
 //    private static JSONObject jsonValue = new JSONObject();
 
+    private static Float precision(Float d, int decimalPlace) {
+        BigDecimal bd = new BigDecimal(Float.toString(d));
+        bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
+        return bd.floatValue();
+    }
 
     // END WRITE AND SEND BLOCK
     private void processSensorData(final int sensorType, final int accuracy, final long currentTime, final float[] values) {
@@ -143,7 +149,8 @@ public class SensorAddService extends IntentService {
                     jsonValue.put("confidence",accuracy);
                     break;
                 case (Constants.AIRBEAM_SENSOR_ID):
-                    jsonValue.put("PM",values[0]);
+
+                    jsonValue.put("PM",precision(values[0],2));
                     jsonValue.put("F",values[1]);
                     jsonValue.put("RH",values[2]);
                     break;

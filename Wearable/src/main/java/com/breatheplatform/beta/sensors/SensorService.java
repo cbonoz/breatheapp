@@ -35,9 +35,10 @@ import com.breatheplatform.beta.shared.Constants;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.wearable.Wearable;
 
 import java.util.Set;
 import java.util.UUID;
@@ -362,10 +363,10 @@ public class SensorService extends Service implements SensorEventListener, Googl
 //        }
 
 
-//        if (mGoogleApiClient.isConnected()) {
-//            if (locationActive)
-//                LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-//        }
+        if (mGoogleApiClient.isConnected()) {
+            if (locationActive)
+                LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
 
         mGoogleApiClient.disconnect();
 
@@ -400,8 +401,8 @@ public class SensorService extends Service implements SensorEventListener, Googl
     private synchronized void buildApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
-                .addApi(ActivityRecognition.API)
-//                .addApi(Wearable.API)
+//                .addApi(ActivityRecognition.API)
+                .addApi(Wearable.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
@@ -440,23 +441,18 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
 
         Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-//        if (location == null) {
-////            LocationRequest locationRequest = LocationRequest.create()
-////                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
-////                .setNumUpdates(1)
-////                .setSmallestDisplacement(10) //10m
-////                .setInterval(LOCATION_INTERVAL)
-////                .setFastestInterval(LOCATION_INTERVAL);
-////            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
-////            locationActive = true;
-//        } else {
-//            ClientPaths.currentLocation = location;
-//        }
-        if (location != null) {
+        if (location == null) {
+            LocationRequest locationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+                .setNumUpdates(1)
+                .setSmallestDisplacement(10) //10m
+                .setInterval(LOCATION_INTERVAL)
+                .setFastestInterval(LOCATION_INTERVAL);
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
+            locationActive = true;
+        } else {
             Log.d(TAG, "New Location Found");
             ClientPaths.currentLocation = location;
-        } else {
-            Log.d(TAG, "New Location not Found");
         }
 
 //
@@ -510,7 +506,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
         Log.d(TAG, "onConnectionSuspended called");
         try {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, getActivityDetectionPendingIntent());
+//            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, getActivityDetectionPendingIntent());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -539,20 +535,16 @@ public class SensorService extends Service implements SensorEventListener, Googl
     @Override
     public void onLocationChanged (Location location)
     {
-        Log.d(TAG, "onLocationChanged: " + location.getLatitude() + "," + location.getLongitude());
-        if (location!=null)
+        if (location!=null) {
+            Log.d(TAG, "onLocationChanged: " + location.getLatitude() + "," + location.getLongitude());
             ClientPaths.currentLocation = location;
-        //send updated watch location to mobile device
-//        Courier.deliverMessage(this, Constants.LOCATION_API, location);
-    }
+        }
 
+    }
 
          /* BLUETOOTH LOGIC BELOW */
 
-//    private static final int BT_TASK_PERIOD = 150000; //ms
     private static final int REQUEST_ENABLE_BT = 1;
-    private static Boolean initOnce = true;
-
 
     //    private ConnectionReceiver connReceiver;
     private static BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -594,21 +586,6 @@ public class SensorService extends Service implements SensorEventListener, Googl
     private void updateState(int newState) {
         state = newState;
     }
-
-
-//    @Override
-//    public void onLeScan(BluetoothDevice device, final int rssi, final byte[] scanRecord) {
-//        bluetoothAdapter.stopLeScan(this);
-//        bluetoothDevice = device;
-//
-//        //scan for bluetooth device that contains RF
-//        if (bluetoothDevice.getName().contains(Constants.DUST_BT_NAME)) {
-//            Log.i(TAG, "Found RF Device: " + bluetoothDevice.getName());
-//            Intent rfduinoIntent = new Intent(this, RFduinoService.class);
-//            bindService(rfduinoIntent, rfduinoServiceConnection, BIND_AUTO_CREATE);
-//        }
-//    }
-
 
 
     private final BroadcastReceiver bluetoothStateReceiver = new BroadcastReceiver() {

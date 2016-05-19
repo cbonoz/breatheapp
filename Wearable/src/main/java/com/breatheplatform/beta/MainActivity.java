@@ -32,13 +32,10 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.hardware.TriggerEvent;
 import android.hardware.TriggerEventListener;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -172,21 +169,6 @@ public class MainActivity extends WearableActivity
 
     }
 
-//    AlarmReceiver alarmReceiver = new AlarmReceiver();
-
-//    private IntentFilter alarmFilter = new IntentFilter(Constants.ALARM_ACTION);
-
-//    private void scheduleNotification(Notification notification, int delay) {
-//
-//        Intent notificationIntent = new Intent(this, AlarmReceiver.class);
-//        notificationIntent.putExtra(AlarmReceiver.ALARM_ID, 1);
-//        notificationIntent.putExtra(AlarmReceiver.NOTIFICATION, notification);
-//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-//
-//        long futureInMillis = SystemClock.elapsedRealtime() + delay;
-//
-//        alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
-//    }
 
     private Notification buildSpiroReminder() {
         Intent viewIntent = new Intent(this, MainActivity.class);
@@ -231,11 +213,23 @@ public class MainActivity extends WearableActivity
 
 
     private AlarmManager alarmManager;
-
+    private WearAlarmReceiver wearAlarmReceiver;
+    private IntentFilter startFilter;
+    private PendingIntent sensorPI;
 
 
     public void onCreate(Bundle b) {
         super.onCreate(b);
+        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        wearAlarmReceiver = new WearAlarmReceiver();
+        startFilter = new IntentFilter(Constants.WEAR_ACTION);
+
+
+
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mSigMotionSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
+
+
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSigMotionSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
 
@@ -347,25 +341,69 @@ public class MainActivity extends WearableActivity
 //        }
 //        sensorSwitch.setVisibility(View.GONE);
 //        startMeasurement(this);
-        startMeasurement(this);
+
+
+        if (Constants.fixedSensorRate) {
+            registerReceiver(wearAlarmReceiver, startFilter);
+            Intent intent = new Intent(Constants.WEAR_ACTION);
+            intent.putExtra("alarmId", Constants.START_ALARM_ID);
+            sensorPI = PendingIntent.getBroadcast(this, Constants.START_ALARM_ID, intent, 0);
+
+//            scheduleSensors(Constants.SENSOR_INTERVAL);
+//            scheduleRepeatedSensors(Constants.SENSOR_INTERVAL);
+            startMeasurement(this);
+        } else
+            startMeasurement(this);
+
+
         requestSubjectAndUpdateUI();
         updateRiskUI(lastRiskValue);
     }
 
+    private void scheduleRepeatedSensors(Integer interval) {
+
+//        registerReceiver(wearAlarmReceiver, startFilter);
+//        Intent intent = new Intent(Constants.WEAR_ACTION);
+//        intent.putExtra("alarmId", Constants.START_ALARM_ID);
+//        sensorPI = PendingIntent.getBroadcast(this, Constants.START_ALARM_ID, intent, 0);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                interval, sensorPI);
+        Log.d(TAG, "scheduleRepeatedSensors, interval: " + interval);
+    }
+
+    private void scheduleSensors(Integer futureTime) {
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + futureTime, sensorPI);
+        Log.d(TAG, "scheduleSensors, for " + futureTime);
+    }
+
+    private void cancelRepeatedSensors() {
+        Log.d(TAG, "cancelRepeatedSensors");
+        unregisterReceiver(wearAlarmReceiver);
+        try {
+            alarmManager.cancel(sensorPI);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "[Handled] Could not cancer sensorPI");
+        }
+    }
 
     private void updateSubjectUI() {
 
-        String sub = ClientPaths.subject;
-
-
         if (subjectText != null) {
-            String st = "Subject: " + sub;
+            String st = "Subject: " +  ClientPaths.subject;
             subjectText.setText(st);
-        } else {
-            Log.e(TAG, "Received subject before layout inflated");
         }
 
-        Log.d(TAG, "updated subject UI - " + sub);
+        Log.d(TAG, "updated subject UI - " +  ClientPaths.subject);
     }
 
     public void updateRiskUI(int value) {
@@ -478,7 +516,6 @@ public class MainActivity extends WearableActivity
             jsonBody.put("subject_id", ClientPaths.subject);
             jsonBody.put("key", Constants.API_KEY);
             jsonBody.put("battery",ClientPaths.batteryLevel);
-//            jsonBody.put("connection", ClientPaths.connectionInfo);
 
             String data = jsonBody.toString();
             Log.d(TAG, "risk post: " + data);
@@ -574,7 +611,13 @@ public class MainActivity extends WearableActivity
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "MainActivity onDestroy");
+
+        if (Constants.fixedSensorRate)
+            cancelRepeatedSensors();
+
         Courier.stopReceiving(this);
+
+
 
 //        try {
 //            taskHandler.removeCallbacks(riskTask);
@@ -696,7 +739,8 @@ public class MainActivity extends WearableActivity
         if (updateN == AMBIENT_SENSOR_PERIOD) {
             //reset heart value
             updateHeartUI(Constants.NO_VALUE);
-            startMeasurement(this);
+            if (!Constants.fixedSensorRate)
+                startMeasurement(this);
             updateN = 1;
         } else {
 
@@ -743,8 +787,8 @@ public class MainActivity extends WearableActivity
 
         Log.d(TAG, "Set main layout");
 
-
-        startMeasurement(this);
+        if (!Constants.fixedSensorRate)
+            startMeasurement(this);
 
         Courier.startReceiving(this);
 
@@ -773,8 +817,8 @@ public class MainActivity extends WearableActivity
         }
     }
 
-
-    private BroadcastReceiver myBatteryReceiver = new BroadcastReceiver(){
+//
+    private final BroadcastReceiver myBatteryReceiver = new BroadcastReceiver(){
 
         @Override
         public void onReceive(Context arg0, Intent arg1) {
@@ -785,34 +829,62 @@ public class MainActivity extends WearableActivity
         }
     };
 
+//    private final BroadcastReceiver myBatteryReceiver = new BatteryReceiver();
 
 
 
     //Sensor Related
     public void startMeasurement(Context c) {
         if (!sensorToggled) {
-            Log.i(TAG, "Start Measurement");
+
+
             c.startService(new Intent(c, SensorService.class));
             sensorToggled = true;
-            scheduleStopSensor(Constants.SENSOR_ON_TIME, Constants.STOP_ALARM_ID);
-
+//            scheduleStopSensor(Constants.SENSOR_ON_TIME, Constants.STOP_ALARM_ID);
+            taskHandler.postDelayed(stopSensorTask, Constants.SENSOR_ON_TIME);
             c.registerReceiver(myBatteryReceiver,
                     new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+            Log.i(TAG, "Start Measurement, scheduled stop for " + Constants.SENSOR_ON_TIME);
+
         }
     }
 
     public void stopMeasurement(Context c) {
-        Log.i(TAG, "Stop Measurement");
-        c.stopService(new Intent(c, SensorService.class));
-        sensorToggled = false;
+        if (sensorToggled) {
+            Log.i(TAG, "Stop Measurement");
+            c.stopService(new Intent(c, SensorService.class));
 
-        try {
-            c.unregisterReceiver(myBatteryReceiver);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, "myBatteryReceiver turned off");
+            try {
+                c.unregisterReceiver(myBatteryReceiver);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e(TAG, "myBatteryReceiver turned off");
+            }
+
+            if (Constants.fixedSensorRate) {
+                scheduleSensors(Constants.SENSOR_INTERVAL);
+
+
+            } else {
+                //set the trigger task
+                Intent intent = new Intent(Constants.WEAR_ACTION);
+                intent.putExtra("alarmId", Constants.TRIGGER_ALARM_ID);
+                PendingIntent pi = PendingIntent.getBroadcast(this, Constants.TRIGGER_ALARM_ID, intent, 0);
+
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(System.currentTimeMillis());
+
+                alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        SystemClock.elapsedRealtime() + Constants.TRIGGER_DELAY, pi);
+
+                Log.d(TAG, "trigger alarm set for " + Constants.TRIGGER_DELAY + "ms");
+
+//                taskHandler.postDelayed(triggerTask, Constants.TRIGGER_DELAY);
+            }
+
+            sensorToggled = false;
         }
-        taskHandler.postDelayed(triggerTask, Constants.SENSOR_OFF_TIME);
     }
 
     private void scheduleStopSensor(Integer futureTime, Integer alarmId) {
@@ -840,7 +912,7 @@ public class MainActivity extends WearableActivity
     }
 
 //    used to update the last sensor received text
-    private BroadcastReceiver mLastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mLastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             updateLastView(intent.getStringExtra("sensorName"));
@@ -904,31 +976,31 @@ public class MainActivity extends WearableActivity
 
         }
 
-//        @Override
-//        protected void onPreExecute() {}
-
-
     }
 
-    //get connectivity and save it
-    private void connectivityRequest() {
-        final int LEVELS = 5;
-        ConnectivityManager cm = ((ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE));
-        if (cm == null)
-            return;
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        String connectionInfo = "None";
-        if (activeNetwork != null) {
-            connectionInfo = activeNetwork.getTypeName();
-            if (connectionInfo.equals("WIFI")) {
-                WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
-                WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-                int level = WifiManager.calculateSignalLevel(wifiInfo.getRssi(), LEVELS);
-                connectionInfo += " " + level;
+    private class WearAlarmReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Integer alarmId = intent.getIntExtra("alarmId", Constants.NO_VALUE);
+            Log.d(TAG, "Received alarm " + alarmId);
+            switch (alarmId) {
+                case Constants.START_ALARM_ID:
+                    Log.d("WearAlarmReceiver", "started sensors");
+                    startMeasurement(MainActivity.this);
+                    break;
+            case Constants.TRIGGER_ALARM_ID:
+                try {
+                    mSensorManager.requestTriggerSensor(mListener, mSigMotionSensor);
+                    Log.d(TAG, "Set sensor motion trigger");
+                } catch (Exception e) {
+                    Log.d(TAG, "No sig motion sensor for trigger");
+                }
+                break;
+
+//        }
             }
         }
-//        ClientPaths.connectionInfo = connectionInfo;
-        Log.d(TAG, "Connectivity " + connectionInfo);
     }
 
 

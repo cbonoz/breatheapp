@@ -47,6 +47,7 @@ public class Constants {
     public static final String HEART_EVENT = "heart-event";
     public static final String LAST_SENSOR_EVENT = "last-sensor-event";
     public static final String REGISTER_EVENT = "register-event";
+    public static final String WEAR_ACTION = "start-sensor-action";
     public static final int NO_VALUE = -1;
 
 
@@ -56,12 +57,15 @@ public class Constants {
     public static final int CLOSE_SPIRO_ALARM_ID = 4;
     public static final int STOP_ALARM_ID = 5;
     public static final int START_ALARM_ID = 6;
+    public static final int TRIGGER_ALARM_ID = 7;
 
     //Sensor Period on Watch
     public static final Integer SENSOR_ON_TIME = ONE_MIN_MS/6; //10 seconds on time
     public static final Integer SENSOR_OFF_TIME = ONE_MIN_MS/6; //minimum 10 seconds off time
 
-
+    public static final Boolean fixedSensorRate = true;
+    public static final Integer SENSOR_INTERVAL = 30*1000; //ms
+    public static final Integer TRIGGER_DELAY = 15000;
     //Constants used for debugging
 //    public static final Boolean collecting = false;
     public static final Boolean encrypting = true;
