@@ -63,7 +63,7 @@ public class Constants {
 
 
     //Constants used for debugging
-    public static final Boolean collecting = false;
+//    public static final Boolean collecting = false;
     public static final Boolean encrypting = true;
     public static final Integer TESTING = 0;
 //    public static final Boolean staticApp = false;

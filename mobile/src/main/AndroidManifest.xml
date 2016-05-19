@@ -33,7 +33,10 @@
         android:allowBackup="true"
         android:icon="@drawable/app_logo"
         android:label="Breathe App"
+        android:theme="@style/AppTheme"
         tools:replace="android:label">
+
+
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -55,12 +58,17 @@
         </receiver>
 
 
-
-
         <activity
             android:name=".RegisterActivity"
-            android:label="Register User"
-            android:theme="@style/AppTheme"/>
+            android:label="Breathe Registration"
+            android:theme="@style/AppTheme"
+            android:launchMode="singleInstance">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity>
 
         <activity
             android:name=".QuestionActivity"

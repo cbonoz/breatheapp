@@ -23,6 +23,7 @@ public class SensorAddService extends IntentService {
     private static final String TAG = "SensorAddService";
 
     private static final SensorNames sensorNames = new SensorNames();
+    private static final Integer RECORD_LIMIT = 100;//200;
 //    private static SparseLongArray lastSensorData = initLastData();
 
     private static SparseLongArray initLastData() {
@@ -40,7 +41,7 @@ public class SensorAddService extends IntentService {
     }
 
     private static Integer recordCount = 0;
-    private static Integer RECORD_LIMIT = 100;//200;
+
 
     private static String tz = initTimeZone();
     private static String initTimeZone() {

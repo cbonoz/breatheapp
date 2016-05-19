@@ -1,8 +1,10 @@
 package com.breatheplatform.beta;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -122,9 +124,28 @@ public class RegisterActivity extends Activity {
         Log.d(TAG, "started register intent");
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    private static String subject = "";
+
+    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which){
+                case DialogInterface.BUTTON_POSITIVE:
+                    //Yes button clicked
+                    loadUI();
+                    break;
+
+                case DialogInterface.BUTTON_NEGATIVE:
+                    //No button clicked
+                    Toast.makeText(RegisterActivity.this, "Keeping User id: " + subject, Toast.LENGTH_SHORT).show();
+                    finish();
+                    break;
+            }
+        }
+    };
+
+    private void loadUI() {
+
         setContentView(R.layout.register_activity);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegisterReceiver,
@@ -132,20 +153,8 @@ public class RegisterActivity extends Activity {
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
-
-//        String subject = prefs.getString("subject", "");
-//
-//        if (subject.equals("")) {
-//            Toast.makeText(this, "Already Registered", Toast.LENGTH_LONG).show();
-//            finish();
-//        }
-
         clinicText = (EditText) findViewById(R.id.clinicText);
         subjectText = (EditText) findViewById(R.id.subjectText);
-
-//        Courier.deliverMessage(RegisterActivity.this, Constants.SUBJECT_API, "2");
-//        saveSubjectAndClose("2");
 
         Button subjectButton = (Button) findViewById(R.id.subjectButton);
         subjectButton.setOnClickListener(new View.OnClickListener() {
@@ -159,7 +168,7 @@ public class RegisterActivity extends Activity {
                 Log.d(TAG, "onClick data: " + data);
 
                 if (data != null) {
-                   createRegisterIntent(data, sub);
+                    createRegisterIntent(data, sub);
                 } else
                     Log.e(TAG, "data is null - Error creating register request");
             }
@@ -185,7 +194,26 @@ public class RegisterActivity extends Activity {
                 }
             }
         });
+    }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
+        subject = prefs.getString("subject", "");
+
+        if (!subject.equals("")) {
+            Toast.makeText(this, "", Toast.LENGTH_LONG).show();
+//            finish();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Already registered with User id " + subject + ". Register Again?").setPositiveButton("Yes", dialogClickListener)
+                    .setNegativeButton("No", dialogClickListener).show();
+        } else {
+            //subject is empty - start registration immediately
+//            Toast.makeText(this, "Enter your credentials", Toast.LENGTH_LONG).show();
+            loadUI();
+        }
 
     }
 }

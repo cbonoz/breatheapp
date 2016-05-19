@@ -453,7 +453,10 @@ public class SensorService extends Service implements SensorEventListener, Googl
 //            ClientPaths.currentLocation = location;
 //        }
         if (location != null) {
+            Log.d(TAG, "New Location Found");
             ClientPaths.currentLocation = location;
+        } else {
+            Log.d(TAG, "New Location not Found");
         }
 
 //

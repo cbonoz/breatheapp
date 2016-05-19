@@ -50,7 +50,6 @@ import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -324,30 +323,31 @@ public class MainActivity extends WearableActivity
 
 
 
-        if (Constants.collecting) {
-            Switch sensorSwitch = (Switch) findViewById(R.id.sensorSwitch);
-            sensorSwitch.setChecked(sensorToggled);
-            sensorSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) {
-                        Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.START_WRITE);
-                        startMeasurement(MainActivity.this);
-                        Log.d(TAG, "sensorToggle Checked");
-                    } else {
-                        stopMeasurement(MainActivity.this);
-//                        addSensorData(Constants.TERMINATE_SENSOR_ID, null, null, null);
-                        Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.END_WRITE);
-                        Log.d(TAG, "sensorToggle Not Checked");
-                    }
-                }
-            });
-        } else {
-//            sensorSwitch.setVisibility(View.GONE);
-            startMeasurement(this);
-        }
+//        if (Constants.collecting) {
+//            Switch sensorSwitch = (Switch) findViewById(R.id.sensorSwitch);
+//            sensorSwitch.setChecked(sensorToggled);
+//            sensorSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//                @Override
+//                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                    if (isChecked) {
+//                        Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.START_WRITE);
+//                        startMeasurement(MainActivity.this);
+//                        Log.d(TAG, "sensorToggle Checked");
+//                    } else {
+//                        stopMeasurement(MainActivity.this);
+////                        addSensorData(Constants.TERMINATE_SENSOR_ID, null, null, null);
+//                        Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.END_WRITE);
+//                        Log.d(TAG, "sensorToggle Not Checked");
+//                    }
+//                }
+//            });
+//        } else {
+////            sensorSwitch.setVisibility(View.GONE);
+//            startMeasurement(this);
+//        }
 //        sensorSwitch.setVisibility(View.GONE);
 //        startMeasurement(this);
+        startMeasurement(this);
         requestSubjectAndUpdateUI();
         updateRiskUI(lastRiskValue);
     }

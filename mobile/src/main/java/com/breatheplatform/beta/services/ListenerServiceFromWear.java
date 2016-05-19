@@ -1,19 +1,14 @@
 package com.breatheplatform.beta.services;
 
 import android.app.AlarmManager;
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.os.Handler;
-import android.os.StatFs;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.breatheplatform.beta.R;
 import com.breatheplatform.beta.RegisterActivity;
 import com.breatheplatform.beta.connection.Connectivity;
 import com.breatheplatform.beta.encryption.HybridCrypt;
@@ -44,7 +39,7 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
     private ArrayList<Integer> activeAlarms = new ArrayList<Integer>();
 
-    private static Boolean unregisterUser = false;
+    private static Boolean unregisterUser = true;
     private static Boolean writeOnce = false;
     private static Integer requestCode = 0;
 
@@ -75,9 +70,9 @@ public class ListenerServiceFromWear extends WearableListenerService {
             case Constants.RISK_API:
                 onRiskReceived(s);
                 break;
-            case Constants.FILE_API:
-                onFileReceived(s);
-                break;
+//            case Constants.FILE_API:
+//                onFileReceived(s);
+//                break;
         }
     }
 
@@ -164,23 +159,8 @@ public class ListenerServiceFromWear extends WearableListenerService {
         if (runOnce) {
             runOnce = false;
 
-
             Log.d(TAG, "getting preferences");
             prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
-
-            if (unregisterUser) {
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putString("subject", "");
-                editor.commit();
-                Log.d(TAG, "unregister, id now " + prefs.getString("subject", ""));
-                unregisterUser = false;
-            }
-
-//            For registration force:
-//            SharedPreferences.Editor editor = prefs.edit();
-//            editor.putString("subject", "1");
-//            editor.commit();
-
 
             subject = prefs.getString("subject", "");
             Log.d(TAG, "subject " + subject);
@@ -191,8 +171,6 @@ public class ListenerServiceFromWear extends WearableListenerService {
             }
 
             alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-//            scheduleAlarms();
-
 
             try {
 
@@ -216,32 +194,6 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
         }
     }
-
-
-    public static String getCountandIncrement() {
-        if (prefs==null) {
-            Log.e(TAG, "getCount but prefs is null");
-            return "-1";
-        }
-
-        count = prefs.getString("count", "0");
-
-        String newCount = (Integer.parseInt(count) + 1)+"";
-
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("count", newCount);
-        editor.commit();
-
-        return count;
-    }
-
-
-    public static File nextLabelFile() {
-        labelDirectory = ROOT + "/Breathe" + getCountandIncrement() + ".txt";
-        Log.d(TAG, "Creating Label File " + labelDirectory);
-        return createFile(labelDirectory);
-    }
-
 
     void onRiskReceived(String data) { // The nodeId parameter is optional
         Log.d(TAG, "Received message from " + Constants.RISK_API);
@@ -279,28 +231,6 @@ public class ListenerServiceFromWear extends WearableListenerService {
         });
     };
 
-    void onFileReceived(String data) {
-
-        if (data.equals(Constants.START_WRITE)) {
-            labelFile = nextLabelFile();
-            Log.d(TAG, "Set new labelfile: " + labelFile.toString());
-        } else {
-            try {
-                StatFs stats = new StatFs("/data");
-                int availableBlocks = stats.getAvailableBlocks();
-                int blockSizeInBytes = stats.getBlockSize();
-                double freeSpaceInBytes = availableBlocks * blockSizeInBytes;
-                String info = labelDirectory + " " + labelFile.length()/1000 + "kB";// + freeSpaceInBytes / 1000 + "kB left";
-                Log.d(TAG, info);
-                showToastInService(info);
-
-            } catch (Exception e) {
-                Log.d(TAG, "Error getting label file stats");
-            }
-
-            Courier.deliverMessage(this,Constants.LABEL_API,"File " + count + " created");//: " + labelFile.length()/1000 + "kb")
-        }
-    }
 
 //    @BackgroundThread
 //    @ReceiveMessages(Constants.CALENDAR_API)
@@ -388,13 +318,13 @@ public class ListenerServiceFromWear extends WearableListenerService {
             data = processAndSerialize(jsonBody);
 //            Log.d(TAG, "Received multi request - " + data.length() + " bytes");
 
-            if (Constants.collecting) {
-                if (labelFile != null) {
-                    writeDataToFile(sensorData, labelFile, true);
-                } else {
-                    Log.e(TAG, "[Handled] Cancel write, still waiting to update labelfile");
-                }
-            }
+//            if (Constants.collecting) {
+//                if (labelFile != null) {
+//                    writeDataToFile(sensorData, labelFile, true);
+//                } else {
+//                    Log.e(TAG, "[Handled] Cancel write, still waiting to update labelfile");
+//                }
+//            }
 
             //write the first instance of the multi-api post request body (for testing encryption)
             if (writeOnce) {
