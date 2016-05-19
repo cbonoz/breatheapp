@@ -371,6 +371,11 @@ public class SensorService extends Service implements SensorEventListener, Googl
         mGoogleApiClient.disconnect();
 
         Log.d(TAG, "release lock");
+
+        if (Constants.fixedSensorRate)
+            addSensorData(Constants.TERMINATE_SENSOR_ID, null, null, null);
+
+
         wakeLock.release();
     }
 

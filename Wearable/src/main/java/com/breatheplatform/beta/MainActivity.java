@@ -865,6 +865,7 @@ public class MainActivity extends WearableActivity
                 scheduleSensors(Constants.SENSOR_INTERVAL);
 
 
+
             } else {
                 //set the trigger task
                 Intent intent = new Intent(Constants.WEAR_ACTION);
