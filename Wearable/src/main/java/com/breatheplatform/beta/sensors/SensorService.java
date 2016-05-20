@@ -96,6 +96,9 @@ public class SensorService extends Service implements SensorEventListener, Googl
     private static float sumEnergyX=0, sumEnergyY=0, sumEnergyZ=0;
     private static float sumGyroX = 0, sumGyroY = 0, sumGyroZ = 0;
 
+//    private static Float[] gyroValues = new Float[3];
+//    private static Float[] accValues = new Float[3];
+
     //event callback for body sensors
     // - bluetooth connected sensors are managed in their respective Bluetooth classes
     private void eventCallBack(SensorEvent event) {
@@ -110,7 +113,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
                 Log.d(TAG, "heart rate: " + heartRate + ", acc " + event.accuracy);
 
                 if (event.accuracy > 1) {//or 2 for higher accuracy requirement
-                    checkForQuestionnaire(heartRate);
+//                    checkForQuestionnaire(heartRate);
                     addSensorData(sensorId, event.accuracy, timestamp, event.values);
 
                     Intent i = new Intent(Constants.HEART_EVENT);
@@ -174,13 +177,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
     }
 
     /*
-    Have listeners/messages set up to when heart rate is high
-    (115 bpm for 12 year olds, 130 bpm for 8-12 year olds,
-    find age using sensor ID), activity classified as running
-    (from Anahita's classifier), and inhaler is used
-    (from pulled data from Propeller Health's AsthmaPollus app)
-    so Ohmage can use this data to create triggers
-    for the EMA questionnaire on the phone.
+    Check conditions for launching questionnaire
      */
     private void checkForQuestionnaire(Float heartRate) {
         if (ClientPaths.activityDetail.contains("RUN")) {
@@ -214,6 +211,8 @@ public class SensorService extends Service implements SensorEventListener, Googl
     private BTSocket beamConn;
     private static UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
+    private static Integer locationCounter = 0;
+
     @Override
     public IBinder onBind(Intent arg0) {
         return null;
@@ -234,8 +233,13 @@ public class SensorService extends Service implements SensorEventListener, Googl
             Log.d(TAG, "acquire lock");
         }
 
-        buildApiClient();
-        mGoogleApiClient.connect();
+
+//        if ((System.currentTimeMillis()-lastLocationTime)> locationDiff)
+        //update location every 3 sensor periods
+        if (locationCounter==0) {
+            connectApiClient();
+//            mGoogleApiClient.connect();
+        }
 //        Log.d(TAG, "Sensor delay normal: " + SensorManager.SENSOR_DELAY_NORMAL);
 
 
@@ -299,38 +303,6 @@ public class SensorService extends Service implements SensorEventListener, Googl
 //        }
 
 
-
-
-
-
-//        if (heartRateSensor != null) {
-//            final int measurementDuration   = 10;   // Seconds
-//            final int measurementBreak      = 5;    // Seconds
-//
-//            mScheduler = Executors.newScheduledThreadPool(1);
-//            mScheduler.scheduleAtFixedRate(
-//                    new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            Log.d(TAG, "register Heartrate Sensor");
-//                            mSensorManager.registerListener(SensorService.this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
-//
-//                            try {
-//                                Thread.sleep(measurementDuration * 1000);
-//                            } catch (InterruptedException e) {
-//                                Log.e(TAG, "Interrupted while waitting to unregister Heartrate Sensor");
-//                            }
-//
-//                            Log.d(TAG, "unregister Heartrate Sensor");
-//                            mSensorManager.unregisterListener(SensorService.this, heartRateSensor);
-//                        }
-//                    }, 3, measurementDuration + measurementBreak, TimeUnit.SECONDS);
-//
-//        } else {
-//            Log.d(TAG, "No Heartrate Sensor found");
-//        }
-
-
         return START_STICKY;
     }
 
@@ -362,13 +334,28 @@ public class SensorService extends Service implements SensorEventListener, Googl
 //            Log.d(TAG, "Removed activity updates");
 //        }
 
+        if (locationCounter==0) {
 
-        if (mGoogleApiClient.isConnected()) {
-            if (locationActive)
-                LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+            try {
+
+//                if (mGoogleApiClient.isConnected()) {
+//                    if (locationActive)
+//                        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+//                }
+
+                mGoogleApiClient.disconnect();
+            } catch (Exception e) {
+                e.printStackTrace();
+//                Log.e(TAG, "[Handled] unregistering gapiclient, locationCounter " + locationCounter);
+            }
+
+            locationCounter++;
+
+        } else if (locationCounter>2) {
+            locationCounter=0;
+        } else {
+            locationCounter++;
         }
-
-        mGoogleApiClient.disconnect();
 
         Log.d(TAG, "release lock");
 
@@ -403,7 +390,8 @@ public class SensorService extends Service implements SensorEventListener, Googl
     /**
      * Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
      */
-    private synchronized void buildApiClient() {
+    private void connectApiClient() {
+        Log.d(TAG, "Connecting location client");
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
 //                .addApi(ActivityRecognition.API)
@@ -411,6 +399,8 @@ public class SensorService extends Service implements SensorEventListener, Googl
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+
+        mGoogleApiClient.connect();
     }
 
 //    @Override
@@ -439,7 +429,8 @@ public class SensorService extends Service implements SensorEventListener, Googl
      * http://www.sitepoint.com/google-play-services-location-activity-recognition/
      */
 
-    private Boolean locationActive = false;
+//    private Boolean locationActive = false;
+
     @Override
     public void onConnected(Bundle bundle) {
         Log.d(TAG, "GoogleApiClient onConnected");
@@ -447,6 +438,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
         Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (location == null) {
+            Log.d(TAG, "Requested location updates");
             LocationRequest locationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
                 .setNumUpdates(1)
@@ -454,54 +446,12 @@ public class SensorService extends Service implements SensorEventListener, Googl
                 .setInterval(LOCATION_INTERVAL)
                 .setFastestInterval(LOCATION_INTERVAL);
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
-            locationActive = true;
+//            locationActive = true;
         } else {
-            Log.d(TAG, "New Location Found");
+            Log.d(TAG, "New Location Found: " + location.getLatitude() + "," + location.getLongitude());
             ClientPaths.currentLocation = location;
+//            lastLocationTime = System.currentTimeMillis();
         }
-
-//
-//        try {
-//            final PendingResult<Status>
-//                    statusPendingResult =
-//                    ActivityRecognition.ActivityRecognitionApi
-//                            .requestActivityUpdates(mGoogleApiClient, ACTIVITY_INTERVAL, getActivityDetectionPendingIntent());
-//            statusPendingResult.setResultCallback(this);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//
-//        //Request Location Updates from Google API Client
-//        LocationRequest locationRequest = LocationRequest.create()
-//                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
-//                .setNumUpdates(1)
-//                .setSmallestDisplacement(10) //10m
-//                .setInterval(LOCATION_INTERVAL)
-//                .setFastestInterval(LOCATION_INTERVAL);
-//        try {
-//            LocationServices.FusedLocationApi
-//                    .requestLocationUpdates(mGoogleApiClient, locationRequest, this)
-//                    .setResultCallback(new ResultCallback<Status>() {
-//
-//                        @Override
-//                        public void onResult(Status status) {
-//                            if (status.getStatus().isSuccess()) {
-//
-//                                Log.d(TAG, "Successfully requested location updates");
-//
-//                            } else {
-//                                Log.e(TAG, "Failed in requesting location updates, "
-//                                        + "status code: "
-//                                        + status.getStatusCode() + ", message: " + status
-//                                        .getStatusMessage());
-//                            }
-//                        }
-//                    });
-//        } catch(SecurityException e) {
-//            e.printStackTrace();
-//            Log.e(TAG, "[Handled] Error Requesting location service (lack of permission)");
-//        }
 
     }
 
@@ -543,6 +493,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
         if (location!=null) {
             Log.d(TAG, "onLocationChanged: " + location.getLatitude() + "," + location.getLongitude());
             ClientPaths.currentLocation = location;
+//            lastLocationTime = System.currentTimeMillis();
         }
 
     }
@@ -623,11 +574,6 @@ public class SensorService extends Service implements SensorEventListener, Googl
             if (RFduinoService.ACTION_CONNECTED.equals(action)) {
                 upgradeState(STATE_CONNECTED);
                 ClientPaths.dustConnected = true;
-//                try {
-//                    taskHandler.removeCallbacks(dustTask);
-//                } catch (Exception e) {
-//                    Log.e(TAG, "Risk Timer off");
-//                }
                 Log.d(TAG, "rfduinoReceiver connected");
             } else if (RFduinoService.ACTION_DISCONNECTED.equals(action)) {
                 downgradeState(STATE_DISCONNECTED);
@@ -758,24 +704,6 @@ public class SensorService extends Service implements SensorEventListener, Googl
         if (vals[0]!=Constants.NO_VALUE)
             addSensorData(Constants.DUST_SENSOR_ID, Constants.NO_VALUE, System.currentTimeMillis(), vals);
     }
-
-//
-//    private Runnable dustTask = new Runnable()
-//    {
-//        public void run()
-//        {
-//            registerDust();
-//            taskHandler.postDelayed(this, BT_TASK_PERIOD);
-//
-//        }
-//    };
-
-//
-//    private void scheduleDustRequest() {
-//        Log.d(TAG, "scheduleDustRequest");
-//        taskHandler.postDelayed(dustTask, BT_TASK_PERIOD);
-//    }
-
 
 
     private void registerDust() {

@@ -41,7 +41,7 @@ public class Constants {
 
     //BT Name of dust sensors
     public static final String DUST_BT_NAME = "HaikRF";
-    public static final String AIRBEAM_BT_NAME = "AirBeam";
+//    public static final String AIRBEAM_BT_NAME = "AirBeam";
 
     //for broadcast receivers
     public static final String HEART_EVENT = "heart-event";
@@ -61,17 +61,17 @@ public class Constants {
 
     //Sensor Period on Watch
     public static final Integer SENSOR_ON_TIME = ONE_MIN_MS/6; //10 seconds on time
-    public static final Integer SENSOR_OFF_TIME = ONE_MIN_MS/6; //minimum 10 seconds off time
+//    public static final Integer SENSOR_OFF_TIME = ONE_MIN_MS/6; //minimum 10 seconds off time
 
     public static final Boolean fixedSensorRate = true;
-    public static final Integer SENSOR_INTERVAL = 20*1000; //ms
+    public static final Integer SENSOR_INTERVAL = 35*1000; //ms
     public static final Integer TRIGGER_DELAY = 15000;
     //Constants used for debugging
 //    public static final Boolean collecting = false;
     public static final Boolean encrypting = true;
     public static final Integer TESTING = 0;
 //    public static final Boolean staticApp = false;
-    public static final String START_WRITE = "start";
-    public static final String END_WRITE = "end";
+//    public static final String START_WRITE = "start";
+//    public static final String END_WRITE = "end";
 
 }

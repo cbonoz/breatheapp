@@ -63,7 +63,10 @@ public class SensorAddService extends IntentService {
     }
 
 
-    //is synchronized necessary here?
+    private static JSONObject jsonDataEntry = new JSONObject();
+
+
+    //intents are queued - no synchronized needed
     public void incrementCount() {
         recordCount++;
         if (recordCount >= RECORD_LIMIT) {
@@ -74,37 +77,26 @@ public class SensorAddService extends IntentService {
         }
     }
 
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        // Gets data from the incoming Intent
-        long t = intent.getLongExtra("time", Constants.NO_VALUE);
-        float[] values = intent.getFloatArrayExtra("values");
-        int acc = intent.getIntExtra("accuracy", Constants.NO_VALUE);
-        int sType = intent.getIntExtra("sensorType", Constants.NO_VALUE);
-
-
-        if (sType == Constants.TERMINATE_SENSOR_ID) {
-            createDataPostRequest();
-            clearData();
-            return;
-        }
-        processSensorData(sType, acc, t, values);
-    }
-
-    private static JSONObject jsonDataEntry = new JSONObject();
-//    private static JSONObject jsonValue = new JSONObject();
-
     private static Float precision(Float d, int decimalPlace) {
         BigDecimal bd = new BigDecimal(Float.toString(d));
         bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
         return bd.floatValue();
     }
 
-    // END WRITE AND SEND BLOCK
-    private void processSensorData(final int sensorType, final int accuracy, final long currentTime, final float[] values) {
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        // Gets data from the incoming Intent
+        long currentTime = intent.getLongExtra("time", Constants.NO_VALUE);
+        float[] values = intent.getFloatArrayExtra("values");
+        int accuracy = intent.getIntExtra("accuracy", Constants.NO_VALUE);
+        int sensorType = intent.getIntExtra("sensorType", Constants.NO_VALUE);
 
-//        long lastTimeStamp = lastSensorData.get(sensorType);
-//        long timeAgo = currentTime - lastTimeStamp;
+
+        if (sensorType == Constants.TERMINATE_SENSOR_ID) {
+            createDataPostRequest();
+            clearData();
+            return;
+        }
         String sensorName = sensorNames.getName(sensorType);
 
         //update UI with new Sensor Name value
@@ -116,8 +108,6 @@ public class SensorAddService extends IntentService {
         JSONObject jsonValue = new JSONObject();
 
         try {
-
-
             switch (sensorType) {
                 case (Sensor.TYPE_LINEAR_ACCELERATION): //units m/s^2
                 case (Sensor.TYPE_GYROSCOPE): //units rad/s
@@ -144,29 +134,22 @@ public class SensorAddService extends IntentService {
                 case (Constants.ENERGY_SENSOR_ID):
                     jsonValue.put("energy", values[0]);
                     break;
-                case (Constants.ACTIVITY_SENSOR_ID):
-                    jsonValue.put("type", values[0]);
-                    jsonValue.put("confidence",accuracy);
-                    break;
+
                 case (Constants.AIRBEAM_SENSOR_ID):
 
                     jsonValue.put("PM",precision(values[0],2));
                     jsonValue.put("F",values[1]);
                     jsonValue.put("RH",values[2]);
                     break;
-//                case (Sensor.TYPE_AMBIENT_TEMPERATURE):
-//                    //case (Sensor.TYPE_STEP_COUNTER):
-//                    jsonValue.put("temp", values[0]);
-//                    break;
-//                case 65545:
-//                    jsonValue.put("v", Arrays.toString(values));
-//                    jsonValue.put("sensor_accuracy",accuracy);
-//                    break;
+                case (Constants.ACTIVITY_SENSOR_ID):
+                    jsonValue.put("type", values[0]);
+                    jsonValue.put("confidence",accuracy);
+                    break;
                 default:
                     Log.e(TAG, "Unexpected Sensor " + sensorName + " " + sensorType);
                     return;
             }
-//            jsonDataEntry.put("last", lastTimeStamp);
+
             jsonDataEntry.put("value", jsonValue);
             jsonDataEntry.put("timestamp", currentTime);//System.currentTimeMillis());
             jsonDataEntry.put("timezone", tz);
@@ -193,9 +176,7 @@ public class SensorAddService extends IntentService {
 
         //sensorData is a stringBuilder
         sensorData.append(dataEntry);
-
         incrementCount();
-//        lastSensorData.put(sensorType, currentTime);
 
         Log.d(TAG, "Data Added #"+ recordCount + ": " + dataEntry);
 
@@ -209,6 +190,9 @@ public class SensorAddService extends IntentService {
 
     }
 
+
+    // Post request forwarding logic (to mobile)
+
     private void createDataPostRequest() {
         Log.d(TAG, "createDataPostRequest");
         JSONObject jsonBody = new JSONObject();
@@ -218,7 +202,7 @@ public class SensorAddService extends IntentService {
 //            String sensorDataString = sensorData.join("\n");
             String sensorDataString = sensorData.toString();
 
-            if (ClientPaths.subject == null || ClientPaths.subject.equals("")) {
+            if (ClientPaths.subject.equals("")) {
                 Log.e(TAG, "No Subject detected - blocking multi post");
                 return;
             }

@@ -303,18 +303,17 @@ public class MainActivity extends WearableActivity
 
         spiroToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            if (isChecked) {
-                Log.d(TAG, "startSpiro - show loading");
-                loadingPanel.setVisibility(View.VISIBLE);
-                spiroToggleButton.setVisibility(View.INVISIBLE);
-                new BluetoothTask().execute(Constants.SPIRO_SENSOR_ID);
-            } else {
-                Log.i(TAG, "stopSpiro");
-                spiroConn.closeConn();
-            }
+                if (isChecked) {
+                    Log.d(TAG, "startSpiro - show loading");
+                    loadingPanel.setVisibility(View.VISIBLE);
+                    spiroToggleButton.setVisibility(View.INVISIBLE);
+                    new BluetoothTask().execute(Constants.SPIRO_SENSOR_ID);
+                } else {
+                    Log.i(TAG, "stopSpiro");
+                    spiroConn.closeConn();
+                }
             }
         });
-
 
 
 //        if (Constants.collecting) {
@@ -348,12 +347,12 @@ public class MainActivity extends WearableActivity
             Intent intent = new Intent(Constants.WEAR_ACTION);
             intent.putExtra("alarmId", Constants.START_ALARM_ID);
             sensorPI = PendingIntent.getBroadcast(this, Constants.START_ALARM_ID, intent, 0);
+        }
 
 //            scheduleSensors(Constants.SENSOR_INTERVAL);
 //            scheduleRepeatedSensors(Constants.SENSOR_INTERVAL);
-            startMeasurement(this);
-        } else
-            startMeasurement(this);
+        startMeasurement(this);
+
 
 
         requestSubjectAndUpdateUI();
@@ -690,7 +689,7 @@ public class MainActivity extends WearableActivity
     @Override
     public void onEnterAmbient(Bundle ambientDetails) {
         super.onEnterAmbient(ambientDetails);
-        Log.d(TAG, "onEnterAmbient - remove task callbacks");
+        Log.d(TAG, "onEnterAmbient");// - remove task callbacks");
         try {
 //            taskHandler.removeCallbacks(riskTask);
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mLastReceiver);
@@ -704,7 +703,7 @@ public class MainActivity extends WearableActivity
 
 //        breatheView.setVisibility(View.GONE);
         heartImage.setVisibility(View.GONE);
-        lastSensorText.setVisibility(View.GONE);
+        lastSensorText.setVisibility(View.INVISIBLE);
         spiroToggleButton.setVisibility(View.GONE);
         smileView.setVisibility(View.GONE);
         heartText.setVisibility(View.GONE);
@@ -738,7 +737,7 @@ public class MainActivity extends WearableActivity
 
         if (updateN == AMBIENT_SENSOR_PERIOD) {
             //reset heart value
-            updateHeartUI(Constants.NO_VALUE);
+//            updateHeartUI(Constants.NO_VALUE);
             if (!Constants.fixedSensorRate)
                 startMeasurement(this);
             updateN = 1;
@@ -759,11 +758,7 @@ public class MainActivity extends WearableActivity
     @Override
     public void onExitAmbient() {
         super.onExitAmbient();
-        Log.d(TAG, "onExitAmbient - add task callbacks");
-//        scheduleRiskRequest();
-
-
-
+        Log.d(TAG, "onExitAmbient");// - add task callbacks");
 //        activeView.setVisibility(View.GONE);
         dateText.setVisibility((View.GONE));
 
@@ -775,8 +770,6 @@ public class MainActivity extends WearableActivity
         spiroToggleButton.setVisibility(View.VISIBLE);
 //        breatheView.setVisibility(View.VISIBLE);
 
-        riskRequest();
-
         //register receivers
         LocalBroadcastManager.getInstance(this).registerReceiver(mLastReceiver,
                 new IntentFilter(Constants.LAST_SENSOR_EVENT));
@@ -784,13 +777,12 @@ public class MainActivity extends WearableActivity
         LocalBroadcastManager.getInstance(this).registerReceiver(mHeartReceiver,
                 new IntentFilter(Constants.HEART_EVENT));
 
-
-        Log.d(TAG, "Set main layout");
-
         if (!Constants.fixedSensorRate)
             startMeasurement(this);
 
         Courier.startReceiving(this);
+
+        riskRequest();
 
     }
 
@@ -886,17 +878,6 @@ public class MainActivity extends WearableActivity
 
             sensorToggled = false;
         }
-    }
-
-    private void scheduleStopSensor(Integer futureTime, Integer alarmId) {
-//        Intent intent = new Intent(this, SensorAlarm.class);
-//        intent.putExtra("alarm_id", alarmId);
-//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, alarmId, intent, 0);
-//
-//        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-//                SystemClock.elapsedRealtime() + futureTime, pendingIntent);
-        taskHandler.postDelayed(stopSensorTask, futureTime);
-        Log.d(TAG, "scheduled stop sensor alarm for " + futureTime + "ms");
     }
 
     private void printAvailableSensors() {

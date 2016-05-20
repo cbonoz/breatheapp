@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:id="@+id/rect_layout"
+    android:padding="5sp">
+
+
+    <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="Risk:"-->
+        <!--android:id="@+id/riskConstText"-->
+        <!--android:layout_gravity="left|bottom"-->
+        <!--android:layout_alignParentStart="true"-->
+        <!--android:layout_alignBottom="@+id/subjectText" />-->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/no_risk"
+        android:id="@+id/riskText"
+        android:layout_gravity="left|bottom"
+        android:textSize="13dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true" />
+
+    <ToggleButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/spiroToggleButton"
+        android:checked="false"
+        android:textOn="SpiroMeter ON"
+        android:textOff="Use Spirometer"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true" />
+
+    <ImageView
+        android:layout_width="85dp"
+        android:layout_height="85dp"
+        android:id="@+id/smileView"
+        android:layout_gravity="center"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="89dp"
+        android:layout_height="wrap_content"
+        android:text="No Subject"
+        android:id="@+id/subjectText"
+        android:layout_gravity="right|bottom"
+        android:gravity="right"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/lastSensorText"
+        android:layout_gravity="left|bottom"
+        android:textSize="10dp"
+        android:layout_alignBottom="@+id/heartImage"
+        android:layout_alignParentStart="true" />
+
+    <android.support.wearable.view.DismissOverlayView
+        android:id="@+id/dismiss_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageView
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:id="@+id/heartImage"
+        android:src="@drawable/heart"
+        android:maxHeight="32dp"
+        android:maxWidth="32dp"
+        android:layout_above="@+id/subjectText"
+        android:layout_toStartOf="@+id/heartText" />
+
+    <!--<RelativeLayout-->
+        <!--android:id="@+id/loadingPanel"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:gravity="center" >-->
+
+        <!--<ProgressBar-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:indeterminate="true"-->
+            <!--android:visibility="gone" />-->
+
+
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textAppearance="?android:attr/textAppearanceMedium"-->
+            <!--android:text="@string/no_conn_desc"-->
+            <!--android:id="@+id/noConnText"-->
+            <!--android:textSize="10dp"-->
+            <!--android:gravity="center"-->
+            <!--android:maxWidth="120dp"-->
+            <!--android:layout_marginTop="25dp"-->
+            <!--android:visibility="gone" />-->
+
+    <!--</RelativeLayout>-->
+
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="--"
+        android:id="@+id/heartText"
+        android:paddingLeft="2dp"
+        android:layout_marginStart="6dp"
+        android:layout_alignBottom="@+id/heartImage"
+        android:layout_toEndOf="@+id/smileView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text=""
+        android:id="@+id/connText"
+        android:textSize="12sp"
+        android:layout_marginBottom="7dp"
+        android:layout_alignBottom="@+id/smileView"
+        android:layout_alignStart="@+id/sensorSwitch" />
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/sensorSwitch"
+        android:visibility="gone"
+        android:checked="false"
+        android:layout_alignEnd="@+id/lastSensorText" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Breathe"
+        android:id="@+id/breatheView"
+        android:textColor="#dddddd"
+        android:layout_margin="5dp"
+        android:layout_alignParentStart="true" />
+
+    <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
+        <!--android:text="Active"-->
+        <!--android:id="@+id/activeView"-->
+        <!--android:layout_alignTop="@+id/breatheView"-->
+        <!--android:layout_toEndOf="@+id/breatheView" />-->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/dateText"
+        android:gravity="end"
+        android:layout_below="@+id/heartImage"
+        android:layout_alignParentEnd="true" />
+
+    <RelativeLayout
+        android:id="@+id/loadingPanel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="top" >
+
+        <ProgressBar
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:indeterminate="true"
+            android:id="@+id/spinnerBar"
+            android:layout_marginTop="6dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
+    </RelativeLayout>
+
+    <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
+        <!--android:text="Sensors"-->
+        <!--android:id="@+id/helpText1"-->
+        <!--android:textSize="10dp"-->
+        <!--android:layout_below="@+id/spiroToggleButton"-->
+        <!--android:layout_toStartOf="@+id/smileView" />-->
+
+
+</RelativeLayout>
+
+
