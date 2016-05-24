@@ -91,7 +91,8 @@ public class BTSocket {
         }
 
         try {
-            mmSocket.close();
+            if (mmSocket!=null)
+                mmSocket.close();
         } catch (Exception e) {
             Log.e(TAG, "Error closing mmSocket");
         }

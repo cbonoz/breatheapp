@@ -36,6 +36,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -220,18 +221,15 @@ public class MainActivity extends WearableActivity
 
     public void onCreate(Bundle b) {
         super.onCreate(b);
+
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         wearAlarmReceiver = new WearAlarmReceiver();
         startFilter = new IntentFilter(Constants.WEAR_ACTION);
 
-
-
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSigMotionSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
 
-
-        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mSigMotionSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
+        printAvailableSensors();
 
         prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
         spiroConn = new BTSocket(Constants.SPIRO_SENSOR_ID, UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"), this);
@@ -349,8 +347,8 @@ public class MainActivity extends WearableActivity
             sensorPI = PendingIntent.getBroadcast(this, Constants.START_ALARM_ID, intent, 0);
         }
 
-//            scheduleSensors(Constants.SENSOR_INTERVAL);
-//            scheduleRepeatedSensors(Constants.SENSOR_INTERVAL);
+//            scheduleSensors(Constants.SENSOR_OFF_TIME);
+//            scheduleRepeatedSensors(Constants.SENSOR_OFF_TIME);
         startMeasurement(this);
 
 
@@ -434,8 +432,8 @@ public class MainActivity extends WearableActivity
                 riskText.setTextColor(Color.RED);
                 if (lastRiskValue!=HIGH_RISK) {//handle risk transition message
                     // Vibrate for 500 milliseconds
-//                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-//                    v.vibrate(500);
+                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    v.vibrate(500);
                     Toast.makeText(MainActivity.this, "Risk Warning - Use Spirometer", Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -854,7 +852,7 @@ public class MainActivity extends WearableActivity
             }
 
             if (Constants.fixedSensorRate) {
-                scheduleSensors(Constants.SENSOR_INTERVAL);
+                scheduleSensors(Constants.SENSOR_OFF_TIME);
 
 
 

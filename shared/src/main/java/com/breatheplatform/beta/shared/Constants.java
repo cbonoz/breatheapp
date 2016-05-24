@@ -60,11 +60,10 @@ public class Constants {
     public static final int TRIGGER_ALARM_ID = 7;
 
     //Sensor Period on Watch
-    public static final Integer SENSOR_ON_TIME = ONE_MIN_MS/6; //10 seconds on time
-//    public static final Integer SENSOR_OFF_TIME = ONE_MIN_MS/6; //minimum 10 seconds off time
+    public static final Integer SENSOR_ON_TIME = 5000; //10 seconds on time
+    public static final Integer SENSOR_OFF_TIME = 5*1000; //ms
 
     public static final Boolean fixedSensorRate = true;
-    public static final Integer SENSOR_INTERVAL = 35*1000; //ms
     public static final Integer TRIGGER_DELAY = 15000;
     //Constants used for debugging
 //    public static final Boolean collecting = false;

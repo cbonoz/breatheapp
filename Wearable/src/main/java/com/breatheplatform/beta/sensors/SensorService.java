@@ -105,6 +105,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
 //        Log.d(TAG, "onSensorChanged");
         int sensorId = event.sensor.getType();
         long timestamp = System.currentTimeMillis(); //event.timestamp
+//        Log.i("Received",  Arrays.toString(event.values)+  " " +sensorId);
         switch (sensorId) {
             case ClientPaths.HEART_SENSOR_ID:
             case ClientPaths.SS_HEART_SENSOR_ID:
@@ -233,15 +234,15 @@ public class SensorService extends Service implements SensorEventListener, Googl
             Log.d(TAG, "acquire lock");
         }
 
+        registerDust();
 
-//        if ((System.currentTimeMillis()-lastLocationTime)> locationDiff)
+        beamConn = new BTSocket(Constants.AIRBEAM_SENSOR_ID, uuid, this);
+        new BluetoothTask().execute(Constants.AIRBEAM_SENSOR_ID);
+
         //update location every 3 sensor periods
         if (locationCounter==0) {
             connectApiClient();
-//            mGoogleApiClient.connect();
         }
-//        Log.d(TAG, "Sensor delay normal: " + SensorManager.SENSOR_DELAY_NORMAL);
-
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
@@ -251,21 +252,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
         gyroSensor = mSensorManager.getDefaultSensor(SENS_GYRO);
 
 
-        beamConn = new BTSocket(Constants.AIRBEAM_SENSOR_ID, uuid, this);
-        new BluetoothTask().execute(Constants.AIRBEAM_SENSOR_ID);
-
-        registerDust();
-
-
-//        ppgSensor = mSensorManager.getDefaultSensor(65545);
-//        Log.d(TAG, "sensor delays (ms): heart, lin, gyro");
-//        Log.d("heart", heartRateSensor.getMaxDelay()/1000+"");
-//        Log.d("lin",linearAccelerationSensor.getMaxDelay()/1000+"");
-//        Log.d("gyro",gyroSensor.getMaxDelay()/1000+"");
-
-
         //http://stackoverflow.com/questions/30153904/android-how-to-set-sensor-delay
-        //temporary disable sensors
         if (linearAccelerationSensor != null) {
             mSensorManager.registerListener(SensorService.this, linearAccelerationSensor, FIXED_SENSOR_RATE, MAX_DELAY);// 1000000, 1000000);
         }  else {

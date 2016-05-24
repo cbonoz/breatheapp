@@ -293,7 +293,7 @@ public class ListenerServiceFromWear extends WearableListenerService {
             Log.d(TAG, "Received multi data - subject " + subject);
 
             String sensorData = jsonBody.getString("data");
-            Log.d(TAG, "sensorData: " + sensorData);
+//            Log.d(TAG, "sensorData: " + sensorData);
 
             String data;
 
@@ -327,12 +327,12 @@ public class ListenerServiceFromWear extends WearableListenerService {
 //            }
 
             //write the first instance of the multi-api post request body (for testing encryption)
-            if (writeOnce) {
-                writeDataToFile(data, sensorFile, false);
-                writeDataToFile(s, rawSensorFile,false);
-                Log.d(TAG, "writeOnce done -> now false");
-                writeOnce = false;
-            }
+//            if (writeOnce) {
+//                writeDataToFile(data, sensorFile, false);
+//                writeDataToFile(s, rawSensorFile,false);
+//                Log.d(TAG, "writeOnce done -> now false");
+//                writeOnce = false;
+//            }
             Intent i = new Intent(this, MobileUploadService.class);
             i.putExtra("data",data);
             i.putExtra("url", Constants.MULTI_API);
