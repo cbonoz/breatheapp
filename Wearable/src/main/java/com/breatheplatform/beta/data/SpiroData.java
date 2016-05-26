@@ -5,7 +5,7 @@ import java.util.Arrays;
 /**
  * Created by YooJung on 1/14/2016.
  */
-public class TestData {
+public class SpiroData {
     public String device_id;
     public int fev1;	// 0.01 Litres
     public int pef;	// litres/min
@@ -13,7 +13,7 @@ public class TestData {
 
 
     // Construct test data from byte array
-    public TestData(byte[] message) {
+    public SpiroData(byte[] message) {
         // Expecting a single test data from asma-1
         // Device Identifier = C, Message Identifier = TD
         if ((char)message[1] == 'C' && (char)message[2] == 'T' && (char)message[3] == 'D') {

@@ -13,6 +13,8 @@ import com.breatheplatform.beta.shared.Constants;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 import me.denley.courier.Courier;
@@ -44,18 +46,12 @@ public class SensorAddService extends IntentService {
     private static Integer recordCount = 0;
 
 
+
     private static String tz = initTimeZone();
     private static String initTimeZone() {
-        TimeZone tz = TimeZone.getDefault();
-
-        String tzone;
-        try {
-            tzone = tz.getDisplayName();
-        } catch (Exception e) {
-            Log.e(TAG, "[Handled] could not get time zone");
-            tzone = "US - Default";
-        }
-        return tzone;
+        Date now = new Date();
+        TimeZone tz = Calendar.getInstance().getTimeZone();
+        return tz.getDisplayName(tz.inDaylightTime(now), TimeZone.SHORT);
     }
 
     public SensorAddService() {

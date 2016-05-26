@@ -43,7 +43,6 @@ public class BTSocket {
     private byte[] readBuffer = new byte[BUFFER_SIZE];
     private Thread workerThread = null;
 
-    private SpiroData data;
     private Integer deviceType;
 
     public BTSocket(Integer type, UUID u, Context c) {

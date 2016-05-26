@@ -224,7 +224,7 @@ public class MainActivity extends WearableActivity
 
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         wearAlarmReceiver = new WearAlarmReceiver();
-        startFilter = new IntentFilter(Constants.WEAR_ACTION);
+        startFilter = new IntentFilter(Constants.WEAR_ALARM_ACTION);
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSigMotionSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
@@ -342,7 +342,7 @@ public class MainActivity extends WearableActivity
 
         if (Constants.fixedSensorRate) {
             registerReceiver(wearAlarmReceiver, startFilter);
-            Intent intent = new Intent(Constants.WEAR_ACTION);
+            Intent intent = new Intent(Constants.WEAR_ALARM_ACTION);
             intent.putExtra("alarmId", Constants.START_ALARM_ID);
             sensorPI = PendingIntent.getBroadcast(this, Constants.START_ALARM_ID, intent, 0);
         }
@@ -360,7 +360,7 @@ public class MainActivity extends WearableActivity
     private void scheduleRepeatedSensors(Integer interval) {
 
 //        registerReceiver(wearAlarmReceiver, startFilter);
-//        Intent intent = new Intent(Constants.WEAR_ACTION);
+//        Intent intent = new Intent(Constants.WEAR_ALARM_ACTION);
 //        intent.putExtra("alarmId", Constants.START_ALARM_ID);
 //        sensorPI = PendingIntent.getBroadcast(this, Constants.START_ALARM_ID, intent, 0);
 
@@ -858,7 +858,7 @@ public class MainActivity extends WearableActivity
 
             } else {
                 //set the trigger task
-                Intent intent = new Intent(Constants.WEAR_ACTION);
+                Intent intent = new Intent(Constants.WEAR_ALARM_ACTION);
                 intent.putExtra("alarmId", Constants.TRIGGER_ALARM_ID);
                 PendingIntent pi = PendingIntent.getBroadcast(this, Constants.TRIGGER_ALARM_ID, intent, 0);
 
@@ -959,14 +959,13 @@ public class MainActivity extends WearableActivity
     }
 
     private class WearAlarmReceiver extends BroadcastReceiver {
-
         @Override
         public void onReceive(Context context, Intent intent) {
             Integer alarmId = intent.getIntExtra("alarmId", Constants.NO_VALUE);
             Log.d(TAG, "Received alarm " + alarmId);
             switch (alarmId) {
-                case Constants.START_ALARM_ID:
-                    Log.d("WearAlarmReceiver", "started sensors");
+                case Constants.START_BLUETOOTH_ID:
+                    Log.d("MobileAlarmReceiver", "started sensors");
                     startMeasurement(MainActivity.this);
                     break;
             case Constants.TRIGGER_ALARM_ID:

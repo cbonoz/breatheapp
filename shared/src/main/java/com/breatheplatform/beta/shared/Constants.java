@@ -17,8 +17,7 @@ public class Constants {
     public static final String QUESTION_API = "/question";
     public static final String REMINDER_API = "/reminder";
     public static final String CALENDAR_API = "/calendar";
-    public static final String LABEL_API = "/label";
-    public static final String FILE_API = "/file";
+
 
 
     //API routes used by server
@@ -47,9 +46,10 @@ public class Constants {
     public static final String HEART_EVENT = "heart-event";
     public static final String LAST_SENSOR_EVENT = "last-sensor-event";
     public static final String REGISTER_EVENT = "register-event";
-    public static final String WEAR_ACTION = "start-sensor-action";
-    public static final int NO_VALUE = -1;
+    public static final String WEAR_ALARM_ACTION = "start-wear-action";
+    public static final String MOBILE_ALARM_ACTION = "start-mobile-action";
 
+    public static final int NO_VALUE = -1;
 
     //Alarm Codes
     public static final int SPIRO_ALARM_ID = 1;
@@ -58,6 +58,7 @@ public class Constants {
     public static final int STOP_ALARM_ID = 5;
     public static final int START_ALARM_ID = 6;
     public static final int TRIGGER_ALARM_ID = 7;
+    public static final int START_BLUETOOTH_ID = 8;
 
     //Sensor Period on Watch
     public static final Integer SENSOR_ON_TIME = 5000; //10 seconds on time
@@ -65,12 +66,9 @@ public class Constants {
 
     public static final Boolean fixedSensorRate = true;
     public static final Integer TRIGGER_DELAY = 15000;
-    //Constants used for debugging
-//    public static final Boolean collecting = false;
+
     public static final Boolean encrypting = true;
     public static final Integer TESTING = 0;
-//    public static final Boolean staticApp = false;
-//    public static final String START_WRITE = "start";
-//    public static final String END_WRITE = "end";
+
 
 }

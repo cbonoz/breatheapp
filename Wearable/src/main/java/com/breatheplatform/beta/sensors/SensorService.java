@@ -155,28 +155,13 @@ public class SensorService extends Service implements SensorEventListener, Googl
                     sumAccZ = 0;
                     accelerationCount = 0;
                 }
-//
-//                if (accelerationCount >= ENERGY_LIMIT) {
-//                    addSensorData(sensorId, event.accuracy, timestamp, new float[]{(sumAccX)/ PTS_PER_DATA,(sumAccY)/ PTS_PER_DATA, (sumAccZ)/ PTS_PER_DATA});
-//                    float energy = (float) (Math.pow(sumEnergyX,2) + Math.pow(sumEnergyY,2) + Math.pow(sumEnergyZ,2));
-//                    Log.d(TAG, "energy calculated - " + accelerationCount + " measurements");
-//                    addSensorData(Constants.ENERGY_SENSOR_ID, Constants.NO_VALUE, timestamp, new float[]{energy});
-//                    sumEnergyX = 0;
-//                    sumEnergyY = 0;
-//                    sumEnergyZ = 0;
-//                    Log.d(TAG, accelerationCount + " acc points -> add energy data point");
-//
-//                }
+
                 accelerationCount++;
                 break;
-//            case 65545:
-//                addSensorData(sensorId, event.accuracy, timestamp, event.values);
-//                break;
 
         }
-//            updateLastView(sensorId);
-    }
 
+    }
     /*
     Check conditions for launching questionnaire
      */
@@ -368,11 +353,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
         Courier.deliverMessage(this, Constants.QUESTION_API, "");
     }
 
-
-
     /* Google API Logic Below */
-
-
 
     /**
      * Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
@@ -390,19 +371,6 @@ public class SensorService extends Service implements SensorEventListener, Googl
         mGoogleApiClient.connect();
     }
 
-//    @Override
-//    public void onResult(Status status) {
-//        if (status.isSuccess()) {
-//
-//            Log.d(TAG, "Successfully requested activity updates");
-//
-//        } else {
-//            Log.e(TAG, "Failed in requesting activity updates, "
-//                    + "status code: "
-//                    + status.getStatusCode() + ", message: " + status
-//                    .getStatusMessage());
-//        }
-//    }
 
     private PendingIntent getActivityDetectionPendingIntent() {
         Intent intent = new Intent(this, ActivityDetectionService.class);
@@ -504,14 +472,6 @@ public class SensorService extends Service implements SensorEventListener, Googl
     private int state;
 
     private Handler taskHandler = new Handler();
-
-//    private static StringBuilder dustData = new StringBuilder();
-//    public static String getDustData() {
-//        String data = dustData.toString();
-//        dustData.setLength(0);
-//        recordCount = 0;
-//        return data;
-//    }
 
 
     private void upgradeState(int newState) {
@@ -749,8 +709,6 @@ public class SensorService extends Service implements SensorEventListener, Googl
     }
 
     private class BluetoothTask extends AsyncTask<Integer, Void, String> {
-
-
         @Override
         protected String doInBackground(Integer... params) {
 
