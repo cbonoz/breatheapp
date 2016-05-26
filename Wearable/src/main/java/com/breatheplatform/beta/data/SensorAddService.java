@@ -48,6 +48,7 @@ public class SensorAddService extends IntentService {
 
 
     private static String tz = initTimeZone();
+
     private static String initTimeZone() {
         Date now = new Date();
         TimeZone tz = Calendar.getInstance().getTimeZone();
