@@ -13,6 +13,7 @@ import java.util.Date;
 
 /**
  * Created by cbono on 4/6/16.
+ * CalendarService for creating events in the user's calendar for various Breathe Activities
  */
 public class CalendarService extends IntentService {
 

@@ -40,6 +40,12 @@ import me.denley.courier.Packager;
 
 /**
  * Created by cbono on 4/13/16.
+ * Main Listener Service that is auto-launched on the Mobile Device
+ * Listens to incoming requests (via Courier) from the watch and responds accordingly in the service
+ * background of the mobile device
+ *
+ * Also responsible for launching activities on the mobile device when certain events are triggered
+ * (such as the registration or question activities)
  */
 public class ListenerServiceFromWear extends WearableListenerService {
     private static final String TAG = "ListenerServiceFromWear";
@@ -54,6 +60,7 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
     /*
      * Receive the message from wear
+     * Messages are used for smaller size requests from the wearable
      */
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
@@ -83,6 +90,11 @@ public class ListenerServiceFromWear extends WearableListenerService {
         }
     }
 
+    /*
+     * Data Receiver (onDataChanged)
+     * Listens for the multi API data api request path from the wearable.
+     * Encrypts the data sent from the wearable before being sent to server
+     */
 
     @Override public void onDataChanged(DataEventBuffer dataEvents) {
         for (DataEvent event : dataEvents) {
@@ -153,15 +165,18 @@ public class ListenerServiceFromWear extends WearableListenerService {
     private void runOnceRegistered() {
 
     }
+
+    //onCreate method for the ListenerService
+    //sets up preferences - if no user registered, then launch the reigster activity
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "ListenerService onCreate called");
 
-        if (writeOnce) {
-            sensorFile = createFile(sensorDirectory);
-            rawSensorFile = createFile(rawSensorDirectory);
-        }
+//        if (writeOnce) {
+//            sensorFile = createFile(sensorDirectory);
+//            rawSensorFile = createFile(rawSensorDirectory);
+//        }
 
         if (runOnce) {
             runOnce = false;
@@ -198,6 +213,8 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
             Log.d("raw_key", aesKeyString);
             Log.d("enc_key", encKeyString);
+
+            scheduleAlarms();
 
         }
     }
@@ -274,9 +291,8 @@ public class ListenerServiceFromWear extends WearableListenerService {
         }
     }
 
-
+    //method for processing (forwarding to server)received sensor data from the wearable
     void onMultiReceived(String s) {
-
         updateConnection();
 
         if (s == null || s.length()==0) {
@@ -294,34 +310,25 @@ public class ListenerServiceFromWear extends WearableListenerService {
                 return;
             }
 
-            String subject = jsonBody.getString("subject_id");
             Log.d(TAG, "Received multi data - subject " + subject);
+            String subject = jsonBody.getString("subject_id");
+
 
             String sensorData = jsonBody.getString("data");
-//            Log.d(TAG, "sensorData: " + sensorData);
 
             String data;
 
 
             if (Constants.encrypting) {
-
                 Log.d(TAG, "Encrypting Data");
-
-                //parts[0] = {"timestamp":1460484850245,"snregbject_id":"3","key":"I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec","battery":99,"connection":"PROXY"
-
                 String encData = aes.encrypt(sensorData);// + DustService.getDustData());
 
                 jsonBody.put("data", encData);
-//                jsonBody.put("raw_key", aesKeyString);
                 jsonBody.put("enc_key", encKeyString);
 
                 Log.d("encData", encData);
-//
             }
-
-//            data = jsonBody.toString();
             data = processAndSerialize(jsonBody);
-//            Log.d(TAG, "Received multi request - " + data.length() + " bytes");
 
             Intent i = new Intent(this, MobileUploadService.class);
             i.putExtra("data",data);
@@ -338,22 +345,20 @@ public class ListenerServiceFromWear extends WearableListenerService {
     Alarm Services
      */
 
-    //this method will launch the question activity on the phone and also vibrate and notify the watch
+    private static final Integer TWO_HOUR_MS = 1000 * 60 * 120;
+
+
 
     private PendingIntent createAlarmPI(Integer alarmId) {
         Intent intent = new Intent(this, MobileAlarmReceiver.class);
         intent.putExtra("alarm-id", alarmId);
-//        intent.putExtra("subject", subject);
+
         return PendingIntent.getBroadcast(this, getNextAlarmId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-
-    private void scheduleQuestionReminder(long ms) {
-        PendingIntent pi = createAlarmPI(Constants.QUESTION_ALARM_ID);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, ms,
-                AlarmManager.INTERVAL_DAY, pi);
-        Log.d(TAG, "Scheduled question alarm in the future: " + (ms - System.currentTimeMillis()) + "ms");
-    }
+    //this method will launch the question activity on the phone and also vibrate and notify the watch
+    //this method takes a definite time of day in hour and minutes (military time
+    // - time zone of the alarm is automatic in terms of the local device time
     private void scheduleQuestionReminder(int hour, int minute) {
         Calendar calendar = Calendar.getInstance();
 
@@ -368,46 +373,26 @@ public class ListenerServiceFromWear extends WearableListenerService {
         Log.d(TAG, "Scheduled question alarm at time: " + hour + ":" + minute);
     }
 
-    private static final Integer TWO_HOUR_MS = 1000 * 60 * 120;
-
-    private void scheduleSpiroReminder(int startHour, int startMinute) {
-        Calendar calendar = Calendar.getInstance();
-
-        calendar.set(Calendar.HOUR_OF_DAY, startHour);
-        calendar.set(Calendar.MINUTE, startMinute);
-        calendar.set(Calendar.SECOND, 0);
-
+    private void scheduleSpiroReminder(long startTime, Integer interval) {
         PendingIntent pi = createAlarmPI(Constants.SPIRO_ALARM_ID);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                TWO_HOUR_MS, pi);
-
-        Log.d(TAG, "Scheduled spiro alarm to repeat every " + TWO_HOUR_MS / 60000 + " min");
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, startTime,
+                interval, pi);
+        Log.d(TAG, "Scheduled spiro alarm to repeat every " + interval / 60000 + " min");
     }
-
-    private void scheduleSpiroReminder(long ms) {
-        PendingIntent pi = createAlarmPI(Constants.SPIRO_ALARM_ID);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, ms,
-                TWO_HOUR_MS, pi);
-        Log.d(TAG, "Scheduled spiro alarm to repeat every " + TWO_HOUR_MS / 60000 + " min");
-    }
-
-
 
     private void scheduleAlarms() {
         Log.d(TAG, "Scheduling Alarms");
-
-
-        scheduleSpiroReminder(System.currentTimeMillis()+TWO_HOUR_MS/4);
-
-//        scheduleQuestionReminder(7, 30);
-//        scheduleQuestionReminder(15, 30);
-//        scheduleQuestionReminder(17, 30);
-//        scheduleQuestionReminder(19, 30);
+        scheduleSpiroReminder(System.currentTimeMillis()+TWO_HOUR_MS/4, TWO_HOUR_MS);
+        scheduleQuestionReminder(7, 30);
+        scheduleQuestionReminder(15, 30);
+        scheduleQuestionReminder(17, 30);
+        scheduleQuestionReminder(19, 30);
     }
-
 
     private Integer getNextAlarmId() {
         requestCode++;
+        if (requestCode>Constants.RC_LIMIT)
+            requestCode = 0;
 
         activeAlarms.add(requestCode);
         Log.d(TAG, "Next requestCode: " + requestCode);
@@ -436,23 +421,19 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
     }
 
-
-
-
-    private void scheduleRepeatedBlueTooth(long interval) {
-        Intent intent = new Intent(this, MobileAlarmReceiver.class);
-        intent.putExtra("alarm-id", Constants.START_BLUETOOTH_ID);
-        PendingIntent pi = PendingIntent.getBroadcast(this, Constants.START_BLUETOOTH_ID, intent, 0);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                interval, pi);
-        Log.d(TAG, "scheduleRepeatedSensors, interval: " + interval);
-
-
-    }
+    //Used if mobile managing the bluetooth connections
+//    private void scheduleRepeatedBlueTooth(long interval) {
+//        Intent intent = new Intent(this, MobileAlarmReceiver.class);
+//        intent.putExtra("alarm-id", Constants.START_BLUETOOTH_ID);
+//        PendingIntent pi = PendingIntent.getBroadcast(this, Constants.START_BLUETOOTH_ID, intent, 0);
+//
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTimeInMillis(System.currentTimeMillis());
+//
+//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+//                interval, pi);
+//        Log.d(TAG, "scheduleRepeatedSensors, interval: " + interval);
+//    }
 
     private class MobileAlarmReceiver extends BroadcastReceiver {
         @Override
@@ -474,12 +455,12 @@ public class ListenerServiceFromWear extends WearableListenerService {
                     break;
                 case Constants.SPIRO_ALARM_ID:
                     Log.d(TAG, "Spiro alarm called");
-                    Courier.deliverMessage(context, Constants.REMINDER_API, "spiro");
 
-                    int mNotificationId = 001;
+                    int mNotificationId = 1;
                     NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     mNotifyMgr.notify(mNotificationId, buildSpiroReminder(context));
                     Toast.makeText(context, "Spirometer Time", Toast.LENGTH_LONG).show();
+                    Courier.deliverMessage(context, Constants.REMINDER_API, "spiro");
                     break;
                 case Constants.QUESTION_ALARM_ID:
                     Log.d(TAG, "Question alarm called");
@@ -487,18 +468,16 @@ public class ListenerServiceFromWear extends WearableListenerService {
                     i.setClass(context, QuestionActivity.class);
                     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(i);
-                    Toast.makeText(context, "Question Time", Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, "Please fill out the Survey", Toast.LENGTH_LONG).show();
 
                     //TODO: create reminder and activity intent for questionnaire
                     break;
                 case Constants.CLOSE_SPIRO_ALARM_ID:
                     Log.d(TAG, "Close spiro alarm called");
                     break;
-                case Constants.NO_VALUE:
-                    Log.d(TAG, "No value alarm called");
-                    break;
+
                 default:
-                    Log.d(TAG, "Unknown Alarm");
+                    Log.d(TAG, "Unknown Alarm " + alarmId);
                     break;
             }
         }

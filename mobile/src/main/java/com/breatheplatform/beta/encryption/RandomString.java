@@ -4,6 +4,7 @@ import java.util.Random;
 
 /**
  * Created by cbono on 4/28/16.
+ * Used for generating a random string for the encryption hash (for HybridEncrypt)
  */
 public class RandomString {
 

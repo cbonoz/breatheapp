@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 /**
  * Created by cbono on 4/7/16.
+ * Placeholder for future survey logic (this acitivity will launch according to the alarm
+ * schedule set up in the scheduleAlarms function in the ListenerServiceFromWear
  */
 public class QuestionActivity extends Activity {
     private static final String TAG = "QuestionActivity";

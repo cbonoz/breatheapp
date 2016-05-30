@@ -10,10 +10,13 @@ import com.breatheplatform.beta.shared.Constants;
 
 /**
  * Created by cbono on 2/11/16.
+ * used for listening for battery change events and updating the shared ClientPaths.batteryLevel variable
  */
 public class BatteryReceiver extends BroadcastReceiver {
     private static final String TAG = "BatteryReceiver";
-//
+
+
+//      // extra detail (only need the level - see the onReceive method below)
 //    @Override
 //    public void onReceive(Context arg0, Intent intent) {
 //

@@ -1,13 +1,18 @@
 Breathe Asthma Watch App
 
 Workflow:
-1. Register the username manually on the breathe server and record ID for that individual.
-2. Give user their ID number with the watch so they can initialize the app correctly
+1. Register the cliniciation username (email) and paired subjects on the breathe server.
+2. Give the clinician user their subject ID(s) with the watch so they can initialize the app correctly
     (they will say their number on the very first login only)
 3. Only watch is required for app to run. Watch will provide watch face
 
-Currently working on implementing a UI-based registration process on the mobile device.
+User can relaunch the UI-based registration process on the mobile device by clicking the "Breathe Registration"
+app icon
 
-Wearable must be paired to both the desired phone, spirometer, and dust sensor before use.
+Note: WEARABLE is in charge of the bluetooth connections, as we don't assume the user will have their phone
+in proximity all day. Phone operates as a data transmitter to the server. Wearable is the initial data collector.
 
-http://stackoverflow.com/questions/18755739/how-to-delete-an-app-from-adb-without-knowing-its-package-name
+Wearable must be paired to both the desired phone, spirometer, and dust sensors before use (for security reasons).
+To check your currently paired devices on the watch, can go to settings -> bluetooth
+on the wearable and select Unpair Devices. Swipe right once finished. Can pair devices from the bluetooth page.
+

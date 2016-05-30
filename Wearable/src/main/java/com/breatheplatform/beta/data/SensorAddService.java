@@ -61,7 +61,6 @@ public class SensorAddService extends IntentService {
 
     private static JSONObject jsonDataEntry = new JSONObject();
 
-
     //intents are queued - no synchronized needed
     public void incrementCount() {
         recordCount++;

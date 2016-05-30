@@ -14,6 +14,7 @@ import java.util.List;
 
 /**
  * Created by cbono on 4/5/16.
+ * CLASS NO LONGER USED - activity recognition is done on server
  */
 
 public class ActivityDetectionService extends IntentService {

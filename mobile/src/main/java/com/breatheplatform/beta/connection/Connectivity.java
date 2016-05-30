@@ -6,6 +6,8 @@ import android.net.NetworkInfo;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+
+//Connectivity class provides methods for requesting the internet connection status of the mobile device
 public class Connectivity {
         private static final String TAG = "Connectivity";
         /*

@@ -12,10 +12,11 @@ import com.breatheplatform.beta.shared.Constants;
 public class ClientPaths {
     private static final String TAG = "ClientPaths";
 
-//    public static Boolean writing = true;
     public static final int HEART_SENSOR_ID = Sensor.TYPE_HEART_RATE;
     public static final int SS_HEART_SENSOR_ID = 65562;
 
+    //various shared variables (used between activities)
+    //NO_VALUE = -1, default value
     public static int batteryLevel = Constants.NO_VALUE;
     public static Integer userAge = Constants.NO_VALUE;
     public static Boolean dustConnected = false;

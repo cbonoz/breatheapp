@@ -9,6 +9,10 @@ import com.breatheplatform.beta.ClientPaths;
 import com.breatheplatform.beta.shared.Constants;
 
 
+//SensorNames class
+//Provides translations for Android sensor ID's to our server IDs
+//Also stores String value mappings for the sensor names
+
 public class SensorNames {
     public SparseArray<String> names;
     public SparseIntArray serverSensors;
@@ -37,7 +41,7 @@ public class SensorNames {
 //        names.append(Sensor.TYPE_SIGNIFICANT_MOTION, "Significant Motion");
 //        names.append(Sensor.TYPE_STEP_COUNTER, "Step Counter");
 //        names.append(Sensor.TYPE_STEP_DETECTOR, "Step Detector");
-
+//        names.append(65545, "PPG");
 
         names.append(Sensor.TYPE_LINEAR_ACCELERATION, "Linear Acceleration");
         names.append(Sensor.TYPE_GYROSCOPE, "Gyroscope");
@@ -48,10 +52,7 @@ public class SensorNames {
         names.append(Constants.ENERGY_SENSOR_ID, "Energy");
         names.append(Constants.ACTIVITY_SENSOR_ID, "Activity");
         names.append(Constants.AIRBEAM_SENSOR_ID, "AirBeam Sensor");
-//        names.append(65545, "PPG");
 
-
-//                serverSensors.append(ActivityConstants.HEART_SENSOR_ID, 3);
         serverSensors.append(Sensor.TYPE_LINEAR_ACCELERATION, 1);
         serverSensors.append(Sensor.TYPE_HEART_RATE, 2);
         serverSensors.append(Constants.DUST_SENSOR_ID, 3);
@@ -63,6 +64,7 @@ public class SensorNames {
 
     }
 
+    //method for mapping sensorId to sensorName string
     public String getName(int sensorId) {
         String name = names.get(sensorId);
 
@@ -74,6 +76,7 @@ public class SensorNames {
         return name;
     }
 
+    //method for mapping android ID to server ID
     public Integer getServerID(int sensorId) {
         return serverSensors.get(sensorId);
     }

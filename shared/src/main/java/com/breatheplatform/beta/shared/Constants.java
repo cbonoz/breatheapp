@@ -70,5 +70,7 @@ public class Constants {
     public static final Boolean encrypting = true;
     public static final Integer TESTING = 0;
 
+    public static final Integer RC_LIMIT = 100;
+
 
 }

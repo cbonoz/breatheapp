@@ -20,8 +20,11 @@ import android.util.Log;
 
 import java.util.UUID;
 /*
+
  * Adapted from:
- * http://developer.android.com/samples/BluetoothLeGatt/src/com.example.android.bluetoothlegatt/BluetoothLeService.html
+ * * http://developer.android.com/samples/BluetoothLeGatt/src/com.example.android.bluetoothlegatt/BluetoothLeService.html
+ * Used to connect to non-Socket bluetooth devices like the regular dust sensor
+ * RFduinoService, BluetoothHelper, HexAsciiHelper)
  */
 public class RFduinoService extends Service {
     private final static String TAG = RFduinoService.class.getSimpleName();

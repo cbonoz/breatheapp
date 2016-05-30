@@ -96,14 +96,11 @@ public class MainActivity extends WearableActivity
     private TextView riskText;
     private TextView heartText;
     private TextView subjectText;
-//    private TextView activeView;
-    private TextView breatheView;
     private ImageView smileView;
     private ImageView heartImage;
 
     private RelativeLayout mRectBackground;
     private RelativeLayout mRoundBackground;
-
 
     private WatchViewStub stub;
 
@@ -118,9 +115,11 @@ public class MainActivity extends WearableActivity
     private SensorManager mSensorManager = null;
     private Sensor mSigMotionSensor;
 
+    //Used for non-fixed rate (motion-based) sensor sampling
     private final TriggerListener mListener =  new TriggerListener();
 
 
+    //request the subject from the phone if not present in the watch preferences
     private void requestSubjectAndUpdateUI() {
         ClientPaths.subject = prefs.getString("subject", "");
 
@@ -133,6 +132,7 @@ public class MainActivity extends WearableActivity
         }
     }
 
+    //if googleapi not available, start the registration service
     private void startRegistrationService() {
         GoogleApiAvailability api = GoogleApiAvailability.getInstance();
         int code = api.isGooglePlayServicesAvailable(this);
@@ -270,7 +270,8 @@ public class MainActivity extends WearableActivity
 
     }
 
-    // called after layout has been inflated
+    // called after layout has been inflated on the watch
+    // this function initializes the UI components and starts the sensors
     private void setupOnLayoutInflated() {
         Log.d(TAG, "MainActivity setupOnLayoutInflated");
 //        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -290,7 +291,7 @@ public class MainActivity extends WearableActivity
         riskText = (TextView) findViewById(R.id.riskText);
         heartText = (TextView) findViewById(R.id.heartText);
         lastSensorText = (TextView) findViewById(R.id.lastSensorText);
-        breatheView = (TextView) findViewById(R.id.breatheView);
+//        breatheView = (TextView) findViewById(R.id.breatheView);
 
         //http://stackoverflow.com/questions/5442183/using-the-animated-circle-in-an-imageview-while-loading-stuff
         loadingPanel = (RelativeLayout) findViewById(R.id.loadingPanel);
@@ -314,32 +315,6 @@ public class MainActivity extends WearableActivity
         });
 
 
-//        if (Constants.collecting) {
-//            Switch sensorSwitch = (Switch) findViewById(R.id.sensorSwitch);
-//            sensorSwitch.setChecked(sensorToggled);
-//            sensorSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//                @Override
-//                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                    if (isChecked) {
-//                        Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.START_WRITE);
-//                        startMeasurement(MainActivity.this);
-//                        Log.d(TAG, "sensorToggle Checked");
-//                    } else {
-//                        stopMeasurement(MainActivity.this);
-////                        addSensorData(Constants.TERMINATE_SENSOR_ID, null, null, null);
-//                        Courier.deliverMessage(MainActivity.this, Constants.FILE_API, Constants.END_WRITE);
-//                        Log.d(TAG, "sensorToggle Not Checked");
-//                    }
-//                }
-//            });
-//        } else {
-////            sensorSwitch.setVisibility(View.GONE);
-//            startMeasurement(this);
-//        }
-//        sensorSwitch.setVisibility(View.GONE);
-//        startMeasurement(this);
-
-
         if (Constants.fixedSensorRate) {
             registerReceiver(wearAlarmReceiver, startFilter);
             Intent intent = new Intent(Constants.WEAR_ALARM_ACTION);
@@ -347,11 +322,8 @@ public class MainActivity extends WearableActivity
             sensorPI = PendingIntent.getBroadcast(this, Constants.START_ALARM_ID, intent, 0);
         }
 
-//            scheduleSensors(Constants.SENSOR_OFF_TIME);
-//            scheduleRepeatedSensors(Constants.SENSOR_OFF_TIME);
+        //startMeasurement schedules a corresponding stop event for the sensors
         startMeasurement(this);
-
-
 
         requestSubjectAndUpdateUI();
         updateRiskUI(lastRiskValue);

@@ -29,11 +29,14 @@ import me.denley.courier.Courier;
 import me.denley.courier.ReceiveMessages;
 
 /**
+ * RegisterActivity
  * Created by cbono on 4/1/16.
+ * Breathe Registration page logic
+ *  Launches automatically if no user detected in the preferences (checked in the main listener service)
+ *  Can also be launched directly from the "Breathe Registration" App Icon on the mobile device
+ *
  */
 public class RegisterActivity extends Activity {
-
-
     private static final String TAG = "RegisterActivity";
     private SharedPreferences prefs = null;
 //    private static final String CLINIC_CODE = "5555";
@@ -47,7 +50,7 @@ public class RegisterActivity extends Activity {
         }
     };
 
-    // handler for received Intents for the "my-event" event
+    // handler for received Intents for the "register" action event
     private BroadcastReceiver mRegisterReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -78,6 +81,7 @@ public class RegisterActivity extends Activity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegisterReceiver);
     }
 
+    //ensure that the wearable has received the new user id before closing/saving
     @BackgroundThread
     @ReceiveMessages(Constants.REGISTERED_API)
     void onSubjectAcknowledged(String subject) {
@@ -87,14 +91,14 @@ public class RegisterActivity extends Activity {
 
     }
 
+    //save the registered user in preferences and close
     private void saveSubjectAndClose(String subject) {
-
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("subject", subject);
-        editor.commit();
+        editor.apply();
 
         Toast.makeText(RegisterActivity.this, "Success - Registered Patient " + subject, Toast.LENGTH_LONG).show();
-        Log.d(TAG, "Registration successful, closing activity. Subject now " + prefs.getString("subject", ""));
+        Log.d(TAG, "Registration successful, closing activity. Subject now " + subject);//prefs.getString("subject", ""));
 
         RegisterActivity.this.finish();
     }
@@ -132,7 +136,7 @@ public class RegisterActivity extends Activity {
             switch (which){
                 case DialogInterface.BUTTON_POSITIVE:
                     //Yes button clicked
-                    loadUI();
+                    setupOnLayoutInflated();
                     break;
 
                 case DialogInterface.BUTTON_NEGATIVE:
@@ -144,8 +148,8 @@ public class RegisterActivity extends Activity {
         }
     };
 
-    private void loadUI() {
-
+    //inflate the UI components and set listeners once the activity page loaded
+    private void setupOnLayoutInflated() {
         setContentView(R.layout.register_activity);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegisterReceiver,
@@ -203,6 +207,7 @@ public class RegisterActivity extends Activity {
         prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
         subject = prefs.getString("subject", "");
 
+        //if subject exists, ask user if they want to re-register before loading the registration page
         if (!subject.equals("")) {
             Toast.makeText(this, "", Toast.LENGTH_LONG).show();
 //            finish();
@@ -212,7 +217,8 @@ public class RegisterActivity extends Activity {
         } else {
             //subject is empty - start registration immediately
 //            Toast.makeText(this, "Enter your credentials", Toast.LENGTH_LONG).show();
-            loadUI();
+            setupOnLayoutInflated();
+
         }
 
     }

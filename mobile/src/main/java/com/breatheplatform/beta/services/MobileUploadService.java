@@ -97,8 +97,6 @@ public class MobileUploadService extends IntentService {
 
         //determine connection endpoint
         try {
-
-
             switch(urlString) {
                 case Constants.RISK_API:
                     conn = (HttpsURLConnection) riskUrl.openConnection();
@@ -123,7 +121,7 @@ public class MobileUploadService extends IntentService {
         //start connection
         try {
 
-
+            //Post Request Code follows
             Log.d(TAG, urlString + " Data: " + data);
 
             byte[] dataBytes = data.getBytes();//.getBytes("ISO-8859-1");
@@ -137,8 +135,6 @@ public class MobileUploadService extends IntentService {
             sc.init(null, null, new java.security.SecureRandom());
             conn.setSSLSocketFactory(sc.getSocketFactory());
 
-
-//            conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(10000 /*milliseconds*/);
             conn.setConnectTimeout(15000 /* milliseconds */);
             conn.setRequestMethod("POST");
@@ -146,8 +142,6 @@ public class MobileUploadService extends IntentService {
             conn.setDoOutput(true);
             conn.setFixedLengthStreamingMode(dataBytes.length);
 
-//          conn.setRequestProperty("connection", "close"); // disables Keep Alive
-//          conn.setChunkedStreamingMode(0);
 
             //make some HTTP header nicety
             conn.setRequestProperty("Content-Type", "application/json");
@@ -163,7 +157,7 @@ public class MobileUploadService extends IntentService {
 
 //            statusCode = conn.getResponseCode();
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             try {
                 is = new BufferedInputStream(conn.getInputStream());
@@ -189,47 +183,7 @@ public class MobileUploadService extends IntentService {
                 }
             }
 
-            Log.i(TAG, "Response: " + result);
-            Log.i(TAG, "From " + urlString);
-
-            switch (urlString) {
-                case Constants.RISK_API:
-                    try {
-                        String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
-                        final JSONObject resJson = new JSONObject(jsonString);
-                        int val = Integer.parseInt(resJson.getString("risk"));
-                        newRisk = val;
-                        Log.i(TAG, "Setting new riskLevel: " + newRisk);
-//                        Constants.setRiskLevel(newRisk);
-
-                    } catch (Exception e) {
-                        newRisk=Constants.NO_VALUE;
-                        Log.e(TAG, "[Handled] Error response from risk api");
-
-                    }
-                    break;
-
-                case Constants.REG_CHECK_API:
-                    Boolean success = false;
-                    String registered;
-                    try {
-                        String jsonString = result.substring(result.indexOf("{"), result.indexOf("}") + 1);
-                        final JSONObject resJson = new JSONObject(jsonString);
-                        success = resJson.getString("success").equals("True");
-//                        registered = resJson.getString()
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        success  = false;
-
-                    } finally {
-                        Intent i = new Intent(Constants.REGISTER_EVENT);
-                        i.putExtra("success", success);
-                        i.putExtra("subject_id",intent.getStringExtra("subject_id"));
-                        LocalBroadcastManager.getInstance(this).sendBroadcast(i);
-                    }
-                    break;
-            }
+            Log.i(TAG, "Response: " + result + "\nFrom " + urlString);
 
 
         } catch (Exception e) {
@@ -242,23 +196,52 @@ public class MobileUploadService extends IntentService {
             if (conn != null)
                 conn.disconnect();
 
-//            Intent i = new Intent("upload-done");
-//            i.putExtra("url", urlCase);
-
+            Boolean success;
+            //handle the response result
             switch (urlString) {
                 case Constants.RISK_API:
+                    try {
+                        String jsonString = result.substring(result.indexOf("{"),result.indexOf("}")+1);
+                        final JSONObject resJson = new JSONObject(jsonString);
+                        newRisk = Integer.parseInt(resJson.getString("risk"));
+                        Log.i(TAG, "Setting new riskLevel: " + newRisk);
+                    } catch (Exception e) {
+                        newRisk=Constants.NO_VALUE;
+                        Log.e(TAG, "[Handled] Error response from risk api");
+                    }
+
                     if (newRisk == null)
                         newRisk = Constants.NO_VALUE;
                     Log.d(TAG, "returning from phone RISK_API - value " + newRisk);
+                    //send risk level back to wear
                     Courier.deliverMessage(this, Constants.RISK_API, newRisk);
                     break;
                 case Constants.MULTI_API:
-                    Boolean success = false;
-                    if (result!=null)
-                        success = result.contains("done");
 
-                    Log.d(TAG, "Multi Api Success: " + success.toString());
+                    success = (result!=null && result.contains("done"));
+                    Log.d(TAG, "Multi Api Success: " + success);
+                    //send multi api success/failure status back to wear
                     Courier.deliverMessage(this, Constants.MULTI_API, success);
+                    break;
+                case Constants.REG_CHECK_API:
+
+                    final JSONObject resJson;
+                    success = false;
+                    try {
+                        String jsonString = result.substring(result.indexOf("{"), result.indexOf("}") + 1);
+                        resJson = new JSONObject(jsonString);
+                        success = resJson.getString("success").equals("True");
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        success=false;
+                    } finally {
+                        //broadcast success/fail of registration attempt
+                        Intent i = new Intent(Constants.REGISTER_EVENT);
+                        i.putExtra("success", success);
+                        i.putExtra("subject_id",intent.getStringExtra("subject_id"));
+                        LocalBroadcastManager.getInstance(this).sendBroadcast(i);
+                    }
                     break;
             }
 //            LocalBroadcastManager.getInstance(this).sendBroadcast(i);
@@ -266,63 +249,4 @@ public class MobileUploadService extends IntentService {
         }
     }
 
-//    public static String compress(String str) throws IOException {
-//        if (str == null || str.length() == 0) {
-//            return str;
-//        }
-//        System.out.println("String length : " + str.length());
-//        ByteArrayOutputStream out = new ByteArrayOutputStream();
-//        GZIPOutputStream gzip = new GZIPOutputStream(out);
-//        gzip.write(str.getBytes());
-//
-//        gzip.close();
-//
-//        String outStr = out.toString("ISO-8859-1");//ISO-8859-1
-//        System.out.println("Output String length : " + outStr.length());
-//
-//        return outStr;
-//    }
-//
-//    public static String decompress(String str) throws IOException {
-//        if (str == null || str.length() == 0) {
-//            return str;
-//        }
-//        System.out.println("Input String length : " + str.length());
-//        GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(str.getBytes("ISO-8859-1")));
-//        BufferedReader bf = new BufferedReader(new InputStreamReader(gis, "ISO-8859-1"));
-//        String outStr = "";
-//        String line;
-//        while ((line=bf.readLine())!=null) {
-//            outStr += line;
-//        }
-//        System.out.println("Output String length : " + outStr.length());
-//        return outStr;
-//    }
-
-
-//    public static String readDataFromFile(File f) throws IOException {
-//        BufferedReader bufferedReader = new BufferedReader(new FileReader(f));
-//        StringBuilder everything = new StringBuilder();
-//        String line;
-//        while( (line = bufferedReader.readLine()) != null) {
-//            everything.append(line);
-//        }
-//        return everything.toString();
-//    }
-//
-//    public static String decompress(String str) throws IOException {
-//        if (str == null || str.length() == 0) {
-//            return str;
-//        }
-//        System.out.println("Input String length : " + str.length());
-//        GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(str.getBytes("ISO-8859-1")));
-//        BufferedReader bf = new BufferedReader(new InputStreamReader(gis, "ISO-8859-1"));
-//        String outStr = "";
-//        String line;
-//        while ((line=bf.readLine())!=null) {
-//            outStr += line;
-//        }
-//        System.out.println("Output String length : " + outStr.length());
-//        return outStr;
-//    }
 }

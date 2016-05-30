@@ -21,7 +21,9 @@ import java.util.UUID;
 
 /**
  * Created by cbono on 5/5/16.
- * Used for manually initiated bluetooth connections
+ * Bluetooth Class used for spirometer and airbeam - regular dust sensor uses the other non-socket classes in this package,
+ * as the dust sensor uses an older version of Bluetooth.
+ *
  */
 public class BTSocket {
     private static final String TAG = "BTSocket";

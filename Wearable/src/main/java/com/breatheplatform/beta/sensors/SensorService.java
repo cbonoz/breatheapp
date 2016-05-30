@@ -204,6 +204,8 @@ public class SensorService extends Service implements SensorEventListener, Googl
         return null;
     }
 
+
+    //Enter point for SensorService, grabs wake lock and launches and listens to sensors until destroyed
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // Let it continue running until it is stopped.

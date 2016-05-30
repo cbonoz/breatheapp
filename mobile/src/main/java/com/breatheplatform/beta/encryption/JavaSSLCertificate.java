@@ -2,6 +2,8 @@ package com.breatheplatform.beta.encryption;
 
 /**
  * Created by cbono on 1/26/16.
+ * JavaSSLCertificate class
+ *  Used for certifying the connection between the mobile device and the remote server
  */
 
 import android.util.Log;

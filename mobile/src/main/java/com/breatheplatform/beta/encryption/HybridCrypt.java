@@ -30,7 +30,14 @@ import javax.crypto.spec.SecretKeySpec;
  * Created by cbono on 4/12/16.
  * https://github.com/scottyab/AESCrypt-Android/blob/master/aescrypt/src/main/java/com/scottyab/aescrypt/AESCrypt.java
  * http://peetahzee.com/2015/02/securing-data-and-communication-with-rsa-across-android-app-and-python-server/
+ *
+ * Hybrid Encryption class
+ *  Provides methods for RSA encryption of aes key, and AES encryption of data.
+ *  Instantiate a Hybrid Encrypt object for usage
+ *
  */
+
+
 public final class HybridCrypt {
 
     private static final String TAG = "HybridCrypt";

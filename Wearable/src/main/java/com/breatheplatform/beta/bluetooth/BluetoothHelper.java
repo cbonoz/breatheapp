@@ -6,6 +6,8 @@ import java.util.UUID;
 
 /**
  * Created by cbono on 12/25/15.
+ * Used to connect to non-Socket bluetooth devices like the regular dust sensor
+ * RFduinoService, BluetoothHelper, HexAsciiHelper)
  */
 
 
