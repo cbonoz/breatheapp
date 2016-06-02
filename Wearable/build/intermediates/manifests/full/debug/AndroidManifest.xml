@@ -101,7 +101,7 @@
         </activity>
         <activity android:name="android.support.wearable.activity.ConfirmationActivity" />
 
-        <service android:name="com.breatheplatform.beta.data.SensorAddService" />
+        <service android:name="com.breatheplatform.beta.messaging.SensorAddService" />
         <service android:name="com.breatheplatform.beta.sensors.SensorService" />
         <service
             android:name="com.breatheplatform.beta.activity.ActivityDetectionService"

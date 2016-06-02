@@ -1,12 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items version="2" >
-
-    <item
-        jar="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/exploded-aar/breathe-android-app/shared/unspecified/jars/classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="4ec432f5e06de7f5e17eb71f5ab58ad80b2febef">
-        <dex dex="/Users/cbono/Documents/research/breathe-android-app/Wearable/build/intermediates/pre-dexed/debug/breathe-android-app-shared-unspecified_95d70dc08c1a5a5977943e9e5136e20692e219f2.jar" />
-    </item>
-
-</items>
+<items version="2" />

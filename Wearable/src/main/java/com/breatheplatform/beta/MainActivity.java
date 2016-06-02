@@ -61,6 +61,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -214,22 +215,25 @@ public class MainActivity extends WearableActivity
 
 
     private AlarmManager alarmManager;
+    private Vibrator v;
     private WearAlarmReceiver wearAlarmReceiver;
-    private IntentFilter startFilter;
+    private static final IntentFilter wearFilter =  new IntentFilter(Constants.WEAR_ALARM_ACTION);
     private PendingIntent sensorPI;
 
 
+    //onCreate method gets called when the activity is created (setup code here)
     public void onCreate(Bundle b) {
         super.onCreate(b);
 
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         wearAlarmReceiver = new WearAlarmReceiver();
-        startFilter = new IntentFilter(Constants.WEAR_ALARM_ACTION);
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSigMotionSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
 
-        printAvailableSensors();
+        v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+//        printAvailableSensors();
 
         prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
         spiroConn = new BTSocket(Constants.SPIRO_SENSOR_ID, UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"), this);
@@ -247,6 +251,9 @@ public class MainActivity extends WearableActivity
         setAmbientEnabled();
 
         stub = (WatchViewStub) findViewById(R.id.stub);
+
+        // called after layout has been inflated on the watch (post UI inflate callback)
+        //determines what xml layout view to inflate on the watch
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
@@ -270,7 +277,7 @@ public class MainActivity extends WearableActivity
 
     }
 
-    // called after layout has been inflated on the watch
+
     // this function initializes the UI components and starts the sensors
     private void setupOnLayoutInflated() {
         Log.d(TAG, "MainActivity setupOnLayoutInflated");
@@ -285,7 +292,6 @@ public class MainActivity extends WearableActivity
 
         dateText = (TextView) findViewById(R.id.dateText);
         subjectText = (TextView) findViewById(R.id.subjectText);
-//        activeView = (TextView) findViewById(R.id.activeView);
         heartImage = (ImageView) findViewById(R.id.heartImage);
         smileView = (ImageView) findViewById(R.id.smileView);
         riskText = (TextView) findViewById(R.id.riskText);
@@ -316,9 +322,9 @@ public class MainActivity extends WearableActivity
 
 
         if (Constants.fixedSensorRate) {
-            registerReceiver(wearAlarmReceiver, startFilter);
+            registerReceiver(wearAlarmReceiver, wearFilter);
             Intent intent = new Intent(Constants.WEAR_ALARM_ACTION);
-            intent.putExtra("alarmId", Constants.START_ALARM_ID);
+            intent.putExtra("alarm-id", Constants.START_ALARM_ID);
             sensorPI = PendingIntent.getBroadcast(this, Constants.START_ALARM_ID, intent, 0);
         }
 
@@ -327,54 +333,23 @@ public class MainActivity extends WearableActivity
 
         requestSubjectAndUpdateUI();
         updateRiskUI(lastRiskValue);
-    }
 
-    private void scheduleRepeatedSensors(Integer interval) {
-
-//        registerReceiver(wearAlarmReceiver, startFilter);
-//        Intent intent = new Intent(Constants.WEAR_ALARM_ACTION);
-//        intent.putExtra("alarmId", Constants.START_ALARM_ID);
-//        sensorPI = PendingIntent.getBroadcast(this, Constants.START_ALARM_ID, intent, 0);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                interval, sensorPI);
-        Log.d(TAG, "scheduleRepeatedSensors, interval: " + interval);
-    }
-
-    private void scheduleSensors(Integer futureTime) {
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + futureTime, sensorPI);
-        Log.d(TAG, "scheduleSensors, for " + futureTime);
-    }
-
-    private void cancelRepeatedSensors() {
-        Log.d(TAG, "cancelRepeatedSensors");
-        unregisterReceiver(wearAlarmReceiver);
-        try {
-            alarmManager.cancel(sensorPI);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, "[Handled] Could not cancer sensorPI");
+        if (!scheduled) {
+            scheduleAlarms();
+            scheduled = true;
         }
     }
 
+    //update the subject number text on the watch
     private void updateSubjectUI() {
-
         if (subjectText != null) {
             String st = "Subject: " +  ClientPaths.subject;
             subjectText.setText(st);
         }
-
         Log.d(TAG, "updated subject UI - " +  ClientPaths.subject);
     }
 
+    //update the risk ui text and color on the watch
     public void updateRiskUI(int value) {
 
         String statusString;
@@ -404,7 +379,6 @@ public class MainActivity extends WearableActivity
                 riskText.setTextColor(Color.RED);
                 if (lastRiskValue!=HIGH_RISK) {//handle risk transition message
                     // Vibrate for 500 milliseconds
-                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                     v.vibrate(500);
                     Toast.makeText(MainActivity.this, "Risk Warning - Use Spirometer", Toast.LENGTH_SHORT).show();
                 }
@@ -427,54 +401,40 @@ public class MainActivity extends WearableActivity
         Log.d(TAG, "updateRiskUI - " + statusString);
     }
 
-    //Used for managing tasks while awake
+    //Used for managing tasks while the watch is awake
     private Handler taskHandler = new Handler();
-//
-//    private Runnable riskTask = new Runnable()
-//    {
-//        public void run()
-//        {
-//            riskRequest();
-//
-//            taskHandler.postDelayed(this, RISK_TASK_PERIOD);
-//        }
-//    };
 
-//    private void scheduleRiskRequest() {
-//        Log.d(TAG, "scheduleRiskRequest");
-//        taskHandler.postDelayed(riskTask, RISK_TASK_PERIOD);
-//    }
 
+    //runnable for stopping the sensors after SENSOR_ON_TIME (scheduled in startMeasurement)
     private Runnable stopSensorTask = new Runnable()
     {
         public void run()
         {
             stopMeasurement(MainActivity.this);
-
-
         }
     };
 
-    //either set sensors or start sensors again
-    private Runnable triggerTask = new Runnable()
-    {
-        public void run()
-        {
-            if (isAmbient()) {
-                try {
-                    mSensorManager.requestTriggerSensor(mListener, mSigMotionSensor);
-                    Log.d(TAG, "Set sensor motion trigger");
-                } catch (Exception e) {
-                    Log.d(TAG, "No sig motion sensor for trigger");
-                }
-            } else {
-                startMeasurement(MainActivity.this);
-            }
+//    //either set sensors or start sensors again -
+//    private Runnable triggerTask = new Runnable()
+//    {
+//        public void run()
+//        {
+//            if (isAmbient()) {
+//                try {
+//                    mSensorManager.requestTriggerSensor(mListener, mSigMotionSensor);
+//                    Log.d(TAG, "Set sensor motion trigger");
+//                } catch (Exception e) {
+//                    Log.d(TAG, "No sig motion sensor for trigger");
+//                }
+//            } else {
+//                startMeasurement(MainActivity.this);
+//            }
+//
+//
+//        }
+//    };
 
-
-        }
-    };
-
+    //method for creating a risk request to send to the mobile to forward to the server
     private void riskRequest() {
 
         Log.d(TAG, "riskRequest");
@@ -537,7 +497,7 @@ public class MainActivity extends WearableActivity
 
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("subject", sub);
-        editor.commit();
+        editor.apply();
         ClientPaths.subject = sub;
         Log.d(TAG, "set subject, id now " + sub);
 
@@ -826,12 +786,10 @@ public class MainActivity extends WearableActivity
             if (Constants.fixedSensorRate) {
                 scheduleSensors(Constants.SENSOR_OFF_TIME);
 
-
-
             } else {
                 //set the trigger task
                 Intent intent = new Intent(Constants.WEAR_ALARM_ACTION);
-                intent.putExtra("alarmId", Constants.TRIGGER_ALARM_ID);
+                intent.putExtra("alarm-id", Constants.TRIGGER_ALARM_ID);
                 PendingIntent pi = PendingIntent.getBroadcast(this, Constants.TRIGGER_ALARM_ID, intent, 0);
 
 
@@ -930,26 +888,169 @@ public class MainActivity extends WearableActivity
 
     }
 
+
+    //ALARM scheduling logic below
+
+    private static Boolean scheduled = false;
+    private static ArrayList<Integer> activeAlarms = new ArrayList<Integer>();
+
+    //times for questionnaire
+//    scheduleQuestionReminder(7, 30);
+//    scheduleQuestionReminder(15, 30);
+
+//    scheduleQuestionReminder(17, 30);
+//    scheduleQuestionReminder(19, 30);
+
+    //qTimes is a fixed array of questionnaire alarm times (hour / min pairs)
+    private static final int[][] qTimes = new int[][]{new int[]{9,22}};
+    private static int alarmCode = Constants.ALARM_CODE_START; //starting alarm code
+
+   //schedule all the alarms (used in onCreate)
+    private void scheduleAlarms() {
+        for (int[] t : qTimes) {
+            scheduleQuestionReminder(t[0],t[1]);
+        }
+        scheduleSpiroReminder(9,20);
+
+    }
+
+    //increment the alarm codes so they don't overlap
+    private Integer getNextAlarmCode() {
+        alarmCode++;
+        if (alarmCode>Constants.RC_LIMIT)
+            alarmCode = Constants.ALARM_CODE_START;
+
+        Log.d(TAG, "Next requestCode: " + alarmCode);
+        return alarmCode;
+    }
+
+    //create the pending intent for the given alarmId
+    private PendingIntent createAlarmPI(Integer alarmId) {
+        Intent intent = new Intent(Constants.WEAR_ALARM_ACTION);
+        intent.putExtra("alarm-id", alarmId);
+        int ac = getNextAlarmCode(); //get next Alarm Code
+        activeAlarms.add(ac);
+        return PendingIntent.getBroadcast(this, ac, intent, 0);
+    }
+
+    //method to schedule a spirometer reminder alarm trigger
+    private void scheduleSpiroReminder(int hour, int minute) {
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+
+//        Intent intent = new Intent(Constants.WEAR_ALARM_ACTION);
+//        intent.putExtra("alarm-id", Constants.SPIRO_ALARM_ID);
+//        int ac = Constants.SPIRO_ALARM_ID;
+//        PendingIntent pi = PendingIntent.getBroadcast(this, ac, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        PendingIntent pi = createAlarmPI(Constants.SPIRO_ALARM_ID);
+
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY, pi);
+
+        Log.d(TAG, "Scheduled spiro alarm at time: " + hour + ":" + minute);
+    }
+
+    //method to schedule a mobile questionnaire alarm trigger
+    private void scheduleQuestionReminder(int hour, int minute) {
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, hour); // For 1 PM or 2 PM
+        calendar.set(Calendar.MINUTE, minute);
+
+
+        PendingIntent pi = createAlarmPI(Constants.QUESTION_ALARM_ID);
+        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY, pi);
+
+        Log.d(TAG, "Scheduled question alarm at time: " + hour + ":" + minute);
+    }
+
+    //cancel all the scheduled reminder alarms (excludes sensor alarms)
+    private void cancelAlarms() {
+        Log.d(TAG, "Cancelling Alarms");
+        for (Integer i : activeAlarms) {
+            try {
+                Intent intent = new Intent(Constants.WEAR_ALARM_ACTION);
+                PendingIntent pi = PendingIntent.getBroadcast(this, i, intent, 0);
+                alarmManager.cancel(pi);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e(TAG, "[Handled] Error cancelling alarms");
+            }
+        }
+        activeAlarms.clear();
+    }
+
+    //schedule alarm for controlling the sensor service class launch
+    private void scheduleSensors(Integer futureTime) {
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + futureTime, sensorPI);
+        Log.d(TAG, "scheduleSensors, for " + futureTime);
+    }
+
+    //cancel the alarms for the repeated sensor alarms
+    private void cancelRepeatedSensors() {
+        Log.d(TAG, "cancelRepeatedSensors");
+        unregisterReceiver(wearAlarmReceiver);
+        try {
+            alarmManager.cancel(sensorPI);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "[Handled] Could not cancer sensorPI");
+        }
+    }
+
+
     private class WearAlarmReceiver extends BroadcastReceiver {
+        private final String TAG = "WearAlarmReceiver";
         @Override
         public void onReceive(Context context, Intent intent) {
-            Integer alarmId = intent.getIntExtra("alarmId", Constants.NO_VALUE);
+            Integer alarmId = intent.getIntExtra("alarm-id", Constants.NO_VALUE);
             Log.d(TAG, "Received alarm " + alarmId);
+
             switch (alarmId) {
-                case Constants.START_BLUETOOTH_ID:
-                    Log.d("MobileAlarmReceiver", "started sensors");
+                case Constants.START_ALARM_ID: //alarm 6
+                    Log.d(TAG, "Sensor alarm called");
                     startMeasurement(MainActivity.this);
                     break;
-            case Constants.TRIGGER_ALARM_ID:
-                try {
-                    mSensorManager.requestTriggerSensor(mListener, mSigMotionSensor);
-                    Log.d(TAG, "Set sensor motion trigger");
-                } catch (Exception e) {
-                    Log.d(TAG, "No sig motion sensor for trigger");
-                }
-                break;
+                case Constants.QUESTION_ALARM_ID:
+                    Log.d(TAG, "Wear question alarm called");
+                    v.vibrate(500);
+                    Toast.makeText(context, "Question Time!", Toast.LENGTH_LONG).show();
+                    //send message to phone to start questionnaire
+                    Courier.deliverMessage(context, Constants.QUESTION_API,"");
+                    break;
+                case Constants.SPIRO_ALARM_ID:
+                    Log.d(TAG, "Spiro question alarm called");
+                    v.vibrate(500);
+                    Toast.makeText(context, "Spirometer Time!", Toast.LENGTH_LONG).show();
+                    break;
+//                case Constants.TRIGGER_ALARM_ID:
+//                    try {
+//                        mSensorManager.requestTriggerSensor(mListener, mSigMotionSensor);
+//                        Log.d(TAG, "Set sensor motion trigger");
+//                    } catch (Exception e) {
+//                        Log.d(TAG, "No sig motion sensor for trigger");
+//                    }
+//                    break;
+                default:
+                    Log.e(TAG, "Unexpected Alarm, id: " + alarmId);
+                    break;
 
-//        }
+//                    Notification spiroNotification = buildSpiroReminder();
+//                    NotificationManagerCompat notificationManager =
+//                            NotificationManagerCompat.from(MainActivity.this);
+//
+//                    notificationManager.notify(Constants.SPIRO_ALARM_ID, spiroNotification);
             }
         }
     }

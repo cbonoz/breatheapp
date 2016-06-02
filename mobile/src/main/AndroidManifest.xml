@@ -51,11 +51,11 @@
         <service android:name=".services.CalendarService" />
 
 
-        <receiver android:name=".receivers.AlarmReceiver">
-            <intent-filter>
-                <action android:name="mobile.alarm.receiver" />
-            </intent-filter>
-        </receiver>
+        <!--<receiver android:name=".receivers.AlarmReceiver">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="mobile.alarm.receiver" />-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
 
 
         <activity

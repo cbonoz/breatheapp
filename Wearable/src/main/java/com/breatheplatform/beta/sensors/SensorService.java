@@ -30,7 +30,7 @@ import com.breatheplatform.beta.activity.ActivityDetectionService;
 import com.breatheplatform.beta.bluetooth.BTSocket;
 import com.breatheplatform.beta.bluetooth.HexAsciiHelper;
 import com.breatheplatform.beta.bluetooth.RFduinoService;
-import com.breatheplatform.beta.data.SensorAddService;
+import com.breatheplatform.beta.messaging.SensorAddService;
 import com.breatheplatform.beta.shared.Constants;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -61,12 +61,12 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
     //Sensor related
     private ScheduledExecutorService mScheduler;
-    private SensorManager mSensorManager;// = (SensorManager) getSystemService(SENSOR_SERVICE);
+    private static SensorManager mSensorManager;// = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-    private Sensor heartRateSensor;
-    private Sensor samsungHeartRateSensor;
-    private Sensor linearAccelerationSensor;
-    private Sensor gyroSensor;
+//    private Sensor heartRateSensor;
+//    private Sensor samsungHeartRateSensor;
+//    private Sensor linearAccelerationSensor;
+//    private Sensor gyroSensor;
 //    private Sensor ppgSensor;
 
     private GoogleApiClient mGoogleApiClient;
@@ -77,15 +77,14 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
     private static final int MAX_DELAY = 1000000*2; //2*10^6 us
     private static final int FIXED_SENSOR_RATE = 200000; //5 hz in us
-    private static final int DATA_PER_ENERGY = 10;
+    private static final int LOCATION_COUNT_LIMIT = 180000/(Constants.SENSOR_OFF_TIME+Constants.SENSOR_ON_TIME) - 2; //~3 minutes
 
-
-    private static final Integer ACTIVITY_INTERVAL = Constants.ONE_MIN_MS / 2; //request every 30s (0 runs at fastest interval)
-    private static final Integer LOCATION_INTERVAL = Constants.ONE_MIN_MS * 2; //request every 2 min
+//    private static final Integer ACTIVITY_INTERVAL = Constants.ONE_MIN_MS / 2; //request every 30s (0 runs at fastest interval)
+    //request every 2 min (if updates are used, use this slow interval)
+    private static final Integer LOCATION_INTERVAL = Constants.ONE_MIN_MS * 2;
 
 //    private static final Context context;
     private static final int PTS_PER_DATA = 1000000 / FIXED_SENSOR_RATE;
-    private static final int ENERGY_LIMIT =  PTS_PER_DATA * DATA_PER_ENERGY;
 
     //for counting sensor events
     private static int accelerationCount = 1;
@@ -93,75 +92,12 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
     //for averaging sensor events
     private static float sumAccX = 0, sumAccY = 0, sumAccZ = 0;
-    private static float sumEnergyX=0, sumEnergyY=0, sumEnergyZ=0;
     private static float sumGyroX = 0, sumGyroY = 0, sumGyroZ = 0;
 
+//    private static float sumEnergyX=0, sumEnergyY=0, sumEnergyZ=0;
 //    private static Float[] gyroValues = new Float[3];
 //    private static Float[] accValues = new Float[3];
 
-    //event callback for body sensors
-    // - bluetooth connected sensors are managed in their respective Bluetooth classes
-    private void eventCallBack(SensorEvent event) {
-//        Log.d(TAG, "onSensorChanged");
-        int sensorId = event.sensor.getType();
-        long timestamp = System.currentTimeMillis(); //event.timestamp
-//        Log.i("Received",  Arrays.toString(event.values)+  " " +sensorId);
-        switch (sensorId) {
-            case ClientPaths.HEART_SENSOR_ID:
-            case ClientPaths.SS_HEART_SENSOR_ID:
-
-                Float heartRate = event.values[0];
-                Log.d(TAG, "heart rate: " + heartRate + ", acc " + event.accuracy);
-
-                if (event.accuracy > 1) {//or 2 for higher accuracy requirement
-//                    checkForQuestionnaire(heartRate);
-                    addSensorData(sensorId, event.accuracy, timestamp, event.values);
-
-                    Intent i = new Intent(Constants.HEART_EVENT);
-                    i.putExtra("heart", heartRate.intValue());
-                    LocalBroadcastManager.getInstance(SensorService.this).sendBroadcast(i);
-                }
-                break;
-            case SENS_GYRO:
-
-                sumGyroX += event.values[0];
-                sumGyroY += event.values[1];
-                sumGyroZ += event.values[2];
-                if (gyroCount == PTS_PER_DATA) {
-                    //add averaged sensor measurement
-//                    Log.d(TAG, gyroCount + " gyro points");
-                    addSensorData(sensorId, event.accuracy, timestamp, new float[]{sumGyroX/ PTS_PER_DATA,sumGyroY/ PTS_PER_DATA, sumGyroZ/ PTS_PER_DATA});
-                    sumGyroX = 0;
-                    sumGyroY = 0;
-                    sumGyroZ = 0;
-                    gyroCount = 0;
-                }
-                gyroCount++;
-                break;
-            case SENS_LINEAR_ACCELERATION:
-
-                sumAccX += event.values[0];
-                sumAccY += event.values[1];
-                sumAccZ += event.values[2];
-//                if (accelerationCount % PTS_PER_DATA == 0) {
-                if (accelerationCount == PTS_PER_DATA) {
-//                    Log.d(TAG, accelerationCount + " acc points");
-//                    sumEnergyX += sumAccX;
-//                    sumEnergyY += sumAccY;
-//                    sumEnergyZ += sumAccZ;
-                    addSensorData(sensorId, event.accuracy, timestamp, new float[]{sumAccX / PTS_PER_DATA, sumAccY / PTS_PER_DATA, sumAccZ / PTS_PER_DATA});
-                    sumAccX = 0;
-                    sumAccY = 0;
-                    sumAccZ = 0;
-                    accelerationCount = 0;
-                }
-
-                accelerationCount++;
-                break;
-
-        }
-
-    }
     /*
     Check conditions for launching questionnaire
      */
@@ -181,10 +117,65 @@ public class SensorService extends Service implements SensorEventListener, Googl
         }
     }
 
-
+    //event callback for body sensors
+    // - bluetooth connected sensors are managed in their respective Bluetooth classes
     @Override
     public void onSensorChanged(SensorEvent event) {
-        eventCallBack(event);
+        int sensorId = event.sensor.getType();
+        long timestamp = System.currentTimeMillis(); //event.timestamp
+        switch (sensorId) {
+            case ClientPaths.HEART_SENSOR_ID:
+            case ClientPaths.SS_HEART_SENSOR_ID:
+
+                Float heartRate = event.values[0];
+                Log.d(TAG, "heart rate: " + heartRate + ", acc " + event.accuracy);
+
+                if (event.accuracy > 1) {//or 2 for higher accuracy requirement
+//                    checkForQuestionnaire(heartRate); //if provided age, check for questionnaire launch conditions
+                    addSensorData(sensorId, event.accuracy, timestamp, event.values);
+
+                    Intent i = new Intent(Constants.HEART_EVENT);
+                    i.putExtra("heart", heartRate.intValue());
+                    LocalBroadcastManager.getInstance(SensorService.this).sendBroadcast(i);
+                }
+                break;
+            case SENS_GYRO:
+                sumGyroX += event.values[0];
+                sumGyroY += event.values[1];
+                sumGyroZ += event.values[2];
+                if (gyroCount == PTS_PER_DATA) {
+                    //add averaged sensor measurement
+//                    Log.d(TAG, gyroCount + " gyro points");
+                    addSensorData(sensorId, event.accuracy, timestamp, new float[]{sumGyroX / PTS_PER_DATA, sumGyroY / PTS_PER_DATA, sumGyroZ / PTS_PER_DATA});
+                    sumGyroX = 0;
+                    sumGyroY = 0;
+                    sumGyroZ = 0;
+                    gyroCount = 0;
+                }
+                gyroCount++;
+                break;
+            case SENS_LINEAR_ACCELERATION:
+
+                sumAccX += event.values[0];
+                sumAccY += event.values[1];
+                sumAccZ += event.values[2];
+//                if (accelerationCount % PTS_PER_DATA == 0) {
+                if (accelerationCount == PTS_PER_DATA) {
+
+                    addSensorData(sensorId, event.accuracy, timestamp, new float[]{sumAccX / PTS_PER_DATA, sumAccY / PTS_PER_DATA, sumAccZ / PTS_PER_DATA});
+                    sumAccX = 0;
+                    sumAccY = 0;
+                    sumAccZ = 0;
+                    accelerationCount = 0;
+                }
+
+                accelerationCount++;
+                break;
+            default:
+                Log.e(TAG, "Unknown sensorChanged event, id: " + sensorId);
+                break;
+
+        }
     }
 
     @Override
@@ -226,17 +217,15 @@ public class SensorService extends Service implements SensorEventListener, Googl
         beamConn = new BTSocket(Constants.AIRBEAM_SENSOR_ID, uuid, this);
         new BluetoothTask().execute(Constants.AIRBEAM_SENSOR_ID);
 
-        //update location every 3 sensor periods
+        //update location every LOCATION_COUNT_LIMIT sensor periods
         if (locationCounter==0) {
             connectApiClient();
         }
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-
-        heartRateSensor  = mSensorManager.getDefaultSensor(SENS_HEARTRATE);
-        samsungHeartRateSensor = mSensorManager.getDefaultSensor(ClientPaths.SS_HEART_SENSOR_ID);//65562
-        linearAccelerationSensor = mSensorManager.getDefaultSensor(SENS_LINEAR_ACCELERATION);
-        gyroSensor = mSensorManager.getDefaultSensor(SENS_GYRO);
+        final Sensor heartRateSensor  = mSensorManager.getDefaultSensor(SENS_HEARTRATE);
+        final Sensor linearAccelerationSensor = mSensorManager.getDefaultSensor(SENS_LINEAR_ACCELERATION);
+        final Sensor gyroSensor = mSensorManager.getDefaultSensor(SENS_GYRO);
 
 
         //http://stackoverflow.com/questions/30153904/android-how-to-set-sensor-delay
@@ -258,13 +247,15 @@ public class SensorService extends Service implements SensorEventListener, Googl
             Log.d(TAG, "register regular heartrate sensor");
         } else {
             Log.w(TAG, "No Heart Rate Sensor found");
+            final Sensor samsungHeartRateSensor = mSensorManager.getDefaultSensor(ClientPaths.SS_HEART_SENSOR_ID);//65562
+            mSensorManager.registerListener(SensorService.this, samsungHeartRateSensor, FIXED_SENSOR_RATE, MAX_DELAY);
         }
 
 //        if (ppgSensor != null) {
 //            mSensorManager.registerListener(SensorService.this, ppgSensor, SensorManager.SENSOR_DELAY_NORMAL, MAX_DELAY);
 //            Log.d(TAG, "register regular heartrate sensor");
 //        } else {
-//            Log.w(TAG, "No Heart Rate Sensor found");
+//            Log.w(TAG, "No PPG Sensor found");
 //        }
 
 
@@ -300,23 +291,11 @@ public class SensorService extends Service implements SensorEventListener, Googl
             mScheduler.shutdown();
         }
 
-//        if (mGoogleApiClient.isConnected()) {
-//            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
-//                    mGoogleApiClient,
-//                    getActivityDetectionPendingIntent()
-//            ).setResultCallback(this);
-//            Log.d(TAG, "Removed activity updates");
-//        }
 
+        //use counter to reduce the amount of location requests (no need to request every cycle)
         if (locationCounter==0) {
 
             try {
-
-//                if (mGoogleApiClient.isConnected()) {
-//                    if (locationActive)
-//                        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-//                }
-
                 mGoogleApiClient.disconnect();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -325,7 +304,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
             locationCounter++;
 
-        } else if (locationCounter>2) {
+        } else if (locationCounter>LOCATION_COUNT_LIMIT) {
             locationCounter=0;
         } else {
             locationCounter++;
@@ -340,15 +319,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
         wakeLock.release();
     }
 
-    //append sensor data
-    public void addSensorData(final Integer sensorType, final Integer accuracy, final Long t, final float[] values) {
-        Intent i = new Intent(this, SensorAddService.class);
-        i.putExtra("sensorType", sensorType);
-        i.putExtra("accuracy", accuracy);
-        i.putExtra("time", t);
-        i.putExtra("values", values);
-        startService(i);
-    }
+
 
     //TODO: this intent will launch questionnaire activity on the phone
     private void requestQuestionnaire() {
@@ -372,7 +343,6 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
         mGoogleApiClient.connect();
     }
-
 
     private PendingIntent getActivityDetectionPendingIntent() {
         Intent intent = new Intent(this, ActivityDetectionService.class);
@@ -742,6 +712,100 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
 
         }
+    }
+
+    /* addSensorData method for accumulating sensor data point json objects */
+
+    //append sensor data
+    public void addSensorData(final Integer sensorType, final Integer accuracy, final Long t, final float[] values) {
+        Intent i = new Intent(this, SensorAddService.class);
+        i.putExtra("sensorType", sensorType);
+        i.putExtra("accuracy", accuracy);
+        i.putExtra("time", t);
+        i.putExtra("values", values);
+        startService(i);
+//
+//        JSONObject jsonValue = new JSONObject();
+//
+//        try {
+//            switch (sensorType) {
+//                case (Sensor.TYPE_LINEAR_ACCELERATION): //units m/s^2
+//                case (Sensor.TYPE_GYROSCOPE): //units rad/s
+//
+//                    jsonValue.put("x", values[0]);
+//                    jsonValue.put("y", values[1]);
+//                    jsonValue.put("z", values[2]);
+//                    jsonValue.put("sensor_accuracy",accuracy);
+//                    break;
+//                case (Sensor.TYPE_HEART_RATE):
+//                    jsonValue.put("sensor_accuracy",accuracy);
+//                case (Constants.DUST_SENSOR_ID):
+//                    if (values[0]<=0) {
+//                        Log.d(TAG, "Received " + sensorName + " data <= 0 -> skip");
+//                        return;
+//                    }
+//                    jsonValue.put("v", values[0]);
+//                    break;
+//                case (Constants.SPIRO_SENSOR_ID):
+//                    jsonValue.put("fev1", values[0]);
+//                    jsonValue.put("pef", values[1]);
+//                    jsonValue.put("goodtest", values[2]);
+//                    break;
+//                case (Constants.ENERGY_SENSOR_ID):
+//                    jsonValue.put("energy", values[0]);
+//                    break;
+//
+//                case (Constants.AIRBEAM_SENSOR_ID):
+//
+//                    jsonValue.put("PM",precision(values[0],2));
+//                    jsonValue.put("F",values[1]);
+//                    jsonValue.put("RH",values[2]);
+//                    break;
+//                case (Constants.ACTIVITY_SENSOR_ID):
+//                    jsonValue.put("type", values[0]);
+//                    jsonValue.put("confidence",accuracy);
+//                    break;
+//                default:
+//                    Log.e(TAG, "Unexpected Sensor " + sensorName + " " + sensorType);
+//                    return;
+//            }
+//
+//            jsonDataEntry.put("value", jsonValue);
+//            jsonDataEntry.put("timestamp", currentTime);//System.currentTimeMillis());
+//            jsonDataEntry.put("timezone", tz);
+//            jsonDataEntry.put("sensor_id", sensorNames.getServerID(sensorType));//will be changed to actual sensor (sensorType)
+//
+//            //check if the location is currently available
+//            if (ClientPaths.currentLocation!=null) {
+//                jsonDataEntry.put("lat", ClientPaths.currentLocation.getLatitude());
+//                jsonDataEntry.put("lon", ClientPaths.currentLocation.getLongitude());
+//                jsonDataEntry.put("location_accuracy", ClientPaths.currentLocation.getAccuracy());
+//            } else {
+//                jsonDataEntry.put("lat",Constants.NO_VALUE);
+//                jsonDataEntry.put("lon",Constants.NO_VALUE);
+//                jsonDataEntry.put("location_accuracy", Constants.NO_VALUE);
+//            }
+//
+//        } catch (Exception e) {
+//            Log.e(TAG, "error in creating jsonDataEntry");
+//            e.printStackTrace();
+//            return;
+//        }
+//
+//        String dataEntry = jsonDataEntry.toString();
+//
+//        //sensorData is a stringBuilder
+//        sensorData.append(dataEntry);
+//        recordCount++;
+//        if (recordCount >= RECORD_LIMIT) {
+//            createDataPostRequest();
+//            clearData();
+//        } else {
+//            sensorData.append("\n"); //else add a newline to sensorData
+//        }
+//
+//
+//        Log.d(TAG, "Data Added #" + recordCount + ": " + dataEntry);
     }
 
 

@@ -10,7 +10,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.breatheplatform.beta.R;
-import com.breatheplatform.beta.data.SensorAddService;
+import com.breatheplatform.beta.messaging.SensorAddService;
 import com.breatheplatform.beta.data.SpiroData;
 import com.breatheplatform.beta.shared.Constants;
 
@@ -21,7 +21,7 @@ import java.util.UUID;
 
 /**
  * Created by cbono on 5/5/16.
- * Bluetooth Class used for spirometer and airbeam - regular dust sensor uses the other non-socket classes in this package,
+ * Bluetooth Class used for spirometer and airbeam - regular dust sensor uses the other non-socket  classes in this package,
  * as the dust sensor uses an older version of Bluetooth.
  *
  */

@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.breatheplatform.beta.ClientPaths;
-import com.breatheplatform.beta.data.SensorAddService;
+import com.breatheplatform.beta.messaging.SensorAddService;
 import com.breatheplatform.beta.shared.Constants;
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;

@@ -7,9 +7,11 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -20,7 +22,6 @@ import com.breatheplatform.beta.RegisterActivity;
 import com.breatheplatform.beta.connection.Connectivity;
 import com.breatheplatform.beta.encryption.HybridCrypt;
 import com.breatheplatform.beta.encryption.RandomString;
-
 import com.breatheplatform.beta.shared.Constants;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
@@ -51,12 +52,31 @@ public class ListenerServiceFromWear extends WearableListenerService {
     private static final String TAG = "ListenerServiceFromWear";
 
     private ArrayList<Integer> activeAlarms = new ArrayList<Integer>();
-
-    private static Boolean unregisterUser = true;
-    private static Boolean writeOnce = false;
     private static Integer requestCode = 0;
 
     private AlarmManager alarmManager;
+
+    /**
+     * Request code for launching the Intent to resolve Google Play services errors.
+     */
+    private static final int REQUEST_RESOLVE_ERROR = 1000;
+
+    //    private static
+    private static SharedPreferences prefs = null;
+    private static String subject = "";
+
+    private static Boolean createCalendarEvent = false;
+
+    private static HybridCrypt aes;
+    private static String aesKeyString;
+    private static String encKeyString;
+
+    private static String lastConnection = "None";
+    private static Boolean runOnce = true;
+
+    private static final File ROOT = android.os.Environment.getExternalStorageDirectory();
+//            private static final String rawSensorDirectory = ROOT + "/RawSensorData.txt";
+
 
     /*
      * Receive the message from wear
@@ -111,33 +131,6 @@ public class ListenerServiceFromWear extends WearableListenerService {
         }
     }
 
-    /**
-     * Request code for launching the Intent to resolve Google Play services errors.
-     */
-    private static final int REQUEST_RESOLVE_ERROR = 1000;
-
-    private static String count = "0";
-
-    public static String labelDirectory = null;
-    public static File labelFile  = null;// = createFile(sensorDirectory);
-
-    //    private static
-    private static SharedPreferences prefs = null;
-    private static String subject = "";
-
-    private static Boolean createCalendarEvent = false;
-
-    private static HybridCrypt aes;
-    private static String aesKeyString;
-    private static String encKeyString;
-
-    private static Boolean runOnce = true;
-
-    private static final File ROOT = android.os.Environment.getExternalStorageDirectory();
-    private static final String sensorDirectory = ROOT + "/SensorData.txt";
-    private static File sensorFile = null;
-    private static final String rawSensorDirectory = ROOT + "/RawSensorData.txt";
-    private static File rawSensorFile = null;
 
     private void startRegisterActivity() {
         Intent i = new Intent();
@@ -146,7 +139,7 @@ public class ListenerServiceFromWear extends WearableListenerService {
         startActivity(i);
     }
 
-    public static String lastConnection = "None";
+
 
     private void updateConnection() {
         lastConnection = Connectivity.isConnectedFast(this);
@@ -176,6 +169,18 @@ public class ListenerServiceFromWear extends WearableListenerService {
 //        if (writeOnce) {
 //            sensorFile = createFile(sensorDirectory);
 //            rawSensorFile = createFile(rawSensorDirectory);
+//        }
+
+//        try {
+//            mobileAlarmReceiver = new MobileAlarmReceiver();
+//            registerReceiver(mobileAlarmReceiver, mobileFilter);
+//            Log.d(TAG, "register mobileAlarmReceiver");
+//            if (!scheduled) {
+//                scheduleAlarms();
+//                scheduled = true;
+//            }
+//        } catch (Exception e) {
+//            Log.e(TAG, "Error registering mobileAlarmReceiver");
 //        }
 
         if (runOnce) {
@@ -214,10 +219,18 @@ public class ListenerServiceFromWear extends WearableListenerService {
             Log.d("raw_key", aesKeyString);
             Log.d("enc_key", encKeyString);
 
-            scheduleAlarms();
+
 
         }
+
+
+
     }
+    private static MobileAlarmReceiver mobileAlarmReceiver;
+    private static final IntentFilter mobileFilter = new IntentFilter(Constants.MOBILE_ALARM_ACTION);
+
+
+    private static Boolean scheduled = false;
 
     void onRiskReceived(String data) { // The nodeId parameter is optional
         Log.d(TAG, "Received message from " + Constants.RISK_API);
@@ -241,7 +254,11 @@ public class ListenerServiceFromWear extends WearableListenerService {
     void onQuestionReceived(String data) { // The nodeId parameter is optional
         //send subject back to watch
         Log.d(TAG, "Received questionnaire request from wear");
-        //TODO: Start questionnaire here
+        Intent i = new Intent();
+        i.setClass(this, QuestionActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(i);
+        Toast.makeText(this, "Please fill out the Survey", Toast.LENGTH_LONG).show();
     }
 
     private void showToastInService(final String sText)
@@ -350,24 +367,25 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
 
     private PendingIntent createAlarmPI(Integer alarmId) {
-        Intent intent = new Intent(this, MobileAlarmReceiver.class);
+        Intent intent = new Intent(Constants.MOBILE_ALARM_ACTION);
         intent.putExtra("alarm-id", alarmId);
-
         return PendingIntent.getBroadcast(this, getNextAlarmId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     //this method will launch the question activity on the phone and also vibrate and notify the watch
     //this method takes a definite time of day in hour and minutes (military time
     // - time zone of the alarm is automatic in terms of the local device time
+//    https://developer.android.com/training/scheduling/alarms.html
     private void scheduleQuestionReminder(int hour, int minute) {
         Calendar calendar = Calendar.getInstance();
 
+        calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, hour); // For 1 PM or 2 PM
         calendar.set(Calendar.MINUTE, minute);
-        calendar.set(Calendar.SECOND, 0);
+
 
         PendingIntent pi = createAlarmPI(Constants.QUESTION_ALARM_ID);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY, pi);
 
         Log.d(TAG, "Scheduled question alarm at time: " + hour + ":" + minute);
@@ -382,11 +400,14 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
     private void scheduleAlarms() {
         Log.d(TAG, "Scheduling Alarms");
-        scheduleSpiroReminder(System.currentTimeMillis()+TWO_HOUR_MS/4, TWO_HOUR_MS);
+        scheduleSpiroReminder(System.currentTimeMillis() + TWO_HOUR_MS / 4, TWO_HOUR_MS);
         scheduleQuestionReminder(7, 30);
         scheduleQuestionReminder(15, 30);
+
         scheduleQuestionReminder(17, 30);
         scheduleQuestionReminder(19, 30);
+
+        scheduleQuestionReminder(19,23);
     }
 
     private Integer getNextAlarmId() {
@@ -403,9 +424,10 @@ public class ListenerServiceFromWear extends WearableListenerService {
         Log.d(TAG, "Cancelling Alarms");
         for (Integer i : activeAlarms) {
             try {
-                Intent intent = new Intent(this, MobileAlarmReceiver.class);
+                Intent intent = new Intent(Constants.MOBILE_ALARM_ACTION);
                 PendingIntent pi = PendingIntent.getBroadcast(this, i, intent, 0);
                 alarmManager.cancel(pi);
+//                unregisterReceiver(mobileAlarmReceiver);
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.e(TAG, "[Handled] Error cancelling alarms");
@@ -418,6 +440,8 @@ public class ListenerServiceFromWear extends WearableListenerService {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.i(TAG, "onDestroy");
+//        unregisterReceiver(mobileAlarmReceiver);
 
     }
 
@@ -434,6 +458,9 @@ public class ListenerServiceFromWear extends WearableListenerService {
 //                interval, pi);
 //        Log.d(TAG, "scheduleRepeatedSensors, interval: " + interval);
 //    }
+
+
+
 
     private class MobileAlarmReceiver extends BroadcastReceiver {
         @Override
@@ -464,11 +491,14 @@ public class ListenerServiceFromWear extends WearableListenerService {
                     break;
                 case Constants.QUESTION_ALARM_ID:
                     Log.d(TAG, "Question alarm called");
+                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    v.vibrate(500);
+                    //start activity from service
                     Intent i = new Intent();
                     i.setClass(context, QuestionActivity.class);
                     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(i);
-                    Toast.makeText(context, "Please fill out the Survey", Toast.LENGTH_LONG).show();
+
 
                     //TODO: create reminder and activity intent for questionnaire
                     break;

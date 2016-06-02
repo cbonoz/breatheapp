@@ -33,6 +33,8 @@ public class QuestionActivity extends Activity {
                 finish();
             }
         });
+
+        Toast.makeText(this, "Please fill out the Survey", Toast.LENGTH_LONG).show();
     }
 
 

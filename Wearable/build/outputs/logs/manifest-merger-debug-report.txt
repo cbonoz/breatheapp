@@ -435,10 +435,10 @@ activity#android.support.wearable.activity.ConfirmationActivity
 ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:98:9-90
 	android:name
 		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:98:19-88
-service#com.breatheplatform.beta.data.SensorAddService
-ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:104:9-58
+service#com.breatheplatform.beta.messaging.SensorAddService
+ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:104:9-63
 	android:name
-		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:104:18-55
+		ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:104:18-60
 service#com.breatheplatform.beta.sensors.SensorService
 ADDED from /Users/cbono/Documents/research/breathe-android-app/Wearable/src/main/AndroidManifest.xml:105:9-58
 	android:name

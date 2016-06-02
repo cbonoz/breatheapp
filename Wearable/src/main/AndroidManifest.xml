@@ -101,7 +101,7 @@
 
 
 
-        <service android:name=".data.SensorAddService" />
+        <service android:name=".messaging.SensorAddService" />
         <service android:name=".sensors.SensorService" />
         <service
             android:name=".activity.ActivityDetectionService"
