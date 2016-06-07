@@ -20,7 +20,10 @@ public class ClientPaths {
     public static int batteryLevel = Constants.NO_VALUE;
     public static Integer userAge = Constants.NO_VALUE;
     public static Boolean dustConnected = false;
+    public static Boolean airConnected = false;
+
     public static String activityDetail = "None:"+Constants.NO_VALUE;
+    public static String webConnection = "None";
     public static Location currentLocation = null;
     public static Context mainContext = null;
     public static String subject = "";

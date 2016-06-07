@@ -76,17 +76,13 @@ public class MainActivity$$Delivery<T extends MainActivity> implements Courier.D
 
             target.onReminderReceived(as_java_lang_String);
         } else if (path.equals("/api/risk/get")) {
-            final int as_int = Packager.unpack(context, data, int.class);
+            final java.lang.String as_java_lang_String = Packager.unpack(context, data, java.lang.String.class);
 
-            target.onRiskReceived(as_int);
+            target.onRiskReceived(as_java_lang_String);
         } else if (path.equals("/api/subject/add")) {
             final java.lang.String as_java_lang_String = Packager.unpack(context, data, java.lang.String.class);
 
             target.onSubjectReceived(as_java_lang_String);
-        } else if (path.equals("/api/multisensor/add")) {
-            final java.lang.Boolean as_java_lang_Boolean = Packager.unpack(context, data, java.lang.Boolean.class);
-
-            target.onMultiReceived(as_java_lang_Boolean);
         }
     }
 

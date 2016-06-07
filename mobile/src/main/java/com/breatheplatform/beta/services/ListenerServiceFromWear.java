@@ -144,6 +144,8 @@ public class ListenerServiceFromWear extends WearableListenerService {
     private void updateConnection() {
         lastConnection = Connectivity.isConnectedFast(this);
         Log.d(TAG, "lastConnection: " + lastConnection);
+        //send connection info to mobile
+//        Courier.deliverMessage(this,Constants.WEB_STATUS_API, lastConnection);
     }
 
     private String processAndSerialize(JSONObject jsonObject) {
@@ -155,9 +157,6 @@ public class ListenerServiceFromWear extends WearableListenerService {
         return jsonObject.toString();
     }
 
-    private void runOnceRegistered() {
-
-    }
 
     //onCreate method for the ListenerService
     //sets up preferences - if no user registered, then launch the reigster activity
@@ -237,6 +236,7 @@ public class ListenerServiceFromWear extends WearableListenerService {
         Intent i = new Intent(this, MobileUploadService.class);
         i.putExtra("data",data);
         i.putExtra("url", Constants.RISK_API);
+        i.putExtra("conn", lastConnection);
         startService(i);
     }
 
@@ -445,23 +445,9 @@ public class ListenerServiceFromWear extends WearableListenerService {
 
     }
 
-    //Used if mobile managing the bluetooth connections
-//    private void scheduleRepeatedBlueTooth(long interval) {
-//        Intent intent = new Intent(this, MobileAlarmReceiver.class);
-//        intent.putExtra("alarm-id", Constants.START_BLUETOOTH_ID);
-//        PendingIntent pi = PendingIntent.getBroadcast(this, Constants.START_BLUETOOTH_ID, intent, 0);
-//
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.setTimeInMillis(System.currentTimeMillis());
-//
-//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-//                interval, pi);
-//        Log.d(TAG, "scheduleRepeatedSensors, interval: " + interval);
-//    }
 
-
-
-
+    //This logic for alarms on mobile is in place, but the alarms and reminders have been shifted
+    // to the wearable so the user is immediately notified
     private class MobileAlarmReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {

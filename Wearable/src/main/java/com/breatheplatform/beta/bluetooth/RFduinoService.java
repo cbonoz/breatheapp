@@ -18,6 +18,8 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.breatheplatform.beta.ClientPaths;
+
 import java.util.UUID;
 /*
 
@@ -59,10 +61,9 @@ public class RFduinoService extends Service {
         {
             if (newState == BluetoothProfile.STATE_CONNECTED)
             {
-                Log.i(TAG, "Connected to RFduino.");
-//                ClientPaths.dustConnected=true;
-                Log.i(TAG, "Attempting to start service discovery:" +
+                Log.i(TAG, "Connected to RFduino, Attempting to start service discovery:" +
                         mBluetoothGatt.discoverServices());
+                ClientPaths.dustConnected = true;
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
                 if (status == 133) {
@@ -71,8 +72,13 @@ public class RFduinoService extends Service {
                     Log.e(TAG, "Error GATT callback fails to register");
                 }
                 Log.i(TAG, "Disconnected from RFduino.");
+                ClientPaths.dustConnected = false;
                 broadcastUpdate(ACTION_DISCONNECTED);
             }
+
+            Log.d(TAG, "onServicesDiscovered status " + status);
+            if (status == 0)
+                ClientPaths.dustConnected = false;
         }
 
         @Override

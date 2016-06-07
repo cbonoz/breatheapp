@@ -276,11 +276,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
         super.onDestroy();
         Log.d(TAG, "sensor onDestroy");
 
-        if (ClientPaths.dustConnected) {
-            unregisterDust();
-            ClientPaths.dustConnected = false;
-        }
-
+        unregisterDust(); //unregister regardless if connection was made (need to remove listeners)
         beamConn.closeConn();
 
 
@@ -478,12 +474,12 @@ public class SensorService extends Service implements SensorEventListener, Googl
 
 
 
-    private final BroadcastReceiver scanModeReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // = (bluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_NONE);
-        }
-    };
+//    private final BroadcastReceiver scanModeReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            // = (bluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_NONE);
+//        }
+//    };
 
 
     private final BroadcastReceiver rfduinoReceiver = new BroadcastReceiver() {
@@ -492,7 +488,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
             final String action = intent.getAction();
             if (RFduinoService.ACTION_CONNECTED.equals(action)) {
                 upgradeState(STATE_CONNECTED);
-                ClientPaths.dustConnected = true;
+//                ClientPaths.dustConnected = true;
                 Log.d(TAG, "rfduinoReceiver connected");
             } else if (RFduinoService.ACTION_DISCONNECTED.equals(action)) {
                 downgradeState(STATE_DISCONNECTED);
@@ -518,7 +514,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
                         rfduinoService = ((RFduinoService.LocalBinder) service).getService();
                         if (rfduinoService.initialize()) {
                             boolean result = rfduinoService.connect(dustDevice);
-
+                            Log.d(TAG, "rfduino connected " + result);
                             if (result) {
                                 upgradeState(STATE_CONNECTING);
                             }
@@ -528,12 +524,13 @@ public class SensorService extends Service implements SensorEventListener, Googl
                     @Override
                     public void onServiceDisconnected(ComponentName name) {
                         downgradeState(STATE_DISCONNECTED);
+                        Log.d(TAG, "rfduino disconnected ");
                     }
                 };
             }
 
             try {
-                registerReceiver(scanModeReceiver, new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED));
+//                registerReceiver(scanModeReceiver, new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED));
                 registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
                 registerReceiver(rfduinoReceiver, RFduinoService.getIntentFilter());
                 Log.d(TAG, "Dust Receivers Registered");
@@ -568,11 +565,11 @@ public class SensorService extends Service implements SensorEventListener, Googl
     private void unregisterDust() {
         Log.d(TAG, "Unregister Dust");
 
-        try {
-            unregisterReceiver(scanModeReceiver);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            unregisterReceiver(scanModeReceiver);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
         try {
             unregisterReceiver(bluetoothStateReceiver);
@@ -604,6 +601,7 @@ public class SensorService extends Service implements SensorEventListener, Googl
         }
     }
 
+    //callback when dust data receivable
     public void processReceivedDustData(String receiveBuffer) {
         ClientPaths.dustConnected = true;
 //        Log.d("processDust receiveBuffer", receiveBuffer);
@@ -615,32 +613,32 @@ public class SensorService extends Service implements SensorEventListener, Googl
             vals[0] = Integer.parseInt(dustData);
         } catch (Exception e) {
             e.printStackTrace();
-            vals[0] = Constants.NO_VALUE;
-
+            return;
         }
 
         Log.d(TAG, receiveBuffer + " Dust Reading: " + vals[0]);
-        if (vals[0]!=Constants.NO_VALUE)
-            addSensorData(Constants.DUST_SENSOR_ID, Constants.NO_VALUE, System.currentTimeMillis(), vals);
+        addSensorData(Constants.DUST_SENSOR_ID, Constants.NO_VALUE, System.currentTimeMillis(), vals);
     }
 
 
+    //register the dust sensor and connect
     private void registerDust() {
         if (!ClientPaths.dustConnected) {
             Log.d(TAG, "Dust not connected - attempting to reconnect");
             if (findDust()) {
                 if (openDust()) {
-                    ClientPaths.dustConnected = true;
-                    Log.d(TAG, "Opened dust connection");
+//                    ClientPaths.dustConnected = true; //dust connection confirmed once data received
+                    Log.d(TAG, "Registered dust connection listeners");
                 } else {
                     ClientPaths.dustConnected = false;
+                    Log.e(TAG, "Could not register dust connection listeners");
                 }
             }
         }
     }
 
 
-    //Spirometer connection:
+    //Dust Sensor connection:
     public Boolean findDust()
     {
         if (dustDevice != null)
@@ -693,8 +691,6 @@ public class SensorService extends Service implements SensorEventListener, Googl
             } else {
                 return "NOT_PAIRED";
             }
-
-
         }
 
         @Override
@@ -703,14 +699,13 @@ public class SensorService extends Service implements SensorEventListener, Googl
             switch (result) {
                 case "CONNECTED":
                     beamConn.beginListen();
-                    ClientPaths.dustConnected = true;
+                    ClientPaths.airConnected = true;
                     break;
                 default:
                     Log.e(TAG, "Could not connect to AirBeam, result: " + result);
+                    ClientPaths.airConnected = false;
                     break;
             }
-
-
         }
     }
 
@@ -724,88 +719,6 @@ public class SensorService extends Service implements SensorEventListener, Googl
         i.putExtra("time", t);
         i.putExtra("values", values);
         startService(i);
-//
-//        JSONObject jsonValue = new JSONObject();
-//
-//        try {
-//            switch (sensorType) {
-//                case (Sensor.TYPE_LINEAR_ACCELERATION): //units m/s^2
-//                case (Sensor.TYPE_GYROSCOPE): //units rad/s
-//
-//                    jsonValue.put("x", values[0]);
-//                    jsonValue.put("y", values[1]);
-//                    jsonValue.put("z", values[2]);
-//                    jsonValue.put("sensor_accuracy",accuracy);
-//                    break;
-//                case (Sensor.TYPE_HEART_RATE):
-//                    jsonValue.put("sensor_accuracy",accuracy);
-//                case (Constants.DUST_SENSOR_ID):
-//                    if (values[0]<=0) {
-//                        Log.d(TAG, "Received " + sensorName + " data <= 0 -> skip");
-//                        return;
-//                    }
-//                    jsonValue.put("v", values[0]);
-//                    break;
-//                case (Constants.SPIRO_SENSOR_ID):
-//                    jsonValue.put("fev1", values[0]);
-//                    jsonValue.put("pef", values[1]);
-//                    jsonValue.put("goodtest", values[2]);
-//                    break;
-//                case (Constants.ENERGY_SENSOR_ID):
-//                    jsonValue.put("energy", values[0]);
-//                    break;
-//
-//                case (Constants.AIRBEAM_SENSOR_ID):
-//
-//                    jsonValue.put("PM",precision(values[0],2));
-//                    jsonValue.put("F",values[1]);
-//                    jsonValue.put("RH",values[2]);
-//                    break;
-//                case (Constants.ACTIVITY_SENSOR_ID):
-//                    jsonValue.put("type", values[0]);
-//                    jsonValue.put("confidence",accuracy);
-//                    break;
-//                default:
-//                    Log.e(TAG, "Unexpected Sensor " + sensorName + " " + sensorType);
-//                    return;
-//            }
-//
-//            jsonDataEntry.put("value", jsonValue);
-//            jsonDataEntry.put("timestamp", currentTime);//System.currentTimeMillis());
-//            jsonDataEntry.put("timezone", tz);
-//            jsonDataEntry.put("sensor_id", sensorNames.getServerID(sensorType));//will be changed to actual sensor (sensorType)
-//
-//            //check if the location is currently available
-//            if (ClientPaths.currentLocation!=null) {
-//                jsonDataEntry.put("lat", ClientPaths.currentLocation.getLatitude());
-//                jsonDataEntry.put("lon", ClientPaths.currentLocation.getLongitude());
-//                jsonDataEntry.put("location_accuracy", ClientPaths.currentLocation.getAccuracy());
-//            } else {
-//                jsonDataEntry.put("lat",Constants.NO_VALUE);
-//                jsonDataEntry.put("lon",Constants.NO_VALUE);
-//                jsonDataEntry.put("location_accuracy", Constants.NO_VALUE);
-//            }
-//
-//        } catch (Exception e) {
-//            Log.e(TAG, "error in creating jsonDataEntry");
-//            e.printStackTrace();
-//            return;
-//        }
-//
-//        String dataEntry = jsonDataEntry.toString();
-//
-//        //sensorData is a stringBuilder
-//        sensorData.append(dataEntry);
-//        recordCount++;
-//        if (recordCount >= RECORD_LIMIT) {
-//            createDataPostRequest();
-//            clearData();
-//        } else {
-//            sensorData.append("\n"); //else add a newline to sensorData
-//        }
-//
-//
-//        Log.d(TAG, "Data Added #" + recordCount + ": " + dataEntry);
     }
 
 

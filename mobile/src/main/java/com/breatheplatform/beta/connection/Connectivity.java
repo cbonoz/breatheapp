@@ -48,7 +48,7 @@ public class Connectivity {
             return Connectivity.isConnectionFast(info.getType(),
                     info.getSubtype());
         } else
-            return "No Network Access";
+            return "None";
 
     }
 
@@ -110,10 +110,10 @@ public class Connectivity {
             case TelephonyManager.NETWORK_TYPE_UNKNOWN:
                 return "NETWORK TYPE UNKNOWN";
             default:
-                return "";
+                return "None"; //was ""
             }
         } else {
-            return "";
+            return "None"; //was ""
         }
     }
 

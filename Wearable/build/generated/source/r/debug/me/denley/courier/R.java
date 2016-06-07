@@ -16,8 +16,8 @@ public final class R {
 		public static final int common_action_bar_splitter = 0x7f0f001e;
 	}
 	public static final class drawable {
-		public static final int common_full_open_on_phone = 0x7f02004f;
-		public static final int common_ic_googleplayservices = 0x7f020064;
+		public static final int common_full_open_on_phone = 0x7f020050;
+		public static final int common_ic_googleplayservices = 0x7f020065;
 	}
 	public static final class id {
 		public static final int adjust_height = 0x7f100024;

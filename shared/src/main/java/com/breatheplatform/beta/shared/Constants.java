@@ -14,14 +14,17 @@ public class Constants {
     public static final String API_KEY = "I3jmM2DI4YabH8937pRwK7MwrRWaJBgziZTBFEDTpec";
 
     //API routes used for watch to mobile
+
     public static final String REGISTERED_API = "/registered";
     public static final String QUESTION_API = "/question";
     public static final String REMINDER_API = "/reminder";
     public static final String CALENDAR_API = "/calendar";
+    public static final String WEB_STATUS_API = "/web";
 
 
 
     //API routes used by server
+
     public static final String REG_CHECK_API = "/api/reg/check";
     public static final String SUBJECT_API = "/api/subject/add";
     public static final String MULTI_API = "/api/multisensor/add";
@@ -62,9 +65,9 @@ public class Constants {
     public static final int TRIGGER_ALARM_ID = 5;
 //    public static final int START_BLUETOOTH_ID = 6;
 
-    //Sensor Duty Cycle constants used on Watch
-    public static final Integer SENSOR_ON_TIME = 5000; //5 seconds on time
-    public static final Integer SENSOR_OFF_TIME = 15000; //15 second off time
+    //Constants specifying Sensor Duty Cycle constants used on Watch
+    public static final Integer SENSOR_ON_TIME = 10000; // seconds on time
+    public static final Integer SENSOR_OFF_TIME = 35000; // second off time
 
     //fixedSensorRate is a mode for the watch sensor scheduling, if fixed, watch will alternate between SENSOR_ON_TIME and SENSOR_OFF_TIME
     //with the sensors on during SENSOR_ON_TIME. A post request of the collected data will be triggered

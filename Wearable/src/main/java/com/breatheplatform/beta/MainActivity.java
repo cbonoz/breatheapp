@@ -100,6 +100,15 @@ public class MainActivity extends WearableActivity
     private ImageView smileView;
     private ImageView heartImage;
 
+    //app status UI elements
+    private ImageView dustChecked;
+    private ImageView airChecked;
+    private ImageView webChecked;
+
+    private TextView dustText;
+    private TextView airText;
+    private TextView webText;
+
     private RelativeLayout mRectBackground;
     private RelativeLayout mRoundBackground;
 
@@ -109,8 +118,14 @@ public class MainActivity extends WearableActivity
 
     //Used for Spirometer Bluetooth Connection state
     private BTSocket spiroConn;
+    //state for sensors high or low
     private Boolean sensorToggled = false;
 
+    private AlarmManager alarmManager;
+    private Vibrator v;
+    private WearAlarmReceiver wearAlarmReceiver;
+    private static final IntentFilter wearFilter =  new IntentFilter(Constants.WEAR_ALARM_ACTION);
+    private PendingIntent sensorPI;
 
     //Sensor Controllers Below
     private SensorManager mSensorManager = null;
@@ -147,8 +162,6 @@ public class MainActivity extends WearableActivity
             Toast.makeText(this, str, Toast.LENGTH_LONG).show();
         }
     }
-
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -197,10 +210,6 @@ public class MainActivity extends WearableActivity
         notificationIntent.addCategory("android.intent.category.LAUNCHER");
         PendingIntent viewPendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-
-//        registerReceiver(call_method, new IntentFilter("call_method"));
-
-
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_spiro)
@@ -214,13 +223,6 @@ public class MainActivity extends WearableActivity
     }
 
 
-    private AlarmManager alarmManager;
-    private Vibrator v;
-    private WearAlarmReceiver wearAlarmReceiver;
-    private static final IntentFilter wearFilter =  new IntentFilter(Constants.WEAR_ALARM_ACTION);
-    private PendingIntent sensorPI;
-
-
     //onCreate method gets called when the activity is created (setup code here)
     public void onCreate(Bundle b) {
         super.onCreate(b);
@@ -232,8 +234,6 @@ public class MainActivity extends WearableActivity
         mSigMotionSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
 
         v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-
-//        printAvailableSensors();
 
         prefs = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
         spiroConn = new BTSocket(Constants.SPIRO_SENSOR_ID, UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"), this);
@@ -261,22 +261,13 @@ public class MainActivity extends WearableActivity
                     Log.d(TAG, "Layout Inflated - not ambient");
                     mRectBackground = (RelativeLayout) findViewById(R.id.rect_layout);
                     mRoundBackground = (RelativeLayout) findViewById(R.id.round_layout);
-
-
                     setupOnLayoutInflated();
-//                    printAvailableSensors();
-
-
                 } else {
                     Log.d(TAG, "Layout Inflated - ambient");
                 }
             }
         });
-
-
-
     }
-
 
     // this function initializes the UI components and starts the sensors
     private void setupOnLayoutInflated() {
@@ -297,7 +288,18 @@ public class MainActivity extends WearableActivity
         riskText = (TextView) findViewById(R.id.riskText);
         heartText = (TextView) findViewById(R.id.heartText);
         lastSensorText = (TextView) findViewById(R.id.lastSensorText);
-//        breatheView = (TextView) findViewById(R.id.breatheView);
+
+        dustChecked = (ImageView) findViewById(R.id.dustCheckView);
+        airChecked = (ImageView) findViewById(R.id.airCheckView);
+        webChecked = (ImageView) findViewById(R.id.webCheckView);
+
+        dustText = (TextView) findViewById(R.id.dustText);
+        airText = (TextView) findViewById(R.id.airText);
+        webText = (TextView) findViewById(R.id.webText);
+
+        dustChecked.setImageResource(R.drawable.check_16);
+        airChecked.setImageResource(R.drawable.check_16);
+        webChecked.setImageResource(R.drawable.check_16);
 
         //http://stackoverflow.com/questions/5442183/using-the-animated-circle-in-an-imageview-while-loading-stuff
         loadingPanel = (RelativeLayout) findViewById(R.id.loadingPanel);
@@ -333,11 +335,14 @@ public class MainActivity extends WearableActivity
 
         requestSubjectAndUpdateUI();
         updateRiskUI(lastRiskValue);
+        updateStatusUI();
 
         if (!scheduled) {
             scheduleAlarms();
             scheduled = true;
         }
+
+
     }
 
     //update the subject number text on the watch
@@ -399,11 +404,22 @@ public class MainActivity extends WearableActivity
 
         riskText.setText(statusString);
         Log.d(TAG, "updateRiskUI - " + statusString);
+
+
+
+    }
+
+
+    private void updateStatusUI() {
+        Log.i("updateStatus", "dust, air, web: "
+                + ClientPaths.dustConnected + " " + ClientPaths.airConnected + " " + ClientPaths.webConnection);
+        airChecked.setVisibility(ClientPaths.airConnected ? View.VISIBLE : View.INVISIBLE);
+        dustChecked.setVisibility(ClientPaths.dustConnected ? View.VISIBLE : View.INVISIBLE);
+        webChecked.setVisibility(ClientPaths.webConnection.equals("None") ? View.INVISIBLE : View.VISIBLE);
     }
 
     //Used for managing tasks while the watch is awake
     private Handler taskHandler = new Handler();
-
 
     //runnable for stopping the sensors after SENSOR_ON_TIME (scheduled in startMeasurement)
     private Runnable stopSensorTask = new Runnable()
@@ -413,26 +429,6 @@ public class MainActivity extends WearableActivity
             stopMeasurement(MainActivity.this);
         }
     };
-
-//    //either set sensors or start sensors again -
-//    private Runnable triggerTask = new Runnable()
-//    {
-//        public void run()
-//        {
-//            if (isAmbient()) {
-//                try {
-//                    mSensorManager.requestTriggerSensor(mListener, mSigMotionSensor);
-//                    Log.d(TAG, "Set sensor motion trigger");
-//                } catch (Exception e) {
-//                    Log.d(TAG, "No sig motion sensor for trigger");
-//                }
-//            } else {
-//                startMeasurement(MainActivity.this);
-//            }
-//
-//
-//        }
-//    };
 
     //method for creating a risk request to send to the mobile to forward to the server
     private void riskRequest() {
@@ -473,9 +469,12 @@ public class MainActivity extends WearableActivity
 
     @BackgroundThread
     @ReceiveMessages(Constants.RISK_API)
-    void onRiskReceived(int value) { // The nodeId parameter is optional
-        Log.d(TAG, "ReceiveMessage risk: " + value);
-        updateRiskUI(value);
+    void onRiskReceived(String riskConnString) { // The nodeId parameter is optional
+        //response data here has riskvalue bundled with connection info
+        String[] res = riskConnString.split(",");
+        Log.d(TAG, "ReceiveMessage risk: " + riskConnString);
+        updateRiskUI(Integer.parseInt(res[0]));
+        ClientPaths.webConnection = res[1];
     }
 
     @BackgroundThread
@@ -493,6 +492,7 @@ public class MainActivity extends WearableActivity
         } catch (Exception e) {
             e.printStackTrace();
             Log.d(TAG, "[Handled] Error parsing: " + sub + " to number");
+            return;
         }
 
         SharedPreferences.Editor editor = prefs.edit();
@@ -506,20 +506,12 @@ public class MainActivity extends WearableActivity
     }
 
 //    @BackgroundThread
-//    @ReceiveMessages(Constants.LABEL_API)
-//    void onLabelReceived(String data) { // The nodeId parameter is optional
-//        Log.d(TAG, "ReceiveMessage label: " + data);
-//        Toast.makeText(this,data, Toast.LENGTH_LONG).show();
+//    @ReceiveMessages(Constants.MULTI_API)
+//    void onMultiReceived(Boolean success) { // The nodeId parameter is optional
+//        Log.d(TAG, "ReceiveMessage multi success: " + success.toString());
+//        if (!isAmbient())
+//            riskRequest();
 //    }
-
-//
-    @BackgroundThread
-    @ReceiveMessages(Constants.MULTI_API)
-    void onMultiReceived(Boolean success) { // The nodeId parameter is optional
-        Log.d(TAG, "ReceiveMessage multi success: " + success.toString());
-        if (!isAmbient())
-            riskRequest();
-    }
 
     @Override
     protected void onResume() {
@@ -545,14 +537,6 @@ public class MainActivity extends WearableActivity
             cancelRepeatedSensors();
 
         Courier.stopReceiving(this);
-
-
-
-//        try {
-//            taskHandler.removeCallbacks(riskTask);
-//        } catch (Exception e) {
-//            Log.e(TAG, "Risk Timer off");
-//        }
 
         try {
             stopMeasurement(this);
@@ -597,6 +581,7 @@ public class MainActivity extends WearableActivity
 
         Log.d(TAG, "updateHeartUI: " + heartRate);
         try {
+            //logic for resetting displayed heart rate (if no recent value in last three updates)
             if (heartRate == Constants.NO_VALUE) {
                 NO_HEART_COUNT++;
                 if (NO_HEART_COUNT > 2) {
@@ -628,27 +613,33 @@ public class MainActivity extends WearableActivity
             e.printStackTrace();
         }
 
-//        activeView.setVisibility(View.VISIBLE);
+        // Set appropriate visibility of UI elements for ambient mode
+
         dateText.setVisibility(View.VISIBLE);
 
-//        breatheView.setVisibility(View.GONE);
         heartImage.setVisibility(View.GONE);
-        lastSensorText.setVisibility(View.INVISIBLE);
-        spiroToggleButton.setVisibility(View.GONE);
+        lastSensorText.setVisibility(View.GONE);
+        spiroToggleButton.setVisibility(View.INVISIBLE); //invisible for relative layout purposes
         smileView.setVisibility(View.GONE);
         heartText.setVisibility(View.GONE);
         subjectText.setVisibility(View.GONE);
 
+        webChecked.setVisibility(View.GONE);
+        airChecked.setVisibility(View.GONE);
+        dustChecked.setVisibility(View.GONE);
+
+        webText.setVisibility(View.GONE);
+        airText.setVisibility(View.GONE);
+        dustText.setVisibility(View.GONE);
+
+
+
         Calendar c = Calendar.getInstance();
         String strDate = AMBIENT_DATE_FORMAT.format(c.getTime());
         dateText.setText(strDate);
-
         updateN = 1;
 
         Courier.stopReceiving(this);
-
-
-//        setContentView(R.layout.black_layout); //null background
     }
     private static int updateN = 1;
 
@@ -664,7 +655,6 @@ public class MainActivity extends WearableActivity
         Log.d(TAG, "updateN: " + updateN);
         riskRequest();
 
-
         if (updateN == AMBIENT_SENSOR_PERIOD) {
             //reset heart value
 //            updateHeartUI(Constants.NO_VALUE);
@@ -672,33 +662,35 @@ public class MainActivity extends WearableActivity
                 startMeasurement(this);
             updateN = 1;
         } else {
-
             updateN++;
-
         }
-
 
         Calendar c = Calendar.getInstance();
         String strDate = AMBIENT_DATE_FORMAT.format(c.getTime());
         dateText.setText(strDate);
-
     }
 
 
     @Override
     public void onExitAmbient() {
         super.onExitAmbient();
-        Log.d(TAG, "onExitAmbient");// - add task callbacks");
-//        activeView.setVisibility(View.GONE);
-        dateText.setVisibility((View.GONE));
+        Log.d(TAG, "onExitAmbient");
 
+        dateText.setVisibility((View.GONE));
         subjectText.setVisibility(View.VISIBLE);
         smileView.setVisibility(View.VISIBLE);
         heartImage.setVisibility(View.VISIBLE);
         heartText.setVisibility(View.VISIBLE);
         lastSensorText.setVisibility(View.VISIBLE);
         spiroToggleButton.setVisibility(View.VISIBLE);
-//        breatheView.setVisibility(View.VISIBLE);
+
+
+        webText.setVisibility(View.VISIBLE);
+        airText.setVisibility(View.VISIBLE);
+        dustText.setVisibility(View.VISIBLE);
+
+        //sets visibility or invisibility of checkmark depending on connection
+        updateStatusUI();
 
         //register receivers
         LocalBroadcastManager.getInstance(this).registerReceiver(mLastReceiver,
@@ -716,6 +708,7 @@ public class MainActivity extends WearableActivity
 
     }
 
+    //for static app
 //    public int pefToRisk(float p) {
 //        if (p<150)
 //            return HIGH_RISK;
@@ -724,8 +717,6 @@ public class MainActivity extends WearableActivity
 //        else
 //            return LOW_RISK;
 //    }
-
-
 
     class TriggerListener extends TriggerEventListener {
         public void onTrigger(TriggerEvent event) {
@@ -785,14 +776,11 @@ public class MainActivity extends WearableActivity
 
             if (Constants.fixedSensorRate) {
                 scheduleSensors(Constants.SENSOR_OFF_TIME);
-
             } else {
                 //set the trigger task
                 Intent intent = new Intent(Constants.WEAR_ALARM_ACTION);
                 intent.putExtra("alarm-id", Constants.TRIGGER_ALARM_ID);
                 PendingIntent pi = PendingIntent.getBroadcast(this, Constants.TRIGGER_ALARM_ID, intent, 0);
-
-
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTimeInMillis(System.currentTimeMillis());
 
@@ -800,10 +788,8 @@ public class MainActivity extends WearableActivity
                         SystemClock.elapsedRealtime() + Constants.TRIGGER_DELAY, pi);
 
                 Log.d(TAG, "trigger alarm set for " + Constants.TRIGGER_DELAY + "ms");
-
 //                taskHandler.postDelayed(triggerTask, Constants.TRIGGER_DELAY);
             }
-
             sensorToggled = false;
         }
     }
@@ -878,40 +864,28 @@ public class MainActivity extends WearableActivity
                     Toast.makeText(MainActivity.this, "Try Connecting Again", Toast.LENGTH_SHORT).show();
                     spiroToggleButton.setChecked(false);
                     break;
-
-
             }
             spiroToggleButton.setVisibility(View.VISIBLE);
             loadingPanel.setVisibility(View.GONE);
-
         }
-
     }
-
 
     //ALARM scheduling logic below
 
     private static Boolean scheduled = false;
     private static ArrayList<Integer> activeAlarms = new ArrayList<Integer>();
 
-    //times for questionnaire
-//    scheduleQuestionReminder(7, 30);
-//    scheduleQuestionReminder(15, 30);
-
-//    scheduleQuestionReminder(17, 30);
-//    scheduleQuestionReminder(19, 30);
-
-    //qTimes is a fixed array of questionnaire alarm times (hour / min pairs)
-    private static final int[][] qTimes = new int[][]{new int[]{9,22}};
     private static int alarmCode = Constants.ALARM_CODE_START; //starting alarm code
 
    //schedule all the alarms (used in onCreate)
     private void scheduleAlarms() {
-        for (int[] t : qTimes) {
-            scheduleQuestionReminder(t[0],t[1]);
-        }
-        scheduleSpiroReminder(9,20);
+        final int[] qHours = new int[]{7,15,17,19};
+        for (int t : qHours)
+            scheduleQuestionReminder(t,30);
 
+        final int[] sHours = new int[]{11,18};
+        for (int t : sHours)
+            scheduleSpiroReminder(t,0);
     }
 
     //increment the alarm codes so they don't overlap
@@ -1017,6 +991,11 @@ public class MainActivity extends WearableActivity
             Integer alarmId = intent.getIntExtra("alarm-id", Constants.NO_VALUE);
             Log.d(TAG, "Received alarm " + alarmId);
 
+            if (ClientPaths.subject.equals("")) {
+                Log.e(TAG, "Blocking alarm, no subject yet registered on device");
+                return;
+            }
+
             switch (alarmId) {
                 case Constants.START_ALARM_ID: //alarm 6
                     Log.d(TAG, "Sensor alarm called");
@@ -1034,14 +1013,6 @@ public class MainActivity extends WearableActivity
                     v.vibrate(500);
                     Toast.makeText(context, "Spirometer Time!", Toast.LENGTH_LONG).show();
                     break;
-//                case Constants.TRIGGER_ALARM_ID:
-//                    try {
-//                        mSensorManager.requestTriggerSensor(mListener, mSigMotionSensor);
-//                        Log.d(TAG, "Set sensor motion trigger");
-//                    } catch (Exception e) {
-//                        Log.d(TAG, "No sig motion sensor for trigger");
-//                    }
-//                    break;
                 default:
                     Log.e(TAG, "Unexpected Alarm, id: " + alarmId);
                     break;

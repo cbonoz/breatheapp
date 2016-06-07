@@ -214,7 +214,7 @@ public class MobileUploadService extends IntentService {
                         newRisk = Constants.NO_VALUE;
                     Log.d(TAG, "returning from phone RISK_API - value " + newRisk);
                     //send risk level back to wear
-                    Courier.deliverMessage(this, Constants.RISK_API, newRisk);
+                    Courier.deliverMessage(this, Constants.RISK_API, newRisk + "," + intent.getStringExtra("conn"));
                     break;
                 case Constants.MULTI_API:
 
