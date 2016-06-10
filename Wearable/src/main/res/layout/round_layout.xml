@@ -47,9 +47,8 @@
         android:text="risk"
         android:gravity="center_vertical|center"
 
-        android:layout_below="@+id/lastSensorText"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="5dp" />
+        android:layout_below="@+id/subjectText"
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -59,8 +58,8 @@
         android:layout_gravity="left|center_vertical"
         android:layout_marginLeft="15dp"
         android:layout_below="@+id/subjectText"
-        android:layout_alignEnd="@+id/spiroToggleButton"
-        android:layout_alignStart="@+id/heartImage" />
+        android:layout_alignEnd="@+id/breatheView"
+        android:layout_marginTop="17dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -133,6 +132,56 @@
         android:id="@+id/dateText"
         android:layout_alignBottom="@+id/heartImage"
         android:layout_toEndOf="@+id/heartText" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Dust"
+        android:id="@+id/dustText"
+        android:layout_centerVertical="true"
+        android:layout_alignStart="@+id/airText" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Air"
+        android:id="@+id/airText"
+        android:layout_below="@+id/dustText"
+        android:layout_alignStart="@+id/spiroToggleButton" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Web"
+        android:id="@+id/webText"
+        android:layout_below="@+id/airText"
+        android:layout_toStartOf="@+id/webCheckView" />
+
+    <ImageView
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:id="@+id/dustCheckView"
+        android:layout_alignBottom="@+id/dustText"
+        android:layout_toEndOf="@+id/dustText"
+        android:layout_marginBottom="0dp" />
+
+    <ImageView
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:id="@+id/airCheckView"
+        android:textColor="@color/grey"
+        android:layout_above="@+id/webCheckView"
+        android:layout_toEndOf="@+id/webText" />
+
+    <ImageView
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:id="@+id/webCheckView"
+        android:layout_alignTop="@+id/webText"
+        android:layout_toEndOf="@+id/dustText" />
 
 </RelativeLayout>
 
